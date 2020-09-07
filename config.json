@@ -1,0 +1,41 @@
+{
+  "test": {
+    "PORT": 3000,
+    "MONGODB_URI": "mongodb://localhost:27017/techshektest",
+    "JWT_SECRET": "kjhfsdlkajhsdfasdf24312341_23sda",
+    "PASSWORD": "36730",
+    "URL_LINK": "http://localhost:3000",
+    "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh",
+    "GoogleSignInKey": "133536550317-q6m1gun90s198i2un77l91d9qsv9cck6.apps.googleusercontent.com",
+    "stripePrivate": "sk_test_hysfFVSPpr2vUx2kbqXMNHOJ",
+    "stripePublishableKey": "pk_test_WJQN2iDakpSKGN9Va0KeHEDT",
+    "SENDGRID_API_KEY": "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",
+    "MAP_API_KEY":"AIzaSyCTE0vJHLe4kcI_d1DCsGsrQoZTYSINB2E",
+    "cloudName": "miscellaneous",
+    "cloudAPI": "112548228229522",
+    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s",
+    "FACEBOOK_APP_ID": "3281232811908738",
+    "FACEBOOK_APP_SECRET": "5371f86356d5e8add95e18aecf72e242",
+    "TWITTER_CONSUMER_KEY": "gTs7XyuxAZnjwAjfDKkxQCDu7",
+    "TWITTER_CONSUMER_SECRET": "XAgrgeglZdO6q1ZUZC1Jfme4Jsos9wOLWlkUJfZEhh0yA1F14r"
+  },
+  "development": {
+    "PORT": 3000,
+    "MONGODB_URI": "mongodb://localhost:27017/techshek",
+    "JWT_SECRET": "808yoiausdhf86238698&^*76a9sdf08y098",
+    "URL_LINK": "http://localhost:3000",
+    "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh",
+    "GoogleSignInKey": "133536550317-q6m1gun90s198i2un77l91d9qsv9cck6.apps.googleusercontent.com",
+    "stripePrivate": "sk_test_hysfFVSPpr2vUx2kbqXMNHOJ",
+    "stripePublishableKey": "pk_test_WJQN2iDakpSKGN9Va0KeHEDT",
+    "SENDGRID_API_KEY": "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",
+    "MAP_API_KEY":"AIzaSyCTE0vJHLe4kcI_d1DCsGsrQoZTYSINB2E",
+    "cloudName": "miscellaneous",
+    "cloudAPI": "112548228229522",
+    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s",
+    "FACEBOOK_APP_ID": "3281232811908738",
+    "FACEBOOK_APP_SECRET": "5371f86356d5e8add95e18aecf72e242",
+    "TWITTER_CONSUMER_KEY": "gTs7XyuxAZnjwAjfDKkxQCDu7",
+    "TWITTER_CONSUMER_SECRET": "XAgrgeglZdO6q1ZUZC1Jfme4Jsos9wOLWlkUJfZEhh0yA1F14r"
+  }
+}

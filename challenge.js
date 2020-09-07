@@ -1,3 +1,6 @@
+require('./config/config');
+
+const mongoose = require('mongoose');
 const express = require('express')
 const hbs = require('hbs')
 const app = express()
@@ -70,5 +73,44 @@ app.get('/edit_user', (req,res) => {
 app.get('/help', (req,res) => {
   res.render('help.hbs', {})
 })
+
+app.get('/signin', (req,res) => {
+  res.render('login.hbs', {})
+})
+
+const {passport} = require('./passport');
+const flash = require('connect-flash');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(session({
+  secret: process.env.sessionSecret,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 20 * 60 * 1000,
+  },
+  rolling: true,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection
+  })
+}))
+app.use(flash());
+
+app.use(function(req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  next();
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/signin',
+  failureFlash: true
+}));
 
 app.listen(3000)

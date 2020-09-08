@@ -1,0 +1,10 @@
+{
+  "test": {
+    "MONGODB_URI": "mongodb://localhost:27017/challengetest",
+    "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh"
+  },
+  "development": {
+    "MONGODB_URI": "mongodb://localhost:27017/challenge",
+    "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh"
+  }
+}

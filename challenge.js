@@ -1,9 +1,65 @@
-require('./config/config');
-
-const mongoose = require('mongoose');
 const express = require('express')
 const hbs = require('hbs')
-const app = express()
+const app = express();
+const flash = require('connect-flash');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
+const bodyParser = require('body-parser');
+
+var env = process.env.NODE_ENV || 'development';
+
+if (env === 'development' || env === 'test') {
+  var config = require('./config.json');
+  var envConfig = config[env];
+  Object.keys(envConfig).forEach((key) => {
+    process.env[key] = envConfig[key];
+  });
+}
+
+app.use(
+  session({
+    secret: process.env.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 20 * 60 * 1000,
+    },
+    rolling: true,
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection
+    })
+  }),
+  passport.initialize(),
+  passport.session(),
+  flash(),
+  function(req, res, next) {
+    if (req.headers.accept != process.env.test_call) console.log('SESSION STATE', Object.keys(req.session));
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+  },
+  bodyParser.urlencoded({ extended: true })
+);
+
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false
+}, function(err) {
+  if (err) {
+    console.log('Unable to connect to the server. Please start the server.');
+  } else {
+    console.log('Connected to Server successfully!');
+  }
+});
+
 hbs.registerPartials(__dirname + '/views/partials');
 
 app.get('/', function(req, res) {
@@ -20,7 +76,7 @@ app.get('/', function(req, res) {
   })
 })
 
-app.get('/success', (req,res) => {
+app.get('/success', (req, res) => {
   res.render('createNewUser.hbs', {
     name: 'Qasim Ali',
     email: 'qasimali24@gmail.com',
@@ -30,8 +86,8 @@ app.get('/success', (req,res) => {
   })
 })
 
-app.post('/updateUser',(req,res) => {
-  res.render('challenge.hbs',{
+app.post('/updateUser', (req, res) => {
+  res.render('challenge.hbs', {
     msg: "Welcome Qasim to starting your 30 Days Challenge of getting punctual in your prayers.",
     challenges: [{
         name: "Start Namaz challenge",
@@ -45,7 +101,7 @@ app.post('/updateUser',(req,res) => {
   })
 })
 
-app.get('/challenge', (req,res) => {
+app.get('/challenge', (req, res) => {
   res.render('challenge.hbs', {
     msg: `Welcome to ${req.query.label} challenge.`,
     challenges: [{
@@ -60,7 +116,7 @@ app.get('/challenge', (req,res) => {
   })
 })
 
-app.get('/edit_user', (req,res) => {
+app.get('/edit_user', (req, res) => {
   res.render('edit_user.hbs', {
     name: 'Qasim Ali',
     email: 'qasimali24@gmail.com',
@@ -70,47 +126,81 @@ app.get('/edit_user', (req,res) => {
   })
 })
 
-app.get('/help', (req,res) => {
+app.get('/help', (req, res) => {
   res.render('help.hbs', {})
 })
 
-app.get('/signin', (req,res) => {
+var User = mongoose.model('Users', new mongoose.Schema({
+  name: {
+    type: String
+  },
+  email: {
+    type: String,
+  },
+  password: {
+    type: String,
+  }
+}));
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    console.log(username, password, 'entering passport tunnel');
+    User.findOne({
+      email: username
+    }, function(err, user) {
+      if (err) {
+        return done(err);
+      }
+      if (!user) {
+        return done(null, false, {
+          message: 'You have not yet Signed Up with this email. Please <a href="/">click here</a> to pick up a challenge and start changing your life.'
+        });
+      }
+      // Match password
+      if (!user.password) return done(null, false, {
+        message: `You have already signed up using social media login.`
+      })
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        console.log(err);
+        if (err) return done(null, false, {
+          message: 'Something wrong.'
+        });
+        if (isMatch) {
+          return done(null, user);
+        } else {
+          return done(null, false, {
+            message: 'Password incorrect'
+          });
+        }
+      });
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    if (err) done(null, false, {
+      message: 'Failed to deserializeUser'
+    })
+    done(err, user);
+  }).catch(e => done(null, false, {
+    message: 'Failed to deserializeUser'
+  }));
+});
+
+app.get('/signin', (req, res) => {
   res.render('login.hbs', {})
 })
-
-const {passport} = require('./passport');
-const flash = require('connect-flash');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use(session({
-  secret: process.env.sessionSecret,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    maxAge: 20 * 60 * 1000,
-  },
-  rolling: true,
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection
-  })
-}))
-app.use(flash());
-
-app.use(function(req, res, next) {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.error = req.flash('error');
-  next();
-});
 
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/signin',
   failureFlash: true
 }));
+
 
 app.listen(3000)

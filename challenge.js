@@ -38,9 +38,11 @@ app.use(
   flash(),
   function(req, res, next) {
     if (req.headers.accept != process.env.test_call) console.log('SESSION STATE', Object.keys(req.session));
-    res.locals.success_msg = req.flash('success_msg'); // Declare local variables that can be accesses inside req object ?
-    res.locals.error_msg = req.flash('error_msg');
-    res.locals.error = req.flash('error');
+    // res.locals.success_msg = req.flash('success_msg'); // req.flash([type], msg) < we will be giving msgs later ?
+    // res.locals.error_msg = req.flash('error_msg');
+    // res.locals.error = req.flash('error');
+
+    console.log(res.locals);
     next();
   },
   bodyParser.urlencoded({

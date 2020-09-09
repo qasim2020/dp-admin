@@ -38,12 +38,14 @@ app.use(
   flash(),
   function(req, res, next) {
     if (req.headers.accept != process.env.test_call) console.log('SESSION STATE', Object.keys(req.session));
-    res.locals.success_msg = req.flash('success_msg');
+    res.locals.success_msg = req.flash('success_msg'); // Declare local variables that can be accesses inside req object ?
     res.locals.error_msg = req.flash('error_msg');
     res.locals.error = req.flash('error');
     next();
   },
-  bodyParser.urlencoded({ extended: true })
+  bodyParser.urlencoded({
+    extended: true
+  })
 );
 
 mongoose.Promise = global.Promise;
@@ -144,7 +146,7 @@ var User = mongoose.model('Users', new mongoose.Schema({
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    console.log(username, password, 'entering passport tunnel');
+
     User.findOne({
       email: username
     }, function(err, user) {
@@ -158,12 +160,12 @@ passport.use(new LocalStrategy(
       }
       // Match password
       if (!user.password) return done(null, false, {
-        message: `You have already signed up using social media login.`
+        message: `You have already signed up using social media login. Please use the social media login to retry.`
       })
       bcrypt.compare(password, user.password, (err, isMatch) => {
         console.log(err);
         if (err) return done(null, false, {
-          message: 'Something wrong.'
+          message: 'Something wrong with bcrypt compare function. Contact administrator.'
         });
         if (isMatch) {
           return done(null, user);
@@ -202,5 +204,83 @@ app.post('/login', passport.authenticate('local', {
   failureFlash: true
 }));
 
+app.post('/createNewUser', (req, res) => {
+  const {
+    name,
+    email,
+    password,
+    password2
+  } = req.body;
+
+  let errors = [];
+
+  if (!name || !email || !password || !password2) {
+    errors.push({
+      msg: 'Please enter all fields'
+    });
+  }
+
+  if (password != password2) {
+    errors.push({
+      msg: 'Passwords do not match'
+    });
+  }
+
+  if (password.length < 6) {
+    errors.push({
+      msg: 'Password must be at least 6 characters'
+    });
+  }
+
+  if (errors.length > 0) {
+    res.render('createNewUser.hbs', {
+      errors,
+      name,
+      email,
+      password,
+      password2
+    });
+  } else {
+    User.findOne({
+      email: email
+    }).then(user => {
+      if (user) {
+        errors.push({
+          msg: 'Email already exists'
+        });
+        res.render('createNewUser.hbs', {
+          errors,
+          name,
+          email,
+          password,
+          password2
+        });
+      } else {
+        const newUser = new User({
+          name,
+          email,
+          password
+        });
+
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(user => {
+                req.flash(
+                  'success_msg',
+                  `Thanks ${user.name} your account has been created.`
+                );
+                res.redirect('/login');
+              })
+              .catch(err => console.log(err));
+          });
+        });
+      }
+    });
+  }
+})
 
 app.listen(3000)

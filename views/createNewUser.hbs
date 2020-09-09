@@ -17,6 +17,14 @@
 <body>
   {{> navbar}}
 
+  {{#if errors}}
+  <div class="errors">
+    {{#each errors}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+  </div>
+  {{/if}}
+
   <p>Welcome to 30 Days Challenge, please spare some time to create your password.</p>
 
   <form class="" action="/createNewUser" method="post">

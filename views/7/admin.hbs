@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <style media="screen">
+    form {
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  </style>
+</head>
+
+<body>
+
+  <p>We will be uploading our ecommerce store items on this page</p>
+
+  <div class="photo">
+    <img id="blah" src="{{photo}}" alt="">
+    <input class="primary" type="file" id="img" name="img" accept="image/*" onchange="readURL(this);">
+  </div>
+
+  <form class="" action="/saveItems" method="post">
+
+    <label for="ser">Serial No</label>
+    <input type="text" name="ser" value="{{ser}}" required>
+
+    <label for="school">Choose a school:</label>
+    <select name="school" id="school">
+      {{#each schools}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <label for="name">Item Name</label>
+    <input type="text" name="name" value="{{name}}" required>
+
+    <label for="cost">Cost (Rs)</label>
+    <input type="number" name="cost" value="{{cost}}" required>
+
+    <label for="size">Size</label>
+    <input type="text" name="size" value="{{size}}" required>
+
+    <label for="qty">Quantity</label>
+    <input type="number" name="qty" value="{{qty}}" required>
+
+    <label for="photo">Photo</label>
+    <input type="text" name="photo" value="{{photo}}" required>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <table>
+    <tr>
+      <th>Ser</th>
+      <th>Photo</th>
+      <th>School</th>
+      <th>Name</th>
+      <th>Cost</th>
+      <th>Size</th>
+      <th>Quantity</th>
+      <th></th>
+    </tr>
+
+    {{#each items}}
+
+      <tr>
+        <td>{{this.ser}}</td>
+        <td><img id="blah" src="{{{this.photo.[0]}}}" alt="" width="44"></td>
+        <td>{{this.school}}</td>
+        <td>{{this.name}}</td>
+        <td>{{this.cost}}</td>
+        <td>{{this.size}}</td>
+        <td>{{this.qty}}</td>
+        <td>
+          <a href="/deleteItem?ser={{this.ser}}">Delete</a>
+          <a href="/editItem?ser={{this.ser}}">Edit</a>
+        </td>
+      </tr>
+
+    {{/each}}
+
+  </table>
+
+  <!-- View Items here to make quick edits -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+  <script type="text/javascript">
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          $('#blah')
+            .attr('src', e.target.result);
+          $(`[name="photo"]`).val(e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+
+      }
+    }
+  </script>
+</body>
+
+</html>

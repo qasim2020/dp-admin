@@ -45,7 +45,8 @@ app.use(
     next();
   },
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
+    limit: '50mb'
   })
 );
 
@@ -109,19 +110,55 @@ var Items = mongoose.model('Items', new mongoose.Schema({
   },
 }));
 
+app.get('/editItem', (req, res) => {
+  Items.findOne({
+      ser: req.query.ser
+    })
+    .then(val => {
+      res.redirect(`/admin?item=${JSON.stringify(val)}`)
+    }).catch(e => {
+      console.log(e);
+      res.status(400).send(e);
+    })
+})
+
 app.get('/admin', function(req, res) {
 
+  // if query found use the found item else attach a default and push to the front end
+
   Items.find().then(val => {
-    console.log(val);
-    res.render('7/admin.hbs', {
-      schools: ["Beacon House Public School", "Army Public School Chakwal", "Happy Home School", "F.G Public High School"],
+
+    // console.log(val);
+    let object = req.query && req.query.item ? JSON.parse(req.query.item) : {
+      school: "Army Public School Chakwal",
       ser: 4,
       name: "name",
       cost: "120",
       size: "size",
       qty: "10",
-      photo: "photo",
-      items: val
+      photo: [""]
+    };
+
+    object.schools = [
+      "Beacon House Public School",
+      "Army Public School Chakwal",
+      "Happy Home School",
+      "F.G Public High School",
+    ];
+
+    // console.log(object);
+    object.items = val;
+    object.schools = object.schools.map(val => {
+      return {
+        name: val,
+        selected: object.school == val ? "selected" : ""
+      }
+    })
+
+    // console.log(object.schools);
+
+    res.render('7/admin.hbs', {
+      object
     })
   }).catch(e => {
     console.log(e);
@@ -152,7 +189,7 @@ app.post('/saveItems', (req, res) => {
       })
     })
     .then(output => {
-      res.redirect('/admin');
+      res.redirect(`/admin`)
     })
     .catch(e => {
       console.log(e);
@@ -174,26 +211,6 @@ app.get('/deleteItem', (req, res) => {
     });
 })
 
-app.get('/editItem', (req, res) => {
-  Items.findOne({
-      ser: req.query.ser
-    })
-    .then(val => {
-      console.log(val);
-      res.render('7/admin.hbs', {
-        schools: ["Beacon House Public School", "Army Public School Chakwal", "Happy Home School", "F.G Public High School"],
-        ser: 4,
-        name: "name",
-        cost: "120",
-        size: "size",
-        qty: "10",
-        photo: "photo",
-        items: val
-      })
-    }).catch(e => {
-      console.log(e);
-      res.status(400).send(e);
-    })
-})
+
 
 app.listen(3000)

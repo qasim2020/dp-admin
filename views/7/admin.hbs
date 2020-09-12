@@ -10,6 +10,10 @@
       align-items: flex-start;
       flex-direction: column;
     }
+
+    .photo img {
+      width: 50px;
+    }
   </style>
 </head>
 
@@ -18,36 +22,36 @@
   <p>We will be uploading our ecommerce store items on this page</p>
 
   <div class="photo">
-    <img id="blah" src="{{photo}}" alt="">
+    <img id="blah" src="{{{object.photo.[0]}}}" alt="">
     <input class="primary" type="file" id="img" name="img" accept="image/*" onchange="readURL(this);">
   </div>
 
   <form class="" action="/saveItems" method="post">
 
     <label for="ser">Serial No</label>
-    <input type="text" name="ser" value="{{ser}}" required>
+    <input type="text" name="ser" value="{{object.ser}}" required>
 
     <label for="school">Choose a school:</label>
     <select name="school" id="school">
-      {{#each schools}}
-        <option value="{{this}}">{{this}}</option>
+      {{#each object.schools}}
+        <option value="{{this.name}}" {{selected}}>{{this.name}}</option>
       {{/each}}
     </select>
 
     <label for="name">Item Name</label>
-    <input type="text" name="name" value="{{name}}" required>
+    <input type="text" name="name" value="{{object.name}}" required>
 
     <label for="cost">Cost (Rs)</label>
-    <input type="number" name="cost" value="{{cost}}" required>
+    <input type="number" name="cost" value="{{object.cost}}" required>
 
     <label for="size">Size</label>
-    <input type="text" name="size" value="{{size}}" required>
+    <input type="text" name="size" value="{{object.size}}" required>
 
     <label for="qty">Quantity</label>
-    <input type="number" name="qty" value="{{qty}}" required>
+    <input type="number" name="qty" value="{{object.qty}}" required>
 
     <label for="photo">Photo</label>
-    <input type="text" name="photo" value="{{photo}}" required>
+    <input type="text" name="photo" value="{{object.photo}}" required>
 
     <button type="submit">Submit</button>
   </form>
@@ -64,7 +68,7 @@
       <th></th>
     </tr>
 
-    {{#each items}}
+    {{#each object.items}}
 
       <tr>
         <td>{{this.ser}}</td>

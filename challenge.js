@@ -210,21 +210,14 @@ app.post('/createNewUser', (req, res) => {
   const {
     name,
     email,
-    password,
-    password2
+    password
   } = req.body;
 
   let errors = [];
 
-  if (!name || !email || !password || !password2) {
+  if (!name || !email || !password) {
     errors.push({
       msg: 'Please enter all fields'
-    });
-  }
-
-  if (password != password2) {
-    errors.push({
-      msg: 'Passwords do not match'
     });
   }
 
@@ -239,8 +232,7 @@ app.post('/createNewUser', (req, res) => {
       errors,
       name,
       email,
-      password,
-      password2
+      password
     });
   } else {
     User.findOne({
@@ -255,7 +247,6 @@ app.post('/createNewUser', (req, res) => {
           name,
           email,
           password,
-          password2
         });
       } else {
         const newUser = new User({
@@ -275,7 +266,7 @@ app.post('/createNewUser', (req, res) => {
                   'success_msg',
                   `Thanks ${user.name} your account has been created.`
                 );
-                res.redirect('/login');
+                res.redirect('/home');
               })
               .catch(err => console.log(err));
           });
@@ -283,6 +274,10 @@ app.post('/createNewUser', (req, res) => {
       }
     });
   }
+})
+
+app.get('/home', (req,res) => {
+  res.status(200).render('home.hbs');
 })
 
 app.listen(3000)

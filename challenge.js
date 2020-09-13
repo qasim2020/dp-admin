@@ -37,12 +37,13 @@ app.use(
   passport.session(),
   flash(),
   function(req, res, next) {
-    if (req.headers.accept != process.env.test_call) console.log('SESSION STATE', Object.keys(req.session));
-    // res.locals.success_msg = req.flash('success_msg'); // req.flash([type], msg) < we will be giving msgs later ?
-    // res.locals.error_msg = req.flash('error_msg');
-    // res.locals.error = req.flash('error');
+    // if (req.headers.accept != process.env.test_call) console.log('SESSION STATE', Object.keys(req.session));
+    res.locals.success_msg = req.flash('success_msg'); // req.flash([type], msg) < we will be giving msgs later ?
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
 
-    console.log(res.locals);
+    console.log(JSON.stringify(req.session,'',2));
+
     next();
   },
   bodyParser.urlencoded({
@@ -67,20 +68,32 @@ mongoose.connect(process.env.MONGODB_URI, {
 hbs.registerPartials(__dirname + '/views/partials');
 
 app.get('/', function(req, res) {
+  req.session.challenge = [{
+      name: "Start Namaz challenge",
+      identity: "Namaz"
+    },
+    {
+      name: "Start Quran Challenge",
+      identity: "Quran"
+    }
+  ];
+
   res.render('index.hbs', {
-    challenge: [{
-        name: "Start Namaz challenge",
-        identity: "Namaz"
-      },
-      {
-        name: "Start Quran Challenge",
-        identity: "Quran"
-      }
-    ]
+    challenge: req.session.challenge
   })
 })
 
 app.get('/success', (req, res) => {
+
+  // Create a session with current challenge !
+
+  req.session.challenge = req.session.challenge.filter(val => {
+    console.log([val.identity,req.query.identity]);
+    return val.identity == req.query.challenge
+  });
+
+  console.log(req.session.challenge);
+
   res.render('createNewUser.hbs', {
     name: 'Qasim Ali',
     email: 'qasimali24@gmail.com',
@@ -93,15 +106,7 @@ app.get('/success', (req, res) => {
 app.post('/updateUser', (req, res) => {
   res.render('challenge.hbs', {
     msg: "Welcome Qasim to starting your 30 Days Challenge of getting punctual in your prayers.",
-    challenges: [{
-        name: "Start Namaz challenge",
-        identity: "Namaz"
-      },
-      {
-        name: "Start Quran Challenge",
-        identity: "Quran"
-      }
-    ]
+    challenges: req.session.challenge
   })
 })
 
@@ -143,6 +148,9 @@ var User = mongoose.model('Users', new mongoose.Schema({
   },
   password: {
     type: String,
+  },
+  opted_challenges: {
+    type: Object
   }
 }));
 
@@ -201,7 +209,7 @@ app.get('/signin', (req, res) => {
 })
 
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
+  successRedirect: '/home',
   failureRedirect: '/signin',
   failureFlash: true
 }));
@@ -252,7 +260,8 @@ app.post('/createNewUser', (req, res) => {
         const newUser = new User({
           name,
           email,
-          password
+          password,
+          opted_challenges: req.session.challenge
         });
 
         bcrypt.genSalt(10, (err, salt) => {
@@ -266,6 +275,7 @@ app.post('/createNewUser', (req, res) => {
                   'success_msg',
                   `Thanks ${user.name} your account has been created.`
                 );
+                req.session.user = user;
                 res.redirect('/home');
               })
               .catch(err => console.log(err));
@@ -277,7 +287,11 @@ app.post('/createNewUser', (req, res) => {
 })
 
 app.get('/home', (req,res) => {
-  res.status(200).render('home.hbs');
+  console.log(req.user);
+  res.status(200).render('home.hbs',{
+    selected_challenge: req.session.challenge,
+    opted_challenges: req.session.user.opted_challenges,
+  });
 })
 
 app.listen(3000)

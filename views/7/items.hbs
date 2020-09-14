@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Select an item</title>
+</head>
+
+<body>
+  <h1>{{school}}</h1>
+  <p>Please select an item for this school.</p>
+
+  {{#each items}}
+
+    <p><a href="/quantity?itemSer={{this.ser}}">{{this.name}}</a></p>
+
+  {{/each}}
+</body>
+
+</html>

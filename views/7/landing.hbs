@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Welcome · 7 am</title>
+  </head>
+  <body>
+    <p>Which school uniform are u planning to buy?</p>
+
+    {{#each schools}}
+
+      <p><a href="/getItems?school={{this.identity}}">{{this.name}}</a></p>
+
+    {{/each}}
+  </body>
+</html>

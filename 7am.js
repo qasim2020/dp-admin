@@ -211,6 +211,46 @@ app.get('/deleteItem', (req, res) => {
     });
 })
 
+// NEXT is Landing page query
 
+app.get('/', (req, res) => {
+  req.session.schools = [
+    {
+      name: "Beacon House Public School",
+      identity: "beacon"
+    },
+    {
+      name: "Army Public School Chakwal",
+      identity: "army"
+    },
+    {
+      name: "Happy Home School",
+      identity: "happy"
+    },
+    {
+      name: "F.G Public High School",
+      identity: "fg"
+    },
+  ]
+  res.status(200).render("7/landing.hbs", {
+    schools: req.session.schools
+  })
+})
+
+app.get('/getItems', (req, res) => {
+  let schoolName = req.session.schools.filter(val => val.identity == req.query.school);
+  console.log(schoolName);
+  Items.find({
+    school: schoolName[0].name
+  }).then(items => {
+      res.status(200).render('7/items.hbs', {
+        items: items,
+        school: schoolName[0].name
+      })
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
+})
 
 app.listen(3000)

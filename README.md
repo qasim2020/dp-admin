@@ -1,3 +1,3 @@
 # Todo
 
-- How do I keep the edit item page simple and easy
+- Separate the image edit route to make sure it does not slow down updation

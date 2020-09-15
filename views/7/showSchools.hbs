@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      .card {
+        border: 1px solid grey;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    {{#each allSchools}}
+      <div class="card">
+        <p>{{this._id}}</p>
+        <p>{{this.identity}}</p>
+        <p>{{this.name}}</p>
+        <p><a href="/editSchool?identity={{this._id}}">Edit</a> </p>
+        <p><a href="/deleteSchool?identity={{this._id}}">Delete</a> </p>
+      </div>
+    {{/each}}
+  </body>
+</html>

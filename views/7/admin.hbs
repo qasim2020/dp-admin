@@ -26,7 +26,7 @@
     <input class="primary" type="file" id="img" name="img" accept="image/*" onchange="readURL(this);">
   </div>
 
-  <form class="" action="/saveItems" method="post">
+  <form class="" action="/{{required_action}}" method="post">
 
     <label for="ser">Serial No</label>
     <input type="text" name="ser" value="{{object.ser}}" required>

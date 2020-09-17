@@ -66,26 +66,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 hbs.registerPartials(__dirname + '/views/7/partials');
 
-cloudinary.config({
-  cloud_name: process.env.cloudName,
-  api_key: process.env.cloudAPI,
-  api_secret: process.env.cloudAPISecret
-});
-
-let uploadCloudinary = (img, public_id) => {
-  return cloudinary.uploader.upload(img, {
-    resource_type: "image",
-    public_id: public_id || mongoose.Types.ObjectId().toString(),
-    folder: '7AM',
-    overwrite: true,
-    transformation: [{
-      width: 1200,
-      height: 800,
-      crop: "limit"
-    }],
-  });
-};
-
 var Schools = mongoose.model('Schools', new mongoose.Schema({
   identity: {
     type: String
@@ -93,6 +73,8 @@ var Schools = mongoose.model('Schools', new mongoose.Schema({
   name: {
     type: String
   }
+},{
+  timestamps: true
 }));
 
 // DB OPERATIONS
@@ -185,5 +167,93 @@ app.get('/deleteSchool', (req,res) => {
     res.status(400).send(e);
   })
 })
+
+cloudinary.config({
+  cloud_name: process.env.cloudName,
+  api_key: process.env.cloudAPI,
+  api_secret: process.env.cloudAPISecret
+});
+
+let uploadCloudinary = (img, public_id) => {
+  return {
+    url: "/15.png",
+    public_id: public_id
+  }
+  return cloudinary.uploader.upload(img, {
+    resource_type: "image",
+    public_id: public_id || mongoose.Types.ObjectId().toString(),
+    folder: '7AM',
+    overwrite: true,
+    transformation: [{
+      width: 1200,
+      height: 800,
+      crop: "limit"
+    }],
+  });
+};
+
+//  IMAGE OPERATIONS
+
+var Images = mongoose.model('Images', new mongoose.Schema({
+  public_id: {
+    type: String
+  },
+  url: {
+    type: String
+  }
+},{
+  timestamps: true
+}));
+
+// 1. saveNewImage route
+
+app.get('/newImage',(req,res) => {
+  res.status(200).render('7/imageForm.hbs',{
+    public_id: req.query.public_id,
+    required_action: 'newImage'
+  })
+})
+
+// 2. Save this image and route to show Schools
+app.post('/newImage', (req,res) => {
+  uploadCloudinary(req.query.img,req.query.public_id)
+  .then(val => {
+    const image = new Images({
+      url: val.url,
+      public_id: req.query.public_id
+    });
+
+    return image.save()
+  })
+  .then(val => {
+    res.redirect('/showSchools');
+  })
+  .catch(e => {
+    res.status(400).send(e);
+  })
+})
+
+// 3. edit an old image route
+
+app.get('/editImage', (req,res) => {
+  res.status(200).render('7/imageForm.hbs',{
+    public_id: req.query.public_id,
+    required_action: 'uploadImage'
+  })
+})
+
+// 3. Upload image in database
+
+app.post('/uplaodImage', (req,res) => {
+  uploadCloudinary(req.query.img,req.query.public_id)
+  .then(val => {
+    res.redirect('/showSchools');
+  })
+  .catch(e => {
+    res.status(400).send(e);
+  })
+})
+
+// 4. show all images route to let user edit the images
 
 app.listen(3000)

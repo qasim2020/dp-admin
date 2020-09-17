@@ -8,12 +8,27 @@
 
 <body>
   <p>Upload image for {{public_id}}</p>
+
+  <img src="" alt="" id="blah">
+
+  <label for="image-upload">Upload Image</label>
+  <input type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+
+  <!-- on image url change save it in photo tag that uploads it in cloudinary and after that in local database -->
+
   <form class="" action="/uploadImage" method="post">
-    <label for="image">Upload Image</label>
-    <input type="file" name="image" value="{{url}}">
+
+    <label for="photo">Image URL</label>
+    <input type="text" name="photo" value="">
+
+    <label for="photo">Public ID</label>
+    <input type="text" name="photo" value="">
 
     <button type="submit" name="button">Submit</button>
+
   </form>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
     function readURL(input) {

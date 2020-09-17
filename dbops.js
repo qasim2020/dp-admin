@@ -220,7 +220,8 @@ app.post('/newImage', (req,res) => {
   .then(val => {
     const image = new Images({
       url: val.url,
-      public_id: req.query.public_id
+      public_id: req.query.public_id,
+      required_action: 'Save Image'
     });
 
     return image.save()

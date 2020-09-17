@@ -23,8 +23,9 @@
       <p><a href="/editSchool?identity={{this._id}}">Edit</a> </p>
       <p><a href="/deleteSchool?identity={{this._id}}">Delete</a> </p>
 
-      {{#if image_url}}
+      {{#if photo}}
 
+        <img src="{{photo}}" width="200px" alt="">
         <p><a href="/editImage?public_id={{this._id}}">Edit Image</a> </p>
 
       {{else}}

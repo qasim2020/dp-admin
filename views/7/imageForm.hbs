@@ -16,13 +16,13 @@
 
   <!-- on image url change save it in photo tag that uploads it in cloudinary and after that in local database -->
 
-  <form class="" action="/uploadImage" method="post">
+  <form class="" action="/{{required_action}}" method="post">
 
     <label for="photo">Image URL</label>
-    <input type="text" name="photo" value="">
+    <input type="text" name="photo" value="{{photo}}">
 
-    <label for="photo">Public ID</label>
-    <input type="text" name="photo" value="">
+    <label for="public_id">Public ID</label>
+    <input type="text" name="public_id" value="{{public_id}}">
 
     <button type="submit" name="button">Submit</button>
 

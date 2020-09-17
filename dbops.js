@@ -73,7 +73,7 @@ var Schools = mongoose.model('Schools', new mongoose.Schema({
   name: {
     type: String
   }
-},{
+}, {
   timestamps: true
 }));
 
@@ -84,8 +84,8 @@ var Schools = mongoose.model('Schools', new mongoose.Schema({
 // RENDER SCHOOL FORM FOR NEW AND EDIT SCHOOLS
 
 // 1. Load the FORM
-app.get('/newSchool', (req,res) => {
-  res.status(200).render('7/schoolForm.hbs',{
+app.get('/newSchool', (req, res) => {
+  res.status(200).render('7/schoolForm.hbs', {
     name: "Beacon House Public School",
     identity: "beacon",
     required_action: "createSchool"
@@ -101,71 +101,93 @@ app.post('/createSchool', (req, res) => {
   });
 
   newSchool.save()
-  .then(val => {
-    res.redirect('/showSchools')
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+    .then(val => {
+      res.redirect('/showSchools')
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 
 })
 
 // 3. Now show all Schools
-app.get('/showSchools', (req,res) => {
-  Schools.find().then(val => {
-    console.log(val);
-    res.status(200).render('7/showSchools.hbs', {
-      allSchools: val
+app.get('/showSchools', (req, res) => {
+  Schools.aggregate([{
+      $match: {}
+    },
+    {
+      $lookup: {
+        from: 'images',
+        localField: '_id.str',
+        foreignField: 'public_id.str',
+        as: 'photo'
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        identity: 1,
+        photo: {
+          $arrayElemAt: ["$photo.url", 0]
+        }
+      }
+    }
+  ])
+  .then(val => {
+      console.log(val);
+      res.status(200).render('7/showSchools.hbs', {
+        allSchools: val
+      })
     })
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 })
 
 // 4. Press edit on any one School to Load the Form with this school data
-app.get('/editSchool', (req,res) => {
+app.get('/editSchool', (req, res) => {
   Schools.findOne({
-    id: req.query.id
-  }).then(val => {
-    res.status(200).render('7/schoolForm.hbs', {
-      name: val.name,
-      identity: val.identity,
-      required_action: "updateSchool"
+      id: req.query.id
+    }).then(val => {
+      res.status(200).render('7/schoolForm.hbs', {
+        name: val.name,
+        identity: val.identity,
+        required_action: "updateSchool"
+      })
     })
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 })
 
 // 5. Update these changes in this school database
 app.post('/updateSchool', (req, res) => {
   Schools.findOneAndUpdate({
-    id: req.body.id
-  }, {
-    name: req.body.name,
-    identity: req.body.identity
-  })
-  .then(val => {
-    res.redirect('/showSchools')
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+      id: req.body.id
+    }, {
+      name: req.body.name,
+      identity: req.body.identity
+    })
+    .then(val => {
+      res.redirect('/showSchools')
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 })
 
 // 6. Delete a school from show schools page
-app.get('/deleteSchool', (req,res) => {
+app.get('/deleteSchool', (req, res) => {
   Schools.deleteOne({
-    id: req.body.id
-  })
-  .then(val => {
-    res.redirect('/showSchools')
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+      id: req.body.id
+    })
+    .then(val => {
+      res.redirect('/showSchools')
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 })
 
 cloudinary.config({
@@ -175,10 +197,11 @@ cloudinary.config({
 });
 
 let uploadCloudinary = (img, public_id) => {
-  return {
-    url: "/15.png",
-    public_id: public_id
-  }
+  // return {
+  //   url: "/15.png",
+  //   public_id: public_id
+  // }
+  console.log(img, public_id);
   return cloudinary.uploader.upload(img, {
     resource_type: "image",
     public_id: public_id || mongoose.Types.ObjectId().toString(),
@@ -201,59 +224,62 @@ var Images = mongoose.model('Images', new mongoose.Schema({
   url: {
     type: String
   }
-},{
+}, {
   timestamps: true
 }));
 
 // 1. saveNewImage route
 
-app.get('/newImage',(req,res) => {
-  res.status(200).render('7/imageForm.hbs',{
+app.get('/newImage', (req, res) => {
+  res.status(200).render('7/imageForm.hbs', {
     public_id: req.query.public_id,
     required_action: 'newImage'
   })
 })
 
 // 2. Save this image and route to show Schools
-app.post('/newImage', (req,res) => {
-  uploadCloudinary(req.query.img,req.query.public_id)
-  .then(val => {
-    const image = new Images({
-      url: val.url,
-      public_id: req.query.public_id,
-      required_action: 'Save Image'
-    });
+app.post('/newImage', (req, res) => {
+  // give me dataURL and public_id
+  // return console.log(req.body);
+  uploadCloudinary(req.body.photo, req.body.public_id)
+    .then(val => {
+      console.log(val.url, val.public_id);
+      const image = new Images({
+        url: val.url,
+        public_id: req.body.public_id,
+        required_action: 'Save Image'
+      });
 
-    return image.save()
-  })
-  .then(val => {
-    res.redirect('/showSchools');
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
+      return image.save()
+    })
+    .then(val => {
+      res.redirect('/showSchools');
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
 })
 
 // 3. edit an old image route
 
-app.get('/editImage', (req,res) => {
-  res.status(200).render('7/imageForm.hbs',{
-    public_id: req.query.public_id,
-    required_action: 'uploadImage'
-  })
-})
+// app.get('/editImage', (req,res) => {
+//   res.status(200).render('7/imageForm.hbs',{
+//     public_id: req.query.public_id,
+//     required_action: 'uploadImage'
+//   })
+// })
 
 // 3. Upload image in database
 
-app.post('/uplaodImage', (req,res) => {
-  uploadCloudinary(req.query.img,req.query.public_id)
-  .then(val => {
-    res.redirect('/showSchools');
-  })
-  .catch(e => {
-    res.status(400).send(e);
-  })
-})
+// app.post('/uplaodImage', (req,res) => {
+//   uploadCloudinary(req.query.img,req.query.public_id)
+//   .then(val => {
+//     res.redirect('/showSchools');
+//   })
+//   .catch(e => {
+//     res.status(400).send(e);
+//   })
+// })
 
 // 4. show all images route to let user edit the images
 

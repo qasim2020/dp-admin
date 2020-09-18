@@ -217,8 +217,8 @@ let uploadCloudinary = (img, public_id) => {
     folder: '7AM',
     overwrite: true,
     transformation: [{
-      width: 1200,
-      height: 800,
+      width: 800,
+      height: 400,
       crop: "limit"
     }],
   });
@@ -255,8 +255,7 @@ app.post('/newImage', (req, res) => {
       console.log(val.url, val.public_id);
       const image = new Images({
         url: val.url,
-        public_id: req.body.public_id,
-        required_action: 'Save Image'
+        public_id: req.body.public_id
       });
 
       return image.save()
@@ -271,24 +270,40 @@ app.post('/newImage', (req, res) => {
 
 // 3. edit an old image route
 
-// app.get('/editImage', (req,res) => {
-//   res.status(200).render('7/imageForm.hbs',{
-//     public_id: req.query.public_id,
-//     required_action: 'uploadImage'
-//   })
-// })
+app.get('/editImage', (req,res) => {
+  Images.findOne({
+      public_id: req.query.public_id
+    }).then(val => {
+      console.log(val);
+      res.status(200).render('7/imageForm.hbs', {
+        image: val,
+        public_id: req.query.public_id,
+        required_action: "updateImage"
+      })
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
+})
 
 // 3. Upload image in database
 
-// app.post('/uplaodImage', (req,res) => {
-//   uploadCloudinary(req.query.img,req.query.public_id)
-//   .then(val => {
-//     res.redirect('/showSchools');
-//   })
-//   .catch(e => {
-//     res.status(400).send(e);
-//   })
-// })
+app.post('/updateImage', (req,res) => {
+  uploadCloudinary(req.body.photo,req.body.public_id)
+  .then(val => {
+    return Images.findOneAndUpdate({
+      public_id: req.body.public_id
+    },{
+      url: val.url
+    })
+  })
+  .then(val => {
+    res.redirect('/showSchools');
+  })
+  .catch(e => {
+    res.status(400).send(e);
+  })
+})
 
 // 4. show all images route to let user edit the images
 

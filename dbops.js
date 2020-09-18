@@ -116,10 +116,17 @@ app.get('/showSchools', (req, res) => {
       $match: {}
     },
     {
+        $addFields: {
+            id2String: {
+                "$toString": "$_id"
+                }
+            }
+    },
+    {
       $lookup: {
         from: 'images',
-        localField: '_id.str',
-        foreignField: 'public_id.str',
+        localField: 'id2String',
+        foreignField: 'public_id',
         as: 'photo'
       }
     },
@@ -148,9 +155,11 @@ app.get('/showSchools', (req, res) => {
 // 4. Press edit on any one School to Load the Form with this school data
 app.get('/editSchool', (req, res) => {
   Schools.findOne({
-      id: req.query.id
+      _id: req.query.id
     }).then(val => {
+      console.log(val);
       res.status(200).render('7/schoolForm.hbs', {
+        _id: val._id,
         name: val.name,
         identity: val.identity,
         required_action: "updateSchool"
@@ -164,7 +173,7 @@ app.get('/editSchool', (req, res) => {
 // 5. Update these changes in this school database
 app.post('/updateSchool', (req, res) => {
   Schools.findOneAndUpdate({
-      id: req.body.id
+      _id: req.body.id
     }, {
       name: req.body.name,
       identity: req.body.identity
@@ -180,7 +189,7 @@ app.post('/updateSchool', (req, res) => {
 // 6. Delete a school from show schools page
 app.get('/deleteSchool', (req, res) => {
   Schools.deleteOne({
-      id: req.body.id
+      _id: req.query.id
     })
     .then(val => {
       res.redirect('/showSchools')

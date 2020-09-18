@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <form class="" action="/{{required_action}}" method="post">
-      <label for="identity">Identity</label>
-      <input type="text" name="identity" value="{{identity}}">
 
-      <label for="name">Name</label>
-      <input type="text" name="name" value="{{name}}">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
 
-      <button type="submit" name="button">Submit</button>
-    </form>
-  </body>
+<body>
+  <form class="" action="/{{required_action}}" method="post">
+    {{#if _id}}
+
+      <label for="id">Id</label>
+      <input type="text" name="id" value="{{_id}}">
+
+    {{/if}}
+
+    <label for="identity">Identity</label>
+    <input type="text" name="identity" value="{{identity}}">
+
+    <label for="name">Name</label>
+    <input type="text" name="name" value="{{name}}">
+
+    <button type="submit" name="button">Submit</button>
+  </form>
+</body>
+
 </html>

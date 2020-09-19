@@ -113,35 +113,35 @@ app.post('/createSchool', (req, res) => {
 // 3. Now show all Schools
 app.get('/showSchools', (req, res) => {
   Schools.aggregate([{
-      $match: {}
-    },
-    {
+        $match: {}
+      },
+      {
         $addFields: {
-            id2String: {
-                "$toString": "$_id"
-                }
-            }
-    },
-    {
-      $lookup: {
-        from: 'images',
-        localField: 'id2String',
-        foreignField: 'public_id',
-        as: 'photo'
-      }
-    },
-    {
-      $project: {
-        _id: 1,
-        name: 1,
-        identity: 1,
-        photo: {
-          $arrayElemAt: ["$photo.url", 0]
+          id2String: {
+            "$toString": "$_id"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          localField: 'id2String',
+          foreignField: 'public_id',
+          as: 'photo'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          identity: 1,
+          photo: {
+            $arrayElemAt: ["$photo.url", 0]
+          }
         }
       }
-    }
-  ])
-  .then(val => {
+    ])
+    .then(val => {
       console.log(val);
       res.status(200).render('7/showSchools.hbs', {
         allSchools: val
@@ -242,7 +242,8 @@ var Images = mongoose.model('Images', new mongoose.Schema({
 app.get('/newImage', (req, res) => {
   res.status(200).render('7/imageForm.hbs', {
     public_id: req.query.public_id,
-    required_action: 'newImage'
+    required_action: 'newImage',
+    redirect: req.query.redirect
   })
 })
 
@@ -261,7 +262,7 @@ app.post('/newImage', (req, res) => {
       return image.save()
     })
     .then(val => {
-      res.redirect('/showSchools');
+      res.redirect(req.body.redirect || '/showSchools');
     })
     .catch(e => {
       res.status(400).send(e);
@@ -270,7 +271,7 @@ app.post('/newImage', (req, res) => {
 
 // 3. edit an old image route
 
-app.get('/editImage', (req,res) => {
+app.get('/editImage', (req, res) => {
   Images.findOne({
       public_id: req.query.public_id
     }).then(val => {
@@ -278,6 +279,7 @@ app.get('/editImage', (req,res) => {
       res.status(200).render('7/imageForm.hbs', {
         image: val,
         public_id: req.query.public_id,
+        redirect: req.query.redirect,
         required_action: "updateImage"
       })
     })
@@ -288,23 +290,166 @@ app.get('/editImage', (req,res) => {
 
 // 3. Upload image in database
 
-app.post('/updateImage', (req,res) => {
-  uploadCloudinary(req.body.photo,req.body.public_id)
-  .then(val => {
-    return Images.findOneAndUpdate({
-      public_id: req.body.public_id
-    },{
-      url: val.url
+app.post('/updateImage', (req, res) => {
+  uploadCloudinary(req.body.photo, req.body.public_id)
+    .then(val => {
+      return Images.findOneAndUpdate({
+        public_id: req.body.public_id
+      }, {
+        url: val.url
+      })
+    })
+    .then(val => {
+      res.redirect(req.body.redirect || '/showSchools');
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
+})
+
+
+// ITEM OPERATIONS
+
+var Items = mongoose.model('Items', new mongoose.Schema({
+  name: {
+    type: String
+  },
+  school: {
+    type: String
+  },
+  cost: {
+    type: String
+  },
+  size: {
+    type: String
+  },
+  qty: {
+    type: String
+  }
+}));
+
+app.get('/newItem', (req, res) => {
+  Schools.find().then(val => {
+    return res.status(200).render('7/itemForm.hbs', {
+      schoolsList: val,
+      name: "Winter Uniform Set",
+      cost: "120",
+      size: "size",
+      qty: "10",
+      required_action: "saveItem"
     })
   })
-  .then(val => {
-    res.redirect('/showSchools');
+
+})
+
+app.post('/saveItem', (req, res) => {
+  const item = new Items({
+    name: req.body.name,
+    school: req.body.school,
+    cost: req.body.cost,
+    size: req.body.size,
+    qty: req.body.qty,
   })
-  .catch(e => {
+
+  item.save().then(val => {
+    res.redirect('/showItems');
+  }).catch(e => {
     res.status(400).send(e);
+  });
+})
+
+app.get('/showItems', (req, res) => {
+  // FETCH THE IMAGE HERE ONCE IT IS SAVED IN CLOUDINARY
+  Items.aggregate([{
+        $match: {}
+      },
+      {
+        $addFields: {
+          id2String: {
+            "$toString": "$_id"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          localField: 'id2String',
+          foreignField: 'public_id',
+          as: 'photo'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          cost: 1,
+          size: 1,
+          qty: 1,
+          photo: {
+            $arrayElemAt: ["$photo.url", 0]
+          }
+        }
+      }
+    ])
+    .then(val => {
+      res.status(200).render('7/showItems.hbs', {
+        allItems: val
+      })
+    })
+})
+
+// edit the item to update the NAME OF THE SCHOOL
+
+app.get('/edititem', (req, res) => {
+  Promise.all([
+    Items.findOne({
+      _id: req.query.id
+    }),
+    Schools.find()
+  ]).then(val => {
+    schoolsList = val[1].map(object => {
+      return {
+        name: object.name,
+        identity: object.identity,
+        selected: (val[0].school == object.name) ? "selected" : ""
+      }
+    });
+    return res.status(200).render('7/itemForm.hbs', {
+      schoolsList: schoolsList,
+      _id: val[0]._id,
+      name: val[0].name,
+      cost: val[0].cost,
+      size: val[0].size,
+      qty: val[0].qty,
+      required_action: "updateItem"
+    })
   })
 })
 
-// 4. show all images route to let user edit the images
+app.post('/updateItem', (req, res) => {
+  Items.findOneAndUpdate({
+    _id: req.body.id
+  }, {
+    name: req.body.name,
+    school: req.body.school,
+    cost: req.body.cost,
+    size: req.body.size,
+    qty: req.body.qty,
+  }).then(val => {
+    res.redirect('/showItems');
+  }).catch(e => {
+    res.status(200).send(e);
+  })
+})
+
+app.get('/deleteItem', (req, res) => {
+  Items.deleteOne({
+    _id: req.query.id
+  }).then(val => {
+    res.redirect('/showItems')
+  }).catch(e => {
+    res.status(200).send(e);
+  })
+})
 
 app.listen(3000)

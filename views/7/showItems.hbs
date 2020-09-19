@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title></title>
+  <title>Showing Items</title>
   <style media="screen">
     nav {
       display: flex;
@@ -27,7 +27,6 @@
 </head>
 
 <body>
-
   <nav>
     <h3>
       <a href="/showSchools">Schools</a>
@@ -40,25 +39,29 @@
     </div>
   </nav>
 
-  {{#each allSchools}}
+  {{#each allItems}}
     <div class="card">
-      <p>{{this._id}}</p>
-      <p>{{this.identity}}</p>
+
+      <p>{{this.ser}}</p>
       <p>{{this.name}}</p>
+      <p>{{this.school}}</p>
+      <p>{{this.cost}}</p>
+      <p>{{this.size}}</p>
+      <p>{{this.qty}}</p>
 
       {{#if photo}}
 
         <img src="{{photo}}" width="200px" alt="">
-        <p><a href="/editImage?public_id={{this._id}}">Edit Image</a> </p>
+        <p><a href="/editImage?public_id={{this._id}}&redirect=showItems">Edit Image</a> </p>
 
       {{else}}
 
-        <p><a href="/newImage?public_id={{this._id}}">New Image</a> </p>
+        <p><a href="/newImage?public_id={{this._id}}&redirect=showItems">New Image</a> </p>
 
       {{/if}}
 
-      <p><a href="/editSchool?id={{this._id}}">Edit</a> </p>
-      <p><a href="/deleteSchool?id={{this._id}}">Delete</a> </p>
+      <p><a href="/editItem?id={{this._id}}">Edit Item</a> </p>
+      <p><a href="/deleteItem?id={{this._id}}">Delete</a> </p>
 
     </div>
   {{/each}}

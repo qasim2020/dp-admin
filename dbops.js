@@ -84,7 +84,7 @@ var Schools = mongoose.model('Schools', new mongoose.Schema({
 // RENDER SCHOOL FORM FOR NEW AND EDIT SCHOOLS
 
 // 1. Load the FORM
-app.get('/newSchool', (req, res) => {
+app.get('/admin/newSchool', (req, res) => {
   res.status(200).render('7/schoolForm.hbs', {
     name: "Beacon House Public School",
     identity: "beacon",
@@ -93,7 +93,7 @@ app.get('/newSchool', (req, res) => {
 })
 
 // 2. Save the Form
-app.post('/createSchool', (req, res) => {
+app.post('/admin/createSchool', (req, res) => {
   console.log(req.body);
   const newSchool = new Schools({
     name: req.body.name,
@@ -102,7 +102,7 @@ app.post('/createSchool', (req, res) => {
 
   newSchool.save()
     .then(val => {
-      res.redirect('/showSchools')
+      res.redirect('/admin/showSchools')
     })
     .catch(e => {
       res.status(400).send(e);
@@ -111,7 +111,7 @@ app.post('/createSchool', (req, res) => {
 })
 
 // 3. Now show all Schools
-app.get('/showSchools', (req, res) => {
+app.get('/admin/showSchools', (req, res) => {
   Schools.aggregate([{
         $match: {}
       },
@@ -153,7 +153,7 @@ app.get('/showSchools', (req, res) => {
 })
 
 // 4. Press edit on any one School to Load the Form with this school data
-app.get('/editSchool', (req, res) => {
+app.get('/admin/editSchool', (req, res) => {
   Schools.findOne({
       _id: req.query.id
     }).then(val => {
@@ -171,7 +171,7 @@ app.get('/editSchool', (req, res) => {
 })
 
 // 5. Update these changes in this school database
-app.post('/updateSchool', (req, res) => {
+app.post('/admin/updateSchool', (req, res) => {
   Schools.findOneAndUpdate({
       _id: req.body.id
     }, {
@@ -179,7 +179,7 @@ app.post('/updateSchool', (req, res) => {
       identity: req.body.identity
     })
     .then(val => {
-      res.redirect('/showSchools')
+      res.redirect('/admin/showSchools')
     })
     .catch(e => {
       res.status(400).send(e);
@@ -187,12 +187,12 @@ app.post('/updateSchool', (req, res) => {
 })
 
 // 6. Delete a school from show schools page
-app.get('/deleteSchool', (req, res) => {
+app.get('/admin/deleteSchool', (req, res) => {
   Schools.deleteOne({
       _id: req.query.id
     })
     .then(val => {
-      res.redirect('/showSchools')
+      res.redirect('/admin/showSchools')
     })
     .catch(e => {
       res.status(400).send(e);
@@ -239,7 +239,7 @@ var Images = mongoose.model('Images', new mongoose.Schema({
 
 // 1. saveNewImage route
 
-app.get('/newImage', (req, res) => {
+app.get('/admin/newImage', (req, res) => {
   res.status(200).render('7/imageForm.hbs', {
     public_id: req.query.public_id,
     required_action: 'newImage',
@@ -248,7 +248,7 @@ app.get('/newImage', (req, res) => {
 })
 
 // 2. Save this image and route to show Schools
-app.post('/newImage', (req, res) => {
+app.post('/admin/newImage', (req, res) => {
   // give me dataURL and public_id
   // return console.log(req.body);
   uploadCloudinary(req.body.photo, req.body.public_id)
@@ -262,7 +262,7 @@ app.post('/newImage', (req, res) => {
       return image.save()
     })
     .then(val => {
-      res.redirect(req.body.redirect || '/showSchools');
+      res.redirect('/admin/' + req.body.redirect);
     })
     .catch(e => {
       res.status(400).send(e);
@@ -271,7 +271,7 @@ app.post('/newImage', (req, res) => {
 
 // 3. edit an old image route
 
-app.get('/editImage', (req, res) => {
+app.get('/admin/editImage', (req, res) => {
   Images.findOne({
       public_id: req.query.public_id
     }).then(val => {
@@ -290,7 +290,7 @@ app.get('/editImage', (req, res) => {
 
 // 3. Upload image in database
 
-app.post('/updateImage', (req, res) => {
+app.post('/admin/updateImage', (req, res) => {
   uploadCloudinary(req.body.photo, req.body.public_id)
     .then(val => {
       return Images.findOneAndUpdate({
@@ -300,11 +300,29 @@ app.post('/updateImage', (req, res) => {
       })
     })
     .then(val => {
-      res.redirect(req.body.redirect || '/showSchools');
+      res.redirect('/admin/' + req.body.redirect);
     })
     .catch(e => {
       res.status(400).send(e);
     })
+})
+
+app.get('/admin/showImages', (req, res) => {
+  Images.find().then(val => {
+    return res.status(200).render('7/showImages.hbs', {
+      allImages: val
+    })
+  })
+})
+
+app.get('/admin/deleteImage', (req, res) => {
+  Images.deleteOne({
+    _id: req.query.id
+  }).then(val => {
+    res.redirect('/admin/showImages')
+  }).catch(e => {
+    res.status(200).send(e);
+  })
 })
 
 
@@ -328,7 +346,7 @@ var Items = mongoose.model('Items', new mongoose.Schema({
   }
 }));
 
-app.get('/newItem', (req, res) => {
+app.get('/admin/newItem', (req, res) => {
   Schools.find().then(val => {
     return res.status(200).render('7/itemForm.hbs', {
       schoolsList: val,
@@ -342,7 +360,7 @@ app.get('/newItem', (req, res) => {
 
 })
 
-app.post('/saveItem', (req, res) => {
+app.post('/admin/saveItem', (req, res) => {
   const item = new Items({
     name: req.body.name,
     school: req.body.school,
@@ -352,13 +370,13 @@ app.post('/saveItem', (req, res) => {
   })
 
   item.save().then(val => {
-    res.redirect('/showItems');
+    res.redirect('/admin/showItems');
   }).catch(e => {
     res.status(400).send(e);
   });
 })
 
-app.get('/showItems', (req, res) => {
+app.get('/admin/showItems', (req, res) => {
   // FETCH THE IMAGE HERE ONCE IT IS SAVED IN CLOUDINARY
   Items.aggregate([{
         $match: {}
@@ -400,7 +418,7 @@ app.get('/showItems', (req, res) => {
 
 // edit the item to update the NAME OF THE SCHOOL
 
-app.get('/edititem', (req, res) => {
+app.get('/admin/edititem', (req, res) => {
   Promise.all([
     Items.findOne({
       _id: req.query.id
@@ -426,7 +444,7 @@ app.get('/edititem', (req, res) => {
   })
 })
 
-app.post('/updateItem', (req, res) => {
+app.post('/admin/updateItem', (req, res) => {
   Items.findOneAndUpdate({
     _id: req.body.id
   }, {
@@ -436,20 +454,108 @@ app.post('/updateItem', (req, res) => {
     size: req.body.size,
     qty: req.body.qty,
   }).then(val => {
-    res.redirect('/showItems');
+    res.redirect('/admin/showItems');
   }).catch(e => {
     res.status(200).send(e);
   })
 })
 
-app.get('/deleteItem', (req, res) => {
+app.get('/admin/deleteItem', (req, res) => {
   Items.deleteOne({
     _id: req.query.id
   }).then(val => {
-    res.redirect('/showItems')
+    res.redirect('/admin/showItems')
   }).catch(e => {
     res.status(200).send(e);
   })
+})
+
+// MAKING ADMIN ROLE TO MAKE SURE ONLY AUTHENTICATED PEOPLE CAN ENTER THIS PLACE
+
+var Persons = mongoose.model('Persons', new mongoose.Schema({
+  username: {
+    type: String
+  },
+  email: {
+    type: String,
+    unique: true
+  },
+  password: {
+    type: String
+  },
+  role: {
+    type: String
+  }
+}));
+
+app.use('/admin', (req, res, next) => {
+  console.log('middleware')
+  if (!req.session.person) {
+    req.flash('error','Please signin to access this page.');
+    return res.redirect('/signIn');
+  }
+  else {
+    Persons.findOne({
+      _id: req.session.person
+    }).then(val => {
+      req.person = val,
+      next();
+    })
+  }
+});
+
+app.get('/admin', (req, res) => {
+  res.redirect('/admin/showSchools');
+})
+
+app.get('/signin', (req, res) => {
+  res.status(200).render('7/signinForm.hbs', {
+    username: 'qasim',
+    email: 'qasimali24@gmail.com',
+    password: 'abcdabcd',
+  })
+})
+
+app.post('/signin', (req,res) => {
+  Persons.findOne({
+    username: req.body.username,
+    password: req.body.password
+  }).then(val => {
+    req.session.person = val._id;
+    res.redirect('/admin')
+  }).catch(e => {
+    res.status(400).send(e);
+  })
+})
+
+app.get('/signup', (req, res) => {
+  res.status(200).render('7/signupForm.hbs', {
+    username: 'qasim',
+    email: 'qasimali24@gmail.com',
+    password: 'abcdabcd',
+  })
+})
+
+app.post('/signup', (req, res) => {
+  const person = new Persons({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password
+  })
+
+  person.save().then(val => {
+    console.log('HERE CHECK IN DATABASE THE USER GERARATED OR NOT');
+    res.redirect('/signin');
+  }).catch(e => {
+    req.flash('error','User already exists. Please sign in.');
+    res.redirect('/signin');
+  })
+})
+
+app.get('/admin/logout', (req,res) => {
+  req.session.person = null;
+  req.flash('error','You have successfully logged out.');
+  res.redirect('/signin');
 })
 
 app.listen(3000)

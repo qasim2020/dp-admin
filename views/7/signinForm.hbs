@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Sign in</title>
+  <style media="screen">
+  form>*,
+  .upper_box>* {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  </style>
+</head>
+
+<body>
+  <h3>Sign In Form</h3>
+  <a href="/signup">Sign Up</a>
+
+  <p>{{error}}</p>
+  <form class="" action="signin" method="post">
+    <label for="username">Username</label>
+    <input type="text" name="username" value="{{username}}" required>
+
+    <label for="password">Password</label>
+    <input type="text" name="password" value="{{password}}" required>
+
+    <button type="submit" name="button">Submit</button>
+
+  </form>
+</body>
+
+</html>

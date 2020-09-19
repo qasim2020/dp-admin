@@ -3,41 +3,11 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Showing Items</title>
-  <style media="screen">
-    nav {
-      display: flex;
-      width: 98%;
-      margin: auto;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    body {
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      border: 1px solid grey;
-      padding: 1rem;
-      width: 25vw;
-    }
-  </style>
+  <title>Show Items</title>
 </head>
 
 <body>
-  <nav>
-    <h3>
-      <a href="/showSchools">Schools</a>
-      /
-      <a href="/showItems">Items</a>
-    </h3>
-    <div class="menu">
-      <a href="/newSchool">Add New School</a>
-      <a href="/newItem">Add New Item</a>
-    </div>
-  </nav>
+  {{> navbar}}
 
   {{#each allItems}}
     <div class="card">
@@ -52,16 +22,16 @@
       {{#if photo}}
 
         <img src="{{photo}}" width="200px" alt="">
-        <p><a href="/editImage?public_id={{this._id}}&redirect=showItems">Edit Image</a> </p>
+        <p><a href="/admin/editImage?public_id={{this._id}}&redirect=showItems">Edit Image</a> </p>
 
       {{else}}
 
-        <p><a href="/newImage?public_id={{this._id}}&redirect=showItems">New Image</a> </p>
+        <p><a href="/admin/newImage?public_id={{this._id}}&redirect=showItems">New Image</a> </p>
 
       {{/if}}
 
-      <p><a href="/editItem?id={{this._id}}">Edit Item</a> </p>
-      <p><a href="/deleteItem?id={{this._id}}">Delete</a> </p>
+      <p><a href="/admin/editItem?id={{this._id}}">Edit Item</a> </p>
+      <p><a href="/admin/deleteItem?id={{this._id}}">Delete</a> </p>
 
     </div>
   {{/each}}

@@ -5,23 +5,29 @@
   <meta charset="utf-8">
   <title></title>
   <style media="screen">
-    form > * {
+    form > *, .upper_box > * {
       display: block;
+      margin-bottom: 1rem;
     }
+
   </style>
 </head>
 
-<body>
-  <p>Upload image for {{public_id}}</p>
+<body class="">
 
-  <img src="{{image.url}}" alt="" id="blah">
+  <div class="upper_box">
+    <p>Upload image for {{public_id}}</p>
 
-  <label for="image-upload">Upload Image</label>
-  <input type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+    <img src="{{image.url}}" alt="" id="blah">
+
+    <label for="image-upload">Upload Image</label>
+    <input type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+  </div>
+
 
   <!-- on image url change save it in photo tag that uploads it in cloudinary and after that in local database -->
 
-  <form class="" action="/{{required_action}}" method="post">
+  <form class="" action="/admin/{{required_action}}" method="post">
 
     <label for="photo">Image URL</label>
     <input type="text" name="photo" value="" required>

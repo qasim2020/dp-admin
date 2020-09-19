@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Show Images</title>
+</head>
+
+<body>
+  {{> navbar}}
+
+  {{#each allImages}}
+    <div class="card showImages">
+
+      <img src="{{this.url}}" alt="">
+
+      <p><a href="/admin/editImage?public_id={{this.public_id}}&redirect=showImages">Edit Item</a> </p>
+      <p><a href="/admin/deleteImage?id={{this._id}}&redirect=showImages">Delete</a> </p>
+
+    </div>
+  {{/each}}
+</body>
+
+</html>

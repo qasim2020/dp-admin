@@ -1,6 +1,47 @@
+<style media="screen">
+  .nav {
+    display: flex;
+    width: 98%;
+    margin: auto;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  body {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    border: 1px solid grey;
+    padding: 1rem;
+    width: 25vw;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  .showImages > img {
+    max-height: 44px;
+  }
+
+  .upper_box > * {
+    display: block;
+  }
+</style>
+
 <div class="nav">
-  <a href="/">Home</a>
-  <a href="/signin">Sign In</a>
-  <a href="/cart">My Cart</a>
-  <a href="/about">About Us</a>
+  <h3>
+    <a href="/admin/showSchools">Schools</a>
+    /
+    <a href="/admin/showItems">Items</a>
+    /
+    <a href="/admin/showImages">Images</a>
+  </h3>
+  <div class="menu">
+    <a href="/admin/newSchool">Add New School</a>
+    <a href="/admin/newItem">Add New Item</a>
+    <a href="/admin/logout">Log Out</a>
+  </div>
 </div>

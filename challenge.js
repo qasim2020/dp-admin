@@ -288,6 +288,7 @@ app.post('/createNewUser', (req, res) => {
 
 app.get('/home', (req,res) => {
   console.log(req.user);
+	console.log(req.session);
   res.status(200).render('home.hbs',{
     selected_challenge: req.session.challenge,
     opted_challenges: req.session.user.opted_challenges,

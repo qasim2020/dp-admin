@@ -1,72 +1,110 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 
-  <head>
-    <meta charset="utf-8">
-    <title>Full Page Box</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-    <style type="text/css">
-      body {
-        background-color: antiquewhite;
-        margin: 0;
-        padding: 0;
-        display: flex;
+<head>
+  <meta charset="utf-8">
+  <title>Full Page Box</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+  <style type="text/css">
+    body {
+      background-color: antiquewhite;
+      margin: 0;
+      padding: 0;
+      display: flex;
 
-        font-family: 'Roboto', sans-serif;
-      }
+      font-family: 'Roboto', sans-serif;
+    }
 
-      .aaa {
-        background-color: #004aad;
-        height: 100vh;
-        border: 1 px black solid;
-        box-sizing: border-box;
-        width: 50vw;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-      }
+    .aaa {
+      background-color: #004aad;
+      height: 100vh;
+      border: 1 px black solid;
+      box-sizing: border-box;
+      width: 50vw;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
 
-      .bbb {
-        background-color: white;
-        height: 100vh;
-        border: 1 px black solid;
-        width: 50vw;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .bbb {
+      background-color: white;
+      height: 100vh;
+      border: 1 px black solid;
+      width: 50vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .ooo {
-        width: 180px;
-        height: auto;
-      }
+    .ooo {
+      width: 180px;
+      height: auto;
+    }
 
-      .sadaf {
-        color: white;
-      }
+    .sadaf {
+      color: white;
+    }
 
-      .sana {
-        height: 60vh;
-        width: auto;
-      }
+    .sana {
+      height: 60vh;
+      width: auto;
+    }
+  </style>
+</head>
 
-    </style>
-  </head>
+<body>
 
-  <body>
-    <div class="aaa">
-      {{error}}
+  <div class="aaa">
+    {{error}}
 
-      <div class="sadaf">
-        <img class="ooo" src="/logo.png">
-        <H2> Welcome to TECHSHEK</H2>
-        <p> Join us to promote Tech Culture of Pakistan.</p>
-        <button>Buy our next Event's Ticket.</button>
-      </div>
+    <div class="sadaf">
+      <img class="ooo" src="/logo.png">
+      <H2> Welcome to TECHSHEK</H2>
+      <p> Join us to promote Tech Culture of Pakistan.</p>
+      <button id="checkout-button">Reserve your slot for 5 USD</button>
     </div>
-    <div class="bbb">
-      <div>
-        <img class="sana" src="/flier.jpg">
-      </div>
+  </div>
+
+  <div class="bbb">
+    <div>
+      <img class="sana" src="/flier.jpg">
     </div>
-  </body>
+  </div>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script type="text/javascript">
+    // Create an instance of the Stripe object with your publishable API key
+    var stripe = Stripe('pk_test_51H4pOlCAEMzmcXZYQ9VID67eHqH6KCHo8Q74XU2R2bJA51NbyOFIyiZg9NuNFcbAvvnWcQXI8OQRZSE7Bx64hIie00ENxINJ4t');
+    var checkoutButton = document.getElementById('checkout-button');
+
+    checkoutButton.addEventListener('click', function() {
+      // Create a new Checkout Session using the server-side endpoint you
+      // created in step 3.
+      fetch('/create-checkout-session', {
+          method: 'POST',
+        })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(session) {
+          return stripe.redirectToCheckout({
+            sessionId: session.id
+          });
+        })
+        .then(function(result) {
+          // If `redirectToCheckout` fails due to a browser or network
+          // error, you should display the localized error message to your
+          // customer using `error.message`.
+          if (result.error) {
+            alert(result.error.message);
+          }
+        })
+        .catch(function(error) {
+          console.error('Error:', error);
+        });
+    });
+  </script>
+
+</body>
+
+</html>

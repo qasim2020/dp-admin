@@ -4,13 +4,17 @@
     "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh",
     "cloudName": "miscellaneous",
     "cloudAPI": "112548228229522",
-    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s"
+    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s",
+    "STRIPE": "sk_test_51H4pOlCAEMzmcXZYaHprUYZdBI4cmyLbO26hKo9C6i7HUSF8MIANXhfi89XGLqFjQOMUIGiNBavvEbYQ6drXDO2G003hLmF1FB",
+    "url": "http://localhost:3000"
   },
   "development": {
     "MONGODB_URI": "mongodb://localhost:27017/Login",
     "sessionSecret": "hjasdfkljhqwoieuryasdkjfho876qwekljrhasdkfjh",
     "cloudName": "miscellaneous",
     "cloudAPI": "112548228229522",
-    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s"
+    "cloudAPISecret": "gD2peI-k18itQb0gL2JKzHq--3s",
+    "STRIPE": "sk_test_51H4pOlCAEMzmcXZYaHprUYZdBI4cmyLbO26hKo9C6i7HUSF8MIANXhfi89XGLqFjQOMUIGiNBavvEbYQ6drXDO2G003hLmF1FB",
+    "url": "http://localhost:3000"
   }
 }

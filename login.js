@@ -480,5 +480,39 @@ app.get('/admin/deleteImage', (req, res) => {
   })
 })
 
+// STRIPE PAYMENTS
+
+const stripe = require('stripe')(process.env.STRIPE);
+
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [{
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Ticket',
+        },
+        unit_amount: 500,
+      },
+      quantity: 1,
+    }, ],
+    mode: 'payment',
+    success_url: `${process.env.url}/success`,
+    cancel_url: `${process.env.url}/`,
+  });
+
+  res.json({
+    id: session.id
+  });
+});
+
+app.get('/success', (req,res) => {
+  res.status(200).render('login/signupForm.hbs', {
+    username: '',
+    email: req.session.email,
+    password: '',
+  })
+})
 
 app.listen(3000)

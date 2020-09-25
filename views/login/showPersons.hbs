@@ -1,1 +1,28 @@
-I am new person here
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Show Persons</title>
+</head>
+
+<body>
+  {{> navbar}}
+
+  {{#each allPersons}}
+    <div class="card">
+
+      <p>{{this.ser}}</p>
+      <p>{{this.username}}</p>
+      <p>{{this.email}}</p>
+      <p>{{this.password}}</p>
+      <p>{{this.role}}</p>
+
+      <p><a href="/admin/editPerson?id={{this._id}}">Edit Person</a> </p>
+      <p><a href="/admin/deletePerson?id={{this._id}}">Delete</a> </p>
+
+    </div>
+  {{/each}}
+</body>
+
+</html>

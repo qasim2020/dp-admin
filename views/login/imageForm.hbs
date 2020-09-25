@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <style media="screen">
+    form > *, .upper_box > * {
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+</head>
+
+<body class="">
+
+  <div class="upper_box">
+    <p>Upload image for {{public_id}}</p>
+
+    <img src="{{image.url}}" alt="" id="blah">
+
+    <label for="image-upload">Upload Image</label>
+    <input type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+  </div>
+
+
+  <!-- on image url change save it in photo tag that uploads it in cloudinary and after that in local database -->
+
+  <form class="" action="/admin/{{required_action}}" method="post">
+
+    <label for="photo">Image URL</label>
+    <input type="text" name="photo" value="" required>
+
+    <label for="public_id">Public ID</label>
+    <input type="text" name="public_id" value="{{public_id}}" required>
+
+    <label for="redirect">Request from...</label>
+    <input type="text" name="redirect" value="{{redirect}}" required>
+
+    <button type="submit" name="button">Submit</button>
+
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+  <script type="text/javascript">
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          $('#blah')
+            .attr('src', e.target.result);
+          $(`[name="photo"]`).val(e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+
+      }
+    }
+  </script>
+</body>
+
+</html>

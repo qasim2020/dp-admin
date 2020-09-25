@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Sign in</title>
+  <style media="screen">
+  form>*,
+  .upper_box>* {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  </style>
+</head>
+
+<body>
+  <h3>Person Form</h3>
+
+  <p>{{error}}</p>
+
+  <form class="" action="/admin/{{required_action}}" method="post">
+
+    {{#if person._id}}
+    <label for="id">Id</label>
+    <input type="text" name="id" value="{{person._id}}" required>
+    {{/if}}
+
+
+    <label for="username">Username</label>
+    <input type="text" name="username" value="{{person.username}}" required>
+
+    <label for="email">Email</label>
+    <input type="text" name="email" value="{{person.email}}" required>
+
+    <label for="password">Password</label>
+    <input type="text" name="password" value="{{person.password}}" required>
+
+    <label for="role">Role</label>
+    <input type="text" name="role" value="{{person.role}}" required>
+
+    <button type="submit" name="button">Submit</button>
+
+  </form>
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+<style media="screen">
+  .nav {
+    display: flex;
+    width: 98%;
+    margin: auto;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  body {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    border: 1px solid grey;
+    padding: 1rem;
+    width: 25vw;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  .showImages > img {
+    max-height: 44px;
+  }
+
+  .upper_box > * {
+    display: block;
+  }
+</style>
+
+<div class="nav">
+  <h3>
+    <a href="/admin/showPersons">Persons</a>
+    /
+    <a href="/admin/showEvents">Events</a>
+    /
+    <a href="/admin/showImages">Images</a>
+  </h3>
+  <div class="menu">
+    <a href="/admin/newPerson">Add New Person</a>
+    <a href="/admin/newEvent">Add New Event</a>
+    <a href="/admin/logout">Log Out</a>
+  </div>
+</div>

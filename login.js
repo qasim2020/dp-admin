@@ -74,14 +74,17 @@ hbs.registerHelper('breaklines', (val) => {
 // LANDING PAGE
 
 app.get('/', (req, res) => {
-  res.render('login/index.hbs');
+  res.render('login/index.hbs', {
+    loggedIn: false
+  });
 })
 
 // MAKING ADMIN ROLE TO MAKE SURE ONLY AUTHENTICATED PEOPLE CAN ENTER THIS PLACE
 
 var Persons = mongoose.model('Persons', new mongoose.Schema({
   username: {
-    type: String
+    type: String,
+    unique: true
   },
   email: {
     type: String,
@@ -102,7 +105,7 @@ app.use('/admin', (req, res, next) => {
     return res.redirect('/signIn');
   } else {
     Persons.findOne({
-      _id: req.session.person,
+      email: req.session.person.email,
       role: 'admin'
     }).then(val => {
       if (!val) return Promise.reject('You are not allowed to access admin page.')
@@ -132,8 +135,11 @@ app.post('/signin', (req, res) => {
     username: req.body.username,
     password: req.body.password
   }).then(val => {
-    req.session.person = val._id;
-    res.redirect('/admin')
+    req.session.person = {
+      email: val.email,
+      username: val.username
+    }
+    res.redirect('/home')
   }).catch(e => {
     res.status(400).send(e);
   })
@@ -156,14 +162,22 @@ app.post('/signup', (req, res) => {
 
   person.save().then(val => {
     console.log('HERE CHECK IN DATABASE THE USER GERARATED OR NOT');
-    res.redirect('/signin');
+    rreq.session.person = {
+      email: val.email,
+      username: val.username
+    }
+    res.redirect('/home')
   }).catch(e => {
-    req.flash('error', 'User already exists. Please sign in.');
-    res.redirect('/signin');
+    req.flash('error', 'Username or email already exists. Please retry.');
+    res.status(200).render('login/signupForm.hbs', {
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password
+    })
   })
 })
 
-app.get('/admin/logout', (req, res) => {
+app.get('/logout', (req, res) => {
   req.session.person = null;
   req.flash('error', 'You have successfully logged out.');
   res.redirect('/');
@@ -480,12 +494,99 @@ app.get('/admin/deleteImage', (req, res) => {
   })
 })
 
+// PURCHASE ROUTE
+
+app.use('/home', (req, res, next) => {
+  // console.log('middleware')
+  if (!req.session.person) {
+    req.flash('error', 'Please signin to access home page.');
+    return res.redirect('/signIn');
+  } else {
+    Persons.findOne({
+      email: req.session.person.email,
+    }).then(val => {
+      if (!val) return Promise.reject('No person found with this email.')
+      req.person = val,
+        next();
+    }).catch(e => {
+      console.log(e);
+      req.flash('error', e);
+      return res.redirect('/');
+    })
+  }
+});
+
+app.get('/home', (req, res) => {
+  console.log(req.session.person);
+  res.render('login/index.hbs', {
+    loggedIn: true,
+    username: req.session.person.username
+  });
+})
+
+app.get('/purchase/signup', (req, res) => {
+  res.status(200).render('login/signupForm.hbs', {
+    username: 'qasim',
+    email: 'qasimali24@gmail.com',
+    password: 'abcdabcd',
+    required_action: '/purchase/signup' // SAVE THIS USER > TAKE TO CHECK OUT PAGE with SESSION ID > STRIPE PAGE
+  })
+})
+
+app.post('/purchase/signup', (req, res) => {
+  const person = new Persons({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password
+  })
+
+  person.save().then(val => {
+    console.log('HERE CHECK IN DATABASE THE USER GERARATED OR NOT');
+    console.log(val);
+    req.session.person = {
+      email: req.body.email,
+      username: req.body.username
+    };
+    res.redirect('/home/redirectToCheckout');
+  }).catch(e => {
+    req.flash('error', 'User already exists. Please sign in.');
+    res.redirect('/purchase/signin'); // GIVE USER THE SIGN IN FORM
+  })
+})
+
+app.get('/purchase/signin', (req, res) => {
+  res.status(200).render('login/signinForm.hbs', {
+    username: 'qasim',
+    email: 'qasimali24@gmail.com',
+    password: 'abcdabcd',
+    required_action: '/purchase/signin'
+  })
+})
+
+app.post('/purchase/signin', (req, res) => {
+  Persons.findOne({
+    username: req.body.username,
+    password: req.body.password
+  }).then(val => {
+    req.session.person = {
+      email: val.email,
+      username: val.username
+    }
+    res.redirect('/home/redirectToCheckout');
+  }).catch(e => {
+    console.log(e);
+    req.flash('error', e);
+    res.redirect('/purchase/signin'); // GIVE USER THE SIGN IN FORM
+  })
+})
+
 // STRIPE PAYMENTS
 
 const stripe = require('stripe')(process.env.STRIPE);
 
-app.post('/create-checkout-session', async (req, res) => {
+app.get('/home/redirectToCheckout', async (req, res) => {
   const session = await stripe.checkout.sessions.create({
+    customer_email: req.session.person && req.session.person.email,
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
@@ -498,21 +599,52 @@ app.post('/create-checkout-session', async (req, res) => {
       quantity: 1,
     }, ],
     mode: 'payment',
-    success_url: `${process.env.url}/success`,
+    success_url: `${process.env.url}/success/ticket?email=${req.session.person.email}`,
     cancel_url: `${process.env.url}/`,
   });
 
-  res.json({
+  res.render('login/redirectToCheckout.hbs', {
     id: session.id
   });
+})
+
+// SHOW TICKET HERE
+
+app.use('/success', (req, res, next) => {
+  // console.log('middleware')
+  if (!req.session.person) {
+    req.flash('error', 'Please signin to access your ticket.');
+    return res.redirect('/');
+  }
+
+  if (req.query.email != req.session.person.email) {
+    req.flash('error', 'Mismatch session and query email.');
+    return res.redirect('/home');
+  }
+
+  Persons.findOne({
+    email: req.query.email,
+  }).then(val => {
+    if (!val) return Promise.reject('No person found with this email.')
+    req.person = val,
+      next();
+  }).catch(e => {
+    console.log(e);
+    req.flash('error', e);
+    return res.redirect('/');
+  })
+
 });
 
-app.get('/success', (req,res) => {
-  res.status(200).render('login/signupForm.hbs', {
-    username: '',
-    email: req.session.email,
-    password: '',
+app.get('/success/ticket', (req, res) => {
+  res.status(200).render('login/showTicket.hbs', {
+    email: req.session.person.email,
+    username: req.session.person.username
   })
 })
+
+
+// STRIPE WEBHOOK TO UPDATE PAYMENT DETAILS FOR THIS USER
+
 
 app.listen(3000)

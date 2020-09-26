@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+</head>
+
+<body>
+
+  <div class="aaa">
+    {{error}}
+
+
+  </div>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script type="text/javascript">
+    // Create an instance of the Stripe object with your publishable API key
+    var stripe = Stripe('pk_test_51H4pOlCAEMzmcXZYQ9VID67eHqH6KCHo8Q74XU2R2bJA51NbyOFIyiZg9NuNFcbAvvnWcQXI8OQRZSE7Bx64hIie00ENxINJ4t');
+
+    stripe.redirectToCheckout({
+      sessionId: `{{id}}`
+    }).then(function(result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, you should display the localized error message to your
+      // customer using `error.message`.
+      if (result.error) {
+        alert(result.error.message);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+    });;
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+<style media="screen">
+  .nav {
+    display: flex;
+    width: 98%;
+    margin: auto;
+    align-items: center;
+    justify-content: space-between;
+  }
+</style>
+
+<div class="nav">
+  <div>
+
+    {{#if username}}
+    <a href="/home">Home</a>
+    ·
+    <a href="/home/profile">{{username}}</a>
+    ·
+    <a href="/logout">Log Out</a>
+    {{else}}
+    <a href="/">Home</a>
+    ·
+    <a href="/signin">Sign In</a>
+    ·
+    <a href="/signup">Sign Up</a>
+    {{/if}}
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Ticket Form</title>
+  <style media="screen">
+  form>*,
+  .upper_box>* {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  </style>
+</head>
+
+<body>
+  <h3>Ticket Form</h3>
+
+  <p>{{error}}</p>
+
+  <form class="" action="/admin/{{required_action}}" method="post">
+
+    {{#if ticket._id}}
+    <label for="id">Id</label>
+    <input type="text" name="id" value="{{ticket._id}}" required>
+    {{/if}}
+
+
+    <label for="public_id">Public Id</label>
+    <input type="text" name="public_id" value="{{ticket.public_id}}" required>
+
+    <label for="ticketNo">Ticket No</label>
+    <input type="text" name="ticketNo" value="{{ticket.ticketNo}}" required>
+
+    <label for="username">Purchased By</label>
+    <input type="text" name="username" value="{{ticket.username}}">
+
+    <button type="submit" name="button">Submit</button>
+
+  </form>
+</body>
+
+</html>

@@ -18,25 +18,27 @@
 
   <p>{{error}}</p>
 
-  <form class="" action="/admin/{{required_action}}" method="post">
+  <form class="" action="{{required_action}}" method="post">
 
     {{#if person._id}}
     <label for="id">Id</label>
     <input type="text" name="id" value="{{person._id}}" required>
     {{/if}}
 
-
+	{{#if person.username}}
     <label for="username">Username</label>
     <input type="text" name="username" value="{{person.username}}" required>
-
+	{{/if}}
     <label for="email">Email</label>
     <input type="text" name="email" value="{{person.email}}" required>
 
     <label for="password">Password</label>
     <input type="text" name="password" value="{{person.password}}" required>
 
-    <label for="role">Role</label>
-    <input type="text" name="role" value="{{person.role}}" required>
+	{{#if person.role}}
+    		<label for="role">Role</label>
+	    	<input type="text" name="role" value="{{person.role}}" required>
+	{{/if}}
 
     <button type="submit" name="button">Submit</button>
 

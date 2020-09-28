@@ -131,15 +131,23 @@ app.get('/signin', (req, res) => {
 })
 
 app.post('/signin', (req, res) => {
+  console.log('hello world we are posting to sign in form');
   Persons.findOne({
     username: req.body.username,
     password: req.body.password
   }).then(val => {
-    req.session.person = {
+	console.log(val, val == null);
+	if (val == null) {
+		console.log('redirecting you to Sign in form');
+		req.flash("error","Invalid Username or Email. Please sign up if you have not yet registered.");
+		return res.redirect('/signin');	
+	} 
+   req.session.person = {
       email: val.email,
       username: val.username
     }
-    res.redirect('/home')
+    console.log(req.session.person);
+	res.redirect('/home')
   }).catch(e => {
     res.status(400).send(e);
   })
@@ -203,7 +211,7 @@ app.get('/admin/editPerson', (req, res) => {
       console.log(val);
       return res.status(200).render('login/personForm.hbs', {
         person: val,
-        required_action: 'updatePerson'
+        required_action: '/admin/updatePerson'
       })
     })
     .catch(e => {
@@ -239,7 +247,7 @@ app.get('/admin/newPerson', (req, res) => {
       password: '1234',
       role: 'admin'
     },
-    required_action: 'savePerson'
+    required_action: '/admin/savePerson'
   })
 })
 
@@ -503,9 +511,9 @@ app.use('/home', (req, res, next) => {
     return res.redirect('/signIn');
   } else {
     Persons.findOne({
-      email: req.session.person.email,
+      username: req.session.person.username,
     }).then(val => {
-      if (!val) return Promise.reject('No person found with this email.')
+      if (!val) return Promise.reject('No person found with this username.')
       req.person = val,
         next();
     }).catch(e => {
@@ -520,7 +528,8 @@ app.get('/home', (req, res) => {
   console.log(req.session.person);
   res.render('login/index.hbs', {
     loggedIn: true,
-    username: req.session.person.username
+    username: req.person.username,
+	id: req.person._id
   });
 })
 
@@ -599,7 +608,7 @@ app.get('/home/redirectToCheckout', async (req, res) => {
       quantity: 1,
     }, ],
     mode: 'payment',
-    success_url: `${process.env.url}/success/ticket?email=${req.session.person.email}`,
+    success_url: `${process.env.url}/success/ticket?email=${req.person.email}`,
     cancel_url: `${process.env.url}/`,
   });
 
@@ -646,5 +655,257 @@ app.get('/success/ticket', (req, res) => {
 
 // STRIPE WEBHOOK TO UPDATE PAYMENT DETAILS FOR THIS USER
 
+// WRITE ROUTES FOR ALL TICKETS HERE
+
+var Tickets = mongoose.model('Tickets', new mongoose.Schema({
+  public_id: {
+    	type: String,
+	unique: false
+  },
+  ticketNo: {
+    type: String,
+    unique: true
+  },
+  username: {
+	type: String
+  }
+}));
+
+app.get('/admin/newTicket',(req,res) => {
+
+	// IF NO PUBLIC ID EXISTS RETURN
+
+	if (req.query.public_id == "") return res.redirect('/showEvents');
+	
+	res.render('login/ticketForm.hbs',{
+		ticket: {
+			public_id: req.query.public_id,
+			ticketNo: '1',
+		},
+		redirect: req.query.redirect || 'showEvents',
+		required_action: 'newTicket'
+		
+	})	
+	
+})
+
+app.post('/admin/newTicket',(req,res) => {
+	
+	console.log(req.body);	
+
+	const ticket = new Tickets({
+		public_id: req.body.public_id,
+		ticketNo: req.body.ticketNo
+	})
+
+	ticket.save().then(val => {
+		
+		console.log('ticket saved');
+		res.redirect(`/admin/showTickets?public_id=${req.body.public_id}`);	
+	
+	}).catch(e => {
+		console.log(JSON.stringify(e,' ',2));	
+		res.status(400).send(e);
+	})
+	
+})
+
+app.get('/admin/showTickets',(req,res) => {
+	
+console.log(req.query);
+
+  Tickets.aggregate([{
+        $match: {
+		public_id: req.query.public_id
+	}
+      },
+      {
+        $addFields: {
+          id2String: {
+            "$toString": "$_id"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          localField: 'id2String',
+          foreignField: 'public_id',
+          as: 'photo'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          public_id: 1,
+	  ticketNo: 1,
+	  username: 1,
+          photo: {
+            $arrayElemAt: ["$photo.url", 0]
+          }
+        }
+      }
+    ])
+    .then(val => {
+      console.log(val);
+      res.status(200).render('login/showTickets.hbs', {
+        allTickets: val
+      })
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    })
+	
+})
+
+app.get('/admin/editTicket',(req,res) => {
+
+  Tickets.findOne({
+      _id: req.query.id
+    })
+    .then(val => {
+      return res.status(200).render('login/ticketForm.hbs', {
+        ticket: val,
+        required_action: 'updateTicket'
+      })
+    })
+    .catch(e => {
+      console.log(e);
+      res.status(300).send(e);
+    });
+	
+})
+
+app.post('/admin/updateTicket',(req,res) => {
+
+	Tickets.findOneAndUpdate({_id: req.body.id},{
+		public_id: req.body.public_id,
+		ticketNo: req.body.ticketNo,
+		username: req.body.username
+	},{
+		new:true
+	}).then(val => {
+		res.status(200).redirect(`/admin/showTickets?public_id=${req.body.public_id}`)
+	}).catch(e => {
+		console.log(e);
+		res.status(400).send(e);
+	})
+
+})
+
+app.get('/home/profile',(req,res) => {
+
+	Tickets.aggregate([
+    { 
+        $match: {username: req.person.username} 
+      }, 
+      { 
+        $addFields: { 
+          id2String: { 
+            "$toString": "$_id" 
+          } 
+        } 
+      }, 
+      { 
+        $lookup: { 
+          from: 'images', 
+          localField: 'id2String', 
+          foreignField: 'public_id', 
+          as: 'photo' 
+        } 
+      }, 
+       { 
+        $lookup: { 
+              from: 'events', 
+              localField: 'public_id.str', 
+              foreignField: '_id.str', 
+              as: 'event' 
+            } 
+        },
+        { 
+        $project: { 
+            ticketNo: 1,
+            _id: 1,
+            username: 1,
+            public_id: 1,
+            photo: { 
+              $arrayElemAt: ["$photo.url", 0] 
+            },
+            date: {
+                $arrayElemAt: ["$event.date", 0] 
+                },
+            title: {
+                $arrayElemAt: ["$event.title", 0] 
+                },
+        }
+    }
+    ]).then(val => {
+	return res.render('login/person.hbs',{
+		person: req.person,
+		tickets: val
+	})
+	}).catch(e => {
+		res.status(400).send(e)
+	});
+})
+
+app.get('/home/editProfile',(req,res) => {
+
+       res.status(200).render('login/personForm.hbs', {
+        person: {
+		password: req.person.password,
+		email: req.person.email
+	},
+        required_action: '/home/updatePerson'
+      })
+})
+
+app.post('/home/updatePerson', (req,res) => {
+
+  Persons.findOneAndUpdate({
+    _id: req.person._id,
+  }, {
+    email: req.body.email,
+    password: req.body.password,
+  }, {
+    new: true,
+  }).then(val => {
+    console.log(val);
+    res.redirect(`/home/profile?id=${req.person._id}`)
+  }).catch(e => {
+    res.status(300).send(e);
+  })
+
+})
+
 
 app.listen(3000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

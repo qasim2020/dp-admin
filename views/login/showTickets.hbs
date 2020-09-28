@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Show Persons</title>
+</head>
+
+<body>
+  {{> navbar}}
+
+  {{#each allTickets}}
+    <div class="card">
+	
+	<img src="{{this.url}}" width=500>
+	<p>Ticket No: {{this.ticketNo}}</p>
+
+	{{#if photo}} 
+ 
+	        <img src="{{photo}}" width="200px" alt=""> 
+        	<p><a href="/admin/editImage?public_id={{this._id}}&redirect=showTickets?public_id={{this.public_id}}">Edit Image</a> </p> 
+ 
+      	{{else}} 
+ 
+        	<p><a href="/admin/newImage?public_id={{this._id}}&redirect=showTickets?public_id={{this.public_id}}">New Image</a> </p> 
+ 
+	{{/if}} 
+
+	{{#if this.username}}
+
+		<p>Purchased by {{this.username}}</p>
+
+	{{/if}}
+      <p><a href="/admin/editTicket?id={{this._id}}">Edit Ticket </a> </p>
+      <p><a href="/admin/deleteTicket?id={{this._id}}">Delete</a> </p>
+
+    </div>
+  {{/each}}
+</body>
+
+</html>

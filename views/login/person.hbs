@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Sign in</title>
+  <style media="screen">
+  form>*,
+  .upper_box>* {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  </style>
+</head>
+
+<body>
+	
+	{{> nav person}}
+
+	<p>Username: {{person.username}}</p>
+	<p>Email : {{person.email}}</p>
+	<p>Password : {{person.password}}</p>
+	<a href="/home/editProfile?id={{person._id}}">Edit Profile Information</a>
+	{{#each tickets}}
+		<p>event Name: {{this.title}}</p>
+		<p>date: {{this.date}}</p>
+		<img src="{{this.photo}}" width=500>
+	{{/each}}
+
+</body>
+
+</html>

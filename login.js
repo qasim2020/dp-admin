@@ -556,7 +556,7 @@ app.post('/purchase/signup', (req, res) => {
       email: req.body.email,
       username: req.body.username
     };
-    res.redirect('/home/redirectToCheckout');
+    res.redirect('/purchase/tickets');
   }).catch(e => {
     req.flash('error', 'User already exists. Please sign in.');
     res.redirect('/purchase/signin'); // GIVE USER THE SIGN IN FORM
@@ -581,12 +581,25 @@ app.post('/purchase/signin', (req, res) => {
       email: val.email,
       username: val.username
     }
-    res.redirect('/home/redirectToCheckout');
+    res.redirect('/purchase/tickets');
   }).catch(e => {
     console.log(e);
     req.flash('error', e);
     res.redirect('/purchase/signin'); // GIVE USER THE SIGN IN FORM
   })
+})
+
+app.get('/purchase/tickets',(req,res) => {
+	return res.render('login/ticketsList.hbs');
+	Tickets.find().then(val => {
+		res.redirect('login/tickets.hbs',{
+			allTickets: val
+		});
+	}).catch(e => {
+		console.log(e);
+		res.status(400).send(e);
+	});
+
 })
 
 // STRIPE PAYMENTS

@@ -45,6 +45,18 @@
 
     .sadaf {
       color: white;
+      width: 400px;
+    }
+
+    .sadaf > a {
+	background: white;
+	padding: 9px 13px;
+	display: block;
+	width: fit-content;
+	text-decoration: none;
+	color: #004aad;
+	border-radius: 3px;
+	font-weight: bold;
     }
 
     .sana {
@@ -144,7 +156,7 @@
       <p> Join us to promote Tech Culture of Pakistan.</p>
       {{#if loggedIn}}
         
-      <a href="/home/redirectToCheckout">Redirect To Checkout</a>
+      <a href="/purchase/tickets">Reserve your Slot for 5 USD</a>
         <!-- <button id="">Reserve your slot for 5 USD</button> -->
       {{else}}
         <a href="/purchase/signup">Sign Up</a>

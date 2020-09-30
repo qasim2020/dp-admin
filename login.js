@@ -590,11 +590,13 @@ app.post('/purchase/signin', (req, res) => {
 })
 
 app.get('/purchase/tickets',(req,res) => {
-	return res.render('login/ticketsList.hbs');
+	
 	Tickets.find().then(val => {
-		res.redirect('login/tickets.hbs',{
-			allTickets: val
+		console.log(val);
+		return res.render('login/ticketsList.hbs',{
+				allTickets:val
 		});
+
 	}).catch(e => {
 		console.log(e);
 		res.status(400).send(e);

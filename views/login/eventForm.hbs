@@ -38,8 +38,14 @@
     <label for="description">Description</label>
     <textarea type="text" name="description" cols="100" rows="20" required>{{event.description}}</textarea>
 
-    <button type="submit" name="button">Submit</button>
 
+    <label for="status">Status</label>
+    <select name="status">
+        <option value="active">Active</option> 
+        <option value="null">False</option> 
+    </select>
+
+    <button type="submit" name="button">Submit</button>
   </form>
 </body>
 

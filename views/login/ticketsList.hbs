@@ -176,6 +176,23 @@
 	    align-items: center;
 	    justify-content: center;	
 	}
+
+        .grid a {
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }    
+
+        .grid > div:not(.true):hover {
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
         </style>
     
     
@@ -192,7 +209,7 @@
 
 		<div class="grid">
 		{{#each allTickets}}
-		<div>
+                <div class={{checkExists this.username}}>
 		
 			{{#if this.username}}
 			
@@ -201,8 +218,8 @@
 			</svg>
 
 			{{else}}			
-			
-			<p>{{this.ticketNo}}</p>
+
+                        <a href="/home/redirectToCheckout?ticketNo={{this.ticketNo}}">{{this.ticketNo}}</a>
 
 			{{/if}}
 
@@ -221,15 +238,20 @@
 		</svg>
 		<p>Select  slot</p>
 		</div>
+                {{#if show_bottom_4_btns}}           
+
+		<div class="bottom_box"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M7.5 7.5C9.57187 7.5 11.25 5.82188 11.25 3.75C11.25 1.67812 9.57187 0 7.5 0C5.42812 0 3.75 1.67812 3.75 3.75C3.75 5.82188 5.42812 7.5 7.5 7.5ZM7.5 9.375C4.99687 9.375 0 10.6313 0 13.125V15H15V13.125C15 10.6313 10.0031 9.375 7.5 9.375Z" fill="#2F80ED"/>
+		</svg>
+		<p>Log In</p>
+		</div>
+
+                {{/if}}
+
 		<div class="bottom_box"><svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path d="M16.875 0H1.875C0.834375 0 0.00937499 0.834375 0.00937499 1.875L0 13.125C0 14.1656 0.834375 15 1.875 15H16.875C17.9156 15 18.75 14.1656 18.75 13.125V1.875C18.75 0.834375 17.9156 0 16.875 0ZM16.875 13.125H1.875V7.5H16.875V13.125ZM16.875 3.75H1.875V1.875H16.875V3.75Z" fill="#2F80ED"/>
 		</svg>
 		<p>Make payment</p>
-		</div>
-		<div class="bottom_box"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path d="M7.5 7.5C9.57187 7.5 11.25 5.82188 11.25 3.75C11.25 1.67812 9.57187 0 7.5 0C5.42812 0 3.75 1.67812 3.75 3.75C3.75 5.82188 5.42812 7.5 7.5 7.5ZM7.5 9.375C4.99687 9.375 0 10.6313 0 13.125V15H15V13.125C15 10.6313 10.0031 9.375 7.5 9.375Z" fill="#2F80ED"/>
-		</svg>
-		<p>Create Password</p>
 		</div>
 		<div class="bottom_box"> <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 

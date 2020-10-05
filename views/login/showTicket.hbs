@@ -6,16 +6,12 @@
   </head>
   <body>
     {{> nav}}
-    <p>Welcome {{username}} !</p>
-    <p>You have purchased the ticket for our next event.</p>
-    <p>Date: Event Date</p>
-    <p>Time: Event Time</p>
-    <p>Event Name: Event Name</p>
-    <p>Description: Event Description</p>
-    <p><a href="#">Click here</a> to download the ticket for joining instructions.</p>
-    <p><a href="#">Click here</a> to view our previous event video.</p>
-    <p><a href="#">Click here</a> to download the calendar invite.</p>
-    <p>You can leave feedback on our email at qasimali24@gmail.com.</p>
-    <p>We have recently moved from Meetup website. You can check more about our previous events at this link.</p>
+    <p> Ticket No: {{ticketNo}} </p>
+    <p> Image:  </p>
+    <img src="{{{img}}}" width=500>
+    <p> Back Side: </p>
+    <img src="{{{back_img}}}" width=500>
+    <p> Username: {{{username}}} </p>
+    <p> Email: {{{email}}}</p>
   </body>
 </html>

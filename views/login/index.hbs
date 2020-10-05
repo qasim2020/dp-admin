@@ -154,20 +154,13 @@
       <img class="ooo" src="https://res.cloudinary.com/miscellaneous/image/upload/v1601197183/techshek/logo.png">
       <h2>Welcome to Techshek</h2>
       <p> Join us to promote Tech Culture of Pakistan.</p>
-      {{#if loggedIn}}
-        
-      <a href="/purchase/tickets">Reserve your Slot for 5 USD</a>
-        <!-- <button id="">Reserve your slot for 5 USD</button> -->
-      {{else}}
-        <a href="/purchase/signup">Sign Up</a>
-        <!-- <button id="">Reserve your slot for 5 USD</button> -->
-      {{/if}}
+      <a href="/purchase/tickets?public_id={{event._id}}">Reserve your Slot for 5 USD</a>
     </div>
   </div>
 
   <div class="bbb">
     <div>
-      <img class="sana" src="https://res.cloudinary.com/miscellaneous/image/upload/v1601026848/techshek/5f6db895af8b836846ab973c.png">
+        <img class="sana" src="{{event.photo}}">
     </div>
   </div>
 

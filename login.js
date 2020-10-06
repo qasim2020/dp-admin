@@ -696,6 +696,50 @@ app.use('/success', (req, res, next) => {
 
 });
 
+app.post('/hooks', bodyParser.raw({type: 'application/json'}), (req,res) => {
+  let event;
+
+  try {
+    event = JSON.parse(req.body);
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      const paymentIntent = event.data.object;
+      console.log(paymentIntent);
+          // Find username of receipt email
+      Persons.findOne({
+          email: paymentIntent.receipt_email
+      }).then(val => {
+          return Tickets.findOneAndUpdate({
+              // We need the ticket No here -> comes from meta data of this request
+          })
+      }).then(val => {
+      }).catch(e => {
+          console.log(e);
+      });
+          // Update ticket with this person's username
+      return res.status(200).send('hello');
+      // Then define and call a method to handle the successful payment intent.
+      // handlePaymentIntentSucceeded(paymentIntent);
+      break;
+    case 'payment_method.attached':
+      const paymentMethod = event.data.object;
+      // Then define and call a method to handle the successful attachment of a PaymentMethod.
+      // handlePaymentMethodAttached(paymentMethod);
+      break;
+    // ... handle other event types
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  // Return a response to acknowledge receipt of the event
+  res.json({received: true});
+});
+
 let getTicketPhoto = function(ticketNo) {
 
     return Tickets.aggregate([{

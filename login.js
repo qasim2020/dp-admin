@@ -549,6 +549,7 @@ app.use('/home', (req, res, next) => {
     req.flash('error', 'Please signin to access home page.');
     return res.redirect('/purchase/signin');
   } else {
+    req.session.ticketNo = req.query.ticketNo;
     Persons.findOne({
       username: req.session.person.username,
     }).then(val => {
@@ -651,27 +652,25 @@ app.get('/home/redirectToCheckout', async (req, res) => {
     customer_email: req.session.person && req.session.person.email,
     payment_method_types: ['card'],
     line_items: [{
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: 'Ticket',
-        },
-        unit_amount: 500,
-      },
+      price: 'price_1HARloCAEMzmcXZYYwrTAvMh',
       quantity: 1,
-    }, ],
+    }],
     mode: 'payment',
+    metadata: {
+        username: req.session.person.username,
+        ticketNo: req.session.ticketNo
+    },
     success_url: `${process.env.url}/success/ticket?email=${req.person.email}`,
     cancel_url: `${process.env.url}/`,
   });
-
+  console.log(session);
   res.render('login/redirectToCheckout.hbs', {
     id: session.id
   });
 })
 
 // No 1 --  SHOW TICKET HERE
-
+// Security labse ! User can fetch his ticket by using this route - so instead wait for the webhook and then serve the page !
 app.use('/success', (req, res, next) => {
   if (!req.session.person) {
     req.flash('error', 'Please signin to access your ticket.');

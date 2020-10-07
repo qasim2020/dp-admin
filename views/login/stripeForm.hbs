@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Sign in</title>
+  <style media="screen">
+  form>*,
+  .upper_box>* {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  </style>
+</head>
+
+<body>
+  <h3>Stripe Form</h3>
+
+  <p>{{error}}</p>
+
+  <form class="" action="{{required_action}}" method="post">
+
+    {{#if StripeSession._id}}
+    <label for="id">Id</label>
+    <input type="text" name="id" value="{{StripeSession._id}}" required>
+    {{/if}}
+
+    <label for="stripeId">Stripe Id</label>
+    <input type="text" name="stripeId" value="{{StripeSession.stripeId}}" required>
+
+    <label for="payment_intent">Payment Intent Id</label>
+    <input type="text" name="payment_intent" value="{{StripeSession.payment_intent}}" required>
+
+
+    <label for="username">Username</label>
+    <input type="text" name="username" value="{{StripeSession.username}}" required>
+
+    <label for="ticketNo">Ticket No</label>
+    <input type="text" name="ticketNo" value="{{StripeSession.ticketNo}}" required>
+
+    <button type="submit" name="button">Submit</button>
+
+  </form>
+</body>
+
+</html>

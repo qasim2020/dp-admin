@@ -645,6 +645,22 @@ app.get('/purchase/tickets',(req,res) => {
 
 // STRIPE PAYMENTS
 
+var StripeSession = mongoose.model('StripeSession', new mongoose.Schema({
+  stripeId: {
+      type: String
+  },
+  payment_intent: {
+    type: String
+  },
+  username: {
+    type: String,
+  },
+  ticketNo: {
+    type: String
+  },
+}));
+
+
 const stripe = require('stripe')(process.env.STRIPE);
 
 app.get('/home/redirectToCheckout', async (req, res) => {
@@ -652,48 +668,106 @@ app.get('/home/redirectToCheckout', async (req, res) => {
     customer_email: req.session.person && req.session.person.email,
     payment_method_types: ['card'],
     line_items: [{
-      price: 'price_1HARloCAEMzmcXZYYwrTAvMh',
+      price: process.env.ticket_price,
       quantity: 1,
     }],
     mode: 'payment',
-    metadata: {
-        username: req.session.person.username,
-        ticketNo: req.session.ticketNo
+    payment_intent_data: {
+        metadata: {
+            username: req.session.person.username,
+            ticketNo: req.session.ticketNo
+        },
     },
-    success_url: `${process.env.url}/success/ticket?email=${req.person.email}`,
+    success_url: `${process.env.url}/success/ticket?ticketNo=${req.session.ticketNo}&ticket_price=${process.env.ticket_price}`,
     cancel_url: `${process.env.url}/`,
   });
   console.log(session);
+  const stripeSession = new StripeSession ({
+      stripeId: session.id,
+      payment_intent: session.payment_intent,
+      username: req.session.person.username,
+      ticketNo: req.session.ticketNo
+  });
+  stripeSession.save().then(val => console.log('session saved')).catch(e => console.log(e));
   res.render('login/redirectToCheckout.hbs', {
     id: session.id
   });
 })
 
 // No 1 --  SHOW TICKET HERE
-// Security labse ! User can fetch his ticket by using this route - so instead wait for the webhook and then serve the page !
 app.use('/success', (req, res, next) => {
   if (!req.session.person) {
     req.flash('error', 'Please signin to access your ticket.');
     return res.redirect('/');
   }
 
-  if (req.query.email != req.session.person.email) {
-    req.flash('error', 'Mismatch session and query email.');
-    return res.redirect('/home');
+  if (req.query.ticketNo != req.session.ticketNo) {
+      req.flash('error', 'Your ticket does not match the ticket placed in the session. Please retry purchasing');
+      return res.redirect('/');
   }
 
-  Persons.findOne({
-    email: req.query.email,
-  }).then(val => {
-    if (!val) return Promise.reject('No person found with this email.')
-    req.person = val,
-      next();
-  }).catch(e => {
-    req.flash('error', e);
-    return res.redirect('/');
-  })
+  if (req.query.ticket_price != process.env.ticket_price) {
+      req.flash('error', 'Invalid ticket price session, Please follow proper route');
+      return res.redirect('/');
+  }
 
+  next();
+
+
+  //Check if the payment intent has the same payment_intent_id as it is mentioned here or not !
+
+//  StripeSession.findOne({
+//      payment_intent: req.query.payment_intent
+//  }).then(val => {
+//      if (!val) {
+//          req.flash('error','Bad Payment Intent Token, please contact support')
+//          return res.redirect('/');
+//      }
+//      req.StripeSession = val;
+//      console.log('payment_successful because stripe success url has been triggered');
+//      next();
+//  }).catch(e => {
+//      req.flash('error', e);
+//      return res.redirect('/');
+//  })
+
+})
+
+
+var StripeTrigger = mongoose.model('StripeTrigger', new mongoose.Schema({
+  array: {
+    	type: Object,
+  },
+}));
+
+
+app.get('/updateStripeTrigger', (req,res) => {
+    StripeTrigger.findOne().then(val => {
+        console.log(val);
+        res.status(200).render('stripeTriggerForm.hbs',{
+            stripeTrigger: val,
+            required_action: 'updateTrigger'
+        });
+    }).catch(e => {
+        res.status(500).send(e);
+    });
 });
+
+app.post('/updateStripeTrigger', (req,res) => {
+
+    StripeTrigger.findOneAndUpdate({
+        _id: req.query.id
+    },{
+        id: req.body.payment_intent
+    },{
+        new: true
+    }).then(val => {
+        res.redirect('/showStripeSessions');
+    }).catch(e => {
+        res.status(500).send(e);
+    })
+
+});    
 
 app.post('/hooks', bodyParser.raw({type: 'application/json'}), (req,res) => {
   let event;
@@ -709,19 +783,23 @@ app.post('/hooks', bodyParser.raw({type: 'application/json'}), (req,res) => {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
       console.log(paymentIntent);
-          // Find username of receipt email
-      Persons.findOne({
-          email: paymentIntent.receipt_email
+      StripeSession.findOne({
+          payment_intent: paymentIntent.id
       }).then(val => {
+          if (!val) return Promise.reject('no payment intent with this id found in database');
           return Tickets.findOneAndUpdate({
-              // We need the ticket No here -> comes from meta data of this request
-          })
-      }).then(val => {
+              ticketNo: val.ticketNo
+          },{
+              username: val.username
+          },{
+              new: true
+          });
+      }).then(ticket => {
+         console.log(ticket);
       }).catch(e => {
-          console.log(e);
-      });
-          // Update ticket with this person's username
-      return res.status(200).send('hello');
+         console.log(e);
+      })
+      
       // Then define and call a method to handle the successful payment intent.
       // handlePaymentIntentSucceeded(paymentIntent);
       break;
@@ -778,8 +856,8 @@ let getTicketPhoto = function(ticketNo) {
 
 app.get('/success/ticket', (req, res) => {
     Tickets.findOneAndUpdate({
-        ticketNo: req.session.ticketNo,
-        public_id: req.session.event_id
+        ticketNo: req.session.ticketNo, // TICKETNO is selected from the session
+        public_id: req.session.event_id // EVENT ID IS TRIGGERED WHEN USER LANDS IN THE TICKETS LIST PAGE 
     },{
         username: req.session.person.username,
     },{
@@ -788,10 +866,10 @@ app.get('/success/ticket', (req, res) => {
         return Promise.all([getTicketPhoto(req.session.ticketNo),getTicketPhoto('41')]);
     }).then(val => {
         res.status(200).render('login/showTicket.hbs',{
-            ticketNo: req.session.ticketNo,
+            ticketNo: val[0][0].ticketNo,
             img: val[0][0].photo,
             back_img: val[1][0].photo,
-            username: req.session.person.username,
+            username: val[0][0].username,
             email: req.session.person.email,
         })
     });
@@ -929,6 +1007,55 @@ app.post('/admin/updateTicket',(req,res) => {
 	})
 
 })
+
+app.get('/admin/showStripeSessions', (req,res) => {
+    StripeSession.find().then(val => {
+        return res.render('login/showStripeSessions.hbs',{
+            allSessions: val
+        });
+    }).catch(e => {
+        res.status(500).send(e);
+    });
+});
+
+app.get('/admin/editStripeSession', (req,res) => {
+
+    StripeSession.findOne({_id: req.query.id}).then(val => {
+        return res.render('login/stripeForm.hbs',{
+            StripeSession: val,
+            required_action: '/admin/updateStripeSession'
+        });
+    }).catch(e => {
+        res.status(500).send(e);
+    });
+
+});
+
+app.post('/admin/updateStripeSession', (req,res) => {
+    StripeSession.findOneAndUpdate({
+        _id: req.body.id
+    },{
+        stripeId: req.body.stripeId,
+        payment_intent: req.body.payment_intent,
+        username: req.body.username,
+        ticketNo: req.body.ticketNo
+    },{
+        new: true
+    }).then(val => {
+        res.redirect('/admin/showStripeSessions')
+    }).catch(e => {
+        res.status(500).send(e);
+    });
+
+})
+
+app.get('/admin/deleteStripeSession', (req,res) => {
+    StripeSession.deleteOne({_id: req.query.id}).then(val => {
+        return res.redirect('/admin/showStripeSessions')
+    }).catch(e => {
+        res.status(500).send(e);
+    });
+});
 
 // UPDATE PROFILE DETAILS HERE
 

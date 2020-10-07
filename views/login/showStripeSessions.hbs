@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Show Stripe Sessions</title>
+</head>
+
+<body>
+  {{> navbar}}
+
+  {{#each allSessions}}
+    <div class="card">
+
+      <p style="word-break: break-word;">StripeId: {{this.stripeId}}</p>
+      <p>Payment_intent: {{this.payment_intent}}</p>
+      <p>Username: {{this.username}}</p>
+      <p>Ticket No: {{this.ticketNo}}</p>
+      <p><a href="/admin/editStripeSession?id={{this._id}}">Edit Stripe Session</a> </p>
+      <p><a href="/admin/deleteStripeSession?id={{this._id}}">Delete</a> </p>
+
+    </div>
+  {{/each}}
+</body>
+
+</html>

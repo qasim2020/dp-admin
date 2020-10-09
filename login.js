@@ -733,41 +733,22 @@ app.use('/success', (req, res, next) => {
 
 })
 
+app.get('/admin/hooks', (req,res) => {
+    
+    req.body = {
+        type: 'payment_intent.succeeded',
+        data: {
+            object: {
+                id: req.query.payment_intent
+            }
+        }
+    };
 
-var StripeTrigger = mongoose.model('StripeTrigger', new mongoose.Schema({
-  array: {
-    	type: Object,
-  },
-}));
+    console.log(req.body);
 
+    res.redirect('/hooks');
 
-app.get('/updateStripeTrigger', (req,res) => {
-    StripeTrigger.findOne().then(val => {
-        console.log(val);
-        res.status(200).render('stripeTriggerForm.hbs',{
-            stripeTrigger: val,
-            required_action: 'updateTrigger'
-        });
-    }).catch(e => {
-        res.status(500).send(e);
-    });
 });
-
-app.post('/updateStripeTrigger', (req,res) => {
-
-    StripeTrigger.findOneAndUpdate({
-        _id: req.query.id
-    },{
-        id: req.body.payment_intent
-    },{
-        new: true
-    }).then(val => {
-        res.redirect('/showStripeSessions');
-    }).catch(e => {
-        res.status(500).send(e);
-    })
-
-});    
 
 app.post('/hooks', bodyParser.raw({type: 'application/json'}), (req,res) => {
   let event;

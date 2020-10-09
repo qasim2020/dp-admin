@@ -17,6 +17,7 @@
       <p>Username: {{this.username}}</p>
       <p>Ticket No: {{this.ticketNo}}</p>
       <p><a href="/admin/editStripeSession?id={{this._id}}">Edit Stripe Session</a> </p>
+      <p><a href="/admin/hooks?payment_intent={{this.payment_intent}}">Trigger Web Hook</a> </p>
       <p><a href="/admin/deleteStripeSession?id={{this._id}}">Delete</a> </p>
 
     </div>

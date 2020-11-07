@@ -1,0 +1,66 @@
+<html>
+
+<head>
+
+    <title>New Collection</title>
+
+    <style type="text/css">
+        
+        body {
+            width: 800px;
+            margin: auto;
+        }
+        
+        .propertySelect {
+            display: flex;
+            border: 1px solid grey;
+        }
+
+        .propertySelect > * {
+            width: 50%;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid grey;
+        }
+
+        form > * {
+            margin-top: 1rem;
+        }
+
+        button {
+            padding: 10px;
+            border: 1px solid grey;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <p>Create new Collection below</p>
+
+    <p>Owner: {{owner}}</p>
+
+    <p>Collection Name: {{name}}</p>
+
+    <form action="#">
+      <label for="cars">Choose a property</label>
+
+      <div class="propertySelect">
+          <input name="label1" type="text" placeholder="Label">
+          <select name="type" id="type1">
+            {{#each types}}
+              <option value="volvo">{{this}}</option>
+            {{/each}}
+          </select>
+      </div>
+
+      <button>Add One More</button>
+        <br>
+      <button type="submit">Submit</button>
+    </form>
+
+</body>
+
+</html>

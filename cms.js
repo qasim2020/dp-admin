@@ -91,8 +91,39 @@ app.get('/:owner/admin/:module',(req,res) => {
     return myFuncs[req.params.module](req,res);
 });
 
-app.get('/:owner/:module',(req,res) => {
-    myFuncs[req.params.module](req,res);
+app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
+    // CREATE A MODEL 
+    // Create a COLLECTION WITH A CERTAIN NAME
+    // SAVE AN ITEM IN THIS COLLECTION
+    // Do all this using the myFuncs
+    // To make sure it is movable
+    let Model = myFuncs.createModel(req.params.input,{
+        name: {
+            type: String,
+            required: true,
+        },
+        password: {
+            type: String,
+            required: true
+        }
+    });
+   let output = await myFuncs.findAll(Model); 
+    return console.log(output);
+    // What are they looking for ? data or page ?
+    switch(true) {
+      case (req.params.requiredType == 'data'):
+        return res.send('this is data request');
+        // code block
+        break;
+      case (req.params.requiredType == 'page'):
+        return res.send('this is page request');
+        // code block
+        break;
+      default:
+        // code block
+    }
+    // let data = myFuncs[req.param.module](req,res);
+    // myFuncs[req.params.module](req,res);
 });
 
 var myFuncs = {
@@ -103,8 +134,15 @@ var myFuncs = {
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
+    createModel : function(modelName, data) {
+        return mongoose.model(modelName, new mongoose.Schema(data));
+    },
+    findAll: function(modelName) {
+        return modelName.find();
+    },
     createNewCollection : function(req,res,collectionName) {
         console.log(`creating new collection at ${collectionName}`);
+        // newCollection Page always loaded from root
         return res.render('root/createNewCollection.hbs',{
             owner: req.params.owner,
             name: collectionName,

@@ -84,6 +84,30 @@ app.use('/:owner/admin', async (req,res,next) => {
     if (checkCollectionExists) {
         return signin(req.params.owner,admin);
     };
+    
+    if (noCollectionExists) {
+        let Model = await myFuncs.createCollection('Collections',{
+            name: {
+                type: String,
+                required: true,
+            },
+            owner: {
+                type: String,
+                required: true,
+            },
+            properties: {
+                type: Object,
+                required: true,
+            }
+        });
+        // redirect to createNewCollection.hbs
+        // user geneartes properties
+        // first entry is saved at Post('/root/data/save/Collections')
+        // response is data
+        // now check if there is an entry in the data
+        // then go ahead and show the dashboard page
+        return res.redirect('/root/page/createNewCollection');
+    };
     return myFuncs.createNewCollection(req,res,`${req.params.owner}-users`);
 });
 
@@ -92,7 +116,7 @@ app.get('/:owner/admin/:module',(req,res) => {
 });
 
 app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
-    // CREATE A MODEL 
+    // CREATE A MODEL - DONE
     // Create a COLLECTION WITH A CERTAIN NAME
     // SAVE AN ITEM IN THIS COLLECTION
     // Do all this using the myFuncs

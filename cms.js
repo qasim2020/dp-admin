@@ -85,18 +85,19 @@ app.use('/:owner/admin', async (req,res,next) => {
         return signin(req.params.owner,admin);
     };
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
+    console.log(checkCollectionExists, 'collections');
     if (checkCollectionExists == false) {
         req.body.schema = {
             name: {
-                type: String,
+                type: "String",
                 required: true,
             },
             owner: {
-                type: String,
+                type: "String",
                 required: true,
             },
             properties: {
-                type: Object,
+                type: "Object",
                 required: true,
             }
         };
@@ -105,9 +106,10 @@ app.use('/:owner/admin', async (req,res,next) => {
         req.body.data = {
             name: 'collections',
             owner: 'root',
-            properties: req.body.properties
+            properties: req.body.schema
         };
         let output = await myFuncs.save(req,res);
+        console.log(output);
         // return console.log(output); 
         // redirect to createNewCollection.hbs
         // user geneartes properties
@@ -203,11 +205,13 @@ var myFuncs = {
         return result.some(val => val.name == `${collectionName}`);
     },
     createModel : function(req,res) {
-        console.log(req.body.modelName, req.body.schema);
-        return mongoose.model(req.body.modelName, new mongoose.Schema(req.body.schema));
+        try {
+          return  mongoose.model(req.body.modelName)
+        } catch (error) {
+          return  mongoose.model(req.body.modelName, new mongoose.Schema(req.body.schema));
+        }
     },
     save : async function(req,res) {
-        console.log(req.body.model);
         const doc = new req.body.model(req.body.data);
         let output = await doc.save();
         return output;
@@ -229,41 +233,32 @@ var myFuncs = {
             error: 'Please give collection Name'
         };
         console.log(`creating new collection at ${req.params.input}`);
-        req.body.schema = {
+        req.session.schema = {
             name: {
-                type: String,
+                type: "String",
                 required: true,
             },
             owner: {
-                type: String,
+                type: "String",
                 required: true,
             },
             properties: {
-                type: Object,
+                type: "Object",
                 required: true,
             }
         };
-        req.body.modelName = 'collections';
-        req.session.model = this.createModel(req,res);
-        console.log(req.session);
+        req.session.modelName = 'collections';
         return {
             owner: req.params.owner,
             name: req.params.owner + '-' + req.params.input,
             types: ['String','Number','Array','Object','Options','CheckBoxes']
         };
     }, 
-    createConstructor: function(req,res) {
-
-    },
     saveSequence: async function(req,res) {
-        console.log(req.session.model);
-        console.log(req.session);
-        req.body.model = req.session.model;
-        return this.save(req,res);
         req.body.modelName = req.session.modelName;
         req.body.schema = req.session.schema;
-        let model = this.createModel(req,res);
-        console.log(model);
+        req.body.model = this.createModel(req,res);
+        let output = await this.save(req,res); 
         console.log('save sequence ends here');
     },        
     destroySession: function(req,res) {

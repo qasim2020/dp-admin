@@ -84,9 +84,9 @@ app.use('/:owner/admin', async (req,res,next) => {
     if (checkCollectionExists) {
         return signin(req.params.owner,admin);
     };
-    
-    if (noCollectionExists) {
-        let Model = await myFuncs.createCollection('Collections',{
+    checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
+    if (checkCollectionExists == false) {
+        req.body.properties = {
             name: {
                 type: String,
                 required: true,
@@ -99,20 +99,47 @@ app.use('/:owner/admin', async (req,res,next) => {
                 type: Object,
                 required: true,
             }
-        });
+        };
+        req.body.modelName = 'collections';
+        req.body.model = await myFuncs.createModel(req,res);
+        req.body.data = {
+            name: 'collections',
+            owner: 'root',
+            properties: req.body.properties
+        };
+        let output = await myFuncs.save(req,res);
+        // return console.log(output); 
         // redirect to createNewCollection.hbs
         // user geneartes properties
         // first entry is saved at Post('/root/data/save/Collections')
         // response is data
         // now check if there is an entry in the data
         // then go ahead and show the dashboard page
-        return res.redirect('/root/page/createNewCollection');
+        return res.redirect('/root/admin/page/createNewCollection/n');
     };
-    return myFuncs.createNewCollection(req,res,`${req.params.owner}-users`);
+    console.log('all checks completed moving to admin route');
+    next();
 });
 
-app.get('/:owner/admin/:module',(req,res) => {
-    return myFuncs[req.params.module](req,res);
+app.get('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
+
+    let data = await myFuncs[req.params.module](req,res);
+    switch(true) {
+      case (req.params.requiredType == 'data'):
+        console.log('this is data request');
+        return res.status(200).send(data);
+        // code block
+        break;
+      case (req.params.requiredType == 'page'):
+        console.log('this is page request');
+        return res.status(200).render(`${req.params.owner}/${req.params.module}.hbs`,data);
+        // code block
+        break;
+      default:
+        // code block
+    }
+    return console.log('request ended here');
+
 });
 
 app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
@@ -121,31 +148,22 @@ app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
     // SAVE AN ITEM IN THIS COLLECTION
     // Do all this using the myFuncs
     // To make sure it is movable
-    let Model = myFuncs.createModel(req.params.input,{
-        name: {
-            type: String,
-            required: true,
-        },
-        password: {
-            type: String,
-            required: true
-        }
-    });
-   let output = await myFuncs.findAll(Model); 
-    return console.log(output);
-    // What are they looking for ? data or page ?
+    let data = await myFuncs[req.params.module](req,res);
     switch(true) {
       case (req.params.requiredType == 'data'):
-        return res.send('this is data request');
+        console.log('this is data request');
+        return res.status(200).send(data);
         // code block
         break;
       case (req.params.requiredType == 'page'):
-        return res.send('this is page request');
+        console.log('this is page request');
+        return res.status(200).render(req.params.module,data);
         // code block
         break;
       default:
         // code block
     }
+    console.log('request ended here');
     // let data = myFuncs[req.param.module](req,res);
     // myFuncs[req.params.module](req,res);
 });
@@ -158,23 +176,44 @@ var myFuncs = {
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
-    createModel : function(modelName, data) {
-        return mongoose.model(modelName, new mongoose.Schema(data));
+    createModel : function(req,res) {
+        return mongoose.model(req.body.modelName, new mongoose.Schema(req.body.data));
     },
-    findAll: function(modelName) {
-        return modelName.find();
+    save : async function(req,res) {
+        const doc = new req.body.model(req.body.data);
+        let output = await doc.save();
+        return output;
     },
-    createNewCollection : function(req,res,collectionName) {
-        console.log(`creating new collection at ${collectionName}`);
-        // newCollection Page always loaded from root
-        return res.render('root/createNewCollection.hbs',{
+    dropCollection: async function(req,res) {
+        try {
+            await mongoose.connection.db.dropCollection(req.params.input);
+            return {
+                success: 'collection dropped'
+            }
+        } catch (e) {
+            return {
+                error: e
+            }
+        };
+    },
+    createNewCollection : function(req,res) {
+        if (req.params.input == 'n') return {
+            error: 'Please give collection Name'
+        };
+        console.log(`creating new collection at ${req.params.input}`);
+        return {
             owner: req.params.owner,
-            name: collectionName,
+            name: req.params.owner + '-' + req.params.input,
             types: ['String','Number','Array','Object','Options','CheckBoxes']
-        });
+        };
+    }, 
+    destroySession: function(req,res) {
+        req.session.destroy();
+        return {
+            success: 'session destroyed'
+        };
     },
-    checkAdmin:  function(username,owner) { 
-        // find if Username in Session Variable matches the Owner Name in root-users database
+    checkAdmin:  function(username,owner) { // find if Username in Session Variable matches the Owner Name in root-users database
         Users.findOne({person: username, owner: owner}).then(val => val !== null).catch(e => false); // dummy
     }
 };

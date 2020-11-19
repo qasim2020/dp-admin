@@ -87,7 +87,7 @@ app.use('/:owner/admin', async (req,res,next) => {
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
     console.log(checkCollectionExists, 'collections');
     if (checkCollectionExists == false) {
-        req.body.schema = {
+        let schema = {
             name: {
                 type: "String",
                 required: true,
@@ -101,14 +101,14 @@ app.use('/:owner/admin', async (req,res,next) => {
                 required: true,
             }
         };
-        req.body.modelName = 'collections';
-        req.body.model = await myFuncs.createModel(req,res);
-        req.body.data = {
+        let modelName = 'collections';
+        let model = await myFuncs.createModel(modelName,schema);
+        let data = {
             name: 'collections',
             owner: 'root',
-            properties: req.body.schema
+            properties: schema,
         };
-        let output = await myFuncs.save(req,res);
+        let output = await myFuncs.save(model,data);
         console.log(output);
         // return console.log(output); 
         // redirect to createNewCollection.hbs
@@ -126,93 +126,62 @@ app.use('/:owner/admin', async (req,res,next) => {
 app.get('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
 
     let data = await myFuncs[req.params.module](req,res);
-    switch(true) {
-      case (req.params.requiredType == 'data'):
-        console.log('this is data request');
-        return res.status(200).send(data);
-        // code block
-        break;
-      case (req.params.requiredType == 'page'):
-        console.log('this is page request');
-        return res.status(200).render(`${req.params.owner}/${req.params.module}.hbs`,data);
-        // code block
-        break;
-      default:
-        // code block
-    }
-    return console.log('request ended here');
+    myFuncs.respond(data,req,res);
 
 });
 
-    // Check module is open or not - at the first
-    // ModuleIsOpen ? next() : 'Sorry module is locked'
-
 app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
-    // CREATE A MODEL - DONE
-    // Create a COLLECTION WITH A CERTAIN NAME
-    // SAVE AN ITEM IN THIS COLLECTION
-    // Do all this using the myFuncs
-    // To make sure it is movable
+
     let data = await myFuncs[req.params.module](req,res);
-    switch(true) {
-      case (req.params.requiredType == 'data'):
-        console.log('this is data request');
-        return res.status(200).send(data);
-        // code block
-        break;
-      case (req.params.requiredType == 'page'):
-        console.log('this is page request');
-        return res.status(200).render(req.params.module,data);
-        // code block
-        break;
-      default:
-        // code block
-    }
-    console.log('request ended here');
-    // let data = myFuncs[req.param.module](req,res);
-    // myFuncs[req.params.module](req,res);
+    myFuncs.respond(data,req,res);
+
 });
 
 app.post('/:owner/:requiredType/:module/:input', async (req,res) => {
 
-    console.log(req.body);
-
     let data = await myFuncs[req.params.module](req,res);
-    switch(true) {
-      case (req.params.requiredType == 'data'):
-        console.log('this is data request');
-        return res.status(200).send(data);
-        // code block
-        break;
-      case (req.params.requiredType == 'page'):
-        console.log('this is page request');
-        return res.status(200).render(req.params.module,data);
-        // code block
-        break;
-      default:
-        // code block
-    }
-    console.log('request ended here');
+    myFuncs.respond(data,req,res);
 
 });
 
 var myFuncs = {
-    signup: function(req,res) { return res.send('sign up') },
-    signin: function(req,res) { return res.send('sign in') },
+    respond: function(data,req,res) {
+        switch(true) {
+          case (req.params.requiredType == 'data'):
+            console.log('this is data request');
+            return res.status(200).send(data);
+            break;
+          case (req.params.requiredType == 'page'):
+            console.log('this is page request');
+            return res.status(200).render(`${req.params.owner}/${req.params.module}.hbs`,{data});
+            break;
+          default:
+        }
+    },
     checkCollectionExists: async function(collectionName) {
         console.log(`checking if ${collectionName} exists or not`);
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
-    createModel : function(req,res) {
-        try {
-          return  mongoose.model(req.body.modelName)
-        } catch (error) {
-          return  mongoose.model(req.body.modelName, new mongoose.Schema(req.body.schema));
-        }
+    createModel : function(modelName, schema) {
+        
+        console.log(mongoose);
+        console.log(mongoose.models[modelName]);
+        let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
+        if (modelExistsAlready) return mongoose.models[modelName];
+
+        console.log('creating model at ' + modelName);
+        
+        return mongoose.model(modelName, new mongoose.Schema(schema));
+       //  try {
+       //    return  mongoose.model(modelName)
+       //  } catch (error) {
+       //    return  mongoose.model(modelName, new mongoose.Schema(schema));
+       //  }
+
     },
-    save : async function(req,res) {
-        const doc = new req.body.model(req.body.data);
+    save : async function(model,data) {
+        const doc = new model(data);
         let output = await doc.save();
         return output;
     },
@@ -255,12 +224,30 @@ var myFuncs = {
         };
     }, 
     saveSequence: async function(req,res) {
-        req.body.modelName = req.session.modelName;
-        req.body.schema = req.session.schema;
-        req.body.model = this.createModel(req,res);
-        let output = await this.save(req,res); 
+        let model = this.createModel(req.session.modelName,req.session.schema);
+        let output = await this.save(model,req.body.data); 
         console.log('save sequence ends here');
     },        
+    showCollection: async function(req,res) {
+        let collectionsTable = await this.createModel('collections').find({owner: req.params.owner}).lean();
+        let navRows = collectionsTable.map(val => val.name);
+        let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
+        collectionHeadings.unshift('_id');
+        let dataRows = await this.createModel(req.params.input).find().lean();
+        let newRows = dataRows.map(val => {
+            let total = [];
+            for (i=0; i<collectionHeadings.length; i++) {
+                total.push(val[collectionHeadings[i]]);
+            }
+            return total;
+        });
+
+        return {
+            navRows: navRows,
+            th: collectionHeadings,
+            dataRows: newRows
+        };
+    },
     destroySession: function(req,res) {
         req.session.destroy();
         return {

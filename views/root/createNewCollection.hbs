@@ -53,20 +53,20 @@
 
 <body>
 
-    <p class=error>{{error}}</p>
+    <p class=error>{{data.error}}</p>
 
     <p>Create new Collection below</p>
 
-    <p>Owner: {{owner}}</p>
+    <p>Owner: {{data.owner}}</p>
 
-    <p>Collection Name: {{name}}</p>
+    <p>Collection Name: {{data.name}}</p>
 
     <form action="#" method="post">
         
       <div class="propertySelect">
           <input name="label1" type="text" placeholder="Label">
           <select name="type1" id="type1">
-            {{#each types}}
+            {{#each data.types}}
                 <option value="{{this}}">{{this}}</option>
             {{/each}}
           </select>
@@ -107,31 +107,17 @@
                 });
             },{});
             let data = {
-                name: '{{name}}',
-                owner: '{{owner}}',
+                name: '{{data.name}}',
+                owner: '{{data.owner}}',
                 properties: output
             };
             $.ajax({
               type: "POST",
               url: '/root/data/saveSequence/n',
-                data: {data},
+              data: {data},
               success: () => console.log('successful data sent'),
             });
             return console.log(data);
-            return console.log(output);
-            return console.log($(this).serializeArray().filter(val => /type/gi.test(val.name)));
-            console.log($(this).serialize());
-            console.log('form prevented from submission');
-            let properties = {
-                name: {
-                    type: String,
-                    required: true
-                },
-                password: {
-                    type: Object,
-                    required: true,
-                }
-            };
         });
 
         // label: name, type: String

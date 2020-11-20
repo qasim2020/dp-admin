@@ -163,6 +163,7 @@ var myFuncs = {
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
+
     createModel : function(modelName, schema) {
         
         console.log(mongoose);
@@ -172,12 +173,14 @@ var myFuncs = {
 
         console.log('creating model at ' + modelName);
         
-        return mongoose.model(modelName, new mongoose.Schema(schema));
-       //  try {
-       //    return  mongoose.model(modelName)
-       //  } catch (error) {
-       //    return  mongoose.model(modelName, new mongoose.Schema(schema));
-       //  }
+        try {
+              console.log(schema);
+              if (schema != undefined) throw 'schema not given'
+              return  mongoose.model(modelName)
+         } catch (error) {
+              console.log(error)
+              return  mongoose.model(modelName, new mongoose.Schema(schema));
+         }
 
     },
     save : async function(model,data) {
@@ -231,6 +234,7 @@ var myFuncs = {
     showCollection: async function(req,res) {
         let collectionsTable = await this.createModel('collections').find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
+        console.log(collectionsTable);
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
         let dataRows = await this.createModel(req.params.input).find().lean();

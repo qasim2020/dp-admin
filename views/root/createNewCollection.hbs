@@ -107,14 +107,15 @@
                 });
             },{});
             let data = {
+                modelName: 'collections',
                 name: '{{data.name}}',
                 owner: '{{data.owner}}',
                 properties: output
             };
             $.ajax({
               type: "POST",
-              url: '/root/data/saveSequence/n',
-              data: {data},
+              url: '/root/admin/data/saveSequence/n',
+              data: data,
               success: () => console.log('successful data sent'),
             });
             return console.log(data);

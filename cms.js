@@ -1,3 +1,6 @@
+const chalk = require('chalk');
+
+
 const express = require('express')
 const hbs = require('hbs')
 const app = express();
@@ -64,6 +67,23 @@ mongoose.connect(process.env.MONGODB_URI, {
   }
 });
 
+let schema = {
+    name: {
+        type: "String",
+        required: true,
+    },
+    owner: {
+        type: "String",
+        required: true,
+    },
+    properties: {
+        type: "Object",
+        required: true,
+    }
+};
+
+let Collections = mongoose.model('collections', new mongoose.Schema(schema));
+
 hbs.registerPartials(__dirname + '/views/login/partials');
 
 hbs.registerHelper('breaklines', (val) => {
@@ -73,6 +93,11 @@ hbs.registerHelper('breaklines', (val) => {
 hbs.registerHelper('checkExists', (val) => {
     return val != undefined ? 'true' : '';
 })
+
+hbs.registerHelper('matchValues', (val1,val2) => {
+    console.log(val1,val2,val1 == val2);
+    return val1 == val2
+});
 
 app.use('/:owner/admin', async (req,res,next) => {
     if ( req.session && req.session.hasOwnProperty('person') ) {
@@ -87,57 +112,34 @@ app.use('/:owner/admin', async (req,res,next) => {
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
     console.log(checkCollectionExists, 'collections');
     if (checkCollectionExists == false) {
-        let schema = {
-            name: {
-                type: "String",
-                required: true,
-            },
-            owner: {
-                type: "String",
-                required: true,
-            },
-            properties: {
-                type: "Object",
-                required: true,
-            }
-        };
-        let modelName = 'collections';
-        let model = await myFuncs.createModel(modelName,schema);
         let data = {
             name: 'collections',
             owner: 'root',
             properties: schema,
         };
-        let output = await myFuncs.save(model,data);
+        let output = await myFuncs.save(Collections,data);
+        console.log(chalk.bold.red('first collection created'));
         console.log(output);
-        // return console.log(output); 
-        // redirect to createNewCollection.hbs
-        // user geneartes properties
-        // first entry is saved at Post('/root/data/save/Collections')
-        // response is data
-        // now check if there is an entry in the data
-        // then go ahead and show the dashboard page
-        return res.redirect('/root/admin/page/createNewCollection/n');
+        return next();
     };
-    console.log('all checks completed moving to admin route');
+    console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
 
 app.get('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
 
-    let data = await myFuncs[req.params.module](req,res);
-    myFuncs.respond(data,req,res);
-
-});
-
-app.get('/:owner/:requiredType/:module/:input',async (req,res) => {
+    console.log('');
+    console.log(chalk.bold.red('new Request starts here'));
 
     let data = await myFuncs[req.params.module](req,res);
     myFuncs.respond(data,req,res);
 
 });
 
-app.post('/:owner/:requiredType/:module/:input', async (req,res) => {
+app.post('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
+
+    console.log('');
+    console.log(chalk.bold.red('new Request starts here'));
 
     let data = await myFuncs[req.params.module](req,res);
     myFuncs.respond(data,req,res);
@@ -146,6 +148,7 @@ app.post('/:owner/:requiredType/:module/:input', async (req,res) => {
 
 var myFuncs = {
     respond: function(data,req,res) {
+        console.log(chalk.bold.yellow('sending data to page'), data);
         switch(true) {
           case (req.params.requiredType == 'data'):
             console.log('this is data request');
@@ -158,30 +161,45 @@ var myFuncs = {
           default:
         }
     },
+    newDocument: async function(req,res) {
+        let collection = await Collections.findOne({name: req.params.input}).lean();
+        let properties = collection.properties;
+        let keys = Object.keys(collection.properties);
+        let values = Object.values(collection.properties);
+        let output = keys.map(val => {
+            return {
+                label: val.charAt(0).toUpperCase() + val.slice(1),
+                type: properties[val]['type'] == 'String' ? 'input' : 'radio',
+                name: val,
+                id: val,
+                required: 'required',
+                value: '',
+            };
+        });
+        output.collection = req.params.input;
+        console.log(output);
+        return output;
+    },
     checkCollectionExists: async function(collectionName) {
         console.log(`checking if ${collectionName} exists or not`);
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
-
-    createModel : function(modelName, schema) {
+    createModel : async function(modelName) {
         
-        console.log(mongoose);
-        console.log(mongoose.models[modelName]);
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
+        let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
+        console.log(mongoose);
+        console.log({modelExistsAlready,schemaExistsAlready});
+
         if (modelExistsAlready) return mongoose.models[modelName];
-
-        console.log('creating model at ' + modelName);
         
-        try {
-              console.log(schema);
-              if (schema != undefined) throw 'schema not given'
-              return  mongoose.model(modelName)
-         } catch (error) {
-              console.log(error)
-              return  mongoose.model(modelName, new mongoose.Schema(schema));
-         }
+        // if schema does not exist -- fetch properties from Collections properties ;
 
+        let schema = await Collections.findOne({name: modelName}).lean();
+        console.log(schema);
+        return mongoose.model(modelName, new mongoose.Schema(schema.properties));
+        
     },
     save : async function(model,data) {
         const doc = new model(data);
@@ -205,21 +223,6 @@ var myFuncs = {
             error: 'Please give collection Name'
         };
         console.log(`creating new collection at ${req.params.input}`);
-        req.session.schema = {
-            name: {
-                type: "String",
-                required: true,
-            },
-            owner: {
-                type: "String",
-                required: true,
-            },
-            properties: {
-                type: "Object",
-                required: true,
-            }
-        };
-        req.session.modelName = 'collections';
         return {
             owner: req.params.owner,
             name: req.params.owner + '-' + req.params.input,
@@ -227,17 +230,19 @@ var myFuncs = {
         };
     }, 
     saveSequence: async function(req,res) {
-        let model = this.createModel(req.session.modelName,req.session.schema);
-        let output = await this.save(model,req.body.data); 
+        console.log(req.body);
+        let model = await this.createModel(req.body.modelName);
+        let output = await this.save(model,req.body); 
+        console.log(output);
         console.log('save sequence ends here');
     },        
     showCollection: async function(req,res) {
-        let collectionsTable = await this.createModel('collections').find({owner: req.params.owner}).lean();
+        let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
-        console.log(collectionsTable);
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
-        let dataRows = await this.createModel(req.params.input).find().lean();
+        let model = await this.createModel(req.params.input);
+        let dataRows = await model.find().lean();
         let newRows = dataRows.map(val => {
             let total = [];
             for (i=0; i<collectionHeadings.length; i++) {

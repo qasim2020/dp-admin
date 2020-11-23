@@ -99,16 +99,51 @@ hbs.registerHelper('matchValues', (val1,val2) => {
     return val1 == val2
 });
 
-app.use('/:owner/admin', async (req,res,next) => {
+app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => {
+    // what is module.role?
+    // if module is gen --- next()
+    // is User signed in ? down : res.redirect('/root/gen/page/signin/admin');
+    // is User.role == module.role && User.brand == req.params.owner ? next() : 'not allowed to access this page / data' 
+    console.log('');
+    console.log(chalk.bold.red('new Request starts here'));
+    console.log(req.params.module,myFuncs.moduleRole[req.params.module]);
+
+    if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
+    
+    // if module is auth -- please sign in
+    // if module is auth -- signed in      -- user has auth role against '7am'
+    // if module is admin - signed in      -- user has admin role against '7am'
+    // 
+    // if it is auth -- signedin() ? person.role == module.role && person.owner == req.param.owner : please sign in
+    // if false -------  
+    // If (role: gen && module :  gen) go next()
+    // if (role: admin && session : true && session.person.role : admin) go next()
+    // if (role: auth && session: true && session.person.role: auth && module: auth) go next()
+
     if ( req.session && req.session.hasOwnProperty('person') ) {
-        checkAdmin = await checkAdmin(req.session.person.username,req.params.owner);
-        if (!checkAdmin) return landingPage(req.params.owner,'You are not authorised to access admin  page');
-        next();
+        console.log({
+            personRole: req.session.person.role,
+            pagePermit: req.params.permit,
+            personOwner: req.session.person.owner,
+            pageOwner: req.params.owner
+        });
+        switch (true) {
+            case (req.session.person.role == req.params.permit && req.session.person.owner == req.params.owner) :
+                return next();
+                break;
+            default :
+                return res.send('you are not authorized to make this request');
+                break
+        };
     };
+    
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.owner}-users`);
+    console.log(checkCollectionExists, `${req.params.owner}-users`);
+    console.log(chalk.red.bold({showingTruth: checkCollectionExists}));
     if (checkCollectionExists) {
-        return signin(req.params.owner,admin);
+        return res.redirect(`/${req.params.owner}/gen/page/signin/home/`);
     };
+
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
     console.log(checkCollectionExists, 'collections');
     if (checkCollectionExists == false) {
@@ -126,20 +161,14 @@ app.use('/:owner/admin', async (req,res,next) => {
     next();
 });
 
-app.get('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
-
-    console.log('');
-    console.log(chalk.bold.red('new Request starts here'));
+app.get('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
 
     let data = await myFuncs[req.params.module](req,res);
     myFuncs.respond(data,req,res);
 
 });
 
-app.post('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
-
-    console.log('');
-    console.log(chalk.bold.red('new Request starts here'));
+app.post('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
 
     let data = await myFuncs[req.params.module](req,res);
     myFuncs.respond(data,req,res);
@@ -147,9 +176,32 @@ app.post('/:owner/admin/:requiredType/:module/:input', async (req,res) => {
 });
 
 var myFuncs = {
+
+    moduleRole: {
+        respond: 'admin',
+        newDocument: 'admin',
+        editDocument: 'admin',
+        deleteDocument: 'admin',
+        checkCollectionExists: 'admin',
+        createModel: 'admin',
+        save: 'admin',
+        dropCollection: 'admin',
+        createNewCollection: 'admin',
+        saveSequence: 'admin',
+        showCollection: 'admin',
+        destroySession: 'admin',
+        checkAdmin: 'admin',
+        signin: 'gen',
+        checkSignIn: 'gen',
+        signup: 'gen',
+        home: 'auth',
+    },
+
     respond: function(data,req,res) {
         console.log(chalk.bold.yellow('sending data to page'), data);
         switch(true) {
+          case (data.error): 
+            return res.status(data.status).send(data.error);
           case (req.params.requiredType == 'data'):
             console.log('this is data request');
             return res.status(200).send(data);
@@ -180,32 +232,46 @@ var myFuncs = {
         console.log(output);
         return output;
     },
+
+    editDocument: async function(req,res) {
+        // get this document details
+        // fill out the form 
+        return {success: 'done'};
+    },
+
     checkCollectionExists: async function(collectionName) {
         console.log(`checking if ${collectionName} exists or not`);
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
+
     createModel : async function(modelName) {
         
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-        console.log(mongoose);
+
         console.log({modelExistsAlready,schemaExistsAlready});
 
         if (modelExistsAlready) return mongoose.models[modelName];
-        
-        // if schema does not exist -- fetch properties from Collections properties ;
 
         let schema = await Collections.findOne({name: modelName}).lean();
         console.log(schema);
+
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
     },
+
     save : async function(model,data) {
-        const doc = new model(data);
-        let output = await doc.save();
-        return output;
+        try {
+            const doc = new model(data);
+            let output = await doc.save();
+            return {success: 'Done'};
+        } catch(e) {
+            console.log(e);
+            return {status: 404, error: 'Failed'}
+        };
     },
+    
     dropCollection: async function(req,res) {
         try {
             await mongoose.connection.db.dropCollection(req.params.input);
@@ -218,6 +284,7 @@ var myFuncs = {
             }
         };
     },
+
     createNewCollection : function(req,res) {
         if (req.params.input == 'n') return {
             error: 'Please give collection Name'
@@ -229,40 +296,83 @@ var myFuncs = {
             types: ['String','Number','Array','Object','Options','CheckBoxes']
         };
     }, 
+
     saveSequence: async function(req,res) {
         console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
         console.log(output);
         console.log('save sequence ends here');
+        return output;
     },        
+
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
+        collectionHeadings = collectionHeadings.concat(['edit','delete']);
         let model = await this.createModel(req.params.input);
         let dataRows = await model.find().lean();
         let newRows = dataRows.map(val => {
             let total = [];
             for (i=0; i<collectionHeadings.length; i++) {
-                total.push(val[collectionHeadings[i]]);
+                switch (true) {
+                    case (collectionHeadings[i] == 'edit'):
+                        total.push(`<a href="/root/admin/data/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
+                        break;
+                    case (collectionHeadings[i] == 'delete'):
+                        total.push(`<a href="/root/admin/data/deleteDocument/${req.params.input}?_id=${val._id}">Delete</a>`)
+                        break;
+                    default:
+                        total.push(val[collectionHeadings[i]]);
+                }
             }
             return total;
         });
 
         return {
+            modelName: req.params.input,
             navRows: navRows,
             th: collectionHeadings,
             dataRows: newRows
         };
     },
+
     destroySession: function(req,res) {
         req.session.destroy();
         return {
             success: 'session destroyed'
         };
     },
+
+    deleteDocument: async function(req,res) {
+        console.log(req.query);
+        console.log(req.params.input);
+        let model = await this.createModel(req.params.input);
+        let result = await model.deleteOne({_id: req.query._id});
+        return {
+            status: 200,
+            success: result 
+        };
+    },
+
+    signin: function(req,res) {
+        console.log('opening signin module');
+        return {
+            status: 200,
+            success: 'sign in page comes here'
+        };
+    },
+
+    checkSignIn: async function(req,res) {
+        let model = await this.createModel(`root-users`);
+        let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+        if (!output) return {status: 400, error: 'Username password does not exist'};
+        req.session.person = output;
+        return {status:200, success: 'Successfully logged in'};
+    },
+
     checkAdmin:  function(username,owner) { // find if Username in Session Variable matches the Owner Name in root-users database
         Users.findOne({person: username, owner: owner}).then(val => val !== null).catch(e => false); // dummy
     }

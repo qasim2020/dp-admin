@@ -5,6 +5,12 @@
     <title>Show Collections</title>
 
 <style type="text/css">
+    
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
     .container {
         display: flex;
@@ -45,6 +51,11 @@
             <input name="name" id="collectionName" type='text' placeholder='Enter Collection Name' required>
             <button id="submitButton" type="submit">Submit</button>
         </form>
+
+        <p>
+            <a href="/root/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <a href="/root/admin/data/destroySession/n">Log Out</a>
+        </p>
     
     </nav>
 
@@ -57,7 +68,6 @@
         </div>
 
         <div class="tables">
-            <a href="/root/admin/page/newDocument/{{data.modelName}}">Add Document</a>
             <table>
                 <tbody>
                     <tr>

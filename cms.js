@@ -145,8 +145,9 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
     };
 
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
-    console.log(checkCollectionExists, 'collections');
-    if (checkCollectionExists == false) {
+    let checkCollectionHasValues = await Collections.find().lean();
+    console.log(checkCollectionExists, 'collections', checkCollectionHasValues.length);
+    if (checkCollectionExists == false || checkCollectionHasValues.length == 0) {
         let data = {
             name: 'collections',
             owner: 'root',
@@ -179,6 +180,7 @@ var myFuncs = {
 
     moduleRole: {
         respond: 'admin',
+        runAndRedirect: 'gen',
         newDocument: 'admin',
         editDocument: 'admin',
         deleteDocument: 'admin',
@@ -187,7 +189,8 @@ var myFuncs = {
         save: 'admin',
         dropCollection: 'admin',
         createNewCollection: 'admin',
-        saveSequence: 'admin',
+        saveSequence: 'gen',
+        updateSequence: 'admin',
         showCollection: 'admin',
         destroySession: 'admin',
         checkAdmin: 'admin',
@@ -202,6 +205,10 @@ var myFuncs = {
         switch(true) {
           case (data.error): 
             return res.status(data.status).send(data.error);
+            break;
+          case (req.query.hasOwnProperty('redirect')):
+            return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
+            break;
           case (req.params.requiredType == 'data'):
             console.log('this is data request');
             return res.status(200).send(data);
@@ -213,7 +220,8 @@ var myFuncs = {
           default:
         }
     },
-    newDocument: async function(req,res) {
+
+    getFormInputs: async function(req,res) {
         let collection = await Collections.findOne({name: req.params.input}).lean();
         let properties = collection.properties;
         let keys = Object.keys(collection.properties);
@@ -225,18 +233,34 @@ var myFuncs = {
                 name: val,
                 id: val,
                 required: 'required',
-                value: '',
+                value: req.values && req.values[val] 
             };
         });
+        return output;
+    },
+
+    newDocument: async function(req,res) {
+        let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
-        console.log(output);
         return output;
     },
 
     editDocument: async function(req,res) {
-        // get this document details
-        // fill out the form 
-        return {success: 'done'};
+        let model = await this.createModel(req.params.input);
+        req.values = await model.findOne({_id: req.query._id}).lean();
+        if (req.values == undefined) return {status: 404, error: 'document does not exist so it can not be edited'};
+        let output = await this.getFormInputs(req,res);
+        output.collection = req.params.input;
+        output._id = req.query._id;
+        return output;
+    },
+
+    updateSequence: async function(req,res) {
+        console.log(req.body);
+        let model = await this.createModel(req.body.modelName);
+        let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
+        if (result == undefined) return {status: 404, error: 'did not find matching document'};
+        return result;
     },
 
     checkCollectionExists: async function(collectionName) {
@@ -246,6 +270,7 @@ var myFuncs = {
     },
 
     createModel : async function(modelName) {
+        console.log('creating model for ' + modelName + ' !!');
         
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
@@ -255,6 +280,7 @@ var myFuncs = {
         if (modelExistsAlready) return mongoose.models[modelName];
 
         let schema = await Collections.findOne({name: modelName}).lean();
+        
         console.log(schema);
 
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
@@ -309,6 +335,9 @@ var myFuncs = {
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
+        console.log({collectionsTable: collectionsTable});
+        if (collectionsTable.length == 0) return {status:200, success: 'no data exists in this collection.'};
+
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
         collectionHeadings = collectionHeadings.concat(['edit','delete']);
@@ -319,10 +348,10 @@ var myFuncs = {
             for (i=0; i<collectionHeadings.length; i++) {
                 switch (true) {
                     case (collectionHeadings[i] == 'edit'):
-                        total.push(`<a href="/root/admin/data/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
+                        total.push(`<a href="/root/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
                         break;
                     case (collectionHeadings[i] == 'delete'):
-                        total.push(`<a href="/root/admin/data/deleteDocument/${req.params.input}?_id=${val._id}">Delete</a>`)
+                        total.push(`<a href="/root/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
                         break;
                     default:
                         total.push(val[collectionHeadings[i]]);
@@ -342,7 +371,9 @@ var myFuncs = {
     destroySession: function(req,res) {
         req.session.destroy();
         return {
-            success: 'session destroyed'
+            status: 200,
+            redirect: req.params.input,
+            success: 'Session Destroyed'
         };
     },
 
@@ -365,12 +396,25 @@ var myFuncs = {
         };
     },
 
+    signup: function(req,res) {
+        return {
+            status: 200,
+            success: 'sign up page comes here'
+        }
+    },
+
     checkSignIn: async function(req,res) {
         let model = await this.createModel(`root-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        if (!output) return {status: 400, error: 'Username password does not exist'};
+        if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
         req.session.person = output;
         return {status:200, success: 'Successfully logged in'};
+    },
+
+    runAndRedirect: async function(req,res) {
+        // /root/admin/data/runAndRedirect/deleteDocument?_id=123123&&redirect=showCollection&redirectInput=root-users
+        let output = await this[req.params.input][req.query.input]; 
+        return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
     },
 
     checkAdmin:  function(username,owner) { // find if Username in Session Variable matches the Owner Name in root-users database

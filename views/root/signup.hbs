@@ -2,7 +2,7 @@
 
 <head>
 
-    <title>Sign In</title>
+    <title>Sign Up</title>
 
     <style type="text/css">
 
@@ -35,9 +35,17 @@
 
         <form action="" method="post">
 
+            <input name="modelName" type="text" value="root-users" required class="d-none">
+            <input name="owner" type="text" value="root" required class="d-none">
+            <input name="role" type="text" value="auth" required class="d-none">
+
+
+            <label for="name">Name</label>
+            <input name="name" type="text" value="" required=true>
+            
             <label for="email">Email</label>
             <input name="email" type="email" value="" required=true>
-            
+
             <label for="password">Password</label>
             <input name="password" type="password" id="password" placeholder="Write your password here" required=true>
 
@@ -45,7 +53,7 @@
 
         </form>
 
-        <a href="/root/admin/page/signup/n">Sign Up</a>
+        <a href="/root/admin/page/signin/n">Sign In</a>
 
     </div>
 
@@ -58,7 +66,7 @@
             console.log($(this).serialize());
             $.ajax({
               type: "POST",
-              url: '/root/gen/data/checkSignIn/n',
+              url: '/root/gen/data/saveSequence/n',
               data: $(this).serialize(),
               success: (data) => {
                 console.log(data);

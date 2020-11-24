@@ -37,12 +37,13 @@
         <form action="" method="post">
 
             <input name="modelName" type="text" class="d-none" value="{{data.collection}}">
+            <input name="_id" type="text" class="d-none" value="{{data._id}}">
 
         {{#each data}}
 
             {{#if (matchValues this.type 'input')}}
                 <label for="{{name}}">{{this.label}}</label>
-                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}">
+                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
             {{/if}}
 
         {{/each}}
@@ -62,12 +63,13 @@
             console.log($(this).serialize());
             $.ajax({
               type: "POST",
-              url: '/root/admin/data/saveSequence/n',
+              url: '/root/admin/data/updateSequence/n',
               data: $(this).serialize(),
               success: (data) => {
                 console.log('successful data sent'),
                 console.log(data);
                 $('#submitButton').html(data.error);
+                window.location.href = '/root/admin/page/showCollection/{{data.collection}}';
               }
             });
         });

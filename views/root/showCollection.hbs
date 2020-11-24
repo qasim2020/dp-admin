@@ -54,10 +54,14 @@
 
         <p>
             <a href="/root/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
-            <a href="/root/admin/data/destroySession/n">Log Out</a>
+            <a href="/root/admin/data/destroySession/n?redirect=showCollection&redirectInput={{data.modelName}}">Log Out</a>
         </p>
     
     </nav>
+
+        {{#if data.success}}
+        <p>{{data.success}}</p>
+        {{/if}}
 
     <div class="container">
 

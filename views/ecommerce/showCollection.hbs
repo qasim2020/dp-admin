@@ -1,0 +1,122 @@
+<html>
+
+<head>
+
+    <title>Show Collections</title>
+
+<style type="text/css">
+    
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .container {
+        display: flex;
+    }
+
+    .sidebar {
+        width: 233px;
+        background: lightgrey;
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 1px;
+    }
+
+    .tables {
+        width: 100%;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    td,th {
+        border: 1px solid grey;
+        padding: 5px;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+</style>
+</head>
+
+<body>
+
+    <nav>
+
+        <form>
+            <label>Create New Collection</label>
+            <input name="name" id="collectionName" type='text' placeholder='Enter Collection Name' required>
+            <button id="submitButton" type="submit">Submit</button>
+        </form>
+
+        <p>
+            <a href="/{{data.owner}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <a href="/{{data.owner}}/admin/data/destroySession/n?redirect=showCollection&redirectInput={{data.modelName}}">Log Out</a>
+        </p>
+    
+    </nav>
+
+        {{#if data.success}}
+        <p>{{data.success}}</p>
+        {{/if}}
+
+    <div class="container">
+
+        <div class="sidebar">
+            {{#each data.navRows}}
+                <p><a href="/{{data.owner}}/admin/page/showCollection/{{this}}">{{this}}</a></p>
+            {{/each}}
+        </div>
+
+        <div class="tables">
+            <table>
+                <tbody>
+                    <tr>
+                        {{#each data.th}}
+                            <th>{{this}}</th>
+                        {{/each}}
+                    </tr> 
+
+                    {{#each data.dataRows}}
+                    <tr>
+                        {{#each this}}
+                            <td>{{{this}}}</td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+
+                </tbody>
+            </table> 
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <script>
+
+        $('form').on('submit',function(e) {
+            e.preventDefault();
+            console.log($(this).serialize());
+            return window.location.href = '/{{data.owner}}/admin/page/createNewCollection/' + $('#collectionName').val();
+            $.ajax({
+              type: "GET",
+              url: '/{{data.owner}}/admin/data/createNewCollection/'+$('#collectionName').val(),
+              success: (data) => {
+                console.log('successful data sent'),
+                console.log(data);
+                $('#submitButton').html(data.error);
+              }
+            });
+        });
+
+    </script>
+
+
+</body>
+
+</html>

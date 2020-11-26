@@ -1,5 +1,9 @@
 const chalk = require('chalk');
 
+const path = require('path');
+const fs = require('fs');
+//joining path of directory 
+const directoryPath = path.join(__dirname, '');
 
 const express = require('express')
 const hbs = require('hbs')
@@ -100,26 +104,12 @@ hbs.registerHelper('matchValues', (val1,val2) => {
 });
 
 app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => {
-    // what is module.role?
-    // if module is gen --- next()
-    // is User signed in ? down : res.redirect('/root/gen/page/signin/admin');
-    // is User.role == module.role && User.brand == req.params.owner ? next() : 'not allowed to access this page / data' 
     console.log('');
     console.log(chalk.bold.red('new Request starts here'));
-    console.log(req.params.module,myFuncs.moduleRole[req.params.module]);
+    console.log(req.params);
 
     if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
     
-    // if module is auth -- please sign in
-    // if module is auth -- signed in      -- user has auth role against '7am'
-    // if module is admin - signed in      -- user has admin role against '7am'
-    // 
-    // if it is auth -- signedin() ? person.role == module.role && person.owner == req.param.owner : please sign in
-    // if false -------  
-    // If (role: gen && module :  gen) go next()
-    // if (role: admin && session : true && session.person.role : admin) go next()
-    // if (role: auth && session: true && session.person.role: auth && module: auth) go next()
-
     if ( req.session && req.session.hasOwnProperty('person') ) {
         console.log({
             personRole: req.session.person.role,
@@ -128,20 +118,35 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
             pageOwner: req.params.owner
         });
         switch (true) {
+            // Logged In User can watch all auth modules
+            case (myFuncs.moduleRole[req.params.module] == 'auth'):
+                return next();
+            // Admin == Admin && root == root
+            case (myFuncs.moduleRole[req.params.module] == 'admin' && req.session.person.role == 'auth'): 
+                return res.send('you are trying to access admin page while your role is auth only');
+                break;
             case (req.session.person.role == req.params.permit && req.session.person.owner == req.params.owner) :
                 return next();
                 break;
+            // 'Auth' role tries to access 'Admin' Module
             default :
                 return res.send('you are not authorized to make this request');
-                break
+                break;
         };
     };
     
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.owner}-users`);
     console.log(checkCollectionExists, `${req.params.owner}-users`);
-    console.log(chalk.red.bold({showingTruth: checkCollectionExists}));
+
     if (checkCollectionExists) {
         return res.redirect(`/${req.params.owner}/gen/page/signin/home/`);
+    };
+    
+    checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
+    console.log(checkCollectionExists, `${req.params.owner}-users`);
+
+    if (checkCollectionExists) {
+        return res.redirect(`/myapp/gen/page/signin/home/`);
     };
 
     checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
@@ -158,21 +163,39 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
         console.log(output);
         return next();
     };
+
     console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
 
 app.get('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
 
-    let data = await myFuncs[req.params.module](req,res);
-    myFuncs.respond(data,req,res);
+    try {
+        let data = await myFuncs[req.params.module](req,res);
+        req.params.theme = await myFuncs.getThemeName(req.params.owner);
+        // if this theme (folder) does not contain this module (page) return 'this module / page does not exist in current theme';
+        // let modules = await myFuncs.getDirectoryList(req.params.theme);
+        // let matchNotFound = modules.every(val => val.split('.')[0] != req.params.module);
+        // if (matchNotFound) throw 'module does not exist in this theme';
+        myFuncs.respond(data,req,res);
+    } catch(e) {
+        console.log(e);
+        res.status(e.status || 400).send(e);
+    }
 
 });
 
 app.post('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
 
-    let data = await myFuncs[req.params.module](req,res);
-    myFuncs.respond(data,req,res);
+    try {
+        let data = await myFuncs[req.params.module](req,res);
+        req.params.theme = await myFuncs.getThemeName(req.params.owner);
+        // if this theme (folder) does not contain this module (page) return 'this module / page does not exist in current theme';
+        myFuncs.respond(data,req,res);
+    } catch(e) {
+        console.log(e);
+        res.status(e.status || 400).send(e);
+    }
 
 });
 
@@ -192,7 +215,7 @@ var myFuncs = {
         saveSequence: 'gen',
         updateSequence: 'admin',
         showCollection: 'admin',
-        destroySession: 'admin',
+        destroySession: 'auth',
         checkAdmin: 'admin',
         signin: 'gen',
         checkSignIn: 'gen',
@@ -200,8 +223,9 @@ var myFuncs = {
         home: 'auth',
     },
 
-    respond: function(data,req,res) {
-        console.log(chalk.bold.yellow('sending data to page'), data);
+    respond: async function(data,req,res) {
+        console.log(chalk.bold.yellow('sending data to page ====='));
+        console.log(data);
         switch(true) {
           case (data.error): 
             return res.status(data.status).send(data.error);
@@ -210,15 +234,37 @@ var myFuncs = {
             return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             break;
           case (req.params.requiredType == 'data'):
-            console.log('this is data request');
             return res.status(200).send(data);
             break;
           case (req.params.requiredType == 'page'):
-            console.log('this is page request');
-            return res.status(200).render(`${req.params.owner}/${req.params.module}.hbs`,{data});
+            console.log(req.params);
+            return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
           default:
         }
+    },
+
+    getThemeName: async function(brand) {
+        let themesExist = await this.checkCollectionExists('myapp-themes');
+        if (themesExist == false) return 'root';
+        let theme = await myFuncs.createModel(`myapp-themes`);
+        let extract = await theme.findOne({brand: brand}).lean();
+        console.log(extract);
+        if (extract == null) return 'root'; 
+        console.log({theme: extract.theme, brand: brand});
+        return extract.theme;
+    },
+
+    getDirectoryList : async function(directoryName) {
+        return new Promise ((resolve,reject) => {
+            fs.readdir(directoryPath + '/views/' + directoryName, function (err, files) {
+                if (err) {
+                    console.log('Unable to scan directory: ' + err);
+                    return reject('Unable to scan directory: ' + err);
+                }
+                return resolve(files);
+            });
+        });
     },
 
     getFormInputs: async function(req,res) {
@@ -242,6 +288,7 @@ var myFuncs = {
     newDocument: async function(req,res) {
         let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
+        output.owner = req.params.owner;
         return output;
     },
 
@@ -252,6 +299,7 @@ var myFuncs = {
         let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
         output._id = req.query._id;
+        output.owner = req.params.owner;
         return output;
     },
 
@@ -264,25 +312,18 @@ var myFuncs = {
     },
 
     checkCollectionExists: async function(collectionName) {
-        console.log(`checking if ${collectionName} exists or not`);
         let result = await mongoose.connection.db.listCollections().toArray();
         return result.some(val => val.name == `${collectionName}`);
     },
 
     createModel : async function(modelName) {
-        console.log('creating model for ' + modelName + ' !!');
-        
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-
-        console.log({modelExistsAlready,schemaExistsAlready});
 
         if (modelExistsAlready) return mongoose.models[modelName];
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
-        console.log(schema);
-
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
     },
@@ -336,7 +377,11 @@ var myFuncs = {
         let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
         console.log({collectionsTable: collectionsTable});
-        if (collectionsTable.length == 0) return {status:200, success: 'no data exists in this collection.'};
+        if (collectionsTable.length == 0) return {
+            status:200, 
+            success: 'no data exists in this collection.',
+            owner: req.params.owner
+        };
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
@@ -348,10 +393,10 @@ var myFuncs = {
             for (i=0; i<collectionHeadings.length; i++) {
                 switch (true) {
                     case (collectionHeadings[i] == 'edit'):
-                        total.push(`<a href="/root/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
+                        total.push(`<a href="/${req.params.owner}/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
                         break;
                     case (collectionHeadings[i] == 'delete'):
-                        total.push(`<a href="/root/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
+                        total.push(`<a href="/${req.params.owner}/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
                         break;
                     default:
                         total.push(val[collectionHeadings[i]]);
@@ -361,6 +406,7 @@ var myFuncs = {
         });
 
         return {
+            owner: req.params.owner,
             modelName: req.params.input,
             navRows: navRows,
             th: collectionHeadings,
@@ -389,26 +435,41 @@ var myFuncs = {
     },
 
     signin: function(req,res) {
-        console.log('opening signin module');
         return {
             status: 200,
-            success: 'sign in page comes here'
+            success: 'sign in page comes here',
+            owner: req.params.owner,
         };
     },
 
     signup: function(req,res) {
         return {
             status: 200,
-            success: 'sign up page comes here'
+            success: 'sign up page comes here',
+            owner: req.params.owner
         }
     },
 
     checkSignIn: async function(req,res) {
-        let model = await this.createModel(`root-users`);
+        let model = await this.createModel(`${req.params.owner}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+        console.log(`user found in ${req.params.owner}-users`,output);
+        // if 7am does not have this user look into myapp. it can be an owner. 
+        if (!output) {
+            model = await this.createModel('myapp-users');
+            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+            console.log(`user found in ${req.params.owner}-users`,output);
+        };
+        // If still no user found , return mismatch
         if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
         req.session.person = output;
-        return {status:200, success: 'Successfully logged in'};
+        req.session.person.owner = output.owner || req.params.owner;
+        return {
+            status:200, 
+            success: 'Successfully logged in',
+            owner: output.owner || req.params.owner,
+            role: output.role
+        };
     },
 
     runAndRedirect: async function(req,res) {

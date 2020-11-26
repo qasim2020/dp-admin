@@ -37,6 +37,7 @@
         border: 1px solid grey;
         padding: 5px;
         white-space: nowrap;
+        text-align: center;
     }
 
 </style>
@@ -53,8 +54,8 @@
         </form>
 
         <p>
-            <a href="/root/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
-            <a href="/root/admin/data/destroySession/n?redirect=showCollection&redirectInput={{data.modelName}}">Log Out</a>
+            <a href="/{{data.owner}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <a href="/{{data.owner}}/admin/page/destroySession/n?redirect=showCollection&redirectInput={{data.modelName}}">Log Out</a>
         </p>
     
     </nav>
@@ -67,7 +68,7 @@
 
         <div class="sidebar">
             {{#each data.navRows}}
-                <p><a href="/root/admin/page/showCollection/{{this}}">{{this}}</a></p>
+                <p><a href="/{{../data.owner}}/admin/page/showCollection/{{this}}">{{this}}</a></p>
             {{/each}}
         </div>
 
@@ -101,10 +102,11 @@
         $('form').on('submit',function(e) {
             e.preventDefault();
             console.log($(this).serialize());
-            return window.location.href = '/root/admin/page/createNewCollection/' + $('#collectionName').val();
+            console.log('/{{data.owner}}/admin/page/createNewCollection/' + $('#collectionName').val());
+            return window.location.href = '/{{data.owner}}/admin/page/createNewCollection/' + $('#collectionName').val();
             $.ajax({
               type: "GET",
-              url: '/root/admin/data/createNewCollection/'+$('#collectionName').val(),
+              url: '/{{data.owner}}/admin/data/createNewCollection/'+$('#collectionName').val(),
               success: (data) => {
                 console.log('successful data sent'),
                 console.log(data);

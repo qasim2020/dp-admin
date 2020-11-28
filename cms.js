@@ -41,6 +41,7 @@ app.use(
       mongooseConnection: mongoose.connection
     })
   }),
+  express.static(__dirname+'/static'),
   passport.initialize(),
   passport.session(),
   flash(),
@@ -377,15 +378,17 @@ var myFuncs = {
         let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
         let navRows = collectionsTable.map(val => val.name);
         console.log({collectionsTable: collectionsTable});
+
         if (collectionsTable.length == 0) return {
             status:200, 
-            success: 'no data exists in this collection.',
+            success: 'no Collection exists yet. Try starting the app with basic configurations.',
             owner: req.params.owner
         };
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
         collectionHeadings = collectionHeadings.concat(['edit','delete']);
+
         let model = await this.createModel(req.params.input);
         let dataRows = await model.find().lean();
         let newRows = dataRows.map(val => {
@@ -478,9 +481,66 @@ var myFuncs = {
         return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
     },
 
-    checkAdmin:  function(username,owner) { // find if Username in Session Variable matches the Owner Name in root-users database
-        Users.findOne({person: username, owner: owner}).then(val => val !== null).catch(e => false); // dummy
-    }
+    bulkUpload: async function(req,res) {
+        let collection = await Collections.findOne({name: req.params.input}).lean();
+        let properties = collection.properties;
+
+        let collectionHeadings = Object.keys(properties);
+        collectionHeadings.unshift('timestamp');
+
+        return {
+            owner: req.params.owner,
+            collection: req.params.input,
+            sampleRow: collectionHeadings
+        }
+    },
+    array2CSV: function(twoDiArray) {
+        var csvRows = [];
+        for (var i = 0; i < twoDiArray.length; ++i) {
+            for (var j = 0; j < twoDiArray[i].length; ++j) {
+                twoDiArray[i][j] = '\"' + twoDiArray[i][j] + '\"';  
+            }
+            csvRows.push(twoDiArray[i].join(','));
+        }
+        var csvString = csvRows.join('\r\n');
+        return csvString;
+    },
+
+    downloadCSVFile: async function(req,res) {
+        let collection = await Collections.findOne({name: req.params.input}).lean();
+        let properties = collection.properties;
+
+        let collectionHeadings = Object.keys(properties);
+        collectionHeadings.unshift('timestamp');
+        let model = await this.createModel(req.params.input);
+        let dataRows = await model.find().lean();
+        let newRows = dataRows.map(val => {
+            let total = [];
+            for (i=0; i<collectionHeadings.length; i++) {
+                switch (true) {
+                    case (collectionHeadings[i] == 'timestamp'): 
+                        total.push(val._id.getTimestamp())
+                        break;
+                    default: 
+                        total.push(val[collectionHeadings[i]]);
+                        break;
+                }
+            }
+            return total;
+        });
+        newRows.unshift(collectionHeadings);
+        csv = this.array2CSV(newRows);
+        console.log(csv);
+
+        return new Promise ((resolve,reject) => {
+            fs.writeFile('./static/myFile.csv', csv, (err) => {
+                if (err) {
+                  return reject(err);
+                }
+                resolve('myFile.csv');
+            });
+        });
+    },
 };
 
 app.listen(3000)

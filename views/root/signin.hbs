@@ -27,7 +27,7 @@
 
     <nav>
 
-        <a href="/{{data.owner}}/admin/page/showCollection/root-users">show Collections</a>
+        <a href="/{{data.brand}}/admin/page/showCollection/root-users">show Collections</a>
     
     </nav>
 
@@ -45,7 +45,7 @@
 
         </form>
 
-        <a href="/{{data.owner}}/admin/page/signup/n">Sign Up</a>
+        <a href="/{{data.brand}}/admin/page/signup/n">Sign Up</a>
 
     </div>
 
@@ -58,7 +58,7 @@
             console.log($(this).serialize());
             $.ajax({
               type: "POST",
-              url: '/{{data.owner}}/gen/data/checkSignIn/n',
+              url: '/{{data.brand}}/gen/data/checkSignIn/n',
               data: $(this).serialize(),
               success: (data) => {
                 console.log(data);

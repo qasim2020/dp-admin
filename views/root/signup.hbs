@@ -27,7 +27,7 @@
 
     <nav>
 
-        <a href="/{{data.owner}}/admin/page/showCollection/{{data.owner}}-users">show Collections</a>
+        <a href="/{{data.brand}}/admin/page/showCollection/{{data.brand}}-users">show Collections</a>
     
     </nav>
 
@@ -35,8 +35,8 @@
 
         <form action="" method="post">
 
-            <input name="modelName" type="text" value="{{data.owner}}-users" required class="d-none">
-            <input name="owner" type="text" value="{{data.owner}}" required class="d-none">
+            <input name="modelName" type="text" value="{{data.brand}}-users" required class="d-none">
+            <input name="owner" type="text" value="{{data.brand}}" required class="d-none">
             <input name="role" type="text" value="auth" required class="d-none">
 
 
@@ -53,7 +53,7 @@
 
         </form>
 
-        <a href="/{{data.owner}}/admin/page/signin/n">Sign In</a>
+        <a href="/{{data.brand}}/admin/page/signin/n">Sign In</a>
 
     </div>
 
@@ -66,14 +66,14 @@
             console.log($(this).serialize());
             $.ajax({
               type: "POST",
-              url: '/{{data.owner}}/gen/data/saveSequence/n',
+              url: '/{{data.brand}}/gen/data/saveSequence/n',
               data: $(this).serialize(),
               success: (data) => {
                 console.log(data);
                 $('#submitButton').html(data.error || data.success);
                 if (data.success) return 'Click on show collections to go home';
                 return;
-                window.location.href = '/{{data.owner}}/admin/page/showCollection/{{data.owner}}-users';
+                window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.brand}}-users';
               }
             });
         });

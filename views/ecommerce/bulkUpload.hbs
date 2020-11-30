@@ -29,7 +29,7 @@
 
     <nav>
 
-        <a href="/{{data.owner}}/admin/page/showCollection/{{data.collection}}">{{data.collection}}</a>
+        <a href="/{{data.brand}}/admin/page/showCollection/{{data.collection}}">{{data.collection}}</a>
     
     </nav>
 
@@ -37,7 +37,7 @@
 
         <h3>Step 1</h3>
         <p>Please download existing data by pressing the button below.</p>
-        <button id="downloadFile" href="/{{data.owner}}/admin/page/downloadCSVFile/{{data.collection}}">Download Existing Data</button>
+        <button id="downloadFile" href="/{{data.brand}}/admin/page/downloadCSVFile/{{data.collection}}">Download Existing Data</button>
         <br>
 
         <h3>Step 2</h3>
@@ -65,7 +65,7 @@
     <script>
 
          $('#downloadFile').on('click',function(e) {
-             $.get("/{{data.owner}}/admin/data/downloadCSVFile/{{data.collection}}",function(data,status) {
+             $.get("/{{data.brand}}/admin/data/downloadCSVFile/{{data.collection}}",function(data,status) {
                  console.log(data);
                  window.location = `/${data}`;
              });
@@ -73,7 +73,7 @@
             //  console.log($(this).serialize());
             //  $.ajax({
             //    type: "POST",
-            //    url: '/{{data.owner}}/admin/data/saveSequence/n',
+            //    url: '/{{data.brand}}/admin/data/saveSequence/n',
             //    data: $(this).serialize(),
             //    success: (data) => {
             //      console.log('successful data sent'),
@@ -92,7 +92,7 @@
             $('#uploadFile').html('Data exists -- upload it')
 
             return;
-            $.post("/{{data.owner}}/admin/data/downloadCSVFile/{{data.collection}}",function(data,status) {});
+            $.post("/{{data.brand}}/admin/data/downloadCSVFile/{{data.collection}}",function(data,status) {});
         });
 
         $('#uploadFile').on('click', function(e) {

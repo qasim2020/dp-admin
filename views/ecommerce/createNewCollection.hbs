@@ -55,11 +55,15 @@
 
     <p class=error>{{data.error}}</p>
 
-    <p><a href="/{{data.owner}}/admin/page/showCollection/{{data.owner}}-users">Show Collections</a></p>
+    {{#if (matchValues data.brand 'myapp')}}
+    <p><a href="/{{data.brand}}/admin/page/showCollection/collections">Show Collections</a></p>
+    {{else}}
+    <p><a href="/{{data.brand}}/admin/page/showCollection/{{data.brand}}-users">Show Collections</a></p>
+    {{/if}}
 
     <p>Create new Collection below</p>
 
-    <p>Owner: {{data.owner}}</p>
+    <p>Owner: {{data.brand}}</p>
 
     <p>Collection Name: {{data.name}}</p>
 
@@ -111,14 +115,14 @@
             let data = {
                 modelName: 'collections',
                 name: '{{data.name}}',
-                owner: '{{data.owner}}',
+                brand: '{{data.brand}}',
                 properties: output
             };
             $.ajax({
               type: "POST",
-              url: '/{{data.owner}}/admin/data/saveSequence/n',
+              url: '/{{data.brand}}/admin/data/saveSequence/n',
               data: data,
-              success: () => console.log('successful data sent'),
+              success: (data) => console.log(data),
             });
             return console.log(data);
         });

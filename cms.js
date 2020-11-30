@@ -77,7 +77,7 @@ let schema = {
         type: "String",
         required: true,
     },
-    owner: {
+    brand: {
         type: "String",
         required: true,
     },
@@ -104,7 +104,7 @@ hbs.registerHelper('matchValues', (val1,val2) => {
     return val1 == val2
 });
 
-app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => {
+app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
     console.log('');
     console.log(chalk.bold.red('new Request starts here'));
     console.log(req.params);
@@ -115,8 +115,8 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
         console.log({
             personRole: req.session.person.role,
             pagePermit: req.params.permit,
-            personOwner: req.session.person.owner,
-            pageOwner: req.params.owner
+            personOwner: req.session.person.brand,
+            pageOwner: req.params.brand
         });
         switch (true) {
             // Logged In User can watch all auth modules
@@ -126,7 +126,7 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
             case (myFuncs.moduleRole[req.params.module] == 'admin' && req.session.person.role == 'auth'): 
                 return res.send('you are trying to access admin page while your role is auth only');
                 break;
-            case (req.session.person.role == req.params.permit && req.session.person.owner == req.params.owner) :
+            case (req.session.person.role == req.params.permit && req.session.person.brand == req.params.brand) :
                 return next();
                 break;
             // 'Auth' role tries to access 'Admin' Module
@@ -136,27 +136,12 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
         };
     };
     
-    let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.owner}-users`);
-    console.log(checkCollectionExists, `${req.params.owner}-users`);
-
-    if (checkCollectionExists) {
-        return res.redirect(`/${req.params.owner}/gen/page/signin/home/`);
-    };
-    
-    checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
-    console.log(checkCollectionExists, `${req.params.owner}-users`);
-
-    if (checkCollectionExists) {
-        return res.redirect(`/myapp/gen/page/signin/home/`);
-    };
-
-    checkCollectionExists = await myFuncs.checkCollectionExists(`collections`); 
-    let checkCollectionHasValues = await Collections.find().lean();
-    console.log(checkCollectionExists, 'collections', checkCollectionHasValues.length);
-    if (checkCollectionExists == false || checkCollectionHasValues.length == 0) {
+    let collectionsSavedCheck = await Collections.findOne({name: "collections"}).lean();
+    console.log(collectionsSavedCheck);
+    if (collectionsSavedCheck == undefined) {
         let data = {
             name: 'collections',
-            owner: 'root',
+            brand: 'myapp',
             properties: schema,
         };
         let output = await myFuncs.save(Collections,data);
@@ -165,19 +150,30 @@ app.use('/:owner/:permit/:requiredType/:module/:input', async (req,res,next) => 
         return next();
     };
 
+    let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
+    console.log(checkCollectionExists, `${req.params.brand}-users`);
+
+    if (checkCollectionExists) {
+        return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
+    };
+    
+    checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
+    console.log(checkCollectionExists, `${req.params.brand}-users`);
+
+    if (checkCollectionExists) {
+        return res.redirect(`/myapp/gen/page/signin/home/`);
+    };
+
+
     console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
 
-app.get('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
+app.get('/:brand/:permit/:requiredType/:module/:input', async (req,res) => {
 
     try {
         let data = await myFuncs[req.params.module](req,res);
-        req.params.theme = await myFuncs.getThemeName(req.params.owner);
-        // if this theme (folder) does not contain this module (page) return 'this module / page does not exist in current theme';
-        // let modules = await myFuncs.getDirectoryList(req.params.theme);
-        // let matchNotFound = modules.every(val => val.split('.')[0] != req.params.module);
-        // if (matchNotFound) throw 'module does not exist in this theme';
+        req.params.theme = await myFuncs.getThemeName(req.params.brand);
         myFuncs.respond(data,req,res);
     } catch(e) {
         console.log(e);
@@ -186,12 +182,11 @@ app.get('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
 
 });
 
-app.post('/:owner/:permit/:requiredType/:module/:input', async (req,res) => {
+app.post('/:brand/:permit/:requiredType/:module/:input', async (req,res) => {
 
     try {
         let data = await myFuncs[req.params.module](req,res);
-        req.params.theme = await myFuncs.getThemeName(req.params.owner);
-        // if this theme (folder) does not contain this module (page) return 'this module / page does not exist in current theme';
+        req.params.theme = await myFuncs.getThemeName(req.params.brand);
         myFuncs.respond(data,req,res);
     } catch(e) {
         console.log(e);
@@ -232,7 +227,7 @@ var myFuncs = {
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
-            return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             break;
           case (req.params.requiredType == 'data'):
             return res.status(200).send(data);
@@ -289,7 +284,7 @@ var myFuncs = {
     newDocument: async function(req,res) {
         let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
-        output.owner = req.params.owner;
+        output.brand = req.params.brand;
         return output;
     },
 
@@ -300,7 +295,7 @@ var myFuncs = {
         let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
         output._id = req.query._id;
-        output.owner = req.params.owner;
+        output.brand = req.params.brand;
         return output;
     },
 
@@ -325,6 +320,7 @@ var myFuncs = {
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
+        console.log(`creating collection ${modelName}`,schema);
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
     },
@@ -359,30 +355,32 @@ var myFuncs = {
         };
         console.log(`creating new collection at ${req.params.input}`);
         return {
-            owner: req.params.owner,
-            name: req.params.owner + '-' + req.params.input,
+            brand: req.params.brand,
+            name: req.params.brand + '-' + req.params.input,
             types: ['String','Number','Array','Object','Options','CheckBoxes']
         };
     }, 
 
     saveSequence: async function(req,res) {
+        console.log('req.body');
         console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
+        console.log('this.save(req.body)');
         console.log(output);
         console.log('save sequence ends here');
         return output;
     },        
 
     showCollection: async function(req,res) {
-        let collectionsTable = await Collections.find({owner: req.params.owner}).lean();
+        let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
         let navRows = collectionsTable.map(val => val.name);
         console.log({collectionsTable: collectionsTable});
 
         if (collectionsTable.length == 0) return {
             status:200, 
             success: 'no Collection exists yet. Try starting the app with basic configurations.',
-            owner: req.params.owner
+            brand: req.params.brand
         };
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
@@ -396,10 +394,10 @@ var myFuncs = {
             for (i=0; i<collectionHeadings.length; i++) {
                 switch (true) {
                     case (collectionHeadings[i] == 'edit'):
-                        total.push(`<a href="/${req.params.owner}/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
+                        total.push(`<a href="/${req.params.brand}/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
                         break;
                     case (collectionHeadings[i] == 'delete'):
-                        total.push(`<a href="/${req.params.owner}/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
+                        total.push(`<a href="/${req.params.brand}/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
                         break;
                     default:
                         total.push(val[collectionHeadings[i]]);
@@ -409,7 +407,7 @@ var myFuncs = {
         });
 
         return {
-            owner: req.params.owner,
+            brand: req.params.brand,
             modelName: req.params.input,
             navRows: navRows,
             th: collectionHeadings,
@@ -441,7 +439,7 @@ var myFuncs = {
         return {
             status: 200,
             success: 'sign in page comes here',
-            owner: req.params.owner,
+            brand: req.params.brand,
         };
     },
 
@@ -449,28 +447,29 @@ var myFuncs = {
         return {
             status: 200,
             success: 'sign up page comes here',
-            owner: req.params.owner
+            brand: req.params.brand
         }
     },
 
     checkSignIn: async function(req,res) {
-        let model = await this.createModel(`${req.params.owner}-users`);
+        let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        console.log(`user found in ${req.params.owner}-users`,output);
-        // if 7am does not have this user look into myapp. it can be an owner. 
+        console.log(`user found in ${req.params.brand}-users`,output);
+        // if 7am does not have this user look into myapp. it can be an brand. 
         if (!output) {
             model = await this.createModel('myapp-users');
             output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-            console.log(`user found in ${req.params.owner}-users`,output);
+            console.log(`user found in ${req.params.brand}-users`,output);
         };
+
         // If still no user found , return mismatch
         if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
         req.session.person = output;
-        req.session.person.owner = output.owner || req.params.owner;
+        req.session.person.brand = output.brand || req.params.brand;
         return {
             status:200, 
             success: 'Successfully logged in',
-            owner: output.owner || req.params.owner,
+            brand: output.brand || req.params.brand,
             role: output.role
         };
     },
@@ -478,7 +477,7 @@ var myFuncs = {
     runAndRedirect: async function(req,res) {
         // /root/admin/data/runAndRedirect/deleteDocument?_id=123123&&redirect=showCollection&redirectInput=root-users
         let output = await this[req.params.input][req.query.input]; 
-        return res.redirect(`/${req.params.owner}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
+        return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
     },
 
     bulkUpload: async function(req,res) {
@@ -486,10 +485,10 @@ var myFuncs = {
         let properties = collection.properties;
 
         let collectionHeadings = Object.keys(properties);
-        collectionHeadings.unshift('timestamp');
+        collectionHeadings.unshift('_id');
 
         return {
-            owner: req.params.owner,
+            brand: req.params.brand,
             collection: req.params.input,
             sampleRow: collectionHeadings
         }
@@ -507,24 +506,28 @@ var myFuncs = {
     },
 
     downloadCSVFile: async function(req,res) {
+        // Problem: when a user downloads this file with time stamp he is unable to upload same entries into the data base
+        // Soln: Give him the _id instead of date -- or make timestamp a separate entry
+        
         let collection = await Collections.findOne({name: req.params.input}).lean();
         let properties = collection.properties;
 
         let collectionHeadings = Object.keys(properties);
-        collectionHeadings.unshift('timestamp');
+        collectionHeadings.unshift('_id');
         let model = await this.createModel(req.params.input);
         let dataRows = await model.find().lean();
         let newRows = dataRows.map(val => {
             let total = [];
             for (i=0; i<collectionHeadings.length; i++) {
-                switch (true) {
-                    case (collectionHeadings[i] == 'timestamp'): 
-                        total.push(val._id.getTimestamp())
-                        break;
-                    default: 
-                        total.push(val[collectionHeadings[i]]);
-                        break;
-                }
+                total.push(val[collectionHeadings[i]]);
+                // switch (true) {
+                    // case (collectionHeadings[i] == 'timestamp'): 
+                    //     total.push(val._id.getTimestamp())
+                    //     break;
+                    // default: 
+                        // total.push(val[collectionHeadings[i]]);
+                        //break;
+                //}
             }
             return total;
         });
@@ -541,6 +544,22 @@ var myFuncs = {
             });
         });
     },
+
+    uploadMany: async function(req,res) {
+        console.log(req.body.data);
+        console.log(mongoose);
+        let model = await this.createModel(req.params.input);
+        // TODO: fix it >> if id does not match , upsert this element. Check from internet
+        let output = await Promise.all(req.body.data.map(val => model.findOneAndUpdate({_id: mongoose.Types.ObjectId(val._id)},req.body,{upsert:true}) ));
+        console.log(output);
+        return {'success': 'done'};
+    },
+
+    landingPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.owner}-landingPage`);
+        let requiredModels = await model.findOne({}).lean();
+    },
+
 };
 
 app.listen(3000)

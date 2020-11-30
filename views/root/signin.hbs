@@ -64,7 +64,7 @@
                 console.log(data);
                 $('#submitButton').html(data.error || data.success);
                 if (data.error) return 'Click on show collections to go home';
-                window.location.href = `/${data.owner}/${data.role}/page/showCollection/${data.owner}-users`;
+                window.location.href = `/${data.brand}/${data.role}/page/showCollection/${data.brand}-users`;
               }
             });
         });

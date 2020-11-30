@@ -89,10 +89,12 @@
             console.table(Object.values(data));
 
             if (Object.values(data).length == 0) return $('#uploadFile').html('No data found in this file');
+
             $('#uploadFile').html('Data exists -- upload it')
 
-            return;
-            $.post("/{{data.brand}}/admin/data/downloadCSVFile/{{data.collection}}",function(data,status) {});
+            $.post("/{{data.brand}}/admin/data/uploadMany/{{data.collection}}", {data: Object.values(data)} ,function(data,status) {
+                console.log(data,status);           
+            });
         });
 
         $('#uploadFile').on('click', function(e) {
@@ -114,7 +116,6 @@
           },
 
           matchArrays: function(val1,val2) {
-              console.log(JSON.stringify(val1), JSON.stringify(val2),JSON.stringify(val1) == JSON.stringify(val2));
               return JSON.stringify(val1) == JSON.stringify(val2);
           }
       };

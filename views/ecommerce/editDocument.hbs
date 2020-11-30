@@ -28,7 +28,7 @@
 
     <nav>
 
-        <a href="/{{data.owner}}/admin/page/showCollection/{{data.collection}}">{{data.collection}}</a>
+        <a href="/{{data.brand}}/admin/page/showCollection/{{data.collection}}">{{data.collection}}</a>
     
     </nav>
 
@@ -63,13 +63,13 @@
             console.log($(this).serialize());
             $.ajax({
               type: "POST",
-              url: '/{{data.owner}}/admin/data/updateSequence/n',
+              url: '/{{data.brand}}/admin/data/updateSequence/n',
               data: $(this).serialize(),
               success: (data) => {
                 console.log('successful data sent'),
                 console.log(data);
                 $('#submitButton').html(data.error);
-                window.location.href = '/{{data.owner}}/admin/page/showCollection/{{data.collection}}';
+                window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.collection}}';
               }
             });
         });

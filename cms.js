@@ -217,6 +217,7 @@ var myFuncs = {
         checkSignIn: 'gen',
         signup: 'gen',
         home: 'auth',
+        landingPage: 'gen'
     },
 
     respond: async function(data,req,res) {
@@ -556,8 +557,20 @@ var myFuncs = {
     },
 
     landingPage: async function(req,res) {
-        let model = await this.createModel(`${req.params.owner}-landingPage`);
-        let requiredModels = await model.findOne({}).lean();
+        let model = await (await this.createModel(`${req.params.brand}-landingPage`)).find({}).lean();
+        console.log({model});
+        // TODO:  create a model in each array element
+        // put in the query in each element
+        // get the output 
+        // pass it to the Page
+        let output = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
+        console.log('output');
+        console.log(output);
+        // let model = await this.createModel(`${req.params.brand}-landingPage`);
+        // let requiredModels = await model.find({}).lean();
+        // get models of each 
+        // console.log({requiredModels});
+        return {'success':'done'};
     },
 
 };

@@ -321,7 +321,8 @@ var myFuncs = {
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
-        console.log(`creating collection ${modelName}`,schema);
+        // console.log(`creating collection ${modelName}`,schema);
+
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
     },
@@ -548,28 +549,46 @@ var myFuncs = {
 
     uploadMany: async function(req,res) {
         console.log(req.body.data);
-        console.log(mongoose);
         let model = await this.createModel(req.params.input);
         // TODO: fix it >> if id does not match , upsert this element. Check from internet
-        let output = await Promise.all(req.body.data.map(val => model.findOneAndUpdate({_id: mongoose.Types.ObjectId(val._id)},req.body,{upsert:true}) ));
-        console.log(output);
+        console.log(req.body.data.map(val => val._id));
+        let mongoId =   req.body.data.map( val => val._id.match(/^[0-9a-fA-F]{24}$/) ? val._id : new mongoose.mongo.ObjectID() );
+        let dataWithOutId = req.body.data.map( val => delete val._id );
+        console.log('mongo', mongoId);
+        let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({_id: mongoId[index]},val,{new: true,upsert:true}) ));
+        console.log('output', output);
         return {'success': 'done'};
     },
 
     landingPage: async function(req,res) {
         let model = await (await this.createModel(`${req.params.brand}-landingPage`)).find({}).lean();
-        console.log({model});
-        // TODO:  create a model in each array element
-        // put in the query in each element
-        // get the output 
-        // pass it to the Page
-        let output = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
+        let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
+            console.log(req.session);
+        let output = await Promise.all( models.map((val,index) => { 
+            let query = model[index].query.split(',');
+            console.log('----');
+            switch(true) {
+                case ( /req.session._id/gi.test(query[0]) ) :
+                    // TODO: Make the session ID concatanate with Database Query
+                    query[0] = {sessionId: req.sessionID};
+                    break;
+                default : 
+                    query[0] = JSON.parse(query[0]);
+            };
+            console.log(val);
+            console.log(query)
+            let mongoQuery = {
+                query: query[0],
+                select: query[1] ? JSON.parse(query[1]) : {},
+                cursor: query[2] ? JSON.parse(query[2]) : {},
+            };
+            console.log(mongoQuery);
+            // return val.find({});
+            return val.find(mongoQuery.query, mongoQuery.select, mongoQuery.cursor);
+        }) );
+
         console.log('output');
         console.log(output);
-        // let model = await this.createModel(`${req.params.brand}-landingPage`);
-        // let requiredModels = await model.find({}).lean();
-        // get models of each 
-        // console.log({requiredModels});
         return {'success':'done'};
     },
 

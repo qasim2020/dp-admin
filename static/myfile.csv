@@ -1,4 +1,4 @@
-"_id","collectionName","query"
-"5fc4a79fb6fc0b7e639e4976","cart","_id: req.session._id"
-"5fc4a7c5b6fc0b7e639e4977","schools","null"
-"5fc4a7e9b6fc0b7e639e4978","items","limit: 20"
+"_id","name","category","school","house","purchaseCost","sellingCost","quantity","size","discription"
+"5fc6d1c677024641e3adf2de","Shoes","Foot Wear","Happy Home School","Jinnah","1400","1600","13","XXL","A quality product for every house hold"
+"5fc6d1c677024641e3adf2df","Bags","School","FG Quaid E Azam","Iqbal","1300","1600","10","XL","Home knitted to uplift student's taste"
+"5fc6d21c77024641e3adf2e0","Pant","Uniform","Beacon House School","Jinnah","1800","2100","9","XXL","A uniform build out of love"

@@ -272,6 +272,7 @@ var myFuncs = {
         let output = keys.map(val => {
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
+                // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
                 type: properties[val]['type'] == 'String' ? 'input' : 'radio',
                 name: val,
                 id: val,
@@ -305,7 +306,7 @@ var myFuncs = {
         let model = await this.createModel(req.body.modelName);
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
-        return result;
+        return {success: true};
     },
 
     checkCollectionExists: async function(collectionName) {
@@ -321,7 +322,7 @@ var myFuncs = {
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
-        // console.log(`creating collection ${modelName}`,schema);
+        console.log(`creating collection ${modelName}`,schema);
 
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
@@ -359,11 +360,31 @@ var myFuncs = {
         return {
             brand: req.params.brand,
             name: req.params.brand + '-' + req.params.input,
-            types: ['String','Number','Array','Object','Options','CheckBoxes']
+            types: ['String','Number','Array','Object','Options','CheckBoxes', 'img']
         };
     }, 
 
-    editACollection: function(req,res) {
+    editCollection: async function(req,res) {
+        if (req.params.input == 'n') return {
+            error: 'Please give a Collection Name'
+        };
+
+        console.log(`editing a collection at ${req.params.input}`);
+        let collectionDetails = await Collections.findOne({name: req.params.input}).lean();
+        let output = Object.keys(collectionDetails.properties).map(val => {
+            return {
+                name: val,
+                type: collectionDetails.properties[val].type,
+                required: collectionDetails.properties[val].required
+            };
+        });
+        return {
+            _id: collectionDetails._id,
+            brand: collectionDetails.brand,
+            name: collectionDetails.name,
+            types: ['String','Number','Array','Object','Options','CheckBoxes', 'img'],
+            inputs: output
+        };
     },
 
     saveSequence: async function(req,res) {

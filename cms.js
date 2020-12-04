@@ -363,6 +363,9 @@ var myFuncs = {
         };
     }, 
 
+    editACollection: function(req,res) {
+    },
+
     saveSequence: async function(req,res) {
         console.log('req.body');
         console.log(req.body);
@@ -550,20 +553,15 @@ var myFuncs = {
     uploadMany: async function(req,res) {
         console.log(req.body.data);
         let model = await this.createModel(req.params.input);
-        // TODO: fix it >> if id does not match , upsert this element. Check from internet
-        console.log(req.body.data.map(val => val._id));
         let mongoId =   req.body.data.map( val => val._id.match(/^[0-9a-fA-F]{24}$/) ? val._id : new mongoose.mongo.ObjectID() );
         let dataWithOutId = req.body.data.map( val => delete val._id );
-        console.log('mongo', mongoId);
         let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({_id: mongoId[index]},val,{new: true,upsert:true}) ));
-        console.log('output', output);
-        return {'success': 'done'};
+        return {status: 200, 'success': 'uploadMany Successful!'};
     },
 
     landingPage: async function(req,res) {
         let model = await (await this.createModel(`${req.params.brand}-landingPage`)).find({}).lean();
         let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
-            console.log(req.session);
         let output = await Promise.all( models.map((val,index) => { 
             let query = model[index].query.split(',');
             console.log('----');

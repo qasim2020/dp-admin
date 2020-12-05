@@ -111,6 +111,7 @@
 
         $('form').on('submit',function(e) {
             e.preventDefault();
+            return console.log($(this).serializeArray());
             let labels = $(this).serializeArray().filter(val => /label/gi.test(val.name));
             let types = $(this).serializeArray().filter(val => /type/gi.test(val.name));
             let reqs = $(this).serializeArray().filter(val => /req/gi.test(val.name));
@@ -119,6 +120,7 @@
                     [val.value] : {
                         type: types[index].value,
                         required: reqs[index].value
+                        // html: 
                     }
                 });
             },{});

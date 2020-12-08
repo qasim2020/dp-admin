@@ -273,7 +273,7 @@ var myFuncs = {
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
                 // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
-                type: properties[val]['type'] == 'String' ? 'input' : 'radio',
+                type: properties[val]['html'],
                 name: val,
                 id: val,
                 required: 'required',
@@ -360,7 +360,19 @@ var myFuncs = {
         return {
             brand: req.params.brand,
             name: req.params.brand + '-' + req.params.input,
-            types: ['String','Number','Array','Object','Options','CheckBoxes', 'img']
+            types: [{
+                name: 'String',
+                html: 'input'
+            },{
+                name: 'Number',
+                html: 'numberInput'
+            },{
+                name: 'Array',
+                html: 'checkBoxes',
+            },{
+                name: 'String',
+                html: 'imgURL',
+            }],
         };
     }, 
 
@@ -375,14 +387,28 @@ var myFuncs = {
             return {
                 name: val,
                 type: collectionDetails.properties[val].type,
-                required: collectionDetails.properties[val].required
+                required: collectionDetails.properties[val].required,
+                html: collectionDetails.properties[val].html == undefined ? 'input' : collectionDetails.properties[val].html
             };
         });
+        console.log({output});
         return {
             _id: collectionDetails._id,
             brand: collectionDetails.brand,
             name: collectionDetails.name,
-            types: ['String','Number','Array','Object','Options','CheckBoxes', 'img'],
+            types: [{
+                name: 'String',
+                html: 'input'
+            },{
+                name: 'Number',
+                html: 'numberInput'
+            },{
+                name: 'Array',
+                html: 'checkBoxes',
+            },{
+                name: 'String',
+                html: 'imgURL',
+            }],
             inputs: output
         };
     },

@@ -20,6 +20,23 @@
         .d-none {
             display: none;
         }
+
+        .imageUpload {
+            display: block;
+            border: 1px solid grey;
+            padding: 5px;
+            background: lightgrey;
+        }
+        .imageUpload > * {
+            display: block;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        .imageUpload > [type="file"] {
+            border: 1px solid dimgrey;
+            border-radius: 5px;
+        }
     </style>
 
 </head>
@@ -46,6 +63,27 @@
                 <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
             {{/if}}
 
+            {{#if (matchValues this.type 'imgURL')}}
+                <div class="imageUpload" id="imgURL0">
+
+                    {{#if this.value}}
+                        <img src="{{this.value}}" width="300" max-height="300">
+                    {{else}}
+                        <img src="">
+                    {{/if}}
+
+                    <label for="img">Select image:</label>
+                    <input type="file" id="img" name="img" accept="image/*">
+                    <input type="submit">
+
+                    <p>After image upload, your image link is shown below! </p>
+                    <label for="{{name}}">{{this.label}}</label>
+                    <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
+
+                </div>
+                <button id="addImage" type="button">Add another Image</button>
+            {{/if}}
+
         {{/each}}
 
         <button id="submitButton" type="submit">Submit</button>
@@ -58,9 +96,24 @@
 
     <script>
 
+        $('#addImage').on('click',function(e) {
+            $('#imgURL0').clone().insertAfter('.imageUpload:eq(-1)');
+            $('.imageUpoad:eq(-1)').find('img').attr('src','');
+            // console.log($('.imageUpload:eq(0)').find('label:eq(-1)').attr('for'));
+            let firstTagInputLabel = $('.imageUpload:eq(0)').find('label:eq(-1)').attr('for');
+            let tagsCount = $('.imageUpload').length;
+            let newLabel = firstTagInputLabel + tagsCount;
+            return console.log({firstTagInputLabel ,newLabel,tagsCount});
+            $('.imageUpoad:eq(-1)').find('label:eq(-1)').attr('for',newLabel);
+            $('.imageUpoad:eq(-1)').find('input:eq(-1)').attr({
+                name: newLabel,
+                id: newLabel,
+            });
+        });
+
         $('form').on('submit',function(e) {
             e.preventDefault();
-            console.log($(this).serialize());
+            return console.log($(this).serialize());
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',

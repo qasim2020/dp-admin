@@ -37,6 +37,10 @@
             border: 1px solid dimgrey;
             border-radius: 5px;
         }
+        img {
+            max-width: 50vw;
+            max-height: 50vh;
+        }
     </style>
 
 </head>
@@ -67,20 +71,21 @@
                 <div class="imageUpload" id="imgURL0">
 
                     {{#if this.value}}
-                        <img src="{{this.value}}" width="300" max-height="300">
+                        <img counter='1' linkedTo="img" src="{{this.value}}" width="300" max-height="300" class="">
                     {{else}}
-                        <img src="">
+                        <img counter='1' linkedTo="img" src="">
                     {{/if}}
 
-                    <label for="img">Select image:</label>
-                    <input type="file" id="img" name="img" accept="image/*">
-                    <input type="submit">
+                    <label counter='1' for="img">Upload image:</label>
+                    <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
+                    <p counter='1' class="error"></p>
 
-                    <p>After image upload, your image link is shown below! </p>
-                    <label for="{{name}}">{{this.label}}</label>
-                    <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
+                    <p counter='1' >After image upload, your image link is shown below! </p>
+                    <label counter='1' for="{{this.name}}">{{this.label}}</label>
+                    <input counter='1' name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
 
                 </div>
+
                 <button id="addImage" type="button">Add another Image</button>
             {{/if}}
 
@@ -98,18 +103,60 @@
 
         $('#addImage').on('click',function(e) {
             $('#imgURL0').clone().insertAfter('.imageUpload:eq(-1)');
-            $('.imageUpoad:eq(-1)').find('img').attr('src','');
-            // console.log($('.imageUpload:eq(0)').find('label:eq(-1)').attr('for'));
-            let firstTagInputLabel = $('.imageUpload:eq(0)').find('label:eq(-1)').attr('for');
+
             let tagsCount = $('.imageUpload').length;
-            let newLabel = firstTagInputLabel + tagsCount;
-            return console.log({firstTagInputLabel ,newLabel,tagsCount});
-            $('.imageUpoad:eq(-1)').find('label:eq(-1)').attr('for',newLabel);
-            $('.imageUpoad:eq(-1)').find('input:eq(-1)').attr({
-                name: newLabel,
-                id: newLabel,
+            $('.imageUpload:eq(-1) > *').attr({counter: tagsCount});
+
+            $(`img[counter=${tagsCount}]`).attr({src: ''});
+            let prvsLabel = $(`label[counter=${tagsCount}]:eq(-1)`).attr('for');
+            $(`label[counter=${tagsCount}]:eq(-1)`).attr('for',prvsLabel + tagsCount);
+            $(`input[counter=${tagsCount}]:eq(-1)`).attr({
+                name: prvsLabel + tagsCount,
+                id: prvsLabel + tagsCount,
             });
         });
+
+        let readURL = function (input) {
+            let counter = $(input).attr('counter');
+            let imgTag = `img[counter="${counter}"]`;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $(imgTag).attr('src',e.target.result);
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        $(document).on('load', 'img', function(e) {
+
+            return console.log('image loaded');
+
+            let data = {
+                img: e.target.result,
+                width:  $(imgTag).width() * 2,
+                height:  $(imgTag).height() * 2
+            };
+
+            console.log($(imgTag).width(), data);
+
+            data = JSON.stringify(data);
+
+            $.ajax({
+              type: "POST",
+              url: '/{{data.brand}}/admin/data/uploadCloudinary/n',
+              data: data,
+              success: (data) => {
+                console.log('successful data sent'),
+                console.log(data);
+                $(`.error[counter=${counter}]`).html(data.error);
+              }
+            });
+
+        });
+
 
         $('form').on('submit',function(e) {
             e.preventDefault();

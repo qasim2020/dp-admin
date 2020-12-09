@@ -637,6 +637,22 @@ var myFuncs = {
         return {'success':'done'};
     },
 
+    uploadCloudinary: async function(req,res) {
+        console.log(req.body.width,req.body.height);
+        let output = await cloudinary.uploader.upload(req.body.img,
+              {
+                resource_type: "image",
+                public_id: req.body.public_id || mongoose.Types.ObjectId().toString(),
+                folder: req.params.brand,
+                overwrite: true,
+                transformation: [
+                  { width: req.body.width, height: req.body.height, crop: "limit" }
+                ],
+              });
+        console.log(output);
+        return output;
+    },
+
 };
 
 app.listen(3000)

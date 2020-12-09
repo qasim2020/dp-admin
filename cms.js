@@ -273,7 +273,7 @@ var myFuncs = {
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
                 // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
-                type: properties[val]['html'],
+                type: properties[val]['html'] || 'input',
                 name: val,
                 id: val,
                 required: 'required',

@@ -71,9 +71,9 @@
                 <div class="imageUpload" id="imgURL0">
 
                     {{#if this.value}}
-                        <img counter='1' linkedTo="img" src="{{this.value}}" width="300" max-height="300" class="">
+                        <img counter='1' linkedTo="img" src="{{this.value}}" class="image">
                     {{else}}
-                        <img counter='1' linkedTo="img" src="">
+                        <img counter='1' linkedTo="img" src="" class="image">
                     {{/if}}
 
                     <label counter='1' for="img">Upload image:</label>
@@ -130,7 +130,7 @@
             }
         };
 
-        $(document).on('load', 'img', function(e) {
+        $(document).on('load', '.image', function(e) {
 
             return console.log('image loaded');
 

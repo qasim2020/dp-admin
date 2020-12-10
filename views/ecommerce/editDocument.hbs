@@ -135,8 +135,6 @@
             let counter = $(item).attr('counter');
             let img = $(item).attr('src');
 
-            console.log(item);
-
             let data = {
                 img: img, 
                 width:  $(item).width() * 2,
@@ -154,7 +152,6 @@
                 if (data.error) return c$(`.error[counter="${counter}"]`).html(data.error);
                 $(`input[counter="${counter}"]`).attr({
                     value: data.url,
-                    public_id: data.public_id
                 });
               }
             });
@@ -164,6 +161,16 @@
 
         $('form').on('submit',function(e) {
             e.preventDefault();
+            // TODO: Make images collate into the FORM !!
+            let inputForm = $(this).serializeArray();
+            let imageObjects = inputForm.filter(val => /imgURL/gi.test(val.name)); // INPUT Tag
+            let imageCSV = imageObjects.reduce((total,val) => {
+                console.log(total,val);
+                total = total + ',' + val.value; 
+                // total = val.value + ',' + total ; 
+                return total;
+            },'');
+            return console.log(inputForm,imageObjects,imageCSV.split(','));
             return console.log($(this).serializeArray());
             return console.log($(this).serialize());
             $.ajax({

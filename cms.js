@@ -72,6 +72,12 @@ mongoose.connect(process.env.MONGODB_URI, {
   }
 });
 
+cloudinary.config({
+  cloud_name: process.env.cloudName,
+  api_key: process.env.cloudAPI,
+  api_secret: process.env.cloudAPISecret
+});
+
 let schema = {
     name: {
         type: "String",
@@ -273,7 +279,7 @@ var myFuncs = {
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
                 // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
-                type: properties[val]['html'] || 'input',
+                type: properties[val]['html'],
                 name: val,
                 id: val,
                 required: 'required',

@@ -9,7 +9,23 @@
         .container {
             max-width: 800px;
             display: flex;
-            }
+            align-items: flex-start;
+            margin: auto;
+
+        }
+
+        .container > * {
+            width: 50%;
+            border-radius: 5px;
+        }
+
+        form {
+            display: block;
+            margin: 0 5px;
+            background: lightgrey;
+            padding: 12px;
+            border: 1px solid grey;
+        }
 
         form > * {
             display: block;
@@ -26,6 +42,9 @@
             border: 1px solid grey;
             padding: 5px;
             background: lightgrey;
+            border-radius: 5px;
+
+            margin-bottom: 5px;
         }
         .imageUpload > * {
             display: block;
@@ -38,8 +57,15 @@
             border-radius: 5px;
         }
         img {
-            max-width: 50vw;
-            max-height: 50vh;
+            max-width: 50vw; 
+            max-width: 100%;
+            box-sizing: border-box;
+            border-radius: 5px;
+            background: white;
+        }
+        .error {
+            font-weight: bold;
+    font-style: italic;
         }
     </style>
 
@@ -67,13 +93,23 @@
                 <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}">
             {{/if}}
 
+
+        {{/each}}
+
+        <button id="submitButton" type="submit">Submit</button>
+
+        </form>
+
+        <div>
+        {{#each data}}
+
             {{#if (matchValues this.type 'imgURL')}}
                 <div class="imageUpload" id="imgURL0">
 
                     {{#if this.value}}
                         <img counter='1' linkedTo="img" src="{{this.value}}" class="image">
                     {{else}}
-                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
+                        <img counter='1' linkedTo="img" src="" class="image" >
                     {{/if}}
 
                     <label counter='1' for="img">Upload image:</label>
@@ -83,7 +119,7 @@
 
                     <p counter='1' >After image upload, your image link is shown below! </p>
                     <label counter='1' for="{{this.name}}">{{this.label}}</label>
-                    <input counter='1' name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}" public_id="">
+                    <input class='imageURL' counter='1' name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}" public_id="">
 
                 </div>
 
@@ -91,10 +127,6 @@
             {{/if}}
 
         {{/each}}
-
-        <button id="submitButton" type="submit">Submit</button>
-
-        </form>
 
     </div>
 
@@ -108,12 +140,16 @@
             let tagsCount = $('.imageUpload').length;
             $('.imageUpload:eq(-1) > *').attr({counter: tagsCount});
 
-            $(`img[counter=${tagsCount}]`).attr({src: ''});
+            $(`img[counter=${tagsCount}]`).attr({
+                src: '',
+                onload: 'uploadCloudinary(this)'
+            });
             let prvsLabel = $(`label[counter=${tagsCount}]:eq(-1)`).attr('for');
             $(`label[counter=${tagsCount}]:eq(-1)`).attr('for',prvsLabel + tagsCount);
             $(`input[counter=${tagsCount}]:eq(-1)`).attr({
                 name: prvsLabel + tagsCount,
                 id: prvsLabel + tagsCount,
+                value: ''
             });
         });
 
@@ -132,6 +168,7 @@
         };
 
         let uploadCloudinary = function(item) {
+
             let counter = $(item).attr('counter');
             let img = $(item).attr('src');
 
@@ -141,6 +178,8 @@
                 height:  $(item).height() * 2
             };
 
+            $(`.error[counter="${counter}"]`).html('Uploading Image...');
+
             console.log(data);
 
             $.ajax({
@@ -149,10 +188,11 @@
               data: data,
               success: (data) => {
                 console.log(data);
-                if (data.error) return c$(`.error[counter="${counter}"]`).html(data.error);
+                if (data.error) return $(`.error[counter="${counter}"]`).html(data.error);
                 $(`input[counter="${counter}"]`).attr({
                     value: data.url,
                 });
+                $(`.error[counter="${counter}"]`).html('Image Uploaded Successfully.');
               }
             });
 
@@ -161,26 +201,35 @@
 
         $('form').on('submit',function(e) {
             e.preventDefault();
-            // TODO: Make images collate into the FORM !!
             let inputForm = $(this).serializeArray();
-            let imageObjects = inputForm.filter(val => /imgURL/gi.test(val.name)); // INPUT Tag
-            let imageCSV = imageObjects.reduce((total,val) => {
-                console.log(total,val);
-                total = total + ',' + val.value; 
-                // total = val.value + ',' + total ; 
-                return total;
-            },'');
-            return console.log(inputForm,imageObjects,imageCSV.split(','));
-            return console.log($(this).serializeArray());
-            return console.log($(this).serialize());
+            let imageUploadDivs = $('.imageUpload').length;
+            let formData = $(this).serialize();
+            let imageTagsName = $('.imageURL').attr('name');
+
+            // TODO: if image exists append the imageURL to the query !!
+            console.log({imageTagsName});
+            console.log({formData});
+            if (imageUploadDivs > 0) {
+                let imageTags = $('.imageURL').serializeArray();
+                let imageURLs = imageTags.map(val => val.value);
+                let imageCSV = imageURLs.reduce((total,val) => {
+                    total = val + ',' + total ; 
+                    return total;
+                },'').slice(0, -1);
+                console.log({imageURLs});
+                console.log({imageCSV});
+                formData = `${formData}&${imageTagsName}=${imageCSV}`;
+            }
+            // TODO: Make serialize() take only one imageURL
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',
-              data: $(this).serialize(),
+              data: formData,
               success: (data) => {
                 console.log('successful data sent'),
                 console.log(data);
                 $('#submitButton').html(data.error);
+                  return;
                 window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.collection}}';
               }
             });

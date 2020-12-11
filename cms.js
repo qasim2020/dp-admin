@@ -276,6 +276,11 @@ var myFuncs = {
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
         let output = keys.map(val => {
+            if (properties[val]['html'] == 'imgURL' && req.values != undefined) {
+                console.log('checking if this is triggered');
+                console.log(chalk.red(req.values[val].split(',')));
+                req.values[val] = req.values && req.values[val].split(',');
+            }
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
                 // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
@@ -286,6 +291,8 @@ var myFuncs = {
                 value: req.values && req.values[val] 
             };
         });
+        // TODO: Make image tags extend according to their csvS
+        console.log(output);
         return output;
     },
 

@@ -104,24 +104,36 @@
         {{#each data}}
 
             {{#if (matchValues this.type 'imgURL')}}
-                <div class="imageUpload" id="imgURL0">
 
-                    {{#if this.value}}
-                        <img counter='1' linkedTo="img" src="{{this.value}}" class="image">
+                {{#each this.value}}
+
+                <div class="imageUpload" id="">
+
+                    {{#if this}}
+                        <img counter='1' linkedTo="img" src="{{this}}" class="image">
                     {{else}}
-                        <img counter='1' linkedTo="img" src="" class="image" >
+                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
                     {{/if}}
 
-                    <label counter='1' for="img">Upload image:</label>
                     <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
 
-                    <p counter='1' class="error"></p>
+                    <p counter='1' class="error">After image upload, your image link is shown below! </p>
 
-                    <p counter='1' >After image upload, your image link is shown below! </p>
-                    <label counter='1' for="{{this.name}}">{{this.label}}</label>
-                    <input class='imageURL' counter='1' name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" required="{{matchValues this.required required}}" value="{{this.value}}" public_id="">
+                    <input 
+                       class='imageURL' 
+                       counter='1' 
+                       name="{{../this.name}}" 
+                       type="text" 
+                       id="{{../this.id}}{{@index}}" 
+                       placeholder="" 
+                       value="{{this}}" 
+                       />
+
+                    <button type="button" onclick="removeImage('{{../this.id}}{{@index}}')">Remove Image</button>
 
                 </div>
+
+                {{/each}}
 
                 <button id="addImage" type="button">Add another Image</button>
             {{/if}}
@@ -135,14 +147,13 @@
     <script>
 
         $('#addImage').on('click',function(e) {
-            $('#imgURL0').clone().insertAfter('.imageUpload:eq(-1)');
 
+            $('.imageUpload:eq(0)').clone().insertAfter('.imageUpload:eq(-1)');
             let tagsCount = $('.imageUpload').length;
             $('.imageUpload:eq(-1) > *').attr({counter: tagsCount});
-
+            $(`.error[counter="${tagsCount}"]`).html('After image upload, your image link is shown below! ');
             $(`img[counter=${tagsCount}]`).attr({
                 src: '',
-                onload: 'uploadCloudinary(this)'
             });
             let prvsLabel = $(`label[counter=${tagsCount}]:eq(-1)`).attr('for');
             $(`label[counter=${tagsCount}]:eq(-1)`).attr('for',prvsLabel + tagsCount);
@@ -151,6 +162,7 @@
                 id: prvsLabel + tagsCount,
                 value: ''
             });
+
         });
 
         let readURL = function (input) {
@@ -158,11 +170,12 @@
             let imgTag = `img[counter="${counter}"]`;
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-
                 reader.onload = function (e) {
-                    $(imgTag).attr('src',e.target.result);
+                    $(imgTag).attr({
+                        'src': e.target.result,
+                        onload: 'uploadCloudinary(this)'
+                    });
                 };
-                
                 reader.readAsDataURL(input.files[0]);
             }
         };
@@ -171,17 +184,13 @@
 
             let counter = $(item).attr('counter');
             let img = $(item).attr('src');
-
             let data = {
                 img: img, 
                 width:  $(item).width() * 2,
                 height:  $(item).height() * 2
             };
-
             $(`.error[counter="${counter}"]`).html('Uploading Image...');
-
             console.log(data);
-
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/uploadCloudinary/n',
@@ -192,12 +201,11 @@
                 $(`input[counter="${counter}"]`).attr({
                     value: data.url,
                 });
-                $(`.error[counter="${counter}"]`).html('Image Uploaded Successfully.');
+                $(`.error[counter="${counter}"]`).html('Image Uploaded Successfully. Link added in input !');
               }
             });
 
         };
-
 
         $('form').on('submit',function(e) {
             e.preventDefault();
@@ -235,7 +243,12 @@
             });
         });
 
-        // label: name, type: String
+        let removeImage = function(inputId) {
+            // TODO: Get the id of this image and delete from Cloudinary account. in'sha'Allah
+            console.log($(`#${inputId}`))
+            let inputURL = $(`#${inputId}`).attr('value');
+            console.log(inputURL);
+        };
 
     </script>
 

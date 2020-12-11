@@ -276,9 +276,10 @@ var myFuncs = {
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
         let output = keys.map(val => {
-            if (properties[val]['html'] == 'imgURL' && req.values != undefined) {
+            console.log('req.values', val);
+            if (properties[val]['html'] == 'imgURL' && req.values[val] != undefined) {
                 console.log('checking if this is triggered');
-                console.log(chalk.red(req.values[val].split(',')));
+                console.log(chalk.red(req.values && req.values[val].split(',')));
                 req.values[val] = req.values && req.values[val].split(',');
             }
             return {

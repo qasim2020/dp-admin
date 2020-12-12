@@ -245,6 +245,7 @@
 
         let removeImage = function(inputId) {
             // TODO: Get the id of this image and delete from Cloudinary account. in'sha'Allah
+            $(`#${inputId}`).parent('.imageUpload').remove();
             console.log($(`#${inputId}`))
             let inputURL = $(`#${inputId}`).attr('value');
             console.log(inputURL);

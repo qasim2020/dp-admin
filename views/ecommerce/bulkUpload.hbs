@@ -67,18 +67,6 @@
                  console.log(data);
                  window.location = `/${data}`;
              });
-            //  e.preventDefault();
-            //  console.log($(this).serialize());
-            //  $.ajax({
-            //    type: "POST",
-            //    url: '/{{data.brand}}/admin/data/saveSequence/n',
-            //    data: $(this).serialize(),
-            //    success: (data) => {
-            //      console.log('successful data sent'),
-            //      console.log(data);
-            //      $('#submitButton').html(data.error);
-            //    }
-            //  });
          });
 
         $('#uploadFile').on('click',function() {
@@ -132,7 +120,10 @@
 
             console.log(Object.values(msg)[0]);
 
-            if (myFuncs.matchArrays(Object.values(msg)[0].replace(/"|\r/g,"").split(','), sampleFormat) == false) incomplete.push('Data does not match the sample sheet. Try uploading the properly formatted file you downloaded in Step 1.');
+            if (myFuncs.matchArrays(Object.values(msg)[0].replace(/"|\r/g,"").split(','), sampleFormat) == false) { 
+                incomplete.push('Data does not match the sample sheet. Try uploading the properly formatted file you downloaded in Step 1.');
+            }
+
             let headings = Object.values(msg)[0].replace(/"|\r/g,"").split(','); 
 
             if (msg.length < 1) incomplete.push(`No data added <br>`);

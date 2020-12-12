@@ -1,4 +1,3 @@
-"_id","name","category","school","house","purchaseCost","sellingCost","quantity","size","description"
-"5fc6d1c677024641e3adf2de","Shoes","Foot Wear","Happy Home School","Jinnah","1400","1600","13","XXL","undefined"
-"5fc6d1c677024641e3adf2df","Bags","School","FG Quaid E Azam","Iqbal","1300","1600","10","XL","undefined"
-"5fc6d21c77024641e3adf2e0","Pant","Uniform","Beacon House School","Jinnah","1800","2100","9","XXL","undefined"
+"_id","name","purchase","cost","quantity","size","school","house","details","imgURL","category"
+"5fc367aee7083a7b317ce5af","Pant","1400","1600","24","XL","Beacon House School Systems","Jinnah; Iqbal; Sir Syed","A quality product comes in refine taste.","http://res.cloudinary.com/miscellaneous/image/upload/v1607669900/7am/5fd3187f490d6d93ad8be06f.jpg http://res.cloudinary.com/miscellaneous/image/upload/v1607746142/7am/5fd442589297bc95da8d3c0c.png","Pants"
+"5fd452f84b8f89978829cbf8","Pant","1400","2200","10","S","Beacon House School Systems","Jinnah; Iqbal; Sir Syed","Remarkable pants. hand woven with great love and passion !","http://res.cloudinary.com/miscellaneous/image/upload/v1607750782/7am/5fd4547ac5e07b97d8035e17.jpg http://res.cloudinary.com/miscellaneous/image/upload/v1607750383/7am/5fd452ec4b8f89978829cbf7.jpg","Pants"

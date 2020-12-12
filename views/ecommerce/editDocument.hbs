@@ -101,6 +101,7 @@
         </form>
 
         <div>
+
         {{#each data}}
 
             {{#if (matchValues this.type 'imgURL')}}
@@ -214,21 +215,21 @@
             let formData = $(this).serialize();
             let imageTagsName = $('.imageURL').attr('name');
 
-            // TODO: if image exists append the imageURL to the query !!
-            console.log({imageTagsName});
-            console.log({formData});
             if (imageUploadDivs > 0) {
                 let imageTags = $('.imageURL').serializeArray();
                 let imageURLs = imageTags.map(val => val.value);
                 let imageCSV = imageURLs.reduce((total,val) => {
-                    total = val + ',' + total ; 
+                    // TODO: Make total come before val so that images are displayed according to their sequence of saving !! IMPORTANT
+                    total = val + '+' + total ; 
                     return total;
                 },'').slice(0, -1);
-                console.log({imageURLs});
-                console.log({imageCSV});
                 formData = `${formData}&${imageTagsName}=${imageCSV}`;
             }
+
+            console.log(formData);
+
             // TODO: Make serialize() take only one imageURL
+
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',

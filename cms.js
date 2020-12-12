@@ -276,11 +276,11 @@ var myFuncs = {
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
         let output = keys.map(val => {
-            console.log('req.values', val);
-            if (properties[val]['html'] == 'imgURL' && req.values[val] != undefined) {
+            console.log('req.values', val, properties[val]['html'] );
+            if (properties[val]['html'] == 'imgURL' && req.values && req.values[val] != undefined) {
                 console.log('checking if this is triggered');
-                console.log(chalk.red(req.values && req.values[val].split(',')));
-                req.values[val] = req.values && req.values[val].split(',');
+                console.log(chalk.red(req.values && req.values[val].split(' ')));
+                req.values[val] = req.values && req.values[val].split(' ');
             }
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
@@ -320,7 +320,7 @@ var myFuncs = {
         let model = await this.createModel(req.body.modelName);
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
-        return {success: true};
+        return {success: true, result: result};
     },
 
     checkCollectionExists: async function(collectionName) {
@@ -572,9 +572,6 @@ var myFuncs = {
     },
 
     downloadCSVFile: async function(req,res) {
-        // Problem: when a user downloads this file with time stamp he is unable to upload same entries into the data base
-        // Soln: Give him the _id instead of date -- or make timestamp a separate entry
-        
         let collection = await Collections.findOne({name: req.params.input}).lean();
         let properties = collection.properties;
 
@@ -586,14 +583,6 @@ var myFuncs = {
             let total = [];
             for (i=0; i<collectionHeadings.length; i++) {
                 total.push(val[collectionHeadings[i]]);
-                // switch (true) {
-                    // case (collectionHeadings[i] == 'timestamp'): 
-                    //     total.push(val._id.getTimestamp())
-                    //     break;
-                    // default: 
-                        // total.push(val[collectionHeadings[i]]);
-                        //break;
-                //}
             }
             return total;
         });
@@ -637,18 +626,17 @@ var myFuncs = {
             console.log(val);
             console.log(query)
             let mongoQuery = {
-                query: query[0],
+                query: query[0] ? query[0] : {},
                 select: query[1] ? JSON.parse(query[1]) : {},
                 cursor: query[2] ? JSON.parse(query[2]) : {},
             };
             console.log(mongoQuery);
-            // return val.find({});
-            return val.find(mongoQuery.query, mongoQuery.select, mongoQuery.cursor);
+            result = val.find(mongoQuery.query, mongoQuery.select, mongoQuery.cursor);
+            return result;
         }) );
 
-        console.log('output');
         console.log(output);
-        return {'success':'done'};
+        return output;
     },
 
     uploadCloudinary: async function(req,res) {

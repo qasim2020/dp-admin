@@ -52,9 +52,11 @@ app.use(
     res.locals.error = req.flash('error');
     next();
   },
+  bodyParser.json({limit: '50mb'}),
   bodyParser.urlencoded({
     extended: true,
-    limit: '50mb'
+    limit: '50mb',
+    parameterLimit: 1000000
   })
 );
 
@@ -228,7 +230,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log(chalk.bold.yellow('sending data to page ====='));
-        console.log(data);
+        // console.log(data);
         switch(true) {
           case (data.error): 
             return res.status(data.status).send(data.error);
@@ -288,7 +290,7 @@ var myFuncs = {
                 type: properties[val]['html'],
                 name: val,
                 id: val,
-                required: 'required',
+                required: properties[val]['required'] || 'true',
                 value: req.values && req.values[val] 
             };
         });
@@ -318,6 +320,10 @@ var myFuncs = {
     updateSequence: async function(req,res) {
         console.log(req.body);
         let model = await this.createModel(req.body.modelName);
+        console.log('model showing below;');
+        console.log(model);
+        console.log('mongoose showing below;');
+        console.log(JSON.stringify(mongoose.modelSchemas,0,' '));
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
         return {success: true, result: result};
@@ -332,7 +338,10 @@ var myFuncs = {
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
 
-        if (modelExistsAlready) return mongoose.models[modelName];
+        // zeroise this model first
+        if (modelExistsAlready) {
+            mongoose.models[modelName] = '';
+        };
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
@@ -609,12 +618,15 @@ var myFuncs = {
         return {status: 200, 'success': 'uploadMany Successful!'};
     },
 
+    string2Array: function(variable,separator) {
+        return variable.split(' ');
+    },
+
     landingPage: async function(req,res) {
         let model = await (await this.createModel(`${req.params.brand}-landingPage`)).find({}).lean();
         let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
         let output = await Promise.all( models.map((val,index) => { 
             let query = model[index].query.split(',');
-            console.log('----');
             switch(true) {
                 case ( /req.session._id/gi.test(query[0]) ) :
                     // TODO: Make the session ID concatanate with Database Query
@@ -623,19 +635,34 @@ var myFuncs = {
                 default : 
                     query[0] = JSON.parse(query[0]);
             };
-            console.log(val);
-            console.log(query)
             let mongoQuery = {
                 query: query[0] ? query[0] : {},
                 select: query[1] ? JSON.parse(query[1]) : {},
                 cursor: query[2] ? JSON.parse(query[2]) : {},
             };
-            console.log(mongoQuery);
-            result = val.find(mongoQuery.query, mongoQuery.select, mongoQuery.cursor);
+            result = val.find(mongoQuery.query, mongoQuery.select, mongoQuery.cursor).lean();
             return result;
         }) );
 
-        console.log(output);
+        let variables = model.map(val => val.variable);
+        
+        output = output.reduce((total,val,index)  => {
+            switch(true) {
+                case (model[index]['specialMethod'] && model[index]['specialMethod'].length != 0) :
+                    let specialMethodName = model[index]['specialMethod'].split(' ')[0];
+                    let dataKeyName = model[index]['specialMethod'].split(' ')[1];
+                    val = val.map(v => {
+                        v[dataKeyName] = this[specialMethodName]( v[dataKeyName] )
+                        return v;
+                    });                   
+                default: 
+                    total = Object.assign(total, {
+                        [variables[index]] : val
+                    });
+            };
+            return total;
+        },{});
+        // console.log(output);
         return output;
     },
 

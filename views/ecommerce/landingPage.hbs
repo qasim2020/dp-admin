@@ -6,6 +6,25 @@
 
     <style type="text/css">
 
+    .items {
+        display: grid;
+        grid-template-columns: repeat(6,1fr);
+        grid-gap: 10px;
+    }
+
+    .items div {
+        border: 1px solid grey;
+        border-radius: 7px;
+        padding: 9px;
+    }
+
+    .items img {
+        width: 100%;
+        height: auto;
+        box-sizing: border-box;
+        border-radius: 11px;
+    }
+
     </style>
 
 </head>
@@ -14,20 +33,40 @@
 
     <nav>
 
-        <p>Logo</p>
-        <a href="/{{data.brand}}/gen/page/aboutPage/n">About Us {{data.cart}}</a>
-        <a href="/{{data.brand}}/gen/page/cartPage/n">Cart {{data.cart}}</a>
+        <p><img src="{{data.resources.[0].logo}}" height="44"></p>
+
+        <div>
+            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+        </div>
     
     </nav>
 
     <div class="container">
 
-        <p> Search Bar </p>
-        <p> List of Schools </p>
-        <p> List of Items </p>
-        {{#each data.[2]}}
-            <p> {{this}} </p>
+        <p><input type='text' placeholder='Type something here...' value=''></p>
+
+        <p>
+        {{#each data.schools}}
+            <span>{{this.name}}<span>
         {{/each}}
+        </p>
+
+        <p><span>Categories</span>
+        {{#each data.categories}}
+            <span>{{this}}</span>
+        {{/each}}
+        </p>
+
+        <section class='items'>
+            {{#each data.items}}
+            <div>
+                <img src="{{this.imageLink.[1]}}" height="300">
+                <p> {{this.name}} </p>
+                <p> PKR - {{this.sellingCost}} </p>
+            </div>
+            {{/each}}
+        </section>
     
     </div>
 
@@ -39,24 +78,6 @@
 
     <script>
 
-        // $('form').on('submit',function(e) {
-        //     e.preventDefault();
-        //     console.log($(this).serialize());
-        //     $.ajax({
-        //       type: "POST",
-        //       url: '/{{data.brand}}/gen/data/saveSequence/n',
-        //       data: $(this).serialize(),
-        //       success: (data) => {
-        //         console.log(data);
-        //         $('#submitButton').html(data.error || data.success);
-        //         if (data.success) return 'Click on show collections to go home';
-        //         return;
-        //         window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.brand}}-users';
-        //       }
-        //     });
-        // });
-
-        // label: name, type: String
 
     </script>
 

@@ -77,9 +77,9 @@
 
           <select name="type{{@index}}" id="type{{@index}}">
             {{#each ../data.types}}
-                <option value="{{this.name}}" html="{{this.html}}">{{this.html}}</option>
+                <option value="{{this.html}}+{{this.name}}">{{this.html}}</option>
             {{/each}}
-                <option value="{{this.type}}" html="{{this.html}}" selected>{{this.html}}</option>
+                <option value="{{this.html}}+{{this.type}}" selected>{{this.html}}</option>
           </select>
 
           <input type="radio" id="true" name="req{{@index}}" value="true" {{#if (matchValues this.required 'true')}} checked {{/if}}>
@@ -117,9 +117,9 @@
             let output = labels.reduce((total,val,index) => {
                 return Object.assign(total,{
                     [val.value] : {
-                        type: types[index].value, 
+                        type: types[index].value.split('+')[1], 
                         required: reqs[index].value,
-                        html: $(`#${types[index].name} option:selected`).attr('html')
+                        html: types[index].value.split('+')[0]
                     }
                 });
             },{});

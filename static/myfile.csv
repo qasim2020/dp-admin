@@ -1,3 +1,2 @@
-"_id","name","purchase","cost","quantity","size","school","house","details","imgURL","category"
-"5fc367aee7083a7b317ce5af","Pant","1400","1600","24","XL","Beacon House School Systems","Jinnah; Iqbal; Sir Syed","A quality product comes in refine taste.","http://res.cloudinary.com/miscellaneous/image/upload/v1607669900/7am/5fd3187f490d6d93ad8be06f.jpg http://res.cloudinary.com/miscellaneous/image/upload/v1607746142/7am/5fd442589297bc95da8d3c0c.png","Pants"
-"5fd452f84b8f89978829cbf8","Pant","1400","2200","10","S","Beacon House School Systems","Jinnah; Iqbal; Sir Syed","Remarkable pants. hand woven with great love and passion !","http://res.cloudinary.com/miscellaneous/image/upload/v1607750782/7am/5fd4547ac5e07b97d8035e17.jpg http://res.cloudinary.com/miscellaneous/image/upload/v1607750383/7am/5fd452ec4b8f89978829cbf7.jpg","Pants"
+"_id","name","houses","address","shortName"
+"5fd5fffe3ab0932d3026c6c9","Happy Home School","Jinnah+Iqbal+Swedish","Chakwal Road","HHSC"

@@ -2,9 +2,49 @@
 
 <head>
 
-    <title>Sign Up</title>
+    <title>{{data.brand}}</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
 
     <style type="text/css">
+
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    nav a, span {
+        padding: 2px 11px;
+        border-radius: 5px;
+        border: 1px solid #F2F2F2;
+        text-decoration: none;
+        color: #828282;
+    }
+
+
+    .searchP {
+        border: 1px solid #E0E0E0;
+        border-radius: 5px;
+    }
+
+    .searchP > input::placeholder {
+        color: #828282;
+    }
+
+    .searchP > input {
+        width: 100%;
+        padding: 16px 9px;
+        font-size: 17px;
+        color: black;
+        border: 0px;
+        border-radius: 5px;
+    }
 
     .items {
         display: grid;
@@ -44,13 +84,13 @@
 
     <div class="container">
 
-        <p><input type='text' placeholder='Type something here...' value=''></p>
-
         <p>
         {{#each data.schools}}
-            <span>{{this.name}}<span>
+            <span>{{{this.name}}}</span>
         {{/each}}
         </p>
+
+        <p class="searchP"><input type='text' placeholder='Type something here...' value=''></p>
 
         <p><span>Categories</span>
         {{#each data.categories}}

@@ -230,7 +230,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log(chalk.bold.yellow('sending data to page ====='));
-        // console.log(data);
+        console.log(data);
         switch(true) {
           case (data.error): 
             return res.status(data.status).send(data.error);

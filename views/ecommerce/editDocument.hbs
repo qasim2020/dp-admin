@@ -127,7 +127,7 @@
                        type="text" 
                        id="{{../this.id}}{{@index}}" 
                        placeholder="" 
-                       value="{{this}}" 
+                       value="{{{this}}}" 
                        />
 
                     <button type="button" onclick="removeImage('{{../this.id}}{{@index}}')">Remove Image</button>
@@ -220,7 +220,7 @@
                 let imageURLs = imageTags.map(val => val.value);
                 let imageCSV = imageURLs.reduce((total,val) => {
                     // TODO: Make total come before val so that images are displayed according to their sequence of saving !! IMPORTANT
-                    total = val + '+' + total ; 
+                    total = encodeURI(val) + '+' + total ; 
                     return total;
                 },'').slice(0, -1);
                 formData = `${formData}&${imageTagsName}=${imageCSV}`;

@@ -177,7 +177,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     next();
 });
 
-app.get('/:brand/:permit/:requiredType/:module/:input', async (req,res) => {
+let replyFunction = async (req,res) => {
 
     try {
         let data = await myFuncs[req.params.module](req,res);
@@ -188,20 +188,10 @@ app.get('/:brand/:permit/:requiredType/:module/:input', async (req,res) => {
         res.status(e.status || 400).send(e);
     }
 
-});
+};
 
-app.post('/:brand/:permit/:requiredType/:module/:input', async (req,res) => {
-
-    try {
-        let data = await myFuncs[req.params.module](req,res);
-        req.params.theme = await myFuncs.getThemeName(req.params.brand);
-        myFuncs.respond(data,req,res);
-    } catch(e) {
-        console.log(e);
-        res.status(e.status || 400).send(e);
-    }
-
-});
+app.get( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
+app.post( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 
 var myFuncs = {
 
@@ -225,7 +215,9 @@ var myFuncs = {
         checkSignIn: 'gen',
         signup: 'gen',
         home: 'auth',
-        landingPage: 'gen'
+        landingPage: 'gen',
+        mongoQueries: 'gen',
+        searchItems: 'gen'
     },
 
     respond: async function(data,req,res) {
@@ -241,8 +233,10 @@ var myFuncs = {
           case (req.params.requiredType == 'data'):
             return res.status(200).send(data);
             break;
+          case (req.params.hasOwnProperty('pageName')): 
+            return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
+            break;
           case (req.params.requiredType == 'page'):
-            console.log(req.params);
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
           default:
@@ -319,6 +313,7 @@ var myFuncs = {
 
     updateSequence: async function(req,res) {
         console.log(req.body);
+        // return req.body;
         let model = await this.createModel(req.body.modelName);
         console.log('model showing below;');
         console.log(model);
@@ -622,8 +617,8 @@ var myFuncs = {
         return variable.split(' ');
     },
 
-    landingPage: async function(req,res) {
-        let model = await (await this.createModel(`${req.params.brand}-landingPage`)).find({}).lean();
+    mongoQueries: async function(req,res) {
+        let model = await (await this.createModel(`${req.params.brand}-${req.params.input}`)).find({}).lean();
         let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
         let output = await Promise.all( models.map((val,index) => { 
             let query = model[index].query.split(',');
@@ -662,6 +657,7 @@ var myFuncs = {
             };
             return total;
         },{});
+        req.params.pageName =  req.params.input;
         // console.log(output);
         return output;
     },
@@ -681,6 +677,25 @@ var myFuncs = {
         console.log(output);
         return output;
     },
+
+    searchItems: async function(req,res) {
+
+        console.log(req.body);
+
+        let query = {};
+
+        if (req.body.itemName && req.body.itemName.length > 0) query.name = new RegExp(req.body.itemName,'i');
+        if (req.body.selectedCategories && req.body.selectedCategories.length > 0) query.category = { $in : req.body.selectedCategories };
+        if (req.body.selectedSchools && req.body.selectedSchools.length > 0) query.school = { $in : req.body.selectedSchools };
+
+        console.log(query);
+
+        let model = await this.createModel(`${req.params.input}`);
+        console.log(model);
+        let output = await model.find(query).limit(20);
+
+        return output;
+    }
 
 };
 

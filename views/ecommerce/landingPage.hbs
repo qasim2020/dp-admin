@@ -37,6 +37,15 @@
         color: #828282;
     }
 
+    .searchButtons > span:hover {
+        background: #F2F2F2;
+        cursor: pointer;
+    }
+
+    .searchButtons > span.active {
+        background: #F2F2F2;
+    }
+
     .searchP {
         border: 1px solid #E0E0E0;
         border-radius: 5px;
@@ -74,15 +83,18 @@
     }
 
     .imageCarrier {
-        height: 197px;
+        min-height: 197px;
         overflow: hidden;
         display: flex;
         align-items: flex-end;
         justify-content: center;
+        flex-grow: 1;
     }
 
     .item {
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .item > p.name {
@@ -109,6 +121,21 @@
         padding: 8px;
     }
 
+    .items > .error {
+        grid-column: 1/-1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: bold;
+        flex-direction: column;
+        padding: 13vh 0;
+    }
+
+    .d-none {
+        display: none !important;    
+    }
+
     </style>
 
 </head>
@@ -128,21 +155,27 @@
 
     <div class="container">
 
-        <p>
+        <p class="searchButtons">
         {{#each data.schools}}
             <span>{{{this.name}}}</span>
         {{/each}}
         </p>
 
-        <p class="searchP"><input type='text' placeholder='Type something here...' value=''></p>
+        <p class="searchP searchButtons"><input type='text' placeholder='Type something here...' value=''></p>
 
-        <p>
+        <p class="searchButtons">
         {{#each data.categories}}
             <span>{{this.name}}</span>
         {{/each}}
         </p>
 
         <section class='items'>
+            <div class="error d-none" >
+                <svg width="308" height="308" viewBox="0 0 308 308" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M256.667 77H154L128.333 51.3333H51.3332C37.2165 51.3333 25.7948 62.8833 25.7948 77L25.6665 231C25.6665 245.117 37.2165 256.667 51.3332 256.667H256.667C270.783 256.667 282.333 245.117 282.333 231V102.667C282.333 88.55 270.783 77 256.667 77ZM100.485 205.333L64.1665 169.015L82.2615 150.92L100.357 169.015L145.787 123.585L163.882 141.68L100.485 205.333ZM223.428 166.833L243.833 187.238L225.738 205.333L205.333 184.928L184.928 205.333L166.833 187.238L187.238 166.833L166.833 146.428L184.928 128.333L205.333 148.738L225.738 128.333L243.833 146.428L223.428 166.833Z" fill="#D94A46"/>
+                </svg>
+                <p> No data found </p>
+            </div>
             {{#each data.items}}
             <div class="item">
                 <div class='imageCarrier'>
@@ -155,6 +188,7 @@
                 </svg>
 
             </div>
+
             {{/each}}
         </section>
     
@@ -168,6 +202,59 @@
 
     <script>
 
+
+        let searchItems = function() {
+
+            console.log('doing the search on Items');
+            $(this).toggleClass('active');
+            let selectedSchools = $('.searchButtons:eq(0)').find('.active').get().map( val => $(val).html() );
+            let selectedCategories = $('.searchButtons:eq(2)').find('.active').get().map( val => $(val).html() );
+            let itemName = $('.searchButtons:eq(1)').find('input').val();
+            console.log({selectedSchools, selectedCategories, itemName});
+
+            $.ajax({
+                method: 'post',
+                url: '/{{data.resources.[0].brandName}}/gen/data/searchItems/{{data.resources.[0].brandName}}-items',
+                data: {selectedSchools, selectedCategories, itemName},
+                success: (data) => {
+                    drawItems(data)
+                    console.log(data)
+                },
+                error: (err) => console.log(err)
+            });
+
+        }
+
+        let drawItems = function(data) {
+            $('.items>.item:not(:eq(0))').remove();
+            if (data.length < 1) {
+                $('.item:eq(-1)').addClass('d-none');
+                return $('.items > .error').removeClass('d-none');
+            }
+            $('.items > .error').addClass('d-none');
+            $.each(data, (i,val) => {
+                $('.item:eq(-1)')
+                    .removeClass('d-none')
+                    .find('img')
+                         .attr('src',val.imgURL.indexOf(' ') > 0 ? val.imgURL.split(' ')[0] : val.imgURL )
+                    .closest('.item')
+                    .find('.name')
+                         .html(val.name)
+                    .siblings('.cost')
+                         .html('PKR - ' + val.cost);
+                $('.item:eq(0)')
+                    .clone()
+                    .appendTo('.items');
+            })
+            $('.item:eq(-1)').addClass('d-none');
+        }
+
+        $(document).ready( () => {
+
+            $('.searchButtons > span').on('click', searchItems) ;
+            $('.searchButtons > input').on('keyup', searchItems ); 
+
+        });
 
     </script>
 

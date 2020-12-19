@@ -82,10 +82,10 @@
                 <option value="{{this.html}}+{{this.type}}" selected>{{this.html}}</option>
           </select>
 
-          <input type="radio" id="true" name="req{{@index}}" value="true" {{#if (matchValues this.required 'true')}} checked {{/if}}>
+          <input type="radio" id="true" name="req{{@index}}" value=true {{#if (matchValues this.required 'true')}} checked {{/if}}>
           <label for="true">true</label>
 
-          <input type="radio" id="false" name="req{{@index}}" value="false" {{#if (matchValues this.required 'false')}} checked {{/if}}>
+          <input type="radio" id="false" name="req{{@index}}" value=false {{#if (matchValues this.required 'false')}} checked {{/if}}>
           <label for="false">false</label>
 
       </div>

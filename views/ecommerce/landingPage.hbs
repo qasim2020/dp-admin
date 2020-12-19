@@ -47,7 +47,7 @@
     }
 
     .searchP {
-        border: 1px solid #E0E0E0;
+        border: 1px solid #F2F2F2;
         border-radius: 5px;
     }
 
@@ -126,7 +126,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 40px;
         font-weight: bold;
         flex-direction: column;
         padding: 13vh 0;
@@ -183,7 +182,7 @@
 
         <p class="searchButtons">
         {{#each data.schools}}
-            <span>{{{this.name}}}</span>
+            <span id="{{removeSpaces this.name}}">{{{this.name}}}</span>
         {{/each}}
         </p>
 
@@ -191,7 +190,7 @@
 
         <p class="searchButtons">
         {{#each data.categories}}
-            <span>{{this.name}}</span>
+            <span id="{{removeSpaces this.name}}">{{this.name}}</span>
         {{/each}}
         </p>
 
@@ -201,19 +200,16 @@
         </div>
         <section class='items'>
             <div class="error d-none" >
-                <svg width="308" height="308" viewBox="0 0 308 308" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M256.667 77H154L128.333 51.3333H51.3332C37.2165 51.3333 25.7948 62.8833 25.7948 77L25.6665 231C25.6665 245.117 37.2165 256.667 51.3332 256.667H256.667C270.783 256.667 282.333 245.117 282.333 231V102.667C282.333 88.55 270.783 77 256.667 77ZM100.485 205.333L64.1665 169.015L82.2615 150.92L100.357 169.015L145.787 123.585L163.882 141.68L100.485 205.333ZM223.428 166.833L243.833 187.238L225.738 205.333L205.333 184.928L184.928 205.333L166.833 187.238L187.238 166.833L166.833 146.428L184.928 128.333L205.333 148.738L225.738 128.333L243.833 146.428L223.428 166.833Z" fill="#D94A46"/>
-                </svg>
                 <p> No data found </p>
             </div>
             {{#each data.items}}
-            <div class="item">
+            <div class="item" details="{{this._id}} {{../data.sessionID}} {{../data.email}}">
                 <div class='imageCarrier'>
                     <img src="{{this.imgURL.[0]}}" height="300">
                 </div>
                 <p class="name"> {{this.name}} </p>
                 <p class="cost"> PKR - {{this.cost}} </p>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg onclick="addMeToCart(this)" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M13 7H11V11H7V13H11V17H13V13H17V11H13V7ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#4F4F4F"/>
                 </svg>
 
@@ -243,9 +239,12 @@
             // console.log({selectedSchools, selectedCategories, itemName});
             // $('.filerDiv:eq(0)').html('low');
             let svg = 
-                `<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                `<svg onclick="deleteFilter(this)" width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="17" height="17" rx="3" fill="#E0E0E0"/>
-                    <path d="M13 4.90643L12.0936 4L8.5 7.59357L4.90643 4L4 4.90643L7.59357 8.5L4 12.0936L4.90643 13L8.5 9.40643L12.0936 13L13 12.0936L9.40643 8.5L13 4.90643Z" fill="#4F4F4F"/>
+                    <path 
+                        d="M13 4.90643L12.0936 4L8.5 7.59357L4.90643 4L4 4.90643L7.59357 8.5L4 12.0936L4.90643 13L8.5 9.40643L12.0936 13L13 12.0936L9.40643 8.5L13 4.90643Z" 
+                        fill="#4F4F4F"
+                    />
                 </svg>`
 
             if (selectedSchools.concat(selectedCategories).length > 0) {
@@ -253,7 +252,7 @@
                 $('.filterDiv:eq(0)')
                     .removeClass('d-none')
                     .find('p')
-                    .html( selectedSchools.concat(selectedCategories).map(val => `<span> ${val} ${svg} </span>`) );
+                    .html( selectedSchools.concat(selectedCategories).map(val => `<span connectedId="${val.replace(/ /gi,'')}"> ${val} ${svg} </span>`) );
 
             } else {
 
@@ -298,6 +297,36 @@
             })
             $('.item:eq(-1)').addClass('d-none');
         }
+
+        let deleteFilter = function(elem) {
+            let connectedId = $(elem).parent('span').attr('connectedId');
+            $(`#${connectedId}`).trigger('click');
+        };
+
+        let addMeToCart = function(elem) {
+            console.log('Place item in cart');
+            let data = {
+                // itemId	quantity	sessionId	email
+                modelName: '{{data.resources.[0].brandName}}-cart',
+                quantity: 1,
+                itemId: $(elem).parent('.item').attr('details').split(' ')[0],
+                sessionId: $(elem).parent('.item').attr('details').split(' ')[1],
+                email: $(elem).parent('.item').attr('details').split(' ')[2] || false,
+            };
+
+            // TODO: When AJAX Call Searhces items - put above data into each item's status
+
+            console.log(data);
+
+            $.ajax({
+                method: 'post',
+                url: '/{{data.resources.[0].brandName}}/gen/data/saveSequence/n',
+                data: data,
+                success: (data) => console.log(data),
+                error: (err) => console.log(err)
+            })
+                
+        };
 
         $(document).ready( () => {
 

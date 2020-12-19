@@ -112,6 +112,11 @@ hbs.registerHelper('matchValues', (val1,val2) => {
     return val1 == val2
 });
 
+hbs.registerHelper('removeSpaces', (val) => {
+    console.log(val.replace(' ',''));
+    return val.replace(/ /gi,'');
+});
+
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
     console.log('');
     console.log(chalk.bold.red('new Request starts here'));
@@ -217,7 +222,8 @@ var myFuncs = {
         home: 'auth',
         landingPage: 'gen',
         mongoQueries: 'gen',
-        searchItems: 'gen'
+        searchItems: 'gen',
+        cartPage: 'gen'
     },
 
     respond: async function(data,req,res) {
@@ -248,9 +254,8 @@ var myFuncs = {
         if (themesExist == false) return 'root';
         let theme = await myFuncs.createModel(`myapp-themes`);
         let extract = await theme.findOne({brand: brand}).lean();
-        console.log(extract);
         if (extract == null) return 'root'; 
-        console.log({theme: extract.theme, brand: brand});
+        // console.log({theme: extract.theme, brand: brand});
         return extract.theme;
     },
 
@@ -340,7 +345,7 @@ var myFuncs = {
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
-        console.log(`creating collection ${modelName}`,schema);
+        // console.log(`creating collection ${modelName}`,schema);
 
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
@@ -618,7 +623,7 @@ var myFuncs = {
     },
 
     mongoQueries: async function(req,res) {
-        let model = await (await this.createModel(`${req.params.brand}-${req.params.input}`)).find({}).lean();
+        let model = await ( await this.createModel(`${req.params.brand}-${req.params.input}`) ).find({}).lean();
         let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
         let output = await Promise.all( models.map((val,index) => { 
             let query = model[index].query.split(',');
@@ -657,8 +662,11 @@ var myFuncs = {
             };
             return total;
         },{});
+        output = Object.assign(output, {
+            email: req.session.person && req.session.person.email,
+            sessionID: req.sessionID
+        });
         req.params.pageName =  req.params.input;
-        // console.log(output);
         return output;
     },
 
@@ -695,6 +703,36 @@ var myFuncs = {
         let output = await model.find(query).limit(20);
 
         return output;
+    },
+
+    cartPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let result = await model.aggregate([
+            {
+                $match: {
+                    $or: [
+                        {sessionId: req.sessionID },
+                        {email: req.session.person && req.session.person.email }
+                    ]
+                }
+            },{
+                $addFields:
+                {
+                    itemId: { $toObjectId: "$itemId" }
+                }
+            },{
+                $lookup:
+                 {
+                   from: `${req.params.brand}-items`,
+                   localField: 'itemId',
+                   foreignField: '_id',
+                   as: 'items'
+                 }
+             }
+            ]);
+
+        // console.log(result);
+        return result;
     }
 
 };

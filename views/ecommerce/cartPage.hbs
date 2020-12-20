@@ -47,7 +47,61 @@
         }
 
         .grid img {
-            max-width: 120px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .item {
+            display: grid;
+            grid-column: 1/-1;
+            grid-template-columns: 0.5fr 0.8fr 0.4fr;
+            border: 1px solid #E0E0E0;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .item .img {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 42px;
+        }
+
+        .img span {
+            display: block;
+            margin-top: auto;
+            background: #E0E0E0;
+            color: #4F4F4F;
+        }
+
+        .details {
+            padding: 0 33px;
+            margin-top: -10px;
+        }
+
+        .details span {
+            background: #E0E0E0;
+            height: 36px;
+            width: 24px;
+            display: inline-block;
+            border-radius: 50%;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            float: left;
+        }
+
+        p {
+            clear: both;
+        }
+
+        .grandTotal {
+            grid-column: 2;
+            text-align: end;
+            padding-right: 33px;
         }
 
     </style>
@@ -65,29 +119,54 @@
     </nav>
     <section class="grid">
     {{#each data}}
-        <div class="item img"><img src="{{split0 this.items.[0].imgURL}}" alt=""></div>
-        <div class="item details">
-            <h1>{{this.items.[0].name}}</h1>
-            <p>{{this.items.[0].category}}</p>
-            <p>Quantity</p>
-            <p class="quantity">
-                <span>-</span>
-                <span>{{this.quantity}}</span>
-                <span>+</span>
-            </p>
-            <p>Size</p>
-            <p>
-                <span>S</span>
-                <span>M</span>
-                <span>L</span>
-                <span>XL</span>
-            </p>
-        </div>
-        <div class="item cost">
-            <h1>PKR {{this.items.[0].cost}}</h1>
+        <div class="item">
+
+            <div class="img">
+                <img src="{{split0 this.items.[0].imgURL}}" alt="">
+                <span>Item details</span>
+            </div>
+            <div class="details">
+                <h1>{{this.items.[0].name}}</h1>
+                <p>{{this.items.[0].category}}</p>
+                <p>Quantity</p>
+                <p class="quantity">
+                    <span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 14H5V12H19V14Z" fill="#333333"/>
+                    </svg>
+                    </span>
+                    <span>{{this.quantity}}</span>
+                    <span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="#333333"/>
+                    </svg>
+                    </span>
+                </p>
+                <p>Size</p>
+                <p>
+                    <span>S</span>
+                    <span>M</span>
+                    <span>L</span>
+                    <span>XL</span>
+                </p>
+            </div>
+            <div class="cost">
+                <h1>PKR {{this.items.[0].cost}}</h1>
+                <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0)">
+                    <path d="M21.2133 14.1421L19.7991 12.7279L16.9707 15.5563L14.1423 12.7279L12.7281 14.1421L15.5565 16.9705L12.7281 19.7989L14.1423 21.2131L16.9707 18.3847L19.7991 21.2131L21.2133 19.7989L18.3849 16.9705L21.2133 14.1421ZM24.0418 9.89944C20.1385 5.99621 13.8029 5.99621 9.89964 9.89944C5.99641 13.8027 5.99641 20.1383 9.89964 24.0416C13.8029 27.9448 20.1385 27.9448 24.0418 24.0416C27.945 20.1383 27.945 13.8027 24.0418 9.89944ZM11.3138 22.6274C8.19551 19.509 8.19551 14.432 11.3138 11.3137C14.4322 8.19531 19.5092 8.19531 22.6276 11.3137C25.7459 14.432 25.7459 19.509 22.6276 22.6274C19.5092 25.7457 14.4322 25.7457 11.3138 22.6274Z" fill="#EB5757"/>
+                    </g>
+                    <defs>
+                    <clipPath id="clip0">
+                    <rect width="24" height="24" fill="white" transform="translate(16.9707) rotate(45)"/>
+                    </clipPath>
+                    </defs>
+                </svg>
+            </div>
+        
         </div>
     {{/each}}
-        <div class="" style="grid-column: 2;"><p>Grand Total</p></div>
+        <div class="grandTotal" style=""><p>Grand Total</p></div>
         <div><h1>PKR 3880</h1></div>
         <div class="btns">
             <button class="primary">Check Out</button>

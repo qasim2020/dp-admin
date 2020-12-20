@@ -3,11 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <title>Cart Page</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #828282;
+            margin: 0px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav, {
+            margin: 0 8px;
+        }
+
+        nav a, span {
+            padding: 2px 11px;
+            border-radius: 5px;
+            border: 1px solid #F2F2F2;
+            text-decoration: none;
+            color: #828282;
+        }
+
+        .searchButtons > span:hover {
+            background: #F2F2F2;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            max-width: 750px;
+            grid-template-columns: 0.6fr 1fr 0.6fr;
+            margin: auto;
+        }
+
+        .grid .btns {
+            grid-column: 3;
+        }
+
+        .grid img {
+            max-width: 120px;
+        }
+
+    </style>
 </head>
 <body>
-    <nav>Nav Bar</nav>
+    <nav>
+
+        <p><img src="{{split0 data.resources.[0].logo}}" height="44"></p>
+
+        <div>
+            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+        </div>
+    
+    </nav>
+    <section class="grid">
     {{#each data}}
-    <div>Comes home</div>
+        <div class="item img"><img src="{{split0 this.items.[0].imgURL}}" alt=""></div>
+        <div class="item details">
+            <h1>{{this.items.[0].name}}</h1>
+            <p>{{this.items.[0].category}}</p>
+            <p>Quantity</p>
+            <p class="quantity">
+                <span>-</span>
+                <span>{{this.quantity}}</span>
+                <span>+</span>
+            </p>
+            <p>Size</p>
+            <p>
+                <span>S</span>
+                <span>M</span>
+                <span>L</span>
+                <span>XL</span>
+            </p>
+        </div>
+        <div class="item cost">
+            <h1>PKR {{this.items.[0].cost}}</h1>
+        </div>
     {{/each}}
+        <div class="" style="grid-column: 2;"><p>Grand Total</p></div>
+        <div><h1>PKR 3880</h1></div>
+        <div class="btns">
+            <button class="primary">Check Out</button>
+            <button class="secondary">Continue Shopping</button>
+        </div>
+    </section>
 </body>
 </html>

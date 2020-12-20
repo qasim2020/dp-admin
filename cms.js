@@ -117,6 +117,10 @@ hbs.registerHelper('removeSpaces', (val) => {
     return val.replace(/ /gi,'');
 });
 
+hbs.registerHelper('split0', (val) => {
+    return val.split(' ')[0];
+});
+
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
     console.log('');
     console.log(chalk.bold.red('new Request starts here'));
@@ -707,6 +711,8 @@ var myFuncs = {
 
     cartPage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-cart`);
+        let resources = await this.createModel(`${req.params.brand}-resources`);
+        let resultResources = await resources.find({});
         let result = await model.aggregate([
             {
                 $match: {
@@ -731,6 +737,9 @@ var myFuncs = {
              }
             ]);
 
+        result = Object.assign(result,{
+            resources: resultResources
+        });
         // console.log(result);
         return result;
     }

@@ -48,7 +48,7 @@
 
         .grid img {
             width: 100%;
-            margin-top: 15px;
+            margin-top: auto;
         }
 
         .item {
@@ -56,7 +56,6 @@
             grid-column: 1/-1;
             grid-template-columns: 0.5fr 0.8fr 0.4fr;
             border: 1px solid #E0E0E0;
-            padding: 10px;
             border-radius: 6px;
             margin-bottom: 6px;
         }
@@ -69,11 +68,16 @@
             padding: 0 42px;
         }
 
+        .item span {
+            color: #333333;
+            background: whitesmoke;
+        }
+
         .img span {
             display: block;
-            margin-top: auto;
-            background: #E0E0E0;
+            margin-top: 16px;
             color: #4F4F4F;
+            margin-bottom: auto;
         }
 
         .details {
@@ -82,26 +86,51 @@
         }
 
         .details span {
-            background: #E0E0E0;
             height: 36px;
             width: 24px;
+            padding-top: 1px;
             display: inline-block;
-            border-radius: 50%;
             padding: 0 6px;
+            margin-right: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            float: left;
         }
 
-        p {
-            clear: both;
+        .quantity, .sizes {
+            display: flex;
+            align-items: center;
         }
 
         .grandTotal {
             grid-column: 2;
             text-align: end;
             padding-right: 33px;
+        }
+
+        .cost {
+            position: relative;
+            background: whitesmoke;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cost svg {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .cost h1 {
+            color: #EB5757;
+        }
+
+        .item span.active {
+            background: #Eb5757;
+            color: white;
+            border: 1px solid #333333;
+            font-weight: bold;
         }
 
     </style>
@@ -127,7 +156,7 @@
             </div>
             <div class="details">
                 <h1>{{this.items.[0].name}}</h1>
-                <p>{{this.items.[0].category}}</p>
+                <p>{{this.items.[0].school}} · {{this.items.[0].category}}</p>
                 <p>Quantity</p>
                 <p class="quantity">
                     <span>
@@ -135,7 +164,7 @@
                         <path d="M19 14H5V12H19V14Z" fill="#333333"/>
                     </svg>
                     </span>
-                    <span>{{this.quantity}}</span>
+                    <span class="active">{{this.quantity}}</span>
                     <span>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="#333333"/>
@@ -143,10 +172,10 @@
                     </span>
                 </p>
                 <p>Size</p>
-                <p>
+                <p class="sizes">
                     <span>S</span>
                     <span>M</span>
-                    <span>L</span>
+                    <span class="active">L</span>
                     <span>XL</span>
                 </p>
             </div>

@@ -362,7 +362,7 @@ var myFuncs = {
 
         let schema = await Collections.findOne({name: modelName}).lean();
         
-        // console.log(`creating collection ${modelName}`,schema);
+        console.log(`creating collection ${modelName}`,schema);
 
         return mongoose.model(modelName, new mongoose.Schema(schema.properties));
         
@@ -381,7 +381,11 @@ var myFuncs = {
     
     dropCollection: async function(req,res) {
         try {
+            let collectionName = req.params.input.indexOf('-') > 0 ? req.params.input.split('-')[1] : req.params.input;
+            console.log(collectionName);
+            let output = await Collections.remove({name: `${req.params.brand}-collectionName`});
             await mongoose.connection.db.dropCollection(req.params.input);
+            console.log({collectionName, output});
             return {
                 success: 'collection dropped'
             }
@@ -474,6 +478,8 @@ var myFuncs = {
             success: 'no Collection exists yet. Try starting the app with basic configurations.',
             brand: req.params.brand
         };
+
+        req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
         collectionHeadings.unshift('_id');
@@ -644,10 +650,8 @@ var myFuncs = {
         // cart, schools, items, resources, categories
         let models = {};
         models.cart= await this.createModel(`${req.params.brand}-cart`);
-        models.schools= await this.createModel(`${req.params.brand}-schools`);
         models.items= await this.createModel(`${req.params.brand}-items`);
         models.resources= await this.createModel(`${req.params.brand}-resources`);
-        models.categories= await this.createModel(`${req.params.brand}-categories`);
         let output = await Promise.all([
             models.cart.find({sessionId: req.sessionID}) ,
             models.items.distinct('school',{}) ,

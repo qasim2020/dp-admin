@@ -108,7 +108,7 @@ hbs.registerHelper('checkExists', (val) => {
 })
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1,val2,val1 == val2);
+    // console.log(val1,val2,val1 == val2);
     return val1 == val2
 });
 
@@ -118,7 +118,20 @@ hbs.registerHelper('removeSpaces', (val) => {
 });
 
 hbs.registerHelper('split0', (val) => {
-    return val.split(' ')[0];
+    let output =  val.split(' ')[0] == undefined ? val : val.split(' ')[0] ;
+    return output;
+});
+
+
+hbs.registerHelper('split1', (val) => {
+    let output =  val.split(' ')[1] == undefined ? val : val.split(' ')[1] ;
+    return output;
+});
+
+hbs.registerHelper('split', (val) => {
+    let output = val.split(' ');
+    console.log(output);
+    return output;
 });
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
@@ -189,8 +202,8 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
 let replyFunction = async (req,res) => {
 
     try {
-        let data = await myFuncs[req.params.module](req,res);
         req.params.theme = await myFuncs.getThemeName(req.params.brand);
+        let data = await myFuncs[req.params.module](req,res);
         myFuncs.respond(data,req,res);
     } catch(e) {
         console.log(e);
@@ -232,7 +245,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log(chalk.bold.yellow('sending data to page ====='));
-        console.log(data);
+        console.log(JSON.stringify(data,'',2));
         switch(true) {
           case (data.error): 
             return res.status(data.status).send(data.error);
@@ -626,6 +639,44 @@ var myFuncs = {
         return variable.split(' ');
     },
 
+    ecommerce: async function(req,res) {
+        console.log('ecommerce trigger');
+        // cart, schools, items, resources, categories
+        let models = {};
+        models.cart= await this.createModel(`${req.params.brand}-cart`);
+        models.schools= await this.createModel(`${req.params.brand}-schools`);
+        models.items= await this.createModel(`${req.params.brand}-items`);
+        models.resources= await this.createModel(`${req.params.brand}-resources`);
+        models.categories= await this.createModel(`${req.params.brand}-categories`);
+        let output = await Promise.all([
+            models.cart.find({sessionId: req.sessionID}) ,
+            models.items.distinct('school',{}) ,
+            models.items.find({}).limit(20) ,
+            models.resources.find({}) ,
+            models.items.distinct('category', {})
+        ]);
+        output = {
+            cart: output[0],
+            schools: output[1],
+            items: output[2].filter( (val,index,self) => { 
+                let connectingIDs = self.map( val => val.connectingID );
+                return connectingIDs.indexOf(val.connectingID) === index ;
+            }),
+            resources: output[3],
+            categories: output[4]
+        };
+        return output;
+    },
+
+    landingPage: async function(req,res) {
+        let output = this[req.params.theme](req,res);
+        output = Object.assign(output, {
+            email: req.session.person && req.session.person.email,
+            sessionID: req.sessionID
+        });
+        return output;
+    },
+
     mongoQueries: async function(req,res) {
         let model = await ( await this.createModel(`${req.params.brand}-${req.params.input}`) ).find({}).lean();
         let models = await Promise.all( model.map((val) => this.createModel(val.collectionName) ));
@@ -692,19 +743,19 @@ var myFuncs = {
 
     searchItems: async function(req,res) {
 
-        console.log(req.body);
-
         let query = {};
 
         if (req.body.itemName && req.body.itemName.length > 0) query.name = new RegExp(req.body.itemName,'i');
         if (req.body.selectedCategories && req.body.selectedCategories.length > 0) query.category = { $in : req.body.selectedCategories };
         if (req.body.selectedSchools && req.body.selectedSchools.length > 0) query.school = { $in : req.body.selectedSchools };
 
-        console.log(query);
-
         let model = await this.createModel(`${req.params.input}`);
-        console.log(model);
         let output = await model.find(query).limit(20);
+        
+        output = output.filter( (val,index,self) => { 
+                let connectingIDs = self.map( val => val.connectingID );
+                return connectingIDs.indexOf(val.connectingID) === index ;
+            });
 
         return output;
     },
@@ -713,7 +764,8 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-cart`);
         let resources = await this.createModel(`${req.params.brand}-resources`);
         let resultResources = await resources.find({});
-        let result = await model.aggregate([
+        let result = await model
+            .aggregate([
             {
                 $match: {
                     $or: [

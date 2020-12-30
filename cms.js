@@ -118,8 +118,12 @@ hbs.registerHelper('removeSpaces', (val) => {
 });
 
 hbs.registerHelper('split0', (val) => {
+    try {
     let output =  val.split(' ')[0] == undefined ? val : val.split(' ')[0] ;
     return output;
+    } catch(e) {
+        return val
+    }
 });
 
 
@@ -667,17 +671,15 @@ var myFuncs = {
                 return connectingIDs.indexOf(val.connectingID) === index ;
             }),
             resources: output[3],
-            categories: output[4]
+            categories: output[4],
+            email: req.session.person && req.session.person.email,
+            sessionID: req.sessionID
         };
         return output;
     },
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);
-        output = Object.assign(output, {
-            email: req.session.person && req.session.person.email,
-            sessionID: req.sessionID
-        });
         return output;
     },
 
@@ -796,7 +798,6 @@ var myFuncs = {
         result = Object.assign(result,{
             resources: resultResources
         });
-        // console.log(result);
         return result;
     }
 

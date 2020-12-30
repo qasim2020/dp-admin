@@ -205,7 +205,7 @@
                 <p> No data found </p>
             </div>
             {{#each data.items}}
-            <div class="item" details="{{this._id}} {{../data.sessionID}} {{../data.email}}">
+            <div class="item" details="{{this._id}} {{this.connectingID}} {{../data.sessionID}} {{../data.email}}">
                 <div class='imageCarrier'>
                     <img src="{{split0 this.imgURL}}" height="300">
                 </div>
@@ -312,8 +312,9 @@
                 modelName: '{{data.resources.[0].brandName}}-cart',
                 quantity: 1,
                 itemId: $(elem).parent('.item').attr('details').split(' ')[0],
-                sessionId: $(elem).parent('.item').attr('details').split(' ')[1],
-                email: $(elem).parent('.item').attr('details').split(' ')[2] || false,
+                connectingID: $(elem).parent('.item').attr('details').split(' ')[1],
+                sessionId: $(elem).parent('.item').attr('details').split(' ')[2],
+                email: $(elem).parent('.item').attr('details').split(' ')[3] || false,
             };
 
             // TODO: When AJAX Call Searhces items - put above data into each item's status

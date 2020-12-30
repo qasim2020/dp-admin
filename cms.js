@@ -787,12 +787,20 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: `${req.params.brand}-items`,
+                   from: '7am-items',
                    localField: 'itemId',
                    foreignField: '_id',
                    as: 'items'
                  }
-             }
+            },{
+                $lookup:
+                 {
+                   from: '7am-items',
+                   localField: 'connectingID',
+                   foreignField: 'connectingID',
+                   as: 'allSizes'
+                 }
+            }
             ]);
 
         result = Object.assign(result,{

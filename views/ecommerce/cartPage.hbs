@@ -102,6 +102,15 @@
             cursor: pointer;
         }
 
+        .details span.disabled:hover {
+            cursor: not-allowed;
+        }
+
+        .details span.disabled {
+            pointer-events: none;
+                opacity: 0.1;
+        }
+
         .quantity, .sizes {
             display: flex;
             align-items: center;
@@ -187,7 +196,7 @@
             <div class="details">
                 <h1>{{this.items.[0].name}}</h1>
                 <p>{{this.items.[0].school}} · {{this.items.[0].category}}</p>
-                <p>Quantity</p>
+                <p>Max Quantity: {{this.items.[0].quantity}}</p>
                 <p class="quantity" id="quantity{{@index}}" quantity="{{this.quantity}}" max-quantity="{{this.items.[0].quantity}}">
                     <span onclick="minusOne('quantity{{@index}}')">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -203,10 +212,23 @@
                 </p>
                 <p>Size</p>
                 <p class="sizes">
-                    <span {{#if (matchValues this.items.[0].size 'S')}} class="active" {{/if}}>S</span>
-                    <span {{#if (matchValues this.items.[0].size 'M')}} class="active" {{/if}}>M</span>
-                    <span {{#if (matchValues this.items.[0].size 'L')}} class="active" {{/if}}>L</span>
-                    <span {{#if (matchValues this.items.[0].size 'XL')}} class="active" {{/if}}>XL</span>
+                    {{#each this.allSizes}}
+                        <!-- name, maxQty, imgURL, school, category, cost -->
+                        <span 
+                   name="{{name}}" 
+                   maxQty="{{quantity}}" 
+                   imgURL="{{imgURL}}" 
+                   school="{{school}}" 
+                   category="{{category}}" 
+                   cost="{{cost}}" 
+                   class="
+                   {{#if (matchValues ../this.items.[0].size this.size)}} active {{/if}}
+                   {{#if (matchValues this.quantity 0)}} disabled {{/if}}
+                   "
+                       >
+                            {{size}}
+                        </span>
+                    {{/each}}
                 </p>
             </div>
             <div class="cost" cost="{{this.items.[0].cost}}">
@@ -285,7 +307,14 @@
             changeGrandTotal();
         }
 
-        $('.sizes > span').on('click',toggleClass);
+        let updateSize = function(elem) {
+            // TODO: Fix updateSize to update all Sizes in the entire element
+            toggleClass(elem);
+            let name = $(elem).attr("name");
+            console.log({name});
+        }
+
+        $('.sizes > span').on('click',updateSize);
         $(document).ready(changeGrandTotal);
     </script>
 </body>

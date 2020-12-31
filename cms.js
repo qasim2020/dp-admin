@@ -659,7 +659,7 @@ var myFuncs = {
         let output = await Promise.all([
             models.cart.find({sessionId: req.sessionID}) ,
             models.items.distinct('school',{}) ,
-            models.items.find({}).limit(20) ,
+            models.items.find({ quantity : { $ne: 0 } } ).limit(20) ,
             models.resources.find({}) ,
             models.items.distinct('category', {})
         ]);

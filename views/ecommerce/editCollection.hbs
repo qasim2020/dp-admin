@@ -137,6 +137,7 @@
               url: '/{{data.brand}}/admin/data/updateSequence/n',
               data: data,
               success: (data) => console.log(data),
+              fail: (e) => console.log(e)
             });
             return console.log(data);
         });

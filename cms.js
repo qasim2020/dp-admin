@@ -244,7 +244,8 @@ var myFuncs = {
         landingPage: 'gen',
         mongoQueries: 'gen',
         searchItems: 'gen',
-        cartPage: 'gen'
+        cartPage: 'gen',
+        updateCart: 'gen'
     },
 
     respond: async function(data,req,res) {
@@ -340,11 +341,8 @@ var myFuncs = {
     updateSequence: async function(req,res) {
         console.log(req.body);
         // return req.body;
+        // modelName, _id, restCompleteDocument
         let model = await this.createModel(req.body.modelName);
-        console.log('model showing below;');
-        console.log(model);
-        console.log('mongoose showing below;');
-        console.log(JSON.stringify(mongoose.modelSchemas,0,' '));
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
         return {success: true, result: result};
@@ -803,10 +801,21 @@ var myFuncs = {
             }
             ]);
 
+        console.log(req.session.person);
+
         result = Object.assign(result,{
-            resources: resultResources
+            resources: resultResources,
+            brand: req.params.brand,
+            sessionId: req.sessionID,
+            email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
         });
         return result;
+    },
+
+    updateCart: async function(req,res) {
+        console.log(req.body);
+        // let model = await this.createModel(req.body.modelName);
+        return {success: 'done'}
     }
 
 };

@@ -1,3 +1,84 @@
+
+
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #828282;
+    margin: 0px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 8px;
+    height: 69px;
+}
+
+nav > div.right > a {
+    padding: 2px 11px;
+    border-radius: 5px;
+    border: 1px solid #F2F2F2;
+    text-decoration: none;
+    color: #828282;
+}
+
+nav > div.left {
+    display: flex;
+    align-items: center;
+}
+
+nav > div.left > p {
+    padding-bottom: 2px;
+}
+
+nav > div.left > p > *:nth-child(1) {
+    padding: 0 5px 0 1px;
+}
+
+nav > div.left > p > a {
+    text-decoration: none;
+    color: inherit;
+}
+
+nav a.active {
+    color: black !important;
+}
+
+nav a:hover {
+    opacity: 0.8;
+}
+
+.bg-grey {
+    background: #F2F2F2;
+    border: 0px solid transparent;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 13px 10px;
+    font-size: 18px;
+    border: 1px solid transparent;
+    font-family: 'Roboto';
+    border-radius: 4px;
+}
+
+button:hover {
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+button.primary {
+    background: #EB5757;
+    color: white;
+}
+
+button.secondary {
+    background: white;
+    border: 1px solid #EB5757;
+    color: #EB5757;
+}
+
 .info-circle {
     cursor: pointer;
 }

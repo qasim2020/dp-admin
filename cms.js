@@ -242,17 +242,23 @@ var myFuncs = {
         signup: 'gen',
         home: 'auth',
         landingPage: 'gen',
-        mongoQueries: 'gen',
         searchItems: 'gen',
         cartPage: 'gen',
-        updateCart: 'gen'
+        getMongoId: 'gen',
+        reviewCartPage: 'gen',
+        updateCart: 'gen',
+        removeItemFromCart: 'gen',
+        orderReceiptPage: 'gen',
+        updateOrder: 'gen',
+        mongoQueries: 'gen',
     },
 
     respond: async function(data,req,res) {
         console.log(chalk.bold.yellow('sending data to page ====='));
         console.log(JSON.stringify(data,'',2));
         switch(true) {
-          case (data.error): 
+          case ( data.hasOwnProperty('error') ): 
+            console.log( chalk.red.bold('error in data') );
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
@@ -671,7 +677,8 @@ var myFuncs = {
             resources: output[3],
             categories: output[4],
             email: req.session.person && req.session.person.email,
-            sessionID: req.sessionID
+            sessionID: req.sessionID,
+            brand: req.params.brand
         };
         return output;
     },
@@ -764,10 +771,8 @@ var myFuncs = {
         return output;
     },
 
-    cartPage: async function(req,res) {
+    getCartItems: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-cart`);
-        let resources = await this.createModel(`${req.params.brand}-resources`);
-        let resultResources = await resources.find({});
         let result = await model
             .aggregate([
             {
@@ -800,8 +805,15 @@ var myFuncs = {
                  }
             }
             ]);
+        return result;
+    },
 
-        console.log(req.session.person);
+
+    cartPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let resources = await this.createModel(`${req.params.brand}-resources`);
+        let resultResources = await resources.find({});
+        let result = await this.getCartItems(req,res);
 
         result = Object.assign(result,{
             resources: resultResources,
@@ -809,14 +821,95 @@ var myFuncs = {
             sessionId: req.sessionID,
             email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
         });
+
         return result;
     },
 
     updateCart: async function(req,res) {
+        let cart = req.body.cart;
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        cart =  cart.map( val => {
+            val._id = val._id == '' ? new mongoose.mongo.ObjectID() : mongoose.mongo.ObjectID(val._id);
+            return val;
+        });
+        let output = await Promise.all( cart.map( (val, index) => model.findOneAndUpdate( {_id: val._id}, val, { new: true, upsert: true } ) ) ); 
+        return {success: 'done', output: output}
+    },
+
+    removeItemFromCart: async function(req,res) {
         console.log(req.body);
-        // let model = await this.createModel(req.body.modelName);
-        return {success: 'done'}
-    }
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let out = await model.deleteOne({_id: req.body.myId});
+        console.log(out);
+        return out.deletedCount == 0 ? {status: 300, error: 'item did not remove'} : {success: 'item removed', output: out} ;
+    },
+
+    getMongoId: function(req,res) {
+        return new mongoose.mongo.ObjectID();
+    },
+
+    padWithZeroes: function (number, length) {
+
+        var my_string = '' + number;
+        while (my_string.length < length) {
+            my_string = '0' + my_string;
+        }
+
+        console.log({my_string});
+
+        return my_string;
+
+    },
+
+    reviewCartPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let result = await this.getCartItems(req,res);
+        let resources = await model.find({});
+        let myOrder = await this.findOrderInSession(req,res);
+        console.log(myOrder);
+        let totalCost = result.reduce( (total, val, index) => {
+            total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
+            return total;
+        },0);
+        let output = {
+            resources: resources,
+            cartItems: result,
+            totalCost: totalCost,
+            order: myOrder.order,
+            orderNo: myOrder.order == null ? this.padWithZeroes(Number(myOrder.count) + 1, 6) : myOrder.order.orderNo ,
+            brand: req.params.brand,
+            sessionId: req.sessionID,
+            email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
+        };
+        return output;
+    },
+
+    updateOrder: async function(req,res) {
+        let order = req.body;
+        console.log(order._id == '' , order._id, order);
+        order._id = order._id == '' ? new mongoose.mongo.ObjectID() : order._id ;
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = model.findOneAndUpdate({_id: order._id}, order, {upsert: true, new: true});
+        return output;
+    },
+
+    findOrderInSession: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOne({sessionId: req.sessionID}).lean();
+        let count = await model.countDocuments({}).lean();
+        return {order: output, count: count};
+    },
+
+    orderReceiptPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        let output = {
+            resources: resources,
+            brand: req.params.brand,
+            sessionId: req.sessionID,
+        };
+        return output;
+    },
 
 };
 

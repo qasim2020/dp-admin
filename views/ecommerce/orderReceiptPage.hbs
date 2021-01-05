@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Receipt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/essentials.css">
+    <style type="text/css">
+
+    .container {
+        max-width: 598px;
+        margin: auto;
+        margin-top: 1rem;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.18);
+        border-radius: 12px;
+        padding-top: 1rem;
+    }
+
+    .receipt > img {
+        height: 62px;
+        /* margin: auto; */
+        margin-left: -23px;
+        display: block;
+        margin-bottom: 0rem;
+    }
+
+    .receipt > * {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .receipt p {
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 1.5;
+        margin-top: -10px;
+    }
+
+    .firstRow {
+        display: flex;
+        margin-top: 10px;
+    }
+
+    .firstRow > *:nth-child(2) {
+        margin-left: auto;
+        margin-right: 200px;
+    }
+
+    .orderSummary {
+        margin-bottom: 1rem;
+    }
+
+    hr {
+        border: 1px solid transparent;
+    }
+
+    article {
+        padding-bottom: 2rem;
+        padding-top: 1rem;
+    }
+
+    article > p {
+        padding: 3px 0;
+        line-height: 1.5;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+        color: #4F4F4F;
+        font-weight: 300;
+    }
+
+    article > p > span:nth-child(2) {
+        font-family: 'Didact Gothic';
+        color: #333333;
+    }
+
+    article > a {
+        color: #333333;
+        font-weight: bold;
+    }
+    
+    </style>
+</head>
+<body>
+    <nav>
+
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            /
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+            /
+            <a href="/{{data.brand}}/gen/page/reviewCartPage/n" class="">Check Out</a>
+            /
+            <a href="/{{data.brand}}/gen/page/orderReceiptPage/n" class="active">Receipt</a>
+            </p>
+        </div>
+
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+        </div>
+    
+    </nav>
+
+    <section class="container receipt">
+
+        <img src="{{split1 data.resources.[0].logo}}" alt="">
+
+        <div class="firstRow ">
+            
+            <div class="">
+                <h3>ORDER #</h3>
+                <p>000 001</p>
+            </div>
+
+            <div class="">
+                <h3>NAME</h3>
+                <p>Qasim Ali</p>
+            </div>
+        
+        </div>
+
+        <div class="">
+            <h3>ADDRESS</h3>
+            <p>House Num 189 , Street 8, Askari Nazir Apartments, Bahria Phase 8, Rawalpindi</p>
+        </div>
+
+        <div class="">
+            <h3>MOBILE NUMBER</h3>
+            <p>0331 0909892</p>
+        </div>
+
+        <h3 class="orderSummary">ORDER SUMMARY</h3>
+    
+        <article class="bg-grey" >
+
+            {{#each data.cartItems}}
+            <p class="itemRow items" cartId="{{this._id}}">
+            <span>{{this.items.[0].name}} (Size {{this.items.[0].size}}) x {{this.quantity}}</span> 
+            <span>PKR {{this.items.[0].cost}}</span>
+            </p>
+            {{/each}}
+
+            <hr>
+            
+            <p class="itemRow">
+                <span>Total Amount</span>
+                <span>PKR {{data.totalCost}}</span>
+            </p>
+
+            <p>You will receive this order in next 2 days. In case of a problem, please contact <br> 0331-7AM7AM7</p>
+        
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Edit Order</a>
+
+        </article>
+    </section>
+</body>
+</html>

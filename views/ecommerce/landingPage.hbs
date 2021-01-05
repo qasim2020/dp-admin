@@ -5,27 +5,14 @@
     <title>{{data.brand}}</title>
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/essentials.css">
 
     <style type="text/css">
 
-    body {
-        font-family: 'Roboto', sans-serif;
-        color: #828282;
-        margin: 0px;
-    }
-
-    nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    nav, .container {
-        margin: 0 8px;
-    }
-
     .container {
+        margin: 0 8px;
         margin-bottom: 10px;
     }
 
@@ -115,7 +102,7 @@
     }
 
     .footer {
-        height: 270px;
+        height: calc(100vh - 50%);
         background: #D94A46;
         color: white;
         padding: 8px;
@@ -169,9 +156,9 @@
 
     <nav>
 
-        <p>
+        <div>
             <img src="{{split1 data.resources.[0].logo}}" height="44">
-        </p>
+        </div>
 
         <div>
             <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>

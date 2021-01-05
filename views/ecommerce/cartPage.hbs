@@ -3,33 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Cart Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/essentials.css">
     <style type="text/css">
-        body {
-            font-family: 'Roboto', sans-serif;
-            color: #828282;
-            margin: 0px;
-            padding-bottom: 4rem;
-        }
 
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        nav, {
-            margin: 0 8px;
-        }
-
-        nav a, span {
-            padding: 2px 11px;
+        .item span {
             border-radius: 5px;
-            border: 1px solid #F2F2F2;
-            text-decoration: none;
-            color: #828282;
         }
 
         .searchButtons > span:hover {
@@ -153,6 +134,10 @@
             color: #Eb5757;
         }
 
+        h1 {
+            font-family: 'Didact Gothic', sans-serif;
+        }
+
         .item span.active {
             background: #Eb5757;
             color: white;
@@ -160,33 +145,28 @@
             font-weight: bold;
         }
 
-        .btns button {
-            width: 100%;
-            height: 44px;
-            font-weight: bold;
-            font-size: 15px;
-            border-radius: 5px;
-        }
-        button.primary {
-            background: #EB5757;
-            color: white;
-            border: 1px solid black;
+        .btns > *:nth-child(1) {
+            display: block;
             margin-bottom: 5px;
-        }
-
-        button.secondary {
-            background: whitesmoke;
-            color: #333333;
-            border: 1px solid #E0E0E0;
         }
     </style>
 </head>
 <body>
     <nav>
 
-        <p><img src="{{split0 data.resources.[0].logo}}" height="44"></p>
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            /
+            <a href="/{{data.brand}}/gen/page/cartPage/n" class="active">Cart</a>
+            </p>
+        </div>
 
-        <div>
+        <div class="right">
             <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
             <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
         </div>
@@ -249,7 +229,7 @@
                 <svg 
                     onclick="removeItem(this)" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0)">
-                    <path d="M21.2133 14.1421L19.7991 12.7279L16.9707 15.5563L14.1423 12.7279L12.7281 14.1421L15.5565 16.9705L12.7281 19.7989L14.1423 21.2131L16.9707 18.3847L19.7991 21.2131L21.2133 19.7989L18.3849 16.9705L21.2133 14.1421ZM24.0418 9.89944C20.1385 5.99621 13.8029 5.99621 9.89964 9.89944C5.99641 13.8027 5.99641 20.1383 9.89964 24.0416C13.8029 27.9448 20.1385 27.9448 24.0418 24.0416C27.945 20.1383 27.945 13.8027 24.0418 9.89944ZM11.3138 22.6274C8.19551 19.509 8.19551 14.432 11.3138 11.3137C14.4322 8.19531 19.5092 8.19531 22.6276 11.3137C25.7459 14.432 25.7459 19.509 22.6276 22.6274C19.5092 25.7457 14.4322 25.7457 11.3138 22.6274Z" fill="#EB5757"/>
+                    <path d="M21.2133 14.1421L19.7991 12.7279L16.9707 15.5563L14.1423 12.7279L12.7281 14.1421L15.5565 16.9705L12.7281 19.7989L14.1423 21.2131L16.9707 18.3847L19.7991 21.2131L21.2133 19.7989L18.3849 16.9705L21.2133 14.1421ZM24.0418 9.89944C20.1385 5.99621 13.8029 5.99621 9.89964 9.89944C5.99641 13.8027 5.99641 20.1383 9.89964 24.0416C13.8029 27.9448 20.1385 27.9448 24.0418 24.0416C27.945 20.1383 27.945 13.8027 24.0418 9.89944ZM11.3138 22.6274C8.19551 19.509 8.19551 14.432 11.3138 11.3137C14.4322 8.19531 19.5092 8.19531 22.6276 11.3137C25.7459 14.432 25.7459 19.509 22.6276 22.6274C19.5092 25.7457 14.4322 25.7457 11.3138 22.6274Z" fill="#333333"/>
                     </g>
                     <defs>
                     <clipPath id="clip0">
@@ -272,8 +252,12 @@
         <div class="grandTotal" style=""><p>Grand Total</p></div>
         <div class="grandTotalCost"><h1>empty</h1></div>
         <div class="btns">
-            <button class="primary">Check Out</button>
-            <button class="secondary">Continue Shopping</button>
+            <a href="/{{data.brand}}/gen/page/reviewCartPage/n">
+                <button class="primary">Check Out</button>
+            </a>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <button class="secondary">Continue Shopping</button>
+            </a>
         </div>
     </section>
 
@@ -299,7 +283,7 @@
             changeTotal(e);
         };
 
-        let changeTotal = function(e) {
+        let changeTotal = function(e, firstLoad) {
             let elem = $(e).closest('.quantity');
             let currentQty = elem.attr('quantity');
             let itemCost = elem.closest('.item').find('.cost').attr('cost');
@@ -308,15 +292,16 @@
                 .closest('.item')
                 .find('.cost > h1')
                 .html('PKR ' + newCost);
-            changeGrandTotal();    
+            changeGrandTotal(firstLoad);    
         }
 
-        let changeGrandTotal = function() {
+        let changeGrandTotal = function(firstLoad) {
             let elems = $('.cost').get().map(val => $(val).find('h1').html().split(' ')[1]);
             let total = elems.reduce( (total, val) => total = total + Number(val), 0 );
             $('.grandTotalCost')
                 .find('h1')
                 .html('PKR ' + total);
+            if (firstLoad) return;
             updateCart();
         }
 
@@ -325,9 +310,21 @@
             $(elem.target).addClass('active');
         }
 
-        let removeItem = function(elem) {
+        let removeItem = async function(elem) {
+            try {
+                let data = {myId: $(elem).closest('.item').find('.sizes > span.active').attr('cartId')};
+                console.log({data});
+                await $.ajax({
+                    method: "POST",
+                    data: data,
+                    url: "/{{data.brand}}/gen/data/removeItemFromCart/n",
+                    success: (data) => console.log(data),
+                    fail: (e) => console.log(e)
+                });
+            } catch(e) {
+                console.log(e.responseText)
+            }
             $(elem).closest('.item').remove();
-            // $(elem).trigger('mouseleave');
             changeGrandTotal();
         }
 
@@ -340,7 +337,7 @@
             let category = $(elem.target).attr("category");
             let cost = $(elem.target).attr("cost");
             let size = $(elem.target).attr("size");
-            let itemId = $(elem.target).closest('.details').find('.quantity').attr('id');
+            let span = $(elem.target).closest('.details').find('.quantity > span');
 
             $(elem.target)
                 .closest('.details')
@@ -358,7 +355,7 @@
                 .find('img')
                     .attr({src: imgURL});
 
-            changeTotal(itemId);
+            changeTotal(span);
 
         }
 
@@ -370,17 +367,26 @@
 
         let duplicateItem = function(elem) {
             let parent = $(elem).closest('.item');
-            parent.clone().insertAfter(parent);
+            let newItem = parent.clone().insertAfter(parent);
+            console.log(newItem);
+            // TODO: get a mongoID as soon as it is duplicated
+            $.get('/{{data.brand}}/gen/data/getMongoId/n', mongoId => {
+                console.log(mongoId);
+                $(newItem).find('.sizes > span').get().map(val => $(val).attr({cartId: mongoId }) );
+            })
             updateIndexNos();
-            changeGrandTotal();
         }
             
         let readyDocument = function(elem) {
-            changeGrandTotal();
+            // get all span elements
+            // trigger change total on each element and it will find its closest quantity automatically
+            $('.quantity').each( (index, val) => changeTotal( $(val).find('span:eq(0)'), true ) );
             updateIndexNos();
         }
 
         let updateCart = function() {
+
+            if ($('.item').get().length == 0) return console.log('cart is empty, not uploading');
 
             let output = $('.item').get().map(val => {
                 return {
@@ -393,19 +399,21 @@
                 }
             });
 
+            console.table(output);
+            // TODO: zerioise the ID if it is a duplicate
+            // output.map(val => console.log(val.itemId) );
+
             let data = {
                 cart: output,
                 modelName: "{{data.brand}}-cart",
             };
-
-            console.table(data);
 
             $.ajax({
                 method: "POST",
                 data: data,
                 url: "/{{data.brand}}/gen/data/updateCart/n",
                 success: (data) => console.log(data),
-                fail: (e) => console.log(e)
+                fail: (e) => console.log('error', e)
             });
 
         }

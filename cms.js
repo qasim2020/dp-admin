@@ -249,7 +249,8 @@ var myFuncs = {
         updateCart: 'gen',
         removeItemFromCart: 'gen',
         orderReceiptPage: 'gen',
-        updateOrder: 'gen',
+        profilePage: 'gen',
+        createOrder: 'gen',
         mongoQueries: 'gen',
     },
 
@@ -780,7 +781,8 @@ var myFuncs = {
                     $or: [
                         {sessionId: req.sessionID },
                         {email: req.session.person && req.session.person.email }
-                    ]
+                    ],
+                    cartStatus: req.params.hasOwnProperty('cartStatus') ? req.params.cartStatus : 'open' 
                 }
             },{
                 $addFields:
@@ -815,14 +817,15 @@ var myFuncs = {
         let resultResources = await resources.find({});
         let result = await this.getCartItems(req,res);
 
-        result = Object.assign(result,{
+        let output = {
+            cartItems: result,
             resources: resultResources,
             brand: req.params.brand,
             sessionId: req.sessionID,
             email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
-        });
+        };
 
-        return result;
+        return output;
     },
 
     updateCart: async function(req,res) {
@@ -866,7 +869,6 @@ var myFuncs = {
         let result = await this.getCartItems(req,res);
         let resources = await model.find({});
         let myOrder = await this.findOrderInSession(req,res);
-        console.log(myOrder);
         let totalCost = result.reduce( (total, val, index) => {
             total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
             return total;
@@ -876,7 +878,7 @@ var myFuncs = {
             cartItems: result,
             totalCost: totalCost,
             order: myOrder.order,
-            orderNo: myOrder.order == null ? this.padWithZeroes(Number(myOrder.count) + 1, 6) : myOrder.order.orderNo ,
+            orderNo: this.padWithZeroes(Number(myOrder.count) + 1, 6),
             brand: req.params.brand,
             sessionId: req.sessionID,
             email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
@@ -884,9 +886,31 @@ var myFuncs = {
         return output;
     },
 
-    updateOrder: async function(req,res) {
+    closeCartItems: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let cartIds = req.body.cartIds.split(' ');
+        let output = await Promise.all(cartIds.map(val => model.findOneAndUpdate({_id: val.trim()}, {cartStatus: 'closed'}) ) );
+        console.log({output});
+        console.log({cartIds});
+        return 'cartClosed';
+    },
+
+    // TODO: SHOW ITEMS IN ORDER LIST
+    // findCartItems: async function(req,res) {
+    //     let model = await this.createModel(`${req.params.brand}-cart`);
+    //     let cartIds = req.params.cartIds.split(' ');
+    //     let output = model.find({
+    //         _id : { $in: cartIds}
+    //     });
+    //     return output;
+    // },
+
+    createOrder: async function(req,res) {
+        // close these items in the cart
+        let closeCart = await this.closeCartItems(req,res);
+        console.log(chalk.bold.red( {closeCart} ));
+
         let order = req.body;
-        console.log(order._id == '' , order._id, order);
         order._id = order._id == '' ? new mongoose.mongo.ObjectID() : order._id ;
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = model.findOneAndUpdate({_id: order._id}, order, {upsert: true, new: true});
@@ -900,16 +924,48 @@ var myFuncs = {
         return {order: output, count: count};
     },
 
+    findOrderInQuery: async function(req,res) {
+        // console.log(chalk.bold.red('finding order by query') );
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOne({
+            orderNo: req.query.orderNo,
+            mobile: req.query.mobile
+        }).lean();
+        return {order: output};
+    },
+
     orderReceiptPage: async function(req,res) {
+        req.params.cartStatus = new RegExp('open|closed');
+        let result = await this.getCartItems(req,res);
         let model = await this.createModel(`${req.params.brand}-resources`);
         let resources = await model.find({});
+        // let myOrder = await this.findOrderInSession(req,res);
+        let myOrder = await this.findOrderInQuery(req,res);
+        let totalCost = result.reduce( (total, val, index) => {
+            total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
+            return total;
+        },0);
         let output = {
+            order: myOrder.order,
+            cartItems: result,
+            totalCost: totalCost,
             resources: resources,
             brand: req.params.brand,
             sessionId: req.sessionID,
         };
         return output;
     },
+
+    profilePage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        let output = {
+            resources: resources,
+            brand: req.params.brand,
+            sessionId: req.sessionID
+        }
+        return output;
+    }
 
 };
 

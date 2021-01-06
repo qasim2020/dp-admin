@@ -302,6 +302,7 @@
                 connectingID: $(elem).parent('.item').attr('details').split(' ')[1],
                 sessionId: $(elem).parent('.item').attr('details').split(' ')[2],
                 email: $(elem).parent('.item').attr('details').split(' ')[3] || false,
+                cartStatus: 'open',
             };
 
             // TODO: When AJAX Call Searhces items - put above data into each item's status

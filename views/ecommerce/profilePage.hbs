@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/essentials.css">
+    <style type="text/css">
+        .container { 
+            max-width: 1300px;
+            margin: auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        form {
+            width: 357px;
+            max-width: 90%;
+            margin: auto;
+            border: 1px solid #E0E0E0;
+            box-sizing: border-box;
+            border-radius: 5px;
+            padding: 15px 15px 27px 15px;
+            margin-top: 14px;
+        }
+
+        form > * {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 13px 0 0px 0;
+        } 
+
+        form > svg {
+            width: fit-content;
+            margin-top: -22px;
+            margin-left: auto;
+            margin-right: 2px;
+        }
+
+        label {
+            font-weight: 300;
+        }
+
+        label , h2 {
+            color: #333333;
+            font-size: 19px;
+        }
+
+        input, textarea {
+            font-size: 19px;
+            color: #333333;
+            padding: 10px 13px;
+            line-height: 1.5;
+            font-family: 'Didact Gothic';
+        }
+
+        article {
+            width: 720px;
+            padding: 0 4.5rem 0 1rem;
+        }
+
+        article > .order {
+            border: 1px solid #E0E0E0;
+            border-radius: 5px;
+            padding: 1rem 2rem;
+            box-sizing: border-box;
+            margin-top: 14px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.6fr;
+        }
+
+        .order p {
+            font-weight: 300;
+            font-size: 18px;
+            line-height: 1.5;
+            margin-top: -10px;
+        }
+
+        .order > p {
+            grid-row: 1/2;
+            grid-column: 1/4;
+            margin-top: 5px;
+            margin-bottom: 3px;
+            font-size: small;
+            background: #F2F2F2;
+            width: fit-content;
+            color: #333333;
+            padding: 2px 9px;
+            border-radius: 5px;
+        }
+
+        .order a {
+            padding: 2px 11px;
+            margin-right: 5px;
+            border-radius: 5px;
+            border: 1px solid #F2F2F2;
+            text-decoration: none;
+            color: #828282;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .order > *:nth-child(2) {
+            grid-row: 2/4;
+            padding-left: 8px;
+        }
+
+        .order > *:nth-child(4) {
+            grid-row: 2/4;
+            grid-column: 3/4;
+        }
+
+        .order > *:nth-child(6) {
+            grid-column: 1/4;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            /
+            <a href="/{{data.brand}}/gen/page/profilePage/n" class="active">Profile</a>
+            </p>
+        </div>
+
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign Out</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+        </div>
+    
+    </nav>
+
+    <section class="container grid">
+
+        <form method="post" action="">
+
+            <label for="address">Shipping Address</label>
+            <textarea class="bg-grey" id="" name="address" rows="8" required>House Num 189 , Street 8, Askari Nazir Apartments, Bahria Phase 8, Rawalpindi</textarea>
+
+            <label for="number">Mobile Number</label>
+            <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.3734 0C4.6473 0 0 4.48 0 10C0 15.52 4.6473 20 10.3734 20C16.0996 20 20.7469 15.52 20.7469 10C20.7469 4.48 16.0996 0 10.3734 0ZM8.29875 15L3.11203 10L4.57469 8.59L8.29875 12.17L16.1722 4.58L17.6349 6L8.29875 15Z" fill="#6FCF97"/>
+            </svg>
+            <input class="bg-grey" type="number" name="mobileNumber" required value="03235134234">
+
+            <label for="name">Name</label>
+            <input class="bg-grey" type="text" name="name" required value="Qasim Ali">
+
+            <label for="email">Email</label>
+            <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.3734 0C4.6473 0 0 4.48 0 10C0 15.52 4.6473 20 10.3734 20C16.0996 20 20.7469 15.52 20.7469 10C20.7469 4.48 16.0996 0 10.3734 0ZM8.29875 15L3.11203 10L4.57469 8.59L8.29875 12.17L16.1722 4.58L17.6349 6L8.29875 15Z" fill="#6FCF97"/>
+            </svg>
+
+            <input class="bg-grey" type="text" name="email" required value="qasimali24@gmail.com">
+
+            <label for="password">Password</label>
+            <input class="bg-grey" type="text" name="password" required value="Change Password">
+
+            <button class="primary" type="submit">Save Changes</button>
+
+        </form>
+        
+        <article>
+
+            <div class="order">
+
+                <p>Time Stamp · 1200 PM 4th January 2021</p>
+
+                <div>
+                    <h3>ORDER #</h3>
+                    <p>000 001</p>
+                </div>
+
+                <div>
+                    <h3>COST</h3>
+                    <p>PKR 9800</p>
+                </div>
+            
+                <div>
+                    <h3>ITEM(S)</h3>
+                    <p>
+                        8 x Black Shoes, <br> 
+                        4 x Tie, <br> 
+                        1 x School Bag, <br>
+                        2 x Geometry Box
+                    </p>
+                </div>
+
+                <div>
+                    <h3>STATUS</h3>
+                    <p>Processed for Shipment</p>
+                </div>
+
+                <div>
+                    <a href="/{{data.brand}}/auth/page/orderReceiptPage/n?mobile={{data.order.mobile}}&orderNo={{data.order.orderNo}}">View Receipt</a>
+                    <a href="/{{data.brand}}/auth/page/orderReceiptPage/n?mobile={{data.order.mobile}}&orderNo={{data.order.orderNo}}">Edit Order</a>
+                    <a href="/{{data.brand}}/auth/page/cancelOrder/n?mobile={{data.order.mobile}}&orderNo={{data.order.orderNo}}">Cancel this Order</a>
+                </div>
+            </div>
+        
+        </article>
+    
+    </section>
+    
+</body>
+</html>

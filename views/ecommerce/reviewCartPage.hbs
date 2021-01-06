@@ -123,8 +123,8 @@
 
                 {{#each data.cartItems}}
                 <p class="itemRow items" cartId="{{this._id}}">
-                <span>{{this.items.[0].name}} (Size {{this.items.[0].size}}) x {{this.quantity}}</span> 
-                <span>PKR {{this.items.[0].cost}}</span>
+                <span>{{this.quantity}} x {{this.items.[0].name}} (Size {{this.items.[0].size}}) </span> 
+                <span>{{this.quantity}} x PKR {{this.items.[0].cost}}</span>
                 </p>
                 {{/each}}
 
@@ -143,16 +143,18 @@
            
         </div>
 
-        <form action="/{{data.brand}}/gen/page/orderReceiptPage/n" orderNo="{{data.orderNo}}" orderId="{{data.order._id}}">
+        <form method="get" action="/{{data.brand}}/gen/page/orderReceiptPage/n" orderNo="{{data.orderNo}}" orderId="">
 
-            <label for="address">Address</label>
-            <textarea class="bg-grey" id="" name="address" rows="8" required></textarea>
+            <label for="address">Shipping Address</label>
+            <textarea class="bg-grey" id="" name="address" rows="8" required>{{data.order.address}}</textarea>
+
+            <input style="display:none;"  class="bg-grey" type="orderNo" name="orderNo" required value="{{data.order.orderNo}}">
 
             <label for="number">Mobile Number</label>
-            <input class="bg-grey" type="number" name="mobileNumber" required>
+            <input class="bg-grey" type="number" name="mobile" required value="{{data.order.mobile}}">
 
             <label for="name">Name</label>
-            <input class="bg-grey" type="text" name="name" required>
+            <input class="bg-grey" type="text" name="name" required value="{{data.order.name}}">
 
             <button class="primary" type="submit">Place Order</button>
             <a href="/{{data.brand}}/gen/page/landingPage/n">
@@ -172,7 +174,7 @@
                 name: form[2].value,
                 address: form[0].value,
                 mobile: form[1].value,
-                status: 'Placed',
+                status: 'Order Placed in Store',
                 sessionId: "{{data.sessionId}}",
                 orderNo: '{{data.orderNo}}'
             };
@@ -181,8 +183,9 @@
                 await $.ajax({
                     method: "POST",
                     data: output,
-                    url: "/{{data.brand}}/gen/data/updateOrder/n",
+                    url: "/{{data.brand}}/gen/data/createOrder/n",
                     success: (data) => this.submit(),
+                    // success: (data) => updateFormAttr(data),
                     fail: (e) => console.log(e)
                 });
             } catch(e) {
@@ -193,7 +196,7 @@
 
         let updateFormAttr = function(order) {
             console.log(order);
-            $('form').attr({orderId: order._id});
+            return $('form').attr({orderId: order._id});
             $('form').submit();
         };
 

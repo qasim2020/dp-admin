@@ -173,7 +173,11 @@
     
     </nav>
     <section class="grid">
-    {{#each data}}
+        {{#unless data.cartItems}}
+        <p>Your cart is empty. Please go to home page to fill your cart.</p>
+        {{/unless}}
+        {{#if data.cartItems}}
+    {{#each data.cartItems}}
         <div class="item">
 
             <div class="img">
@@ -259,6 +263,7 @@
                 <button class="secondary">Continue Shopping</button>
             </a>
         </div>
+    {{/if}}
     </section>
 
     <div class="popover shadow"></div>
@@ -395,7 +400,8 @@
                     quantity: $(val).find('.quantity').find('span.active').text(),
                     connectingID: $(val).find('.sizes').find('span.active').attr('connectingID'),
                     sessionId: "{{data.sessionId}}",
-                    email: "{{data.email}}"
+                    email: "{{data.email}}",
+                    cartStatus: "open"
                 }
             });
 

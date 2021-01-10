@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Order</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/essentials.css">
+    <style type="text/css">
+
+        form {
+            width: 333px;
+            max-width: 98%;
+            margin: auto;
+            border: 1px solid #E0E0E0;
+            box-sizing: border-box;
+            border-radius: 5px;
+            padding: 15px 15px 27px 15px;
+            margin-top: 14px;
+        }
+
+        form > * {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 13px 0 0px 0;
+        } 
+
+        label {
+            font-weight: 300;
+        }
+
+        label , h2 {
+            color: #333333;
+            font-size: 19px;
+        }
+
+        input, textarea {
+            font-size: 19px;
+            color: #333333;
+            padding: 10px 13px;
+            line-height: 1.5;
+            font-family: 'Didact Gothic';
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <nav>
+
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            /
+            <a href="/{{data.brand}}/gen/page/findOrderPage/n" class="active">Find Order</a>
+            </p>
+        </div>
+
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/findOrderPage/n">Find Order</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n"><span>Cart</span><span class="cartBtn">{{data.countCart}}</span></a>
+        </div>
+    
+    </nav>
+
+    <form method="get" action="/{{data.brand}}/gen/page/orderReceiptPage/n">
+
+        <label for="orderNo">Your Order No</label>
+        <input class="bg-grey" name="orderNo" required>
+
+        <label for="mobile">Mobile Number</label>
+        <input class="bg-grey" type="number" name="mobile" required value="">
+
+        <button class="primary" type="submit">Find Order</button>
+        <a href="/{{data.brand}}/gen/page/landingPage/n">
+        <button class="secondary" type="button">Continue Shopping</button>
+        </a>
+
+    </form>
+   
+</body>
+</html>

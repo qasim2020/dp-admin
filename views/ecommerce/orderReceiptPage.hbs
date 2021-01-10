@@ -119,21 +119,22 @@
             <span>·</span>
             <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
             /
-            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
-            /
-            <a href="/{{data.brand}}/gen/page/reviewCartPage/n" class="">Check Out</a>
-            /
             <a href="/{{data.brand}}/gen/page/orderReceiptPage/n" class="active">Receipt</a>
             </p>
         </div>
 
         <div class="right">
-            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
-            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+            <a href="/{{data.brand}}/gen/page/findOrderPage/n">Find Order</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n"><span>Cart</span><span class="cartBtn">{{data.countCart}}</span></a>
         </div>
     
     </nav>
 
+    {{#unless data.cartItems}}
+    <p class="error">No receipt found. Please dial 0331 7AM7AM7 for inquiry about your order. Keep your order Number and mobile Number in handy.</p>
+    {{/unless}}
+
+    {{#if data.cartItems}}
     <section class="container receipt">
 
         <div class="imgRow">
@@ -194,6 +195,7 @@
 
         </article>
     </section>
+    {{/if}}
 
     <input type="text" style="opacity: 0; pointer-events: none;" value="http://localhost:3000/7am/gen/page/orderReceiptPage/n?mobile={{data.order.mobile}}&orderNo={{data.order.orderNo}}" id="myInput">
 

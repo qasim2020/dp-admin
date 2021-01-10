@@ -16,14 +16,6 @@
         margin-bottom: 10px;
     }
 
-    nav a, span {
-        padding: 2px 11px;
-        border-radius: 5px;
-        border: 1px solid #F2F2F2;
-        text-decoration: none;
-        color: #828282;
-    }
-
     .searchButtons > span:hover {
         background: #F2F2F2;
         cursor: pointer;
@@ -156,13 +148,13 @@
 
     <nav>
 
-        <div>
+        <div class="left">
             <img src="{{split1 data.resources.[0].logo}}" height="44">
         </div>
 
-        <div>
-            <a href="/{{data.brand}}/gen/page/aboutPage/n">Sign In</a>
-            <a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a>
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/findOrderPage/n">Find Order</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n"><span>Cart</span><span class="cartBtn">{{data.countCart}}</span></a>
         </div>
     
     </nav>
@@ -171,7 +163,7 @@
 
         <p class="searchButtons">
         {{#each data.schools}}
-            <span id="{{removeSpaces this}}">{{{this}}}</span>
+            <span id="{{removeSpaces this}}" class="smallBtn">{{{this}}}</span>
         {{/each}}
         </p>
 
@@ -179,7 +171,7 @@
 
         <p class="searchButtons">
         {{#each data.categories}}
-            <span id="{{removeSpaces this}}">{{this}}</span>
+            <span id="{{removeSpaces this}}" class="smallBtn">{{this}}</span>
         {{/each}}
         </p>
 
@@ -194,7 +186,9 @@
             {{#each data.items}}
             <div class="item" details="{{this._id}} {{this.connectingID}} {{../data.sessionID}} {{../data.email}}">
                 <div class='imageCarrier'>
-                    <img src="{{split0 this.imgURL}}" height="300">
+                    <a href="/{{../data.brand}}/gen/page/itemPage/{{this._id}}">
+                        <img src="{{split0 this.imgURL}}" height="300">
+                    </a>
                 </div>
                 <p class="name"> {{this.name}} </p>
                 <p class="cost"> PKR - {{this.cost}} </p>
@@ -241,7 +235,7 @@
                 $('.filterDiv:eq(0)')
                     .removeClass('d-none')
                     .find('p')
-                    .html( selectedSchools.concat(selectedCategories).map(val => `<span connectedId="${val.replace(/ /gi,'')}"> ${val} ${svg} </span>`) );
+                    .html( selectedSchools.concat(selectedCategories).map(val => `<span class="smallBtn" connectedId="${val.replace(/ /gi,'')}"> ${val} ${svg} </span>`) );
 
             } else {
 
@@ -252,7 +246,7 @@
 
             $.ajax({
                 method: 'post',
-                url: '/{{data.resources.[0].brandName}}/gen/data/searchItems/{{data.resources.[0].brandName}}-items',
+                url: '/{{data.resources.[0].brandName}}/gen/data/searchItems/n',
                 data: {selectedSchools, selectedCategories, itemName},
                 success: (data) => {
                     drawItems(data)
@@ -263,7 +257,8 @@
 
         }
 
-        let drawItems = function(data) {
+        let drawItems = function(response) {
+            let data = response.result;
             $('.items>.item:not(:eq(0))').remove();
             if (data.length < 1) {
                 $('.item:eq(-1)').addClass('d-none');
@@ -271,10 +266,15 @@
             }
             $('.items > .error').addClass('d-none');
             $.each(data, (i,val) => {
+                console.log(data);
                 $('.item:eq(-1)')
                     .removeClass('d-none')
                     .find('img')
                          .attr('src',val.imgURL.indexOf(' ') > 0 ? val.imgURL.split(' ')[0] : val.imgURL )
+                    .closest('.item')
+                         .attr('details', `${val._id} ${val.connectingID} ${response.sessionId} ${response.email}`)
+                    .find('.imageCarrier > a')
+                        .attr('href', `/{{data.brand}}/gen/page/itemPage/${val._id}`)
                     .closest('.item')
                     .find('.name')
                          .html(val.name)

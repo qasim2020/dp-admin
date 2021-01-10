@@ -108,12 +108,10 @@ hbs.registerHelper('checkExists', (val) => {
 })
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    // console.log(val1,val2,val1 == val2);
     return val1 == val2
 });
 
 hbs.registerHelper('removeSpaces', (val) => {
-    console.log(val.replace(' ',''));
     return val.replace(/ /gi,'');
 });
 
@@ -126,7 +124,6 @@ hbs.registerHelper('split0', (val) => {
     }
 });
 
-
 hbs.registerHelper('split1', (val) => {
     let output =  val.split(' ')[1] == undefined ? val : val.split(' ')[1] ;
     return output;
@@ -134,7 +131,6 @@ hbs.registerHelper('split1', (val) => {
 
 hbs.registerHelper('split', (val) => {
     let output = val.split(' ');
-    console.log(output);
     return output;
 });
 
@@ -251,6 +247,9 @@ var myFuncs = {
         orderReceiptPage: 'gen',
         profilePage: 'gen',
         createOrder: 'gen',
+        findOrderPage: 'gen',
+        itemPage: 'gen',
+        saveItemInCart: 'gen',
         mongoQueries: 'gen',
     },
 
@@ -388,6 +387,11 @@ var myFuncs = {
         };
     },
     
+    deleteFromCollection: async function(req,res) {
+        let output = Collections.deleteOne({name: req.params.input});
+        return output;
+    },
+
     dropCollection: async function(req,res) {
         try {
             let collectionName = req.params.input.indexOf('-') > 0 ? req.params.input.split('-')[1] : req.params.input;
@@ -666,10 +670,12 @@ var myFuncs = {
             models.items.distinct('school',{}) ,
             models.items.find({ quantity : { $ne: 0 } } ).limit(20) ,
             models.resources.find({}) ,
-            models.items.distinct('category', {})
+            models.items.distinct('category', {}) ,
+            this.countItemsInCart(req,res) ,
         ]);
         output = {
             cart: output[0],
+            countCart: output[5], 
             schools: output[1],
             items: output[2].filter( (val,index,self) => { 
                 let connectingIDs = self.map( val => val.connectingID );
@@ -761,7 +767,7 @@ var myFuncs = {
         if (req.body.selectedCategories && req.body.selectedCategories.length > 0) query.category = { $in : req.body.selectedCategories };
         if (req.body.selectedSchools && req.body.selectedSchools.length > 0) query.school = { $in : req.body.selectedSchools };
 
-        let model = await this.createModel(`${req.params.input}`);
+        let model = await this.createModel(`${req.params.brand}-items`);
         let output = await model.find(query).limit(20);
         
         output = output.filter( (val,index,self) => { 
@@ -769,8 +775,16 @@ var myFuncs = {
                 return connectingIDs.indexOf(val.connectingID) === index ;
             });
 
+        output = {
+            result: output,
+            email: req.session.person && req.session.person.email ,
+            sessionId: req.sessionID
+        };
+
         return output;
     },
+
+
 
     getCartItems: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-cart`);
@@ -816,15 +830,29 @@ var myFuncs = {
         let resources = await this.createModel(`${req.params.brand}-resources`);
         let resultResources = await resources.find({});
         let result = await this.getCartItems(req,res);
+        let countCart = await this.countItemsInCart(req,res);
 
         let output = {
             cartItems: result,
+            countCart: countCart,
             resources: resultResources,
             brand: req.params.brand,
             sessionId: req.sessionID,
             email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
         };
 
+        return output;
+    },
+
+    countItemsInCart: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let output = await model.countDocuments({
+            $or : [
+                {sessionId: req.sessionID},
+                {email: req.session.person && req.session.person.email}
+            ],
+            cartStatus: 'open'
+        });
         return output;
     },
 
@@ -858,7 +886,7 @@ var myFuncs = {
             my_string = '0' + my_string;
         }
 
-        console.log({my_string});
+        console.log({number, length, my_string});
 
         return my_string;
 
@@ -869,6 +897,7 @@ var myFuncs = {
         let result = await this.getCartItems(req,res);
         let resources = await model.find({});
         let myOrder = await this.findOrderInSession(req,res);
+        let countCart = await this.countItemsInCart(req,res);
         let totalCost = result.reduce( (total, val, index) => {
             total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
             return total;
@@ -876,9 +905,10 @@ var myFuncs = {
         let output = {
             resources: resources,
             cartItems: result,
+            countCart: countCart,
             totalCost: totalCost,
             order: myOrder.order,
-            orderNo: this.padWithZeroes(Number(myOrder.count) + 1, 6),
+            orderNo: this.padWithZeroes(Number(myOrder.orderNo.replace(/^0+/, '')) + 1, 6),
             brand: req.params.brand,
             sessionId: req.sessionID,
             email: req.session.person && req.session.person.email.length > 0 ? req.session.person.email : 'false'
@@ -895,15 +925,6 @@ var myFuncs = {
         return 'cartClosed';
     },
 
-    // TODO: SHOW ITEMS IN ORDER LIST
-    // findCartItems: async function(req,res) {
-    //     let model = await this.createModel(`${req.params.brand}-cart`);
-    //     let cartIds = req.params.cartIds.split(' ');
-    //     let output = model.find({
-    //         _id : { $in: cartIds}
-    //     });
-    //     return output;
-    // },
 
     createOrder: async function(req,res) {
         // close these items in the cart
@@ -920,8 +941,9 @@ var myFuncs = {
     findOrderInSession: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({sessionId: req.sessionID}).lean();
-        let count = await model.countDocuments({}).lean();
-        return {order: output, count: count};
+        let highestOrder = await model.find({}, {orderNo: 1, _id:0}).sort({orderNo:-1}).limit(1);
+        console.log({highestOrder});
+        return {order: output, orderNo: highestOrder.length > 0 ? highestOrder[0].orderNo : '000000'};
     },
 
     findOrderInQuery: async function(req,res) {
@@ -934,13 +956,56 @@ var myFuncs = {
         return {order: output};
     },
 
+    getCartItemsInArray: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let cartIds = req.params.cartIds.split(' ').map( val => mongoose.Types.ObjectId(val) );
+        console.log({cartIds});
+        let result = await model
+            .aggregate([
+            {
+                $match: {
+                    _id: { $in: cartIds },
+                }
+            },{
+                $addFields:
+                {
+                    itemId: { $toObjectId: "$itemId" }
+                }
+            },{
+                $lookup:
+                 {
+                   from: '7am-items',
+                   localField: 'itemId',
+                   foreignField: '_id',
+                   as: 'items'
+                 }
+            },{
+                $lookup:
+                 {
+                   from: '7am-items',
+                   localField: 'connectingID',
+                   foreignField: 'connectingID',
+                   as: 'allSizes'
+                 }
+            }
+            ]);
+        return result;
+    },
+
     orderReceiptPage: async function(req,res) {
-        req.params.cartStatus = new RegExp('open|closed');
-        let result = await this.getCartItems(req,res);
+        let myOrder = await this.findOrderInQuery(req,res);
         let model = await this.createModel(`${req.params.brand}-resources`);
         let resources = await model.find({});
+        let countCart = await this.countItemsInCart(req,res);
+
+        if (myOrder.order == null) return {
+            resources: resources,
+            brand: req.params.brand
+        };
+
+        req.params.cartIds = myOrder.order.cartIds;
+        let result = await this.getCartItemsInArray(req,res);
         // let myOrder = await this.findOrderInSession(req,res);
-        let myOrder = await this.findOrderInQuery(req,res);
         let totalCost = result.reduce( (total, val, index) => {
             total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
             return total;
@@ -948,10 +1013,10 @@ var myFuncs = {
         let output = {
             order: myOrder.order,
             cartItems: result,
+            countCart: countCart,
             totalCost: totalCost,
             resources: resources,
             brand: req.params.brand,
-            sessionId: req.sessionID,
         };
         return output;
     },
@@ -965,7 +1030,95 @@ var myFuncs = {
             sessionId: req.sessionID
         }
         return output;
-    }
+    },
+
+    findOrderPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        let countCart = await this.countItemsInCart(req,res);
+        let output = {
+            resources: resources,
+            countCart: countCart,
+            brand: req.params.brand,
+            sessionId: req.sessionID
+        }
+        return output;
+    },
+
+    findItemWithId: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-items`);
+        console.log({itemID: req.params.input});
+        let result = await model
+            .aggregate([
+            {
+                $match: {_id: mongoose.Types.ObjectId(req.params.input)}
+            },{
+                $lookup: 
+                {
+                    from: `${req.params.brand}-items`,
+                    localField: 'connectingID',
+                    foreignField: 'connectingID',
+                    as: 'allSizes'
+                }
+            }
+            ]);
+        return result;
+    },
+
+    findMeInCart: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        let result = await model.aggregate([
+            {
+                $match: {
+                    connectingID: req.params.connectingID,
+                    sessionId: req.sessionID,
+                    cartStatus: 'open'
+                }
+            },{
+                $addFields:
+                {
+                    itemId: { $toObjectId: "$itemId" }
+                }
+            },{
+                $lookup:
+                 {
+                   from: '7am-items',
+                   localField: 'itemId',
+                   foreignField: '_id',
+                   as: 'items'
+                 }
+            }
+
+        ]);
+        return result;
+    },
+
+    itemPage: async function(req,res) {
+        let item = await this.findItemWithId(req,res);
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        req.params.connectingID = item[0].connectingID;
+        let countCart = await this.countItemsInCart(req,res);
+        let itemInCart = await this.findMeInCart(req,res);
+        let output = {
+            item: item,
+            resources: resources,
+            countCart: countCart,
+            mongoID: new mongoose.mongo.ObjectID(),  
+            itemInCart: itemInCart,
+            brand: req.params.brand,
+            sessionId: req.sessionID
+        }
+        return output;
+    },
+
+    saveItemInCart: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-cart`);
+        req.body.sessionId = req.sessionID;
+        req.body.email = req.session.hasOwnProperty('person') ? req.session.person.email : 'false';
+        let output = await model.findOneAndUpdate({_id: mongoose.Types.ObjectId(req.body.cartId)}, req.body, {upsert: true}).lean();
+        return output;
+    },
 
 };
 

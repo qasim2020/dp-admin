@@ -409,15 +409,9 @@ var myFuncs = {
         };
     },
 
-    createNewCollection : function(req,res) {
-        if (req.params.input == 'n') return {
-            error: 'Please give collection Name'
-        };
-        console.log(`creating new collection at ${req.params.input}`);
-        return {
-            brand: req.params.brand,
-            name: req.params.brand + '-' + req.params.input,
-            types: [{
+    getTypes: function(req,res) {
+        return [
+            {
                 name: 'String',
                 html: 'input'
             },{
@@ -429,7 +423,23 @@ var myFuncs = {
             },{
                 name: 'String',
                 html: 'imgURL',
-            }],
+            },{
+                name: 'String',
+                html: 'selectForeignKey'
+            }
+        ];
+    },
+
+    createNewCollection : function(req,res) {
+        if (req.params.input == 'n') return {
+            error: 'Please give collection Name'
+        };
+        console.log(`creating new collection at ${req.params.input}`);
+        let types = this.getTypes();
+        return {
+            brand: req.params.brand,
+            name: req.params.brand + '-' + req.params.input,
+            types: types,
         };
     }, 
 
@@ -448,24 +458,12 @@ var myFuncs = {
                 html: collectionDetails.properties[val].html == undefined ? 'input' : collectionDetails.properties[val].html
             };
         });
-        console.log({output});
+        let types = this.getTypes();
         return {
             _id: collectionDetails._id,
             brand: collectionDetails.brand,
             name: collectionDetails.name,
-            types: [{
-                name: 'String',
-                html: 'input'
-            },{
-                name: 'Number',
-                html: 'numberInput'
-            },{
-                name: 'Array',
-                html: 'checkBoxes',
-            },{
-                name: 'String',
-                html: 'imgURL',
-            }],
+            types: types,
             inputs: output
         };
     },
@@ -668,7 +666,7 @@ var myFuncs = {
         let output = await Promise.all([
             models.cart.find({sessionId: req.sessionID}) ,
             models.items.distinct('school',{}) ,
-            models.items.find({ quantity : { $ne: 0 } } ).limit(20) ,
+            models.items.find({ quantity : { $ne: 0 } } ),
             models.resources.find({}) ,
             models.items.distinct('category', {}) ,
             this.countItemsInCart(req,res) ,

@@ -77,6 +77,10 @@
         .modal > button {
             margin-top: 10px;
         }
+
+        .d-none {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -106,9 +110,8 @@
 
           <select class="check"  name="type{{@index}}" id="type{{@index}}">
             {{#each ../data.types}}
-                <option value="{{this.html}}+{{this.name}}">{{this.html}}</option>
+            <option value="{{this.html}}+{{this.name}}" {{#if (matchValues ../this.html this.html)}} selected {{/if}}>{{this.html}}</option>
             {{/each}}
-                <option value="{{this.html}}+{{this.type}}" selected>{{this.html}}</option>
           </select>
 
           <input type="radio" id="req{{@index}}"  name="req{{@index}}" value=true {{#if (matchValues this.required 'true')}} checked {{/if}}>
@@ -127,7 +130,7 @@
 
     </form>
 
-    <div class="modal">
+    <div class="modal d-none">
 
         <div>
             <p>Select Collection</p>

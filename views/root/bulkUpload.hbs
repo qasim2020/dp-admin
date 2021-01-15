@@ -46,15 +46,13 @@
 
         <h3>Step 3</h3>
         <p>Upload your file by pressing below button.</p>
-        <form method="get" action="">
-            <input id="fileInp" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  aria-describedby="fileInp" data="{{data.sampleRow}}"> 
-            <button id="uploadFile" type="submit">Upload File</button>
-        </form>
+        <input id="fileInp" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  aria-describedby="fileInp" data="{{data.sampleRow}}"> 
+        <p class="error"></p>
         <br>
 
         <h3>Step 4</h3>
-        <p>Review the error below to see how many conflicts you found.</p>
-        <p class="error">Errors come here</p>
+        <p> Upload this data in Bulk by pressing below.</p>
+        <button id="uploadFile" type="button">Upload File</button>
 
 
     </div>
@@ -69,31 +67,21 @@
                  console.log(data);
                  window.location = `/${data}`;
              });
-            //  e.preventDefault();
-            //  console.log($(this).serialize());
-            //  $.ajax({
-            //    type: "POST",
-            //    url: '/{{data.brand}}/admin/data/saveSequence/n',
-            //    data: $(this).serialize(),
-            //    success: (data) => {
-            //      console.log('successful data sent'),
-            //      console.log(data);
-            //      $('#submitButton').html(data.error);
-            //    }
-            //  });
          });
 
-        $('form').on('submit',function(e) {
-            e.preventDefault();
+        $('#uploadFile').on('click',function() {
             let data = $(this).data();
+            
             console.table(Object.values(data));
 
             if (Object.values(data).length == 0) return $('#uploadFile').html('No data found in this file');
 
-            $('#uploadFile').html('Data exists -- upload it')
+            $('#uploadFile').html('Data validated. Uploading...')
 
-            $.post("/{{data.brand}}/admin/data/uploadMany/{{data.collection}}", {data: Object.values(data)} ,function(data,status) {
-                console.log(data,status);           
+            $.post("/{{data.brand}}/admin/data/uploadMany/{{data.collection}}",{data: Object.values(data)}, function(data,status) {
+                if (data.status == 200) return  $('#uploadFile').html('Upload completed!');
+                console.log(data, status);
+                return $('#uploadFile').html('Data upload failed');
             });
         });
 
@@ -116,6 +104,7 @@
           },
 
           matchArrays: function(val1,val2) {
+              console.log(JSON.stringify(val1), JSON.stringify(val2),JSON.stringify(val1) == JSON.stringify(val2));
               return JSON.stringify(val1) == JSON.stringify(val2);
           }
       };
@@ -131,12 +120,15 @@
 
             console.log(Object.values(msg)[0]);
 
-            if (myFuncs.matchArrays(Object.values(msg)[0].replace(/"|\r/g,"").split(','), sampleFormat) == false) incomplete.push('Data does not match the sample sheet');
+            if (myFuncs.matchArrays(Object.values(msg)[0].replace(/"|\r/g,"").split(','), sampleFormat) == false) { 
+                incomplete.push('Data does not match the sample sheet. Try uploading the properly formatted file you downloaded in Step 1.');
+            }
+
             let headings = Object.values(msg)[0].replace(/"|\r/g,"").split(','); 
 
             if (msg.length < 1) incomplete.push(`No data added <br>`);
             if (incomplete.length) {
-                return $('.error').html(`Error at following entries:- <br> ${JSON.stringify(incomplete).substr(1).slice(0, -1).replace(/,|"/g,'')}`);
+                return $('.error').html(` ${JSON.stringify(incomplete).substr(1).slice(0, -1).replace(/,|"/g,'')} `);
             }
             let keys = Object.keys(msg);
             let values = Object.values(msg);
@@ -149,7 +141,8 @@
               },{});
             });
             output.shift();
-            $('form').data(output,output);
+            $('#uploadFile').data(output,output);
+            return $('.error').html('Data matches the sample. Move to step 4!');
 
             }).catch((e) => {
                 console.log(e);

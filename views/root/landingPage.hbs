@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create your App</title>
+    <style type="text/css">
+    form > * {
+        display: block;
+        margin-top: 10px;
+    }
+    </style>
+</head>
+<body>
+    <p>Create New App — </p>
+    <form action="/{{data.brand}}/admin/page/startApp/n" method="post">
+
+        <label for="theme">App Theme</label>
+        <select id="theme" name="theme">
+            <option value="ecommerce" selected>E-Commerce</option>
+        </select>
+
+        <label for="brand">Name of brand</label>
+        <input type="text" id="brand" name="brand">
+    
+        <button>Generate</button>
+    </form>
+</body>
+</html>

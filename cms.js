@@ -89,6 +89,10 @@ let schema = {
         type: "String",
         required: true,
     },
+    redirect: {
+        type: "String",
+        required: true
+    },
     properties: {
         type: "Object",
         required: true,
@@ -251,6 +255,7 @@ var myFuncs = {
         itemPage: 'gen',
         saveItemInCart: 'gen',
         mongoQueries: 'gen',
+        showOrders: 'admin'
     },
 
     respond: async function(data,req,res) {
@@ -330,6 +335,8 @@ var myFuncs = {
         let output = await this.getFormInputs(req,res);
         output.collection = req.params.input;
         output.brand = req.params.brand;
+        req.params.theme = 'root';
+        req.params.module = 'editDocument';
         return output;
     },
 
@@ -341,13 +348,11 @@ var myFuncs = {
         output.collection = req.params.input;
         output._id = req.query._id;
         output.brand = req.params.brand;
+        req.params.theme = 'root';
         return output;
     },
 
     updateSequence: async function(req,res) {
-        console.log(req.body);
-        // return req.body;
-        // modelName, _id, restCompleteDocument
         let model = await this.createModel(req.body.modelName);
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
@@ -426,6 +431,9 @@ var myFuncs = {
             },{
                 name: 'String',
                 html: 'selectForeignKey'
+            },{
+                name: 'Object',
+                html: 'JSON'
             }
         ];
     },
@@ -436,6 +444,9 @@ var myFuncs = {
         };
         console.log(`creating new collection at ${req.params.input}`);
         let types = this.getTypes();
+
+        req.params.theme = 'root';
+        req.params.module = 'editCollection';
         return {
             brand: req.params.brand,
             name: req.params.brand + '-' + req.params.input,
@@ -459,9 +470,11 @@ var myFuncs = {
             };
         });
         let types = this.getTypes();
+        req.params.theme = 'root';
         return {
             _id: collectionDetails._id,
             brand: collectionDetails.brand,
+            theme: req.params.theme,
             name: collectionDetails.name,
             types: types,
             inputs: output
@@ -469,13 +482,8 @@ var myFuncs = {
     },
 
     saveSequence: async function(req,res) {
-        console.log('req.body');
-        console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
-        console.log('this.save(req.body)');
-        console.log(output);
-        console.log('save sequence ends here');
         return output;
     },        
 
@@ -493,6 +501,7 @@ var myFuncs = {
         req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
+
         collectionHeadings.unshift('_id');
         collectionHeadings = collectionHeadings.concat(['edit','delete']);
 
@@ -508,12 +517,29 @@ var myFuncs = {
                     case (collectionHeadings[i] == 'delete'):
                         total.push(`<a href="/${req.params.brand}/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
                         break;
+                    case (collectionHeadings[i] == 'properties'):
+                        total.push(JSON.stringify(val[collectionHeadings[i]]));
+                        break;
                     default:
                         total.push(val[collectionHeadings[i]]);
                 }
             }
             return total;
         });
+
+        let inputCollection = await Collections.findOne({name: req.params.input}).lean();
+
+        if (inputCollection.hasOwnProperty('redirect') && inputCollection.redirect != 'showCollection/n') {
+
+            console.log( chalk.bold.red('redirect found'));
+            req.query.redirect = inputCollection.redirect && inputCollection.redirect.split('/')[0] || 'showCollection';
+            req.query.redirectInput = inputCollection.redirect && inputCollection.redirect.split('/')[1] || 'n';
+            console.log(req.query);
+
+        };
+
+        // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
+        req.params.theme = 'root';
 
         return {
             brand: req.params.brand,
@@ -595,6 +621,8 @@ var myFuncs = {
 
         let collectionHeadings = Object.keys(properties);
         collectionHeadings.unshift('_id');
+
+        req.params.theme = 'root';
 
         return {
             brand: req.params.brand,
@@ -688,7 +716,12 @@ var myFuncs = {
         return output;
     },
 
+    root: function(req,res) {
+        return {success: true};
+    },
+
     landingPage: async function(req,res) {
+        console.log({theme: req.params.theme});
         let output = this[req.params.theme](req,res);
         return output;
     },
@@ -1117,6 +1150,18 @@ var myFuncs = {
         let output = await model.findOneAndUpdate({_id: mongoose.Types.ObjectId(req.body.cartId)}, req.body, {upsert: true}).lean();
         return output;
     },
+
+    showOrders: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let outputs = await model.find({}).lean();
+        let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+        let navRows = collectionsTable.map(val => val.name);
+        return {
+            brand: req.params.brand,
+            modelName: req.params.input,
+            navRows: navRows,
+        }
+    }
 
 };
 

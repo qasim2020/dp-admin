@@ -101,6 +101,26 @@
     <p>Collection Name: {{data.name}}</p>
 
     <form action="#" method="post">
+
+      {{#unless data.inputs}}
+      <div class="propertySelect">
+
+          <input name="label0" type="text" placeholder="Label" value="">
+
+          <select class="check"  name="type0" id="type0">
+            {{#each data.types}}
+            <option value="{{this.html}}+{{this.name}}">{{this.html}}</option>
+            {{/each}}
+          </select>
+
+          <input type="radio" id="req0"  name="req0" value=true checked>
+          <label for="req0">true</label>
+
+          <input type="radio" id="req10" name="req10" value=false >
+          <label for="req10">false</label>
+
+      </div>
+      {{/unless}}
         
       {{#each data.inputs}} 
 

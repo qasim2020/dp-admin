@@ -86,7 +86,7 @@
             <input name="modelName" type="text" class="d-none" value="{{data.collection}}">
             <input name="_id" type="text" class="d-none" value="{{data._id}}">
 
-        {{#each data}}
+        {{#each data.inputs}}
 
             {{#if (matchValues this.type 'input')}}
                 <label for="{{name}}">{{this.label}}</label>
@@ -102,7 +102,7 @@
 
         <div>
 
-        {{#each data}}
+        {{#each data.inputs}}
 
             {{#if (matchValues this.type 'imgURL')}}
 
@@ -219,7 +219,6 @@
                 let imageTags = $('.imageURL').serializeArray();
                 let imageURLs = imageTags.map(val => val.value);
                 let imageCSV = imageURLs.reduce((total,val) => {
-                    // TODO: Make total come before val so that images are displayed according to their sequence of saving !! IMPORTANT
                     total = encodeURI(val) + '+' + total ; 
                     return total;
                 },'').slice(0, -1);

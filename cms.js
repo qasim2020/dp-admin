@@ -259,14 +259,17 @@ var myFuncs = {
     },
 
     respond: async function(data,req,res) {
-        console.log(chalk.bold.yellow('sending data to page ====='));
-        console.log(JSON.stringify(data,'',2));
+        console.log( chalk.bold.yellow('sending data to page') ); 
+        // console.log(JSON.stringify(data,'',2));
+        console.log(data);
+        console.log(req.params);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             console.log( chalk.red.bold('error in data') );
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
+            console.log('redirecting now to ' + `/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             break;
           case (req.params.requiredType == 'data'):
@@ -332,9 +335,13 @@ var myFuncs = {
     },
 
     newDocument: async function(req,res) {
-        let output = await this.getFormInputs(req,res);
-        output.collection = req.params.input;
-        output.brand = req.params.brand;
+        let inputs = await this.getFormInputs(req,res);
+        let output = {
+            inputs: inputs,
+            collection: req.params.input,
+            brand: req.params.brand,
+            _id: this.getMongoId(req,res)
+        };
         req.params.theme = 'root';
         req.params.module = 'editDocument';
         return output;
@@ -344,17 +351,20 @@ var myFuncs = {
         let model = await this.createModel(req.params.input);
         req.values = await model.findOne({_id: req.query._id}).lean();
         if (req.values == undefined) return {status: 404, error: 'document does not exist so it can not be edited'};
-        let output = await this.getFormInputs(req,res);
-        output.collection = req.params.input;
-        output._id = req.query._id;
-        output.brand = req.params.brand;
+        let inputs = await this.getFormInputs(req,res);
+        let output = {
+            inputs: inputs,
+            collection: req.params.input,
+            brand: req.params.brand,
+            _id: req.query._id
+        };
         req.params.theme = 'root';
         return output;
     },
 
     updateSequence: async function(req,res) {
         let model = await this.createModel(req.body.modelName);
-        let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true}).lean();
+        let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
         return {success: true, result: result};
     },
@@ -448,6 +458,7 @@ var myFuncs = {
         req.params.theme = 'root';
         req.params.module = 'editCollection';
         return {
+            _id: this.getMongoId(req,res),
             brand: req.params.brand,
             name: req.params.brand + '-' + req.params.input,
             types: types,
@@ -541,7 +552,14 @@ var myFuncs = {
         // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
         req.params.theme = 'root';
 
+        model = await this.createModel(`${req.params.brand}-notifications`);
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.find({status: 'unread'})
+        };
+
         return {
+            notifications: notifications,
             brand: req.params.brand,
             modelName: req.params.input,
             navRows: navRows,
@@ -966,6 +984,9 @@ var myFuncs = {
         order._id = order._id == '' ? new mongoose.mongo.ObjectID() : order._id ;
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = model.findOneAndUpdate({_id: order._id}, order, {upsert: true, new: true});
+        model = await this.createModel(`${req.params.brand}-notifications`);
+        let notification = new model({text: `new Order placed as ${order.orderNo}`, status: 'unread'});
+        await notification.save();
         return output;
     },
 
@@ -987,9 +1008,8 @@ var myFuncs = {
         return {order: output};
     },
 
-    getCartItemsInArray: async function(req,res) {
-        let model = await this.createModel(`${req.params.brand}-cart`);
-        let cartIds = req.params.cartIds.split(' ').map( val => mongoose.Types.ObjectId(val) );
+    getCartItemsInArray: async function(model,cartIds) {
+        cartIds = cartIds.split(' ').map( val => mongoose.Types.ObjectId(val) );
         console.log({cartIds});
         let result = await model
             .aggregate([
@@ -1034,8 +1054,9 @@ var myFuncs = {
             brand: req.params.brand
         };
 
-        req.params.cartIds = myOrder.order.cartIds;
-        let result = await this.getCartItemsInArray(req,res);
+        let cartModel = await this.createModel(`${req.params.brand}-cart`);
+        let cartIds = myOrder.order.cartIds;
+        let result = await this.getCartItemsInArray(cartModel, cartIds);
         // let myOrder = await this.findOrderInSession(req,res);
         let totalCost = result.reduce( (total, val, index) => {
             total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
@@ -1152,15 +1173,89 @@ var myFuncs = {
     },
 
     showOrders: async function(req,res) {
+        if (req.params.input == 'normal') {
+            req.params.input = `${req.params.brand}-orders`;
+            let output = await this.showCollection(req,res);
+            delete req.query.redirect;
+            delete req.query.redirectInput;
+            req.params.theme = 'root';
+            req.params.module = 'showCollection';
+            return output;
+        };
         let model = await this.createModel(`${req.params.brand}-orders`);
-        let outputs = await model.find({}).lean();
+        let orders = await model.find({}).lean();
+        let cartModel = await this.createModel(`${req.params.brand}-cart`);
+        let ordersWithItems = await Promise.all( orders.map( val => {
+            return this.getCartItemsInArray(cartModel,val.cartIds);
+        }) );
+
+        let finalOrdersOutput = orders.map( (val,index) => {
+            return {
+                order: val,
+                items: ordersWithItems[index],
+                totalCost: ordersWithItems[index].reduce( (total, val, index) => {
+                    total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
+                    return total;
+                },0)
+            }
+        });
+
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
         let navRows = collectionsTable.map(val => val.name);
+        model = await this.createModel(`${req.params.brand}-notifications`);
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.find({status: 'unread'})
+        };
+        console.log({params: req.params});
         return {
+            modelName: `${req.params.brand}-orders`,
+            notifications: notifications,
             brand: req.params.brand,
-            modelName: req.params.input,
             navRows: navRows,
+            orders: finalOrdersOutput.filter( val => val.items.length > 0 ),
         }
+    },
+
+    updateOrder: async function(req,res) {
+        let order = req.body.order;
+        console.log({order});
+        let itemStatus;
+        if (req.body.quantityTest != 0) {
+            itemStatus = await this.orderDelivered(req,res);
+        }
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOneAndUpdate({_id: order._id}, {$set: {status: order.status, payment: order.payment}}, {new: true});
+        let result = {
+            order: output,
+            item: itemStatus
+        };
+        return result;
+    },
+
+    orderDelivered: async function(req,res) {
+        let items = req.body.items;
+        switch (true) {
+            case (req.body.quantityTest == -1) :
+                items = items.map( val => {
+                    val.newQty = Number(val.quantity) - Number(val.quantityDiff);
+                    return val;
+                });
+                break;
+            // TODO: UPDATE QUANTITY AT CLIENT SIDE > SEND THE QUERY TO BACK END > ON SUCCESS UPDATE QUANTITY ON THE CLIENT DOM ELEMENT
+            case (req.body.quantityTest == 1) :
+                items = items.map( val => {
+                    val.newQty = Number(val.quantity) + Number(val.quantityDiff);
+                    return val;
+                });
+                break;
+            default: 
+                return 0;
+                break;
+        };
+        let model = await this.createModel(`${req.params.brand}-items`);
+        let output = await Promise.all( items.map(val => model.findOneAndUpdate({_id: mongoose.Types.ObjectId(val.itemId)}, {$set: {quantity: val.newQty}}, {new: true}).lean() ) );
+        return output;
     }
 
 };

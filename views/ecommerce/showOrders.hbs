@@ -193,7 +193,7 @@
                     <select class="payment" name="payment" onchange="updateOrder(this)">
                         <option {{#if (matchValues this.order.payment 'Pending (COD)')}}selected{{/if}} value="Pending (COD)">Pending (COD)</option>
                         <option {{#if (matchValues this.order.payment 'Paid (COD)')}}selected{{/if}} value="Paid (COD)">Paid (COD)</option>
-                        <option {{#if (matchValues this.order.payment 'Pending (Online Transfer)')}}selected{{/if}} value="Pending (Online Transfer)">Pending (Online Transfer)</option>
+                        <option {{#if (matchValues this.order.payment 'Paid (Online Transfer)')}}selected{{/if}} value="Paid (Online Transfer)">Paid (Online Transfer)</option>
                     </select>
                 </div>
                 
@@ -215,7 +215,7 @@
                 <div>
                     <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.order._id}}">Edit Order</a>
                     <a href="/{{../data.brand}}/gen/page/orderReceiptPage/n?mobile={{this.order.mobile}}&orderNo={{this.order.orderNo}}">View Receipt</a>
-                    <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.order._id}}&redirect=showOrders&redirectInput=n">Delete Order</a>
+                    <!-- <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.order._id}}&redirect=showOrders&redirectInput=n">Delete Order</a> -->
                 </div>
 
             </div>
@@ -253,7 +253,6 @@
 
         let updateOrder = function(elem) {
             // _id	cartIds	name	address	mobile	status	orderNo	sessionId	payment
-            console.log('this is changed');
             let output = {
                 _id: $(elem).closest('.order').attr('my-id'),
                 status: $(elem).closest('.order').find('.status').val(),
@@ -274,15 +273,26 @@
                 quantityTest: quantityTest(elem)
             }
             
-            console.log(data);
+            // console.log(data);
 
             $.ajax({
                 url: '/{{data.brand}}/admin/data/updateOrder/n',
                 method: 'post',
                 data: data,
-                success: val => console.log(val),
+                success: val => updateItemsQuantity(val),
                 fail: fail => console.log(fail)
             });
+        }
+
+        let updateItemsQuantity = function(data) {
+            if (data.hasOwnProperty('item') == false) return;
+            let output = data.item.map( val => {
+                let currentQty = $(`[my-id=${val._id}]`).attr('my-quantity');
+                let newQty = val.quantity;
+                console.log({currentQty, newQty});
+                $(`[my-id=${val._id}]`).attr({'my-quantity': val.quantity});
+            });
+            return;
         }
 
         let quantityTest = function(elem) {

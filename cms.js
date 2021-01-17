@@ -101,7 +101,7 @@ let schema = {
 
 let Collections = mongoose.model('collections', new mongoose.Schema(schema));
 
-hbs.registerPartials(__dirname + '/views/login/partials');
+hbs.registerPartials(__dirname + '/views/partials');
 
 hbs.registerHelper('breaklines', (val) => {
   return val.split(/\n/g).join('<br>');
@@ -255,7 +255,8 @@ var myFuncs = {
         itemPage: 'gen',
         saveItemInCart: 'gen',
         mongoQueries: 'gen',
-        showOrders: 'admin'
+        showOrders: 'admin',
+        getSizes: 'gen',
     },
 
     respond: async function(data,req,res) {
@@ -817,7 +818,7 @@ var myFuncs = {
         if (req.body.selectedSchools && req.body.selectedSchools.length > 0) query.school = { $in : req.body.selectedSchools };
 
         let model = await this.createModel(`${req.params.brand}-items`);
-        let output = await model.find(query).limit(20);
+        let output = await model.find(query);
         
         output = output.filter( (val,index,self) => { 
                 let connectingIDs = self.map( val => val.connectingID );
@@ -1239,13 +1240,14 @@ var myFuncs = {
             case (req.body.quantityTest == -1) :
                 items = items.map( val => {
                     val.newQty = Number(val.quantity) - Number(val.quantityDiff);
+                    console.log({newQty : val.newQty, oldQty: val.quantity, orderPlaced: val.quantityDiff});
                     return val;
                 });
                 break;
-            // TODO: UPDATE QUANTITY AT CLIENT SIDE > SEND THE QUERY TO BACK END > ON SUCCESS UPDATE QUANTITY ON THE CLIENT DOM ELEMENT
             case (req.body.quantityTest == 1) :
                 items = items.map( val => {
                     val.newQty = Number(val.quantity) + Number(val.quantityDiff);
+                    console.log({newQty : val.newQty, oldQty: val.quantity, orderPlaced: val.quantityDiff});
                     return val;
                 });
                 break;
@@ -1255,6 +1257,20 @@ var myFuncs = {
         };
         let model = await this.createModel(`${req.params.brand}-items`);
         let output = await Promise.all( items.map(val => model.findOneAndUpdate({_id: mongoose.Types.ObjectId(val.itemId)}, {$set: {quantity: val.newQty}}, {new: true}).lean() ) );
+        return output;
+    },
+
+    getSizes: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-sizes`);
+        let output = model.find({category: req.params.input}).lean();
+        output = output.map( size => {
+            Object.values(size).forEach( data => {
+                Object.keys(data).forEach(k => data[k] == '' || k == '_id' || k == 'category' ?  delete data[k] : data[k]);
+                data['size'] = data['name'];
+                delete data['name'];
+            });
+            return size;
+        })
         return output;
     }
 

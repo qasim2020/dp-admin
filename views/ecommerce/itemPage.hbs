@@ -16,6 +16,7 @@
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            padding-bottom: 2rem;
         }
 
         .imgSlider {
@@ -107,6 +108,12 @@
             color: #828282;
         }
 
+        .sizes { 
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 90%;
+        }
+
         .quantity span, .sizes span {
             height: 36px;
             width: 24px;
@@ -114,12 +121,14 @@
             display: inline-block;
             padding: 0 6px;
             margin-right: 3px;
-            border: 1px solid lightgrey;
+            margin-bottom: 3px;
+            border: 1px solid white;
             border-radius: 5px;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: white;
         }
 
         span.active {
@@ -127,6 +136,15 @@
             color: white;
             border: 1px solid #EB5757;
             font-weight: bold;
+        }
+
+        .size-guide > button {
+            width: auto;
+            padding: 2px 9px;
+            font-size: 14px;
+            color: darkcyan;
+            /* font-weight: bold; */
+            background: white;
         }
 
         .details span:hover {
@@ -158,6 +176,29 @@
             display: none;
         }
 
+        .show-size-guide {
+            overflow: scroll;
+        }
+
+        .show-size-guide > table {
+            min-width: 100%;
+            border: 1px solid white;
+            background: white;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333333;
+            border-collapse: collapse;
+        }
+
+        .show-size-guide > table tr:nth-child(1) {
+            font-weight: bold;
+        }
+
+        .show-size-guide > table td {
+            border: 1px solid whitesmoke;
+            padding: 3px 8px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -229,7 +270,7 @@
 
                 <p>Size</p>
 
-                <p class="sizes d-flex">
+                <p class="sizes">
                     {{#each data.item.[0].allSizes}}
                         <!-- name, maxQty, imgURL, school, category, cost -->
                         <span 
@@ -254,6 +295,13 @@
                         </span>
                     {{/each}}
                 </p>
+
+                <p class="size-guide" my-brand="{{data.brand}}" my-category="{{data.item.[0].category}}">
+                    <button class="d-none" onclick="hideSizeGuide(this)">Hide Size Guide</button>
+                    <button class="" onclick="showSizeGuide(this)">View Size Guide</button>
+                </p>
+
+                <p class="show-size-guide"></p>
 
                 <svg class="removeItem d-none" onclick="removeItem(this)" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0)">
@@ -298,7 +346,7 @@
 
                 <p>Size</p>
 
-                <p class="sizes d-flex">
+                <p class="sizes">
                     {{#each ../data.item.[0].allSizes}}
                         <!-- name, maxQty, imgURL, school, category, cost -->
                         <span 
@@ -324,6 +372,13 @@
                     {{/each}}
                 </p>
 
+                <p class="size-guide" my-brand="{{../data.brand}}" my-category="{{this.items.[0].category}}">
+                    <button class="d-none" onclick="hideSizeGuide(this)">Hide Size Guide</button>
+                    <button class="" onclick="showSizeGuide(this)">View Size Guide</button>
+                </p>
+
+                <p class="show-size-guide"></p>
+  
                 <svg class="removeItem {{#if (matchValues @index 0)}}d-none{{/if}}" onclick="removeItem(this)" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0)">
                     <path d="M21.2133 14.1421L19.7991 12.7279L16.9707 15.5563L14.1423 12.7279L12.7281 14.1421L15.5565 16.9705L12.7281 19.7989L14.1423 21.2131L16.9707 18.3847L19.7991 21.2131L21.2133 19.7989L18.3849 16.9705L21.2133 14.1421ZM24.0418 9.89944C20.1385 5.99621 13.8029 5.99621 9.89964 9.89944C5.99641 13.8027 5.99641 20.1383 9.89964 24.0416C13.8029 27.9448 20.1385 27.9448 24.0418 24.0416C27.945 20.1383 27.945 13.8027 24.0418 9.89944ZM11.3138 22.6274C8.19551 19.509 8.19551 14.432 11.3138 11.3137C14.4322 8.19531 19.5092 8.19531 22.6276 11.3137C25.7459 14.432 25.7459 19.509 22.6276 22.6274C19.5092 25.7457 14.4322 25.7457 11.3138 22.6274Z" fill="#333333"></path>

@@ -32,6 +32,7 @@ nav > div.right > a, .smallBtn {
     border: 1px solid #F2F2F2;
     text-decoration: none;
     color: #828282;
+    margin-right: 3px;
 }
 
 nav > div.right > a > .cartBtn {

@@ -23,6 +23,7 @@
             max-width: 750px;
             grid-template-columns: 0.5fr 0.8fr 0.4fr;
             margin: auto;
+            padding-bottom: 2rem;
         }
 
         .grid .btns {
@@ -81,6 +82,14 @@
             justify-content: center;
             border: 1px solid whitesmoke;
             margin-bottom: 3px;
+        }
+
+        .size-guide > button {
+            width: auto;
+            padding: 2px 9px;
+            font-size: 14px;
+            color: #333333;
+            background: whitesmoke;
         }
 
         .details span:hover {
@@ -149,6 +158,12 @@
             color: #4F4F4F;
             padding: 2px 8px;
             background: whitesmoke;
+            width: auto;
+            padding: 2px 9px;
+            font-size: 14px;
+            color: darkcyan;
+            background: whitesmoke;
+            color: #333333;
         }
 
         .item span.active {
@@ -161,6 +176,35 @@
         .btns > *:nth-child(1) {
             display: block;
             margin-bottom: 5px;
+        }
+
+        .d-none {
+            display: none;
+        }
+
+        .show-size-guide {
+            overflow: scroll;
+            width: 280px;
+        }
+
+        .show-size-guide > table {
+            min-width: 100%;
+            border: 1px solid white;
+            background: white;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333333;
+            border-collapse: collapse;
+        }
+
+        .show-size-guide > table tr:nth-child(1) {
+            font-weight: bold;
+        }
+
+        .show-size-guide > table td {
+            border: 1px solid whitesmoke;
+            padding: 3px 8px;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -242,6 +286,12 @@
                         </span>
                     {{/each}}
                 </p>
+                <p class="size-guide" my-brand="{{../data.brand}}" my-category="{{this.items.[0].category}}">
+                    <button class="d-none" onclick="hideSizeGuide(this)">Hide Size Guide</button>
+                    <button class="" onclick="showSizeGuide(this)">View Size Guide</button>
+                </p>
+
+                <p class="show-size-guide"></p>
             </div>
             <div class="cost" cost="{{this.items.[0].cost}}">
                 <h1>PKR {{this.items.[0].cost}}</h1>

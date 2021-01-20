@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{data.brand}}</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ecommerce/essentials.css">
+    <style type="text/css">
+        .container {
+            font-size: 17px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+
+        .container > *:not(:first-child) {
+            margin: auto;
+            margin-bottom: 10px;
+            max-width: 800px;
+        }
+
+        .pageBar {
+            height: 200px;
+            margin-bottom: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background: whitesmoke;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            /
+            <a href="/{{data.brand}}/gen/page/showPage/{{data.page.slug}}" class="active">{{data.page.page}}</a>
+            </p>
+        </div>
+
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/findOrderPage/n">Find Order</a>
+            <a href="/{{data.brand}}/gen/page/cartPage/n"><span>Cart</span><span class="cartBtn">{{data.countCart}}</span></a>
+        </div>
+    
+    </nav>
+    <div class="container">
+        <div class="pageBar"><p>{{data.page.page}}</p></div>
+        {{{data.page.content}}}
+    </div>
+</body>
+</html>

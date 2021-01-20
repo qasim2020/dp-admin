@@ -100,6 +100,8 @@
 
     <p>Collection Name: {{data.name}}</p>
 
+    <p>Collection Redirect: <input type="text" id="redirect" value="{{data.redirect}}"></p>
+
     <form action="#" method="post">
 
       {{#unless data.inputs}}
@@ -204,8 +206,9 @@
                 _id: '{{data._id}}',
                 name: '{{data.name}}',
                 brand: '{{data.brand}}',
+                redirect: $('#redirect').val(),
                 properties: output
-            };
+            }
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',

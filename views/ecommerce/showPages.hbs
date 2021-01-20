@@ -103,6 +103,12 @@
         font-weight: bold;
     }
 
+    .page {
+        padding: 1px 9px 14px 14px;
+        background: whitesmoke;
+        margin-bottom: 11px;
+    }
+
 </style>
 </head>
 
@@ -147,81 +153,19 @@
         </div>
 
         <div class="tables">
+            <p><a href="/{{data.brand}}/admin/page/normalLayout/{{data.brand}}-pages">Normal Layout</a></p>
+            {{#each data.pages}}
 
-            <p><a href="/{{data.brand}}/admin/page/normalLayout/{{data.brand}}-orders">Normal Layout</a></p>
+            <div class="page">
 
-            {{#each data.orders}}
-                
-            <div class="order" my-id="{{this.order._id}}">
-
-                <div>
-                    <p><bold>Items</bold></p>
-                    <p class="cartId" cartId="{{this.order.cartIds}}">
-                        {{#each this.items}}
-                        <span 
-                            class="item" 
-                            my-quantity="{{this.items.[0].quantity}}" 
-                            my-id="{{this.items.[0]._id}}"
-                            my-quantityDiff="{{this.quantity}}">{{this.quantity}} x {{this.items.[0].name}} · Size {{this.items.[0].size}}, </span><br>
-                        {{/each}}
-                    </p>
-                </div>
-
-                <div>
-                    <p><bold>Order No</bold></p>
-                    <p class="orderNo">{{this.order.orderNo}}</p>
-                </div>
-                 
-                <div>
-                    <p><bold>Cost</bold></p>
-                    <p>PKR {{this.totalCost}}</p>
-                </div>
-
-                <div>
-                    <p><bold>Order Status</bold></p>
-                    <select class="status" name="status" onchange="updateOrder(this)" my-status="{{this.order.status}}">
-                        <option {{#if (matchValues this.order.status 'Order Placed in Store')}}selected{{/if}} value="Order Placed in Store">Order Placed in Store</option>
-                        <option {{#if (matchValues this.order.status 'Dispatched for delivery')}}selected{{/if}} value="Dispatched for delivery">Dispatched for delivery</option>
-                        <option {{#if (matchValues this.order.status 'Delivered')}}selected{{/if}} value="Delivered">Delivered</option>
-                        <option {{#if (matchValues this.order.status 'Cancelled')}}selected{{/if}} value="Cancelled">Cancelled</option>
-                        <option {{#if (matchValues this.order.status 'Returned')}}selected{{/if}} value="Returned">Returned</option>
-                    </select>
-                </div>
-
-                <div>
-                    <p><bold>Payment Status</bold></p>
-                    <select class="payment" name="payment" onchange="updateOrder(this)">
-                        <option {{#if (matchValues this.order.payment 'Pending (COD)')}}selected{{/if}} value="Pending (COD)">Pending (COD)</option>
-                        <option {{#if (matchValues this.order.payment 'Paid (COD)')}}selected{{/if}} value="Paid (COD)">Paid (COD)</option>
-                        <option {{#if (matchValues this.order.payment 'Paid (Online Transfer)')}}selected{{/if}} value="Paid (Online Transfer)">Paid (Online Transfer)</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <p><bold>Customer</bold></p>
-                    <p class="name">{{this.order.name}}</p>
-                </div>
-                
-                <div>
-                    <p><bold>Customer Cell #</bold></p>
-                    <p class="mobile">{{this.order.mobile}}</p>
-                </div>
-
-                <div>
-                    <p><bold>Shipping Address</bold></p>
-                    <p class="address">{{this.order.address}}</p>
-                </div>
-
-                <div>
-                    <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.order._id}}">Edit Order</a>
-                    <a href="/{{../data.brand}}/gen/page/orderReceiptPage/n?mobile={{this.order.mobile}}&orderNo={{this.order.orderNo}}">View Receipt</a>
-                    <!-- <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.order._id}}&redirect=showOrders&redirectInput=n">Delete Order</a> -->
-                </div>
-
+                <p>Name:— <bold>{{this.page}}</bold></p>
+                <p>Slug:— {{this.slug}}</p>
+                <a href="/{{../data.brand}}/admin/page/editPage/{{this._id}}">Edit Page</a>
+                <a href="/{{../data.brand}}/gen/page/showPage/{{this.slug}}">View Page</a>
+            
             </div>
 
-                {{/each}}
-
+            {{/each}}
         </div>
 
     </div>

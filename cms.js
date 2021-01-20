@@ -257,6 +257,8 @@ var myFuncs = {
         mongoQueries: 'gen',
         showOrders: 'admin',
         getSizes: 'gen',
+        showPage: 'gen',
+        updatePage: 'admin',
     },
 
     respond: async function(data,req,res) {
@@ -488,6 +490,7 @@ var myFuncs = {
             brand: collectionDetails.brand,
             theme: req.params.theme,
             name: collectionDetails.name,
+            redirect: collectionDetails.redirect,
             types: types,
             inputs: output
         };
@@ -541,7 +544,7 @@ var myFuncs = {
 
         let inputCollection = await Collections.findOne({name: req.params.input}).lean();
 
-        if (inputCollection.hasOwnProperty('redirect') && inputCollection.redirect != 'showCollection/n') {
+        if (inputCollection.hasOwnProperty('redirect') && inputCollection.redirect != 'showCollection' && inputCollection.redirect != '') {
 
             console.log( chalk.bold.red('redirect found'));
             req.query.redirect = inputCollection.redirect && inputCollection.redirect.split('/')[0] || 'showCollection';
@@ -1173,16 +1176,16 @@ var myFuncs = {
         return output;
     },
 
+    normalLayout: async function(req,res) {
+        let output = await this.showCollection(req,res);
+        delete req.query.redirect;
+        delete req.query.redirectInput;
+        req.params.theme = 'root';
+        req.params.module = 'showCollection';
+        return output;
+    },
+
     showOrders: async function(req,res) {
-        if (req.params.input == 'normal') {
-            req.params.input = `${req.params.brand}-orders`;
-            let output = await this.showCollection(req,res);
-            delete req.query.redirect;
-            delete req.query.redirectInput;
-            req.params.theme = 'root';
-            req.params.module = 'showCollection';
-            return output;
-        };
         let model = await this.createModel(`${req.params.brand}-orders`);
         let orders = await model.find({}).lean();
         let cartModel = await this.createModel(`${req.params.brand}-cart`);
@@ -1208,7 +1211,6 @@ var myFuncs = {
             count: await model.countDocuments({status: 'unread'}),
             texts: await model.find({status: 'unread'})
         };
-        console.log({params: req.params});
         return {
             modelName: `${req.params.brand}-orders`,
             notifications: notifications,
@@ -1272,7 +1274,58 @@ var myFuncs = {
             return size;
         })
         return output;
-    }
+    },
+
+    showPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-pages`);
+        let output = await model.findOne({slug: req.params.input}).lean();
+        model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        let countCart = await this.countItemsInCart(req,res);
+        return {
+            resources: resources,
+            countCart: countCart,
+            brand: req.params.brand,
+            page: output,
+            brand: req.params.brand,
+        };
+    },
+
+    editPage: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-pages`);
+        let page = await model.findOne({_id: req.params.input}).lean();
+        return {
+            page: page,
+            brand: req.params.brand,
+            modelName: `${req.params.brand}-pages`
+        };
+    },
+
+    showPages: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-pages`);
+        let pages = await model.find().lean();
+        let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+        let navRows = collectionsTable.map(val => val.name);
+        model = await this.createModel(`${req.params.brand}-notifications`);
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.find({status: 'unread'})
+        };
+        return {
+            pages: pages,
+            modelName: `${req.params.brand}-pages`,
+            notifications: notifications,
+            brand: req.params.brand,
+            navRows: navRows
+        }
+    },
+
+    updatePage: async function(req,res) {
+        console.log(req.body);
+        let model = await this.createModel(`${req.params.brand}-pages`);
+        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
+        return output;
+    },
 
 };
 

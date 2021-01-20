@@ -28,6 +28,17 @@
     .footer > div:nth-child(2) > p {
         justify-content: flex-end;
     }
+
+    @media only screen and (max-width: 600px) {
+        .footer {
+            grid-template-columns: 1fr;
+            padding: 11px;
+        }
+
+        .footer > div:nth-child(2) > p {
+            justify-content: start;
+        }
+    }
 </style>
 <div class="footer">
         <div>

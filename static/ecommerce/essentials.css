@@ -43,6 +43,10 @@ nav > div.right > a > .cartBtn {
     margin-left: 5px;
 }
 
+nav > div.right {
+    display: flex;
+}
+
 nav > div.left {
     display: flex;
     align-items: center;

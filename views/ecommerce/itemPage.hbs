@@ -99,7 +99,7 @@
             font-weight: 300;
             font-size: 38px;
             color: #333333;
-            line-height: 0;
+            line-height: 1;
             margin-bottom: 3rem;
         }
 
@@ -204,7 +204,7 @@
 
         @media only screen and (max-width: 600px) {
             .grid {
-                grid-template-columns: 1fr;
+                display: block;
                 padding: 12px;
             }
 
@@ -214,6 +214,10 @@
 
             .imgSlider > img {
                 height: 300px;
+            }
+
+            .details > h1 {
+                font-size: 30px;
             }
         }
     </style>

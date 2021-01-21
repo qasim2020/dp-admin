@@ -215,7 +215,7 @@
 
         <p class="searchButtons">
         {{#each data.categories}}
-            <span id="{{removeSpaces this}}" class="smallBtn">{{this}}</span>
+        <span id="{{removeSpaces this}}" class="smallBtn" val="{{this}}">{{startWithUpperCase this}}</span>
         {{/each}}
         </p>
 
@@ -260,7 +260,7 @@
             console.log('doing the search on Items');
             $(this).toggleClass('active');
             let selectedSchools = $('.searchButtons:eq(0)').find('.active').get().map( val => $(val).html() );
-            let selectedCategories = $('.searchButtons:eq(2)').find('.active').get().map( val => $(val).html() );
+            let selectedCategories = $('.searchButtons:eq(2)').find('.active').get().map( val => $(val).attr('val') );
             let itemName = $('.searchButtons:eq(1)').find('input').val();
             console.log({selectedSchools, selectedCategories, itemName});
             // $('.filerDiv:eq(0)').html('low');
@@ -278,7 +278,7 @@
                 $('.filterDiv:eq(0)')
                     .removeClass('d-none')
                     .find('p')
-                    .html( selectedSchools.concat(selectedCategories).map(val => `<span class="smallBtn" connectedId="${val.replace(/ /gi,'')}"> ${val} ${svg} </span>`) );
+                    .html( selectedSchools.concat(selectedCategories).map(val => `<span class="smallBtn" connectedId="${val.replace(/ /gi,'')}"> ${val.charAt(0).toUpperCase() + val.slice(1)} ${svg} </span>`) );
 
             } else {
 

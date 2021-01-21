@@ -107,6 +107,10 @@ hbs.registerHelper('breaklines', (val) => {
   return val.split(/\n/g).join('<br>');
 })
 
+hbs.registerHelper('startWithUpperCase', (val) => {
+    return val.charAt(0).toUpperCase() + val.slice(1)
+});
+
 hbs.registerHelper('checkExists', (val) => {
     return val != undefined ? 'true' : '';
 })

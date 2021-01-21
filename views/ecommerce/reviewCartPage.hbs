@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Review Order</title>
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -86,6 +88,31 @@
             font-weight: bold;
         }
 
+        @media only screen and (max-width: 600px) {
+            body {
+                padding-bottom: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+
+            .cartItems {
+                padding: 0;
+            }
+
+            article {
+                padding: 9px 30px 27px 30px;
+            }
+
+            article > p > span:nth-child(1) {
+                max-width: 50%;
+            }
+
+            article > p > span:nth-child(2) {
+                max-width: 40%;
+            }
 
     </style>
 </head>
@@ -124,7 +151,7 @@
 
             <h2>ORDER SUMMARY</h2>
 
-            <article class="bg-grey" >
+            <article class="bg-grey all-round" >
 
                 {{#each data.cartItems}}
                 <p class="itemRow items" cartId="{{this._id}}">

@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{data.brand}}</title>
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -16,9 +18,8 @@
         }
 
         .container > *:not(:first-child) {
-            margin: auto;
-            margin-bottom: 10px;
             max-width: 800px;
+            padding: 10px;
         }
 
         .pageBar {
@@ -29,6 +30,9 @@
             justify-content: center;
             font-size: 40px;
             background: whitesmoke;
+        }
+
+        @media only screen and (max-width: 600px) {
         }
 
     </style>

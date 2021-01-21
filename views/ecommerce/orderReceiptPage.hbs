@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Order Receipt</title>
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -106,6 +108,54 @@
         font-weight: bold;
     }
     
+    @media only screen and (max-width: 600px) {
+        
+        .container {
+            margin-top: auto;
+            padding-top: 0;
+            margin: 13px;
+        }
+
+        .receipt > * {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .imgRow {
+            padding-top: 1rem;
+            flex-direction: column;
+        }
+
+        .imgRow > img {
+            margin-left: 0;
+            margin-bottom: 14px;
+        }
+
+        .imgRow > button {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .firstRow {
+            margin-top: 18px;
+        }
+
+        .firstRow > *:nth-child(2) {
+            margin-right: 0px;
+        }
+
+        article > p{
+            max-width: 100%;
+       }
+
+        article > p > span:nth-child(1) {
+            max-width: 50%;
+        }
+
+        article > p > span:nth-child(2) {
+            max-width: 40%;
+        }
+    }
     </style>
 </head>
 <body>

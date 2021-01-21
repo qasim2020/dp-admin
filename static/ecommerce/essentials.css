@@ -76,7 +76,15 @@ nav a:hover {
 .bg-grey {
     background: #F2F2F2;
     border: 0px solid transparent;
+}
+
+.all-round {
     border-radius: 5px;
+}
+
+.bottom-round {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
 
 button {

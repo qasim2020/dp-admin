@@ -2,8 +2,10 @@
 
 <head>
 
-    <title>{{data.brand}}</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{data.brand}}</title>
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
@@ -141,8 +143,14 @@
     }
 
     @media only screen and (max-width: 600px) {
+        .searchButtons {
+            flex-wrap: nowrap;
+            overflow: scroll;
+        }
+
         .searchButtons > span {
             margin-bottom: 4px;
+            white-space: nowrap;
         }
 
         .items {

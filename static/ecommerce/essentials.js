@@ -60,3 +60,8 @@ let hideSizeGuide = function(elem) {
     $(elem).closest('.size-guide').children('button').toggleClass('d-none');
     $(elem).closest('.size-guide').siblings('.show-size-guide').addClass('d-none');
 };
+
+let toggleMenu = function(elem) {
+    $(elem).closest('nav').find('.menuCard').toggleClass('showMenuCard');
+    $(elem).find('svg').toggleClass('d-none');
+}

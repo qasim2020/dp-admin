@@ -16,6 +16,8 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
+const { WebClient } = require('@slack/web-api');
+
 var cloudinary = require('cloudinary').v2;
 
 var env = process.env.NODE_ENV || 'development';
@@ -27,6 +29,10 @@ if (env === 'development' || env === 'test') {
     process.env[key] = envConfig[key];
   });
 }
+
+const token = process.env.Slack;
+// Initialize
+const web = new WebClient(token);
 
 app.use(
   session({
@@ -982,9 +988,17 @@ var myFuncs = {
         return 'cartClosed';
     },
 
+    notifySlack: async function(msg,conversationId) {
+        const result = await web.chat.postMessage({
+            text: msg,
+            channel: conversationId,
+        });
+        return result;
+    },
 
     createOrder: async function(req,res) {
-        // close these items in the cart
+        console.log(req.body);
+
         let closeCart = await this.closeCartItems(req,res);
         console.log(chalk.bold.red( {closeCart} ));
 
@@ -994,6 +1008,8 @@ var myFuncs = {
         let output = model.findOneAndUpdate({_id: order._id}, order, {upsert: true, new: true});
         model = await this.createModel(`${req.params.brand}-notifications`);
         let notification = new model({text: `new Order placed as ${order.orderNo}`, status: 'unread'});
+        let msg = `*New Order* \n Order No : *${order.orderNo}* \n Customer : *${order.name}* · *${order.mobile}* \n Shipping Address : ${order.address} \n Order Details : <http://${order.myURL}/${req.params.brand}/gen/page/orderReceiptPage/n?mobile=${order.mobile}&orderNo=${order.orderNo}| Show Receipt>`;
+        let slackNotify = await this.notifySlack(msg,`${req.params.brand}-orders`);
         await notification.save();
         return output;
     },

@@ -17,9 +17,13 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const { WebClient } = require('@slack/web-api');
+var qpm = require('query-params-mongo');
+var processQuery = qpm({
+    autoDetect: [{ fieldPattern: /_id$/, dataType: 'objectId' }],
+    converters: {objectId: mongoose.Types.ObjectID}
+});
 
 var cloudinary = require('cloudinary').v2;
-
 var env = process.env.NODE_ENV || 'development';
 
 if (env === 'development' || env === 'test') {
@@ -122,6 +126,7 @@ hbs.registerHelper('checkExists', (val) => {
 })
 
 hbs.registerHelper('matchValues', (val1,val2) => {
+    console.log(val1, val2);
     return val1 == val2
 });
 
@@ -269,20 +274,18 @@ var myFuncs = {
         getSizes: 'gen',
         showPage: 'gen',
         updatePage: 'admin',
+        dashboard: 'admin',
     },
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
         // console.log(JSON.stringify(data,'',2));
-        console.log(data);
-        console.log(req.params);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             console.log( chalk.red.bold('error in data') );
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
-            console.log('redirecting now to ' + `/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
             break;
           case (req.params.requiredType == 'data'):
@@ -290,6 +293,12 @@ var myFuncs = {
             break;
           case (req.params.hasOwnProperty('pageName')): 
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
+            break;
+          case (req.headers['x-pjax'] == 'true'):
+            return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
+            break;
+          case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}`);
             break;
           case (req.params.requiredType == 'page'):
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
@@ -304,7 +313,6 @@ var myFuncs = {
         let theme = await myFuncs.createModel(`myapp-themes`);
         let extract = await theme.findOne({brand: brand}).lean();
         if (extract == null) return 'root'; 
-        // console.log({theme: extract.theme, brand: brand});
         return extract.theme;
     },
 
@@ -334,7 +342,6 @@ var myFuncs = {
             }
             return {
                 label: val.charAt(0).toUpperCase() + val.slice(1),
-                // TODO: MAKE FORM SAVE HTML ALONG WITH SCHEMA TYPES
                 type: properties[val]['html'],
                 name: val,
                 id: val,
@@ -342,9 +349,17 @@ var myFuncs = {
                 value: req.values && req.values[val] 
             };
         });
-        // TODO: Make image tags extend according to their csvS
-        console.log(output);
         return output;
+    },
+
+    fetchResources: async function(req,res) {
+        try {
+            let resources = await this.createModel(`${req.params.brand}-resources`);
+            let result = await resources.find({});
+            return result;
+        } catch(e) {
+            return e;
+        }
     },
 
     newDocument: async function(req,res) {
@@ -353,9 +368,9 @@ var myFuncs = {
             inputs: inputs,
             collection: req.params.input,
             brand: req.params.brand,
-            _id: this.getMongoId(req,res)
+            _id: this.getMongoId(req,res),
+            resources: await this.fetchResources(req,res)
         };
-        req.params.theme = 'root';
         req.params.module = 'editDocument';
         return output;
     },
@@ -365,13 +380,15 @@ var myFuncs = {
         req.values = await model.findOne({_id: req.query._id}).lean();
         if (req.values == undefined) return {status: 404, error: 'document does not exist so it can not be edited'};
         let inputs = await this.getFormInputs(req,res);
+        
         let output = {
             inputs: inputs,
             collection: req.params.input,
             brand: req.params.brand,
-            _id: req.query._id
+            _id: req.query._id,
+            resources: await this.fetchResources(req,res)
         };
-        req.params.theme = 'root';
+
         return output;
     },
 
@@ -388,19 +405,12 @@ var myFuncs = {
     },
 
     createModel : async function(modelName) {
+
         let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-
-        // zeroise this model first
-        if (modelExistsAlready) {
-            mongoose.models[modelName] = '';
-        };
-
+        if (modelExistsAlready) { mongoose.models[modelName] = ''; };
         let schema = await Collections.findOne({name: modelName}).lean();
-        
-        console.log(`creating collection ${modelName}`,schema);
-
-        return mongoose.model(modelName, new mongoose.Schema(schema.properties));
+        return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         
     },
 
@@ -592,8 +602,6 @@ var myFuncs = {
     },
 
     deleteDocument: async function(req,res) {
-        console.log(req.query);
-        console.log(req.params.input);
         let model = await this.createModel(req.params.input);
         let result = await model.deleteOne({_id: req.query._id});
         return {
@@ -654,12 +662,11 @@ var myFuncs = {
         let collectionHeadings = Object.keys(properties);
         collectionHeadings.unshift('_id');
 
-        req.params.theme = 'root';
-
         return {
             brand: req.params.brand,
             collection: req.params.input,
-            sampleRow: collectionHeadings
+            sampleRow: collectionHeadings,
+            resources: await this.fetchResources(req,res)
         }
     },
     array2CSV: function(twoDiArray) {
@@ -997,8 +1004,6 @@ var myFuncs = {
     },
 
     createOrder: async function(req,res) {
-        console.log(req.body);
-
         let closeCart = await this.closeCartItems(req,res);
         console.log(chalk.bold.red( {closeCart} ));
 
@@ -1317,13 +1322,510 @@ var myFuncs = {
         return {
             page: page,
             brand: req.params.brand,
+            resources: await this.fetchResources(req,res),
             modelName: `${req.params.brand}-pages`
         };
     },
 
+    updatePage: async function(req,res) {
+        console.log(req.body);
+        let model = await this.createModel(`${req.params.brand}-pages`);
+        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
+        return output;
+    },
+
+    dashboard: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = await model.find({});
+        return {
+            resources: resources,
+            brand: req.params.brand
+        };
+    },
+
+    calcProfits: async function(req,from,to) {
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        var date = new Date();
+        let output = await model.aggregate([
+            {
+                $match: {
+                    created_at : {
+                        $gte: req.query.from && new Date(req.query.from) || new Date(date.getFullYear(), date.getMonth(), 1),
+                        $lt : req.query.to && new Date(req.query.to) || new Date()
+                    }
+                }
+            },{
+                $addFields: {
+                    cartIds : {
+                       $split : [ '$cartIds' , " " ]
+                     }
+                }
+            },{
+                $unwind: "$cartIds"
+            },{
+                $addFields : {
+                    cartIds : {
+                       $toObjectId : "$cartIds"
+                    }
+                }
+            },{
+                $lookup : {
+                    from : "7am-carts",
+                    localField : "cartIds",
+                    foreignField : "_id",
+                    as : "carts"
+                }
+            },{
+                $project : {
+                    orderNo : 1,
+                    mobile : 1,
+                    created_at: 1,
+                    itemQuantity : {
+                        $arrayElemAt : [ "$carts.quantity" , 0 ]
+                    },
+                    itemId : {
+                        $arrayElemAt : [ "$carts.itemId" , 0 ]
+                    }
+                }
+            },{
+                $addFields : {
+                    itemId : {
+                        $toObjectId : "$itemId"
+                    }
+                }
+            },{
+                $lookup : {
+                    from : "7am-items",
+                    localField : "itemId",
+                    foreignField : "_id",
+                    as : "item"
+                }
+            },{
+                $addFields : {
+                    item : {
+                        $arrayElemAt : [ "$item.name" , 0 ]
+                    },
+                    itemQuantity : {
+                        $toInt : "$itemQuantity"
+                    },
+                    purchaseCost : {
+                        $toInt : {
+                            $arrayElemAt : [ "$item.purchase" , 0 ]
+                        }
+                    },
+                    sellCost : {
+                        $toInt : {
+                            $arrayElemAt : [ "$item.cost" , 0 ]
+                        }
+                    }
+                }
+            },{
+                $group : {
+                    _id : {
+                        orderNo : "$orderNo",
+                        mobile : "$mobile",
+                        created_at : "$created_at"
+                    },
+                    purchaseCost: { $sum: { $multiply: [ "$purchaseCost", "$itemQuantity" ] } },
+                    sellCost: { $sum: { $multiply: [ "$sellCost", "$itemQuantity" ] } }
+                }
+            },{
+                $project : {
+                    _id : 0,
+                    orderNo : "$_id.orderNo",
+                    mobile : "$_id.mobile",
+                    created_at: { $dateToString: { format: "%Y-%m-%d", date: "$_id.created_at" } },
+                    purchaseCost : 1,
+                    sellCost : 1,
+                    netRevenue : {
+                        $subtract : [ "$sellCost" , "$purchaseCost" ]
+                    }
+                }
+            }
+        ]);
+        console.log({output});
+        let grossResult = {
+            totalOrders : output.reduce( (total,val) => total = total + 1 , 0 ),
+            purchaseCost : output.reduce( (total,val) => total = total + val.purchaseCost , 0 ),
+            sellCost : output.reduce( (total,val) => total = total + val.sellCost , 0 ),
+            netRevenue : output.reduce( (total,val) => total = total + val.netRevenue , 0 )
+        };
+        let result = {
+            orders : output,
+            gross : grossResult
+        }
+        return result;
+    },
+
+    // pjax modules
+
+    profits: async function(req,res) {
+        console.log( chalk.bold.blue('Own profits') );
+        var date = new Date();
+        let from = req.query.from && new Date(req.query.from).setHours(00,00,00) || new Date(date.getFullYear(), date.getMonth(), 1).setHours(00,00,00); 
+        let to = req.query.to && new Date(req.query.to).setHours(23,59,59) || new Date().setHours(23,59,59);
+        let query = {
+            created_at : {
+                $gte: req.query.from && new Date(req.query.from) || new Date(date.getFullYear(), date.getMonth(), 1),
+                $lt : req.query.to && new Date(req.query.to) || new Date()
+            },
+            payment: {
+                $in: [ "Paid (COD)", "Paid (Online Transfer)"]
+            }
+        };
+
+        req.query = processQuery(req.query);
+
+        let output = await this.fetchOrders(req,query);
+
+        let grossResult = {
+            totalOrders : output.reduce( (total,val) => total = total + 1 , 0 ),
+            purchaseCost : output.reduce( (total,val) => total = total + val.orderPurchasePrice, 0 ),
+            sellCost : output.reduce( (total,val) => total = total + val.orderSellPrice , 0 ),
+            netRevenue : output.reduce( (total,val) => total = total + val.netRevenue , 0 )
+        };
+        return {
+            orders: output,
+            gross : grossResult,
+            fromDate: new Date(from).toISOString().substr(0, 10),
+            toDate: new Date(to).toISOString().substr(0, 10),
+            brand: req.params.brand,
+        };
+    },
+
+    outOfStock: async function(req,res) {
+        console.log( chalk.bold.blue('Items out of stock') );
+
+        var query = processQuery(req.query);
+        delete query.filter._pjax;
+        console.log(query);
+
+        let model = await this.createModel(`${req.params.brand}-items`);
+        let output = await model.aggregate([
+            {
+                $match: {
+                    quantity: "0"
+                } 
+            },{
+                $addFields: {
+                    updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+                    quantity: { $toInt : "$quantity" },
+                    cost : { $toInt: "$cost" },
+                    purchase : {$toInt : "$purchase" },
+                }
+            },{
+                $addFields : {
+                    profit : { $subtract : [ "$cost" , "$purchase" ] }
+                }
+            },{
+                $sort: query.sort
+            }
+        ]);
+
+        return {
+            items: output,
+            brand: req.params.brand
+        }
+
+    },
+
+    fetchOrders: async function(req,query) {
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        console.log ( query );
+        let orders = await model.aggregate([
+            {
+                $match: query
+            },{
+                $addFields: {
+                    cartIds: {
+                        $split: [ "$cartIds", " " ]
+                    }
+                }
+            },{
+                $addFields: {
+                    cartIds : {
+                        $map : {
+                            input : "$cartIds",
+                            as : "cartIds",
+                            in : {
+                                $toObjectId : "$$cartIds"
+                            }
+                        }
+                    }
+                }
+            },{
+                $lookup : {
+                    from : `${req.params.brand}-carts`,
+                    localField : "cartIds",
+                    foreignField : "_id",
+                    as : "carts"
+                }
+            },{
+                $unwind : "$carts"
+            },{
+                $addFields : {
+                    itemId : {
+                        $toObjectId : "$carts.itemId"
+                    }
+                }
+            },{
+                $lookup : {
+                    from : `${req.params.brand}-items`,
+                    localField : "itemId",
+                    foreignField : "_id",
+                    as : "item"
+                }
+            },{
+                $addFields : {
+                    "carts.item" : {
+                        $arrayElemAt : [ "$item" , 0 ]
+                    },
+                    cartQuantity : {
+                        $toInt : "$carts.quantity"
+                    },
+                    sellCost : {
+                        $toInt : {
+                            $arrayElemAt : [ "$item.cost" , 0 ]
+                        }
+                    },
+                    purchaseCost : {
+                        $toInt : {
+                            $arrayElemAt : [ "$item.purchase", 0]
+                        }
+                    }
+                }
+            },{
+                $addFields : {
+                    "carts.totalCost" : {
+                        $multiply : [ "$sellCost" , "$cartQuantity" ]
+                    }
+                }
+            },{
+                $group : {
+                    _id: {
+                        _id: "$_id",
+                        orderNo : "$orderNo",
+                        mobile: "$mobile",
+                        name: "$name",
+                        address: "$address",
+                        created_at: "$created_at",
+                        status: "$status",
+                        payment: "$payment",
+                    },
+                    cart : {
+                        $addToSet : "$carts"
+                    },
+                    orderSellPrice: {
+                        $sum : {
+                            $multiply : [ "$cartQuantity" , "$sellCost" ]
+                        }
+                    },
+                    orderPurchasePrice: {
+                        $sum : {
+                            $multiply : [ "$cartQuantity" , "$purchaseCost" ]
+                        }
+                    }
+                }
+            },{
+                $project : {
+                    _id: 0,
+                    _id: "$_id._id",
+                    orderNo : "$_id.orderNo",
+                    mobile : "$_id.mobile",
+                    name : "$_id.name",
+                    address: "$_id.address",
+                    status: "$_id.status",
+                    payment: "$_id.payment",
+                    cart : "$cart",
+                    created_at: { $dateToString: { format: "%Y-%m-%d", date: "$_id.created_at" } },
+                    orderSellPrice : 1,
+                    orderPurchasePrice : 1,
+                    netRevenue : { $subtract : [ "$orderSellPrice" , "$orderPurchasePrice" ] }
+                }
+            },{
+                $sort : req.query.sort
+            }
+         ]);
+        return orders;
+    },
+
+    unhandledOrders: async function(req,res) {
+
+        console.log( chalk.bold.blue('unhandled Orders') );
+        let query  = {
+            status: 'Order Placed in Store'
+        };
+        req.query = processQuery(req.query);
+        let orders = await this.fetchOrders(req,query);
+
+        return {
+
+            brand: req.params.brand,
+            orders: orders
+        }
+
+    },
+
+    updateOrderStatuses: async function(req,res) {
+        console.log( chalk.bold.blue('updating Order Statuses') );
+        let model = await this.createModel(`${req.params.brand}-orders`);
+
+        let output = await model.findOneAndUpdate(
+            { 
+                _id : req.body.myId
+            },{ 
+                $set : { 
+                    status: req.body.orderStatus,
+                    payment: req.body.paymentStatus,
+                }
+            },{
+                new: true
+            }
+        );
+
+        return output;
+    },
+
+    allOrders: async function(req,res) {
+
+        console.log( chalk.bold.blue('Showing all Orders placed between given dates') );
+
+        var date = new Date();
+        let from = req.query.from && new Date(req.query.from).setHours(00,00,00) || new Date(date.getFullYear(), date.getMonth(), 1).setHours(00,00,00); 
+        let to = req.query.to && new Date(req.query.to).setHours(23,59,59) || new Date().setHours(23,59,59);
+
+        let query = {
+            created_at : {
+                $gte: req.query.from && new Date(req.query.from) || new Date(date.getFullYear(), date.getMonth(), 1),
+                $lt : req.query.to && new Date(req.query.to) || new Date()
+            }
+        };
+
+        req.query = processQuery(req.query);
+        console.log(req.query);
+        let output = await this.fetchOrders(req,query);
+
+        return {
+            orders: output,
+            fromDate: new Date(from).toISOString().substr(0, 10),
+            toDate: new Date(to).toISOString().substr(0, 10),
+            brand: req.params.brand,
+        };
+    },
+
+    allProducts : async function(req,res) {
+
+        console.log( chalk.bold.blue('Showing all products') );
+        var query = processQuery(req.query);
+        delete query.filter._pjax;
+        console.log(query);
+
+        let model = await this.createModel(`${req.params.brand}-items`);
+        let output = await model.aggregate([
+            {
+                $match: {} 
+            },{
+                $addFields: {
+                    updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+                    quantity: { $toInt : "$quantity" },
+                    cost : { $toInt: "$cost" },
+                    purchase : {$toInt : "$purchase" },
+                }
+            },{
+                $addFields : {
+                    profit : { $subtract : [ "$cost" , "$purchase" ] }
+                }
+            },{
+                $sort: query.sort
+            }
+        ]);
+
+        return {
+            items: output,
+            brand: req.params.brand
+        }
+
+    },
+
+    allEmployees: async function(req,res) {
+        console.log( chalk.bold.blue('showing all employees') );
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.aggregate([
+            {
+                $match: {}
+            },{
+                $addFields: {
+                    updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+                }
+            },{
+                $sort: {
+                    updatedAt: -1
+                }
+            }
+        ]);
+        return {
+            users: output,
+            brand: req.params.brand
+        }
+    },
+
+    branding: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let output = await model.aggregate([
+            {
+                $match: {}
+            },{
+                $addFields: {
+                    logo : {
+                        $split: [ "$logo" , " " ]
+                    }
+                }
+            }
+        ]);
+
+        return {
+            resources: output,
+            brand: req.params.brand,
+        }
+    },
+
+    updateResources: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let output = await model.findOneAndUpdate(
+            {
+                brandName: req.params.brand
+            },{
+                $set: {
+                    logo: req.body.logo,
+                    twitter: req.body.twitter,
+                    facebook: req.body.facebook,
+                    insta: req.body.insta,
+                    youtube: req.body.youtube,
+                    scripts: req.body.scripts,
+                }
+            },{
+                new: true
+            }
+        );
+
+        return output;
+    },
+
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        let pages = await model.find().lean();
+        let pages = await model.aggregate([
+            {
+                $match: {}
+            },{
+                $addFields: {
+                    content : {
+                        $substr : [ "$content" , 0 , 300 ]
+                    },
+                    updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+                }
+            }
+        ]);
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
         let navRows = collectionsTable.map(val => val.name);
         model = await this.createModel(`${req.params.brand}-notifications`);
@@ -1336,14 +1838,62 @@ var myFuncs = {
             modelName: `${req.params.brand}-pages`,
             notifications: notifications,
             brand: req.params.brand,
-            navRows: navRows
+            navRows: navRows,
         }
     },
 
-    updatePage: async function(req,res) {
+    createIndexedModel : async function(modelName) {
+
+        let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
+        if (modelExistsAlready) { mongoose.models[modelName] = ''; };
+
+        let collection = await Collections.findOne({name: modelName}).lean();
+        console.log({properties: collection.properties});
+        let schema = new mongoose.Schema(collection.properties);
+
+        switch (true) {
+            case (/orders/.test(modelName)) : 
+                schema.index = { orderNo: "text", address: "text", mobile: "text", name: "text", status: "text", payment: "text" };
+                break;
+            case (/items/.test(modelName)) :
+                schema.index = { name: "text", purchase: "text", cost: "text", size: "text", school: "text", house: "text", details: "text", category: "text" };
+                break;
+            case (/users/.test(modelName)) : 
+                schema.index = { name: "text", email: "text", role: "text"};
+                break;
+            case (/resources/.test(modelName)) :
+                schema.index = { brandName: "text", twitter: "text", facebook: "text", youtube: "text", insta: "text", scripts: "text" };
+                break;
+        };
+
+        console.log({index: schema.index});
+
+        return mongoose.model(modelName, schema);
+
+    },
+
+    searchDashboard: async function(req,res) {
+
         console.log(req.body);
-        let model = await this.createModel(`${req.params.brand}-pages`);
-        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
+
+        let models = {
+            orders: await this.createModel(`${req.params.brand}-orders`),
+            items: await this.createModel(`${req.params.brand}-items`),
+            users: await this.createModel(`${req.params.brand}-users`),
+            resources: await this.createModel(`${req.params.brand}-resources`),
+        };
+
+        let keyWord = new RegExp(req.body.text, 'i');
+
+        let output = {
+            orders: await models.orders.find({ $or : [ {orderNo: keyWord}, {address: keyWord}, {mobile: keyWord}, {name: keyWord}  ] }).limit(4),
+            items: await models.items.find({ $or : [ {name: keyWord}, {purchase: keyWord}, {cost: keyWord}, {size: keyWord} , {school: keyWord}, {house: keyWord}, {details: keyWord}, {category: keyWord} ] }).limit(4),
+            users: await models.users.find({ $or : [ {name: keyWord}, {email: keyWord}, {role: keyWord} ] }).limit(4),
+            resources: await models.resources.find({ $or : [ {brandName: keyWord}, {twitter: keyWord}, {facebook: keyWord}, {youtube: keyWord}, {insta: keyWord}, {scripts: keyWord} ] }).limit(4),
+        }
+
+        console.log(output);
+
         return output;
     },
 

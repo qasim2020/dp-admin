@@ -1,0 +1,61 @@
+<div>
+    <h3>Showing all 2898 x products.</h3>
+    <div class="right">
+        <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.brand}}-items">Bulk Upload</a>
+        <a href="/{{data.brand}}/admin/page/newDocument/{{data.brand}}-items">Add New Product</a>
+    </div>
+</div>
+
+<table>
+    <tr>
+        <th class="sortable" sort="updatedAt">   Last Update</th>
+        <th class="sortable" sort="connectingID">Product ID</th>
+        <th class="sortable" sort="imgURL">      Photo</th>
+        <th class="sortable" sort="name">        Product</th>
+        <th class="sortable" sort="description"> Description</th>
+        <th class="sortable" sort="quantity">    In stock</th>
+        <th class="sortable" sort="profit">      Profit</th>
+        <th >action</th>
+    </tr>
+    {{#each data.items}}
+    <tr>
+        <td>{{this.updatedAt}}</td>
+        <td><p class="badge cyan">{{this.connectingID}}</p></td>
+        <td><img src="{{split0 this.imgURL}}" alt=""></td>
+        <td class="text-left">
+            <p class="">name. {{this.name}}</p>
+            <p>School. {{this.school}}</p>
+            <p>House. {{this.house}}</p>
+            <p class="badge warning">Size — {{this.size}}</p>
+        </td>
+        <td class="text-left"><p>{{this.details}}</p></td>
+        <td><p class="no-wrap">{{this.quantity}} x Held</p></td>
+        <td class="costing">
+            <p class="no-wrap">
+                <span class="left">Purchase</span>
+                <span class="right badge">PKR {{this.purchase}}</span>
+            </p>
+            <p class="no-wrap">
+                <span class="left">Selling </span>
+                <span class="right badge">PKR {{this.cost}}</span>
+            </p>
+            <p class="no-wrap">
+                <span class="left">Profit</span>
+                <span class="right badge cyan">PKR {{this.profit}}</span>
+            </p>
+        </td>
+        <td>
+            <p>
+                <a class="edit" href="/{{../data.brand}}/admin/page/editDocument/{{../data.brand}}-items?_id={{this._id}}">Edit</a>
+            </p>
+            <p>
+                <button onclick="deleteItem(this)" my-id="{{this._id}}">Delete</button>
+            </p>
+            <p>
+            <a href="/{{../data.brand}}/admin/page/itemPage/{{this._id}}" target="_blank">Live View</a>
+            </p>
+        </td>
+    </tr>
+    {{/each}}
+
+</table>

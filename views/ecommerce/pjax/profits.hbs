@@ -1,0 +1,79 @@
+<h3>Showing <span> Profit / Loss Comparison </span> from <input type="date" value="{{data.fromDate}}" class="date fromDate"> to <input type="date" value="{{data.toDate}}" class="date toDate"></h3>
+
+<table class="product">
+
+    <tr class="heading">
+        <th class="sortable" sort="created_at">Date</th>
+        <th class="sortable" sort="orderNo">Order No</th>
+        <th class="sortable" sort="name">Customer Details</th>
+        <th class="sortable" sort="orderSellPrice">Ordered Products</th>
+        <th class="sortable" sort="payment">Payment Status</th>
+        <th class="sortable" sort="purchase">Purchase Cost</th>
+        <th class="sortable" sort="cost">Selling Cost</th>
+        <th class="sortable" sort="netRevenue">Net Revenue</th>
+        <th>Action</th>
+    </tr>
+
+    <tr class="total">
+        <td>Total</td>
+        <td class="no-wrap">{{data.gross.totalOrders}} x Orders</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{data.gross.purchaseCost}}</td>
+        <td>{{data.gross.sellCost}}</td>
+        <td><p class="badge cyan">{{data.gross.netRevenue}}</p></td>
+        <td></td>
+    </tr>
+
+    {{#each data.orders}}
+    <tr myId="{{this._id}}">
+        <td class="no-wrap">{{this.created_at}}</td>
+        <td class="no-wrap">{{this.orderNo}}</td>
+        <td class="text-left">
+            <p class="no-wrap">Name. {{this.name}}</p>
+            <p class="no-wrap">Mobile. {{this.mobile}}</p>
+            <p>Address. {{this.address}}</p>
+        </td>
+        <td class="description">
+            {{#each cart}}
+            <div>
+                <p>{{this.quantity}} x {{this.item.name}}</p>
+                <p>Size {{this.item.size}}</p>
+                <p>{{this.item.school}}</p>
+                <p>{{this.item.house}}</p>
+                <p>Cost {{this.quantity}} x {{this.item.cost}} = PKR {{this.totalCost}}</p>
+            </div>
+
+            {{/each}}
+            <div><p>Total Cost = PKR {{this.orderSellPrice}}</p></div>
+        </td>
+        <td class="small-btns paymentStatus">
+            <button onclick="updateOrder(this)" {{#if (matchValues this.payment 'Paid (COD)') }} class="active" {{/if}}>Paid (COD)</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.payment 'Paid (Online Transfer)') }} class="active" {{/if}}>Paid (Online Transfer)</button>
+        </td>
+        <td>{{this.orderPurchasePrice}}</td>
+        <td>{{this.orderSellPrice}}</td>
+        <td><p class="badge cyan">{{this.netRevenue}}</p></td>
+        <td>
+            <p>
+                <a href="/{{../data.brand}}/gen/page/landingPage/n" target="_blank">New Order</a>
+            </p>
+            <p>
+                <a href="/{{../data.brand}}/gen/page/orderReceiptPage/n?orderNo={{this.orderNo}}&mobile={{this.mobile}}" target="_blank">View Receipt</a>
+            </p>
+        </td>
+        <td class="d-none small-btns orderStatus">
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Order Placed in Store') }} class="active" {{/if}}>Order Placed in Store</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Park') }} class="active" {{/if}}>Park</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Dispatched for delivery') }} class="active" {{/if}}>Dispatched for delivery</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Order Delivered') }} class="active" {{/if}}>Order Delivered</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Declined') }} class="active" {{/if}}>Declined</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Returned') }} class="active" {{/if}}>Returned</button>
+            <button onclick="updateOrder(this)" {{#if (matchValues this.status 'Cancelled') }} class="active" {{/if}}>Cancel Order</button>
+        </td>
+
+    </tr>
+    {{/each}}
+
+</table>

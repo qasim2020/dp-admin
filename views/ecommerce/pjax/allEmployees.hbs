@@ -1,0 +1,31 @@
+<div>
+    <h3>Showing 2 x Employees who can access dashboard.</h3>
+    <div class="right">
+        <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.brand}}-users">Bulk Upload</a>
+        <a href="/{{data.brand}}/admin/page/newDocument/{{data.brand}}-users">Add Employee</a>
+    </div>
+</div>
+
+<table>
+    <tr>
+        <th>Updated On</th>
+        <th>Employee</th>
+        <th>Action</th>
+    </tr>
+    {{#each data.users}}
+    <tr>
+        <td>{{this.updatedAt}}</td>
+        <td class="text-left">
+            <p>Name. {{this.name}}</p>
+            <p>Email. {{this.email}}</p>
+            <p>Password. {{this.password}}</p>
+        </td>
+        <td>
+            <p>
+            <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.brand}}-users?_id={{this._id}}">Edit</a>
+                <a href="">Delete</a>
+            </p>
+        </td>
+    </tr>
+    {{/each}}
+</table>

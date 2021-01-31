@@ -1,0 +1,323 @@
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard / Edit Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ecommerce/essentials.css">
+
+    <style type="text/css">
+
+        .container {
+            max-width: 800px;
+            display: flex;
+            align-items: flex-start;
+            margin: auto;
+        }
+
+        .container > * {
+            width: 50%;
+            border-radius: 5px;
+        }
+
+        .d-none {
+            display: none;
+        }
+
+        .imageUpload {
+            display: block;
+            border: 1px solid #E0E0E0;
+            border-radius: 5px;
+            margin-bottom: 11px;
+            padding: 15px 15px 0px 15px;
+        }
+
+        .imageUpload > * {
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 15px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .container img {
+            max-width: 50vw; 
+            max-width: 100%;
+            box-sizing: border-box;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .error {
+            font-size: 19px;
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        form {
+            max-width: 98%;
+            border: 1px solid #E0E0E0;
+            box-sizing: border-box;
+            padding: 15px 15px 27px 15px;
+            margin-right: 14px;
+        }
+
+        form > * {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 13px 0 0px 0;
+        } 
+
+        label {
+            font-weight: 300;
+        }
+
+        label , h2 {
+            color: #333333;
+            font-size: 19px;
+        }
+
+        input, textarea {
+            font-size: 19px;
+            color: #333333;
+            padding: 10px 13px;
+            line-height: 1.5;
+            font-family: 'Didact Gothic';
+            background: #F2F2F2;
+            border: 0px;
+            border-radius: 5px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <nav>
+        <div class="left">
+            <a href="/{{data.brand}}/admin/page/dashboard/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/admin/page/dashboard/n">Dashboard</a>
+            /
+            <a href="/{{data.brand}}/admin/page/editDocument/{{data.collection}}?_id={{data._id}}" class="active">Edit Page</a>
+            </p>
+        </div>
+
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/cartPage/n">
+                <span>Notifications</span>
+                <span class="cartBtn">0</span>
+            </a>
+            <a href="/{{data.brand}}/gen/page/logOut/n">Sign Out</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <form action="" method="post">
+
+            <input name="modelName" type="text" class="d-none" value="{{data.collection}}">
+            <input name="_id" type="text" class="d-none" value="{{data._id}}">
+
+        {{#each data.inputs}}
+
+            {{#if (matchValues this.type 'input')}}
+                <label for="{{name}}">{{this.label}}</label>
+                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} required {{/if}} value="{{this.value}}">
+            {{/if}}
+
+
+        {{/each}}
+
+        <button class="primary" id="submitButton" type="submit">Save</button>
+
+        </form>
+
+        <div>
+
+        {{#each data.inputs}}
+
+            {{#if (matchValues this.type 'imgURL')}}
+
+                {{#unless this.value}}
+                    <div class="imageUpload">
+
+                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
+                        <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
+
+                        <p counter='1' class="error">After image upload, your image link is shown below! </p>
+
+                        <input 
+                           class='imageURL' 
+                           counter='1' 
+                           name="{{this.name}}" 
+                           type="text" 
+                           id="{{this.id}}0" 
+                           placeholder="" 
+                           value="" 
+                           />
+
+                        <button type="button" onclick="removeImage('{{this.id}}0')">Remove Image</button>
+
+                    </div>
+                
+                {{/unless}}
+
+                {{#each this.value}}
+
+                <div class="imageUpload" id="">
+
+                    {{#if this}}
+                        <img counter='1' linkedTo="img" src="{{this}}" class="image">
+                    {{else}}
+                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
+                    {{/if}}
+
+                    <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
+
+                    <p counter='1' class="error">After image upload, your image link is shown below! </p>
+
+                    <input 
+                       class='imageURL' 
+                       counter='1' 
+                       name="{{../this.name}}" 
+                       type="text" 
+                       id="{{../this.id}}{{@index}}" 
+                       placeholder="" 
+                       value="{{{this}}}" 
+                       />
+
+                    <button type="button" onclick="removeImage('{{../this.id}}{{@index}}')">Remove Image</button>
+
+                </div>
+
+                {{/each}}
+
+                <button class="secondary" id="addImage" type="button">Add another Image</button>
+            {{/if}}
+
+        {{/each}}
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+
+    <script>
+
+        $('#addImage').on('click',function(e) {
+
+            $('.imageUpload:eq(0)').clone().insertAfter('.imageUpload:eq(-1)');
+            let tagsCount = $('.imageUpload').length;
+            $('.imageUpload:eq(-1) > *').attr({counter: tagsCount});
+            $(`.error[counter="${tagsCount}"]`).html('After image upload, your image link is shown below! ');
+            $(`img[counter=${tagsCount}]`).attr({
+                src: '',
+            });
+            let prvsLabel = $(`label[counter=${tagsCount}]:eq(-1)`).attr('for');
+            $(`label[counter=${tagsCount}]:eq(-1)`).attr('for',prvsLabel + tagsCount);
+            $(`input[counter=${tagsCount}]:eq(-1)`).attr({
+                name: prvsLabel + tagsCount,
+                id: prvsLabel + tagsCount,
+                value: ''
+            });
+
+        });
+
+        let readURL = function (input) {
+            let counter = $(input).attr('counter');
+            let imgTag = `img[counter="${counter}"]`;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $(imgTag).attr({
+                        'src': e.target.result,
+                        onload: 'uploadCloudinary(this)'
+                    });
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        let uploadCloudinary = function(item) {
+
+            let counter = $(item).attr('counter');
+            let img = $(item).attr('src');
+            let data = {
+                img: img, 
+                width:  $(item).width() * 2,
+                height:  $(item).height() * 2
+            };
+            $(`.error[counter="${counter}"]`).html('Uploading Image...');
+            console.log(data);
+            $.ajax({
+              type: "POST",
+              url: '/{{data.brand}}/admin/data/uploadCloudinary/n',
+              data: data,
+              success: (data) => {
+                console.log(data);
+                if (data.error) return $(`.error[counter="${counter}"]`).html(data.error);
+                $(`input[counter="${counter}"]`).attr({
+                    value: data.url,
+                });
+                $(`.error[counter="${counter}"]`).html('Image Uploaded Successfully. Link added in input !');
+              }
+            });
+
+        };
+
+        $('form').on('submit',function(e) {
+            e.preventDefault();
+            let inputForm = $(this).serializeArray();
+            let imageUploadDivs = $('.imageUpload').length;
+            let formData = $(this).serialize();
+            let imageTagsName = $('.imageURL').attr('name');
+
+            if (imageUploadDivs > 0) {
+                let imageTags = $('.imageURL').serializeArray();
+                let imageURLs = imageTags.map(val => val.value);
+                let imageCSV = imageURLs.reduce((total,val) => {
+                    total = encodeURI(val) + '+' + total ; 
+                    return total;
+                },'').slice(0, -1);
+                formData = `${formData}&${imageTagsName}=${imageCSV}`;
+            }
+
+            console.log(formData);
+
+            $.ajax({
+              type: "POST",
+              url: '/{{data.brand}}/admin/data/updateSequence/n',
+              data: formData,
+              success: (data) => {
+                console.log('successful data sent'),
+                console.log(data);
+                $('#submitButton').html('Saved Successfully');
+                  return;
+                window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.collection}}';
+              },
+                fail: err => $('#submitButton').html(err)
+            });
+        });
+
+        let removeImage = function(inputId) {
+            // TODO: Get the id of this image and delete from Cloudinary account. in'sha'Allah
+            $(`#${inputId}`).parent('.imageUpload').remove();
+            console.log($(`#${inputId}`))
+            let inputURL = $(`#${inputId}`).attr('value');
+            console.log(inputURL);
+        };
+
+    </script>
+
+</body>
+
+</html>

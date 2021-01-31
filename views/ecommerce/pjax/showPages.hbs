@@ -1,0 +1,26 @@
+<h3>Showing static pages for your website.</h3>
+
+<table>
+    <tr>
+        <th>Updated At</th>
+        <th>Page Name</th>
+        <th>Content</th>
+        <th>Actions</th>
+    </tr>
+    {{#each data.pages}}
+    <tr>
+        <td class="no-wrap">{{this.updatedAt}}</td>
+        <td class="no-wrap"><p class="badge cyan">{{this.page}}</p></td>
+        <td class="text-left">{{this.content}}</td>
+        <td>
+            <p>
+            <a class="edit" href="/{{../data.brand}}/admin/page/editPage/{{this._id}}">Edit</a>
+            </p>
+            <p>
+            <a href="/{{../data.brand}}/admin/page/showPage/{{this.slug}}" target="_blank">Live View</a>
+            </p>
+        </td>
+    </tr>
+    {{/each}}
+</table>
+

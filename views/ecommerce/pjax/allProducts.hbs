@@ -1,12 +1,15 @@
 <div>
-    <h3>Showing all 2898 x products.</h3>
+    <h3>Showing {{data.count}} x product(s).</h3>
     <div class="right">
+        {{#if data.filterApplied}}
+        <a href="/{{data.brand}}/admin/pjax/allProducts/dashboard?__sort=created_at" data-pjax>Clear Filter</a>
+        {{/if}}
         <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.brand}}-items">Bulk Upload</a>
         <a href="/{{data.brand}}/admin/page/newDocument/{{data.brand}}-items">Add New Product</a>
     </div>
 </div>
 
-<table>
+<table myId="products">
     <tr>
         <th class="sortable" sort="updatedAt">   Last Update</th>
         <th class="sortable" sort="connectingID">Product ID</th>

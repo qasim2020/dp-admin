@@ -1,7 +1,11 @@
-<h3>Showing <span>all Orders</span> placed from <input type="date" value="{{data.fromDate}}" class="date fromDate"> to <input type="date" value="{{data.toDate}}" class="date toDate"></h3>
+<div>
+    <h3 myId="orders">Showing {{data.count}} x order(s). </h3>
+    {{#if data.filterApplied}}
+    <a href="/{{data.brand}}/admin/pjax/allOrders/dashboard?__sort=created_at" data-pjax>Clear Filter</a>
+    {{/if}}
+</div>
 
-
-<table class="product">
+<table class="product" myId="orders">
     <tr class="heading">
         <th class="sortable" sort="created_at">Date</th>
         <th class="sortable" sort="orderNo">Order No</th>

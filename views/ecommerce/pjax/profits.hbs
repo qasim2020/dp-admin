@@ -1,4 +1,10 @@
-<h3>Showing <span> Profit / Loss Comparison </span> from <input type="date" value="{{data.fromDate}}" class="date fromDate"> to <input type="date" value="{{data.toDate}}" class="date toDate"></h3>
+<h3 myId="profitCharts">Showing 
+    <span> Profit / Loss Comparison </span>
+    from 
+    <input type="date" value="{{data.fromDate}}" class="fromDate" onchange="changeDate(this)"> 
+    to 
+    <input type="date" value="{{data.toDate}}" class="toDate" onchange="changeDate(this)">
+</h3>
 
 <table class="product">
 

@@ -26,16 +26,21 @@ nav {
     z-index: 100;
 }
 
-nav > div.right > a, .smallBtn {
-    padding: 2px 11px;
+nav > div.right > a, nav > div.right > button , .smallBtn {
+    padding: 2px 6px;
     border-radius: 5px;
     border: 1px solid #F2F2F2;
     text-decoration: none;
     color: #828282;
     margin-right: 3px;
+    font-size: 15px;
+    white-space: nowrap;
+    background: white;
+    position: relative;
 }
 
-nav > div.right > a > .cartBtn {
+nav > div.right > a > .cartBtn ,
+nav > div.right > button > .cartBtn {
     padding: 2px 6px;
     background: #Eb5757;
     color: white;
@@ -98,7 +103,6 @@ button {
 
 button:hover {
     cursor: pointer;
-    opacity: 0.9;
 }
 
 button.primary {

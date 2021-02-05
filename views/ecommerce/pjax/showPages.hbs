@@ -1,6 +1,13 @@
-<h3>Showing static pages for your website.</h3>
+<div>
+    <h3>Showing static pages for your website.</h3>
+    <div class="right">
+        {{#if data.filterApplied}}
+        <a href="/{{data.brand}}/admin/pjax/showPages/dashboard?__sort=created_at" data-pjax>Clear Filter</a>
+        {{/if}}
+    </div>
+</div>
 
-<table>
+<table myId="pages">
     <tr>
         <th>Updated At</th>
         <th>Page Name</th>

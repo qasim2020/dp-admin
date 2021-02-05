@@ -1,10 +1,7 @@
 const chalk = require('chalk');
-
 const path = require('path');
 const fs = require('fs');
-//joining path of directory 
 const directoryPath = path.join(__dirname, '');
-
 const express = require('express')
 const hbs = require('hbs')
 const app = express();
@@ -17,11 +14,23 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const { WebClient } = require('@slack/web-api');
+const http = require('http');
+const server = http.createServer(app);
+const socketio = require('socket.io');
+const io = socketio(server);
+
 var qpm = require('query-params-mongo');
+let getObjectId = function(val) {
+    return mongoose.Types.ObjectId(val);
+};
 var processQuery = qpm({
-    autoDetect: [{ fieldPattern: /_id$/, dataType: 'objectId' }],
-    converters: {objectId: mongoose.Types.ObjectID}
+    autoDetect: [
+        { fieldPattern: /_id$/, dataType: 'objectId' },
+        { fieldPattern: /orderNo$/, dataType: 'string' },
+    ],
+    converters: {objectId: getObjectId }
 });
+
 
 var cloudinary = require('cloudinary').v2;
 var env = process.env.NODE_ENV || 'development';
@@ -35,7 +44,6 @@ if (env === 'development' || env === 'test') {
 }
 
 const token = process.env.Slack;
-// Initialize
 const web = new WebClient(token);
 
 app.use(
@@ -126,7 +134,6 @@ hbs.registerHelper('checkExists', (val) => {
 })
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1, val2);
     return val1 == val2
 });
 
@@ -218,6 +225,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     next();
 });
 
+
 let replyFunction = async (req,res) => {
 
     try {
@@ -235,6 +243,36 @@ app.get( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 app.post( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 
 var myFuncs = {
+
+    respond: async function(data,req,res) {
+        console.log( chalk.bold.yellow('sending data to page') ); 
+        console.log(JSON.stringify(data,'',2));
+        switch(true) {
+          case ( data.hasOwnProperty('error') ): 
+            console.log( chalk.red.bold('error in data') );
+            return res.status(data.status).send(data.error);
+            break;
+          case (req.query.hasOwnProperty('redirect')):
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
+            break;
+          case (req.params.requiredType == 'data'):
+            return res.status(200).send(data);
+            break;
+          case (req.params.hasOwnProperty('pageName')): 
+            return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
+            break;
+          case (req.headers['x-pjax'] == 'true'):
+            return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
+            break;
+          case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}`);
+            break;
+          case (req.params.requiredType == 'page'):
+            return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
+            break;
+          default:
+        }
+    },
 
     moduleRole: {
         respond: 'admin',
@@ -275,36 +313,6 @@ var myFuncs = {
         showPage: 'gen',
         updatePage: 'admin',
         dashboard: 'admin',
-    },
-
-    respond: async function(data,req,res) {
-        console.log( chalk.bold.yellow('sending data to page') ); 
-        // console.log(JSON.stringify(data,'',2));
-        switch(true) {
-          case ( data.hasOwnProperty('error') ): 
-            console.log( chalk.red.bold('error in data') );
-            return res.status(data.status).send(data.error);
-            break;
-          case (req.query.hasOwnProperty('redirect')):
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
-            break;
-          case (req.params.requiredType == 'data'):
-            return res.status(200).send(data);
-            break;
-          case (req.params.hasOwnProperty('pageName')): 
-            return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
-            break;
-          case (req.headers['x-pjax'] == 'true'):
-            return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
-            break;
-          case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}`);
-            break;
-          case (req.params.requiredType == 'page'):
-            return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
-            break;
-          default:
-        }
     },
 
     getThemeName: async function(brand) {
@@ -1004,18 +1012,34 @@ var myFuncs = {
     },
 
     createOrder: async function(req,res) {
+        
         let closeCart = await this.closeCartItems(req,res);
+
         console.log(chalk.bold.red( {closeCart} ));
 
         let order = req.body;
         order._id = order._id == '' ? new mongoose.mongo.ObjectID() : order._id ;
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = model.findOneAndUpdate({_id: order._id}, order, {upsert: true, new: true});
+
         model = await this.createModel(`${req.params.brand}-notifications`);
-        let notification = new model({text: `new Order placed as ${order.orderNo}`, status: 'unread'});
-        let msg = `*New Order* \n Order No : *${order.orderNo}* \n Customer : *${order.name}* · *${order.mobile}* \n Shipping Address : ${order.address} \n Order Details : <http://${order.myURL}/${req.params.brand}/gen/page/orderReceiptPage/n?mobile=${order.mobile}&orderNo=${order.orderNo}| Show Receipt>`;
-        let slackNotify = await this.notifySlack(msg,`${req.params.brand}-orders`);
+        let notification = new model(
+            {
+                text: `New order placed — Order No ${order.orderNo}`, 
+                status: 'unread',
+                type: 'order',
+                data: order._id
+            });
         await notification.save();
+
+        let notifications = await this.fetchNotifications(req,res)
+
+        io.sockets.emit(`${req.params.brand}newOrder`,notifications);
+
+        let msg = ` ————————\nNew Order \nOrder No : ${order.orderNo} \nCustomer : ${order.name} · ${order.mobile} \nShipping Address : ${order.address} \nOrder Details : <http://${order.myURL}/${req.params.brand}/gen/page/orderReceiptPage/n?mobile=${order.mobile}&orderNo=${order.orderNo}| Show Receipt> \n—————————`;
+
+        let slackNotify = this.notifySlack(msg,`${req.params.brand}-orders`);
+
         return output;
     },
 
@@ -1334,12 +1358,90 @@ var myFuncs = {
         return output;
     },
 
+    clearNotification: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-notifications`);
+        let output = await model.findOneAndUpdate({_id: req.params.input},
+            {
+                $set : {
+                    status: 'read'
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        return output;
+
+    },
+
+    fetchNotifications: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-notifications`);
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.aggregate([
+                {
+                    $match: {
+                        status: 'unread'
+                    }
+                },
+                {
+                    $addFields: {
+                        created_at: { $dateToString: { format: "%Y-%m-%d · %H:%M", date: "$created_at" } },
+                    }
+                },
+                {
+                    $sort : {
+                        created_at: -1
+                    }
+                }
+            ])
+        };
+
+        return notifications;
+    },
+
     dashboard: async function(req,res) {
-        let model = await this.createModel(`${req.params.brand}-resources`);
-        let resources = await model.find({});
+        let date = new Date();
+
+        let query = {
+            created_at : {
+                $gte: new Date(date.getFullYear(), date.getMonth(), 1),
+                $lt : new Date()
+            },
+            payment: {
+                $in: [ "Paid (COD)", "Paid (Online Transfer)"]
+            }
+        };
+
+        req.query.sort = { created_at: -1 };
+
+        let output = await this.fetchOrders(req,query);
+
+        let models = {
+            items : await this.createModel(`${req.params.brand}-items`),
+            orders : await this.createModel(`${req.params.brand}-orders`),
+            users : await this.createModel(`${req.params.brand}-users`),
+            pages : await this.createModel(`${req.params.brand}-pages`)
+        }
+
+        let counts = {
+            netRevenue : output.reduce( (total,val) => total = total + val.netRevenue , 0 ),
+            outOfStock : await models.items.find({quantity:0}).count(),
+            unhandledOrders : await models.orders.find({status: "Order Placed in Store"}).count(),
+            allOrders : await models.orders.find().count(),
+            allProducts: await models.items.find().count(),
+            allEmployees : await models.users.find().count(),
+            staticPages: await models.pages.find().count()
+        };
+
         return {
-            resources: resources,
-            brand: req.params.brand
+            resources: await this.fetchResources(req,res),
+            brand: req.params.brand,
+            notifications: await this.fetchNotifications(req,res),
+            counts: counts
         };
     },
 
@@ -1443,7 +1545,6 @@ var myFuncs = {
                 }
             }
         ]);
-        console.log({output});
         let grossResult = {
             totalOrders : output.reduce( (total,val) => total = total + 1 , 0 ),
             purchaseCost : output.reduce( (total,val) => total = total + val.purchaseCost , 0 ),
@@ -1531,7 +1632,7 @@ var myFuncs = {
 
     fetchOrders: async function(req,query) {
         let model = await this.createModel(`${req.params.brand}-orders`);
-        console.log ( query );
+        console.log(query);
         let orders = await model.aggregate([
             {
                 $match: query
@@ -1652,11 +1753,14 @@ var myFuncs = {
     unhandledOrders: async function(req,res) {
 
         console.log( chalk.bold.blue('unhandled Orders') );
-        let query  = {
-            status: 'Order Placed in Store'
-        };
+
         req.query = processQuery(req.query);
-        let orders = await this.fetchOrders(req,query);
+        delete req.query.filter._pjax;
+
+        req.query.filter.status = 'Order Placed in Store';
+
+        console.log(req.query);
+        let orders = await this.fetchOrders(req,req.query.filter);
 
         return {
 
@@ -1694,21 +1798,21 @@ var myFuncs = {
         let from = req.query.from && new Date(req.query.from).setHours(00,00,00) || new Date(date.getFullYear(), date.getMonth(), 1).setHours(00,00,00); 
         let to = req.query.to && new Date(req.query.to).setHours(23,59,59) || new Date().setHours(23,59,59);
 
-        let query = {
-            created_at : {
-                $gte: req.query.from && new Date(req.query.from) || new Date(date.getFullYear(), date.getMonth(), 1),
-                $lt : req.query.to && new Date(req.query.to) || new Date()
-            }
-        };
-
         req.query = processQuery(req.query);
-        console.log(req.query);
+        delete req.query.filter._pjax;
+        delete req.query.filter.to;
+        delete req.query.filter.from;
+
+        query = Object.values(req.query.filter).length > 0 ? req.query.filter :  {};
+        console.log(query);
         let output = await this.fetchOrders(req,query);
 
         return {
             orders: output,
             fromDate: new Date(from).toISOString().substr(0, 10),
             toDate: new Date(to).toISOString().substr(0, 10),
+            filterApplied: Object.values(req.query.filter).length > 0,
+            count: output.length,
             brand: req.params.brand,
         };
     },
@@ -1723,7 +1827,7 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-items`);
         let output = await model.aggregate([
             {
-                $match: {} 
+                $match: query.filter 
             },{
                 $addFields: {
                     updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
@@ -1742,6 +1846,8 @@ var myFuncs = {
 
         return {
             items: output,
+            filterApplied: Object.values(query.filter).length > 0,
+            count: output.length,
             brand: req.params.brand
         }
 
@@ -1750,9 +1856,13 @@ var myFuncs = {
     allEmployees: async function(req,res) {
         console.log( chalk.bold.blue('showing all employees') );
         let model = await this.createModel(`${req.params.brand}-users`);
+        var query = processQuery(req.query);
+        delete query.filter._pjax;
+        console.log(query);
+
         let output = await model.aggregate([
             {
-                $match: {}
+                $match: query.filter 
             },{
                 $addFields: {
                     updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
@@ -1814,9 +1924,11 @@ var myFuncs = {
 
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
+        var query = processQuery(req.query);
+        delete query.filter._pjax;
         let pages = await model.aggregate([
             {
-                $match: {}
+                $match: query.filter
             },{
                 $addFields: {
                     content : {
@@ -1839,6 +1951,7 @@ var myFuncs = {
             notifications: notifications,
             brand: req.params.brand,
             navRows: navRows,
+            filterApplied: Object.values(query.filter).length > 0,
         }
     },
 
@@ -1874,29 +1987,139 @@ var myFuncs = {
 
     searchDashboard: async function(req,res) {
 
-        console.log(req.body);
-
         let models = {
             orders: await this.createModel(`${req.params.brand}-orders`),
             items: await this.createModel(`${req.params.brand}-items`),
             users: await this.createModel(`${req.params.brand}-users`),
             resources: await this.createModel(`${req.params.brand}-resources`),
+            pages: await this.createModel(`${req.params.brand}-pages`),
         };
 
         let keyWord = new RegExp(req.body.text, 'i');
 
         let output = {
-            orders: await models.orders.find({ $or : [ {orderNo: keyWord}, {address: keyWord}, {mobile: keyWord}, {name: keyWord}  ] }).limit(4),
-            items: await models.items.find({ $or : [ {name: keyWord}, {purchase: keyWord}, {cost: keyWord}, {size: keyWord} , {school: keyWord}, {house: keyWord}, {details: keyWord}, {category: keyWord} ] }).limit(4),
-            users: await models.users.find({ $or : [ {name: keyWord}, {email: keyWord}, {role: keyWord} ] }).limit(4),
-            resources: await models.resources.find({ $or : [ {brandName: keyWord}, {twitter: keyWord}, {facebook: keyWord}, {youtube: keyWord}, {insta: keyWord}, {scripts: keyWord} ] }).limit(4),
+            orders: await models.orders.find(
+                { 
+                    $or : [ 
+                        {
+                            orderNo: keyWord
+                        }, {
+                            address: keyWord
+                        }, {
+                            mobile: keyWord
+                        }, {
+                            name: keyWord
+                        }  
+                    ] 
+                },{
+                    _id: 0,
+                    cartIds: 0,
+                    created_at: 0,
+                    __v: 0,
+                    updatedAt: 0,
+                    sessionId: 0,
+                }).limit(4),
+            items: await models.items.find(
+                { 
+                    $or : [ 
+                        {
+                            name: keyWord
+                        }, {
+                            purchase: keyWord
+                        }, {
+                            cost: keyWord
+                        }, {
+                            size: keyWord
+                        }, {
+                            school: keyWord
+                        }, {
+                            house: keyWord
+                        }, {
+                            details: keyWord
+                        }, {
+                            category: keyWord
+                        } 
+                    ] 
+                },{
+                    name: 1,
+                    purchase: 1,
+                    cost: 1,
+                    size: 1,
+                    school: 1,
+                    house: 1,
+                    details: 1,
+                    category: 1
+                }).limit(4),
+            users: await models.users.find(
+                { 
+                    $or : [ 
+                        {
+                            name: keyWord
+                        }, {
+                            email: keyWord
+                        }, {
+                            role: keyWord
+                        } 
+                    ] 
+                },{
+                    _id: 0,
+                    name: 1,
+                    email: 1,
+                    role: 1
+                }).limit(4),
+            resources: await models.resources.find(
+                { 
+                    $or : [ 
+                        {
+                            brandName: keyWord
+                        }, {
+                            twitter: keyWord
+                        }, {
+                            facebook: keyWord
+                        }, {
+                            youtube: keyWord
+                        }, {
+                            insta: keyWord
+                        }
+                    ] 
+                },{
+                    _id: 0,
+                    brandName: 1,
+                    twitter: 1,
+                    facebook: 1,
+                    youtube: 1,
+                    insta: 1
+                }).limit(4),
+            pages: await models.pages.aggregate([
+                {
+                    $match : {
+                    $or : [
+                        {
+                            para: keyWord
+                        }, {
+                            page: keyWord
+                        }, {
+                            content: keyWord
+                        }
+                    ]
+                    }
+                },{
+                    $addFields: {
+                        content : {
+                            $substr : [ "$content" , 0 , 100 ]
+                        },
+                        updatedAt: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+                    }
+                }
+            ]).limit(4)
         }
 
-        console.log(output);
+        io.sockets.emit('newOrder', 12);
 
         return output;
     },
 
+
 };
 
-app.listen(3000)
+server.listen(3000)

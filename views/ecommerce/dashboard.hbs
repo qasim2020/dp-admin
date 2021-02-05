@@ -28,6 +28,7 @@
             width: 100%;
             position: relative;
             margin-top: 9px;
+            margin-bottom: 10px;
         }
 
         .searchP > input::placeholder {
@@ -51,25 +52,29 @@
         }
 
         .results > p {
-            line-height: 0;
+            line-height: 1.5;
             margin: 0;
             border-radius: 0px;
         }
 
-        .results > p > button {
+        .results > p > a {
             background: whitesmoke;
             text-align: left;
             border-radius: 0px;
             border: 1px solid whitesmoke;
             font-size: 16px;
+            display: block;
+            padding: 9px 10px;
+            color: #333333;
+            text-decoration: none;
         }
 
-        .results > p > button:hover {
+        .results > p > a:hover {
             opacity: 1;
             background: white;
         }
 
-        .results > p > button > span {
+        .results > p > a > span {
             color: #333333;
             font-weight: 300;
         }
@@ -401,6 +406,48 @@
             display: block;
             transform: rotate(0deg);
         }
+
+        .box {
+            position: absolute;
+            top: 2rem;
+            right: -1rem;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 24px rgb(0 0 0 / 25%);
+            max-height: 80vh;
+            overflow: scroll;
+        }
+
+        .box > a {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            border-bottom: 1px dashed lightgrey;
+            padding: 20px 12px;
+            margin: 0;
+            font-weight: 300;
+            text-decoration: none;
+            color: #333333;
+        }
+
+        .box > a:hover {
+            background: whitesmoke;
+            opacity: 1;
+        }
+
+        .box > a:nth-last-child(1) {
+            border-bottom: 0px;
+        }
+
+        .box > a > span:nth-child(1) {
+            margin-bottom: 7px;
+            font-size: 12px;
+        }
+
+        .box:hover {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
@@ -418,10 +465,23 @@
         </div>
 
         <div class="right">
-            <a href="/{{data.brand}}/gen/page/cartPage/n">
+            <button onclick="showNotifications(this)">
                 <span>Notifications</span>
-                <span class="cartBtn">0</span>
-            </a>
+                <span class="cartBtn">{{data.notifications.count}}</span>
+
+                <div class="box d-none">
+
+                    {{#each data.notifications.texts}}
+                    {{#if (matchValues this.type 'order')}}
+                    <a href="/{{../data.brand}}/admin/pjax/allOrders/dashboard?_id={{this.data}}&__sort=-created_at" data-pjax onclick="clearNotification(this)" myId="{{this._id}}">
+                        <span>{{this.created_at}}</span>
+                        <span>{{this.text}}</span>
+                    </a>
+                    {{/if}}
+                    {{/each}}
+
+                </div>
+            </button>
             <a href="/{{data.brand}}/gen/page/logOut/n">Sign Out</a>
         </div>
     </nav>
@@ -430,23 +490,14 @@
 
         <div class="searchP searchButtons">
             <input type='text' placeholder='Search dashboard' value='' onkeyup="searchMe(this)">
-            <div class="results d-none">
-
-                <p><button>Users <span>— name: Hashim Ali</span></button></p>
-                <p><button>Product <span>— house: Hashim Ali</span></button></p>
-                <p><button>Branding <span>— facebook: https://facebook.com/7amuniforms</span></button></p>
-                <p><button>Order <span>— Order No: 000021</span></button></p>
-                <p><button>Order <span>— Address: Village Chammala teh Dina Distt Jhelum</span></button></p>
-                <p><button>Order <span>— Cost: PKR 9872</span></button></p>
-            
-            </div>
+            <div class="results d-none"></div>
         </div>
     
         <article>
 
             <div class="cards">
 
-                <a href="/{{data.brand}}/admin/pjax/profits/dashboard?__sort=-created_at" data-pjax class="profitCharts">
+                <a href="/{{data.brand}}/admin/pjax/profits/dashboard?__sort=-created_at" data-pjax id="profitCharts">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M23.334 33.3334H13.334V56.6667H23.334V33.3334Z" fill="#4F4F4F"/>
                         <path d="M45 33.3334H35V56.6667H45V33.3334Z" fill="#4F4F4F"/>
@@ -455,7 +506,7 @@
                         <path d="M40.0003 3.33337L6.66699 20V26.6667H73.3337V20L40.0003 3.33337Z" fill="#4F4F4F"/>
                     </svg>
                     <p>Current Month Profit</p>
-                    <p><bold>+ 8986</bold></p>
+                    <p><bold>+ {{data.counts.netRevenue}}</bold></p>
                  </a>
 
                  <a href="/{{data.brand}}/admin/pjax/outOfStock/dashboard?__sort=updatedAt" data-pjax>
@@ -463,7 +514,7 @@
                         <path d="M43.333 33.3334H36.6663V26.6667H43.333V33.3334ZM43.333 20H36.6663V3.33337H43.333V20ZM23.333 60.0001C19.6663 60.0001 16.6997 63.0001 16.6997 66.6667C16.6997 70.3334 19.6663 73.3334 23.333 73.3334C26.9997 73.3334 29.9997 70.3334 29.9997 66.6667C29.9997 63.0001 26.9997 60.0001 23.333 60.0001ZM56.6663 60.0001C52.9997 60.0001 50.033 63.0001 50.033 66.6667C50.033 70.3334 52.9997 73.3334 56.6663 73.3334C60.333 73.3334 63.333 70.3334 63.333 66.6667C63.333 63.0001 60.333 60.0001 56.6663 60.0001ZM26.9997 43.3334H51.833C54.333 43.3334 56.533 41.9667 57.6663 39.9L69.9997 16.5334L64.1663 13.3334L51.833 36.6667H28.433L14.233 6.66671H3.33301V13.3334H9.99967L21.9997 38.6334L17.4997 46.7667C15.0663 51.2334 18.2663 56.6667 23.333 56.6667H63.333V50H23.333L26.9997 43.3334Z" fill="#4F4F4F"/>
                     </svg>
                     <p>Items out of Stock</p>
-                    <p><bold>6</bold></p>
+                    <p><bold>{{data.counts.outOfStock}}</bold></p>
 
                  </a>
 
@@ -472,43 +523,43 @@
                         <path d="M66.6663 26.6667H56.6663V13.3334H9.99967C6.33301 13.3334 3.33301 16.3334 3.33301 20V56.6667H9.99967C9.99967 62.2 14.4663 66.6667 19.9997 66.6667C25.533 66.6667 29.9997 62.2 29.9997 56.6667H49.9997C49.9997 62.2 54.4663 66.6667 59.9997 66.6667C65.533 66.6667 69.9997 62.2 69.9997 56.6667H76.6663V40L66.6663 26.6667ZM19.9997 61.6667C17.233 61.6667 14.9997 59.4334 14.9997 56.6667C14.9997 53.9 17.233 51.6667 19.9997 51.6667C22.7663 51.6667 24.9997 53.9 24.9997 56.6667C24.9997 59.4334 22.7663 61.6667 19.9997 61.6667ZM64.9997 31.6667L71.533 40H56.6663V31.6667H64.9997ZM59.9997 61.6667C57.233 61.6667 54.9997 59.4334 54.9997 56.6667C54.9997 53.9 57.233 51.6667 59.9997 51.6667C62.7663 51.6667 64.9997 53.9 64.9997 56.6667C64.9997 59.4334 62.7663 61.6667 59.9997 61.6667Z" fill="#4F4F4F"/>
                     </svg>
                     <p>Unhandled Orders</p>
-                    <p><bold>10</bold></p>
+                    <p><bold>{{data.counts.unhandledOrders}}</bold></p>
                  </a>
 
-                 <a href="/{{data.brand}}/admin/pjax/allOrders/dashboard?__sort=-created_at" data-pjax>
+                 <a href="/{{data.brand}}/admin/pjax/allOrders/dashboard?__sort=-created_at" data-pjax id="orders">
                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M63.3333 10H16.6667C13 10 10 13 10 16.6667V40C10 43.6667 13 46.6667 16.6667 46.6667H63.3333C67 46.6667 70 43.6667 70 40V16.6667C70 13 67 10 63.3333 10ZM63.3333 30H50C50 35.4 45.4 40 40 40C34.6 40 30 35.4 30 30H16.6667V16.6667H63.3333V30ZM50 53.3333H70V63.3333C70 67 67 70 63.3333 70H16.6667C13 70 10 67 10 63.3333V53.3333H30C30 58.8667 34.4667 63.3333 40 63.3333C45.5333 63.3333 50 58.8667 50 53.3333Z" fill="#4F4F4F"/>
 </svg>
                      <p>All Orders</p>
-                     <p><bold>245</bold></p>
+                     <p><bold>{{data.counts.allOrders}}</bold></p>
                  </a>
 
-                 <a href="/{{data.brand}}/admin/pjax/allProducts/dashboard?__sort=updatedAt" data-pjax>
+                 <a href="/{{data.brand}}/admin/pjax/allProducts/dashboard?__sort=updatedAt" data-pjax id="products">
                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M66.666 20H53.3327V13.3333C53.3327 9.63329 50.366 6.66663 46.666 6.66663H33.3327C29.6327 6.66663 26.666 9.63329 26.666 13.3333V20H13.3327C9.63268 20 6.69935 22.9666 6.69935 26.6666L6.66602 63.3333C6.66602 67.0333 9.63268 70 13.3327 70H66.666C70.366 70 73.3327 67.0333 73.3327 63.3333V26.6666C73.3327 22.9666 70.366 20 66.666 20ZM46.666 20H33.3327V13.3333H46.666V20Z" fill="#4F4F4F"/>
 </svg>
                     <p>All Products</p>
-                    <p><bold>2543</bold></p>
+                    <p><bold>{{data.counts.allProducts}}</bold></p>
                  </a>
 
-                 <a href="/{{data.brand}}/admin/pjax/allEmployees/dashboard" data-pjax>
+                 <a href="/{{data.brand}}/admin/pjax/allEmployees/dashboard" data-pjax id="employees">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M53.334 36.6666C58.8673 36.6666 63.3006 32.2 63.3006 26.6666C63.3006 21.1333 58.8673 16.6666 53.334 16.6666C47.8006 16.6666 43.334 21.1333 43.334 26.6666C43.334 32.2 47.8006 36.6666 53.334 36.6666ZM26.6673 36.6666C32.2006 36.6666 36.634 32.2 36.634 26.6666C36.634 21.1333 32.2006 16.6666 26.6673 16.6666C21.134 16.6666 16.6673 21.1333 16.6673 26.6666C16.6673 32.2 21.134 36.6666 26.6673 36.6666ZM26.6673 43.3333C18.9006 43.3333 3.33398 47.2333 3.33398 55V63.3333H50.0006V55C50.0006 47.2333 34.434 43.3333 26.6673 43.3333ZM53.334 43.3333C52.3673 43.3333 51.2673 43.4 50.1006 43.5C53.9673 46.3 56.6673 50.0666 56.6673 55V63.3333H76.6673V55C76.6673 47.2333 61.1006 43.3333 53.334 43.3333Z" fill="#4F4F4F"/>
                     </svg>
                     <p>All Employees</p>
-                    <p><bold>2</bold></p>
+                    <p><bold>{{data.counts.allEmployees}}</bold></p>
                  </a>
 
-                 <a href="/{{data.brand}}/admin/pjax/showPages/dashboard" data-pjax>
+                 <a href="/{{data.brand}}/admin/pjax/showPages/dashboard" data-pjax id="pages">
                      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M29.9988 13.3334V17.9334C27.2322 16.8334 24.2655 16.2667 21.2988 16.2667C15.3322 16.2667 9.3655 18.5334 4.79883 23.1L15.8988 34.2H19.5988V37.9C22.4655 40.7667 26.1988 42.2667 29.9655 42.4334V50H19.9988V60C19.9988 63.6667 22.9988 66.6667 26.6655 66.6667H59.9988C65.5322 66.6667 69.9988 62.2 69.9988 56.6667V13.3334H29.9988ZM26.2988 34.7V27.5334H18.6988L15.2322 24.0667C17.1322 23.3334 19.1988 22.9334 21.2988 22.9334C25.7655 22.9334 29.9322 24.6667 33.0988 27.8L37.7988 32.5L37.1322 33.1667C35.4322 34.8667 33.1655 35.8334 30.7322 35.8334C29.1655 35.8334 27.6322 35.4334 26.2988 34.7ZM63.3322 56.6667C63.3322 58.5 61.8322 60 59.9988 60C58.1655 60 56.6655 58.5 56.6655 56.6667V50H36.6655V41.3667C38.5655 40.6 40.3322 39.4667 41.8655 37.9334L42.5322 37.2667L51.9655 46.6667H56.6655V41.9667L36.6655 22.0667V20H63.3322V56.6667Z" fill="#4F4F4F"/>
                     </svg>
                     <p>Static Pages</p>
-                    <p><bold>4</bold></p>
+                    <p><bold>{{data.counts.staticPages}}</bold></p>
                  </a>
 
 
-                 <a href="/{{data.brand}}/admin/pjax/branding/dashboard" data-pjax>
+                 <a href="/{{data.brand}}/admin/pjax/branding/dashboard" data-pjax id="branding">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M69.9994 13.3333H23.3327V6.66663H16.666V73.3333H23.3327V46.6666H69.9994L63.3327 30L69.9994 13.3333ZM49.9994 30C49.9994 33.6666 46.9994 36.6666 43.3327 36.6666C39.666 36.6666 36.666 33.6666 36.666 30C36.666 26.3333 39.666 23.3333 43.3327 23.3333C46.9994 23.3333 49.9994 26.3333 49.9994 30Z" fill="#4F4F4F"/>
                     </svg>
@@ -522,9 +573,32 @@
         </article>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
     <script src="/root/pjax.js"></script>
     <script>
+        let socket = io();
+        
+        socket.on('{{data.brand}}newOrder', (data) => {
+            $('.cartBtn').html(data.count);
+            let total = data.texts.reduce( (total, val) => {
+                console.log(val);
+                val = `
+                    <a href="/{{data.brand}}/admin/pjax/allOrders/dashboard?_id=${val.data}&__sort=-created_at" data-pjax onclick="clearNotification(this)" myId="${val._id}">
+                        <span>${val.created_at}</span>
+                        <span>${val.text}</span>
+                    </a>`;
+                total = total + val;
+                return total;
+            }, '' );
+
+            console.log(total);
+
+            $('.box').html(total);
+            
+            console.log(data);
+        });
+
         $(document).pjax('a[data-pjax]', '#pjax-container');
         $.pjax.defaults.scrollTo = false;
 
@@ -565,16 +639,18 @@
 
         } 
 
-        $('.date').on('change', function(event) {
-            let fromDate = $(event.target).closest('h3').find('.fromDate').val();
-            let toDate = $(event.target).closest('h3').find('.toDate').val();
+        let changeDate = function(elem) {
+            let fromDate = $(elem).closest('h3').find('.fromDate').val();
+            let toDate = $(elem).closest('h3').find('.toDate').val();
 
             console.log({fromDate, toDate});
 
-            let href = $('a.profitCharts').attr('href').split('?')[0];
-            $('a.profitCharts').attr({href: href + `?from=${fromDate}&to=${toDate}`}); 
-            $('a.profitCharts').trigger('click');
-        });
+            let myId = $(elem).closest('h3').attr('myId');
+
+            let href = $(`#${myId}`).attr('href').split('?')[0];
+            $(`#${myId}`).attr({href: href + `?from=${fromDate}&to=${toDate}&__sort=updatedAt`}); 
+            $(`#${myId}`).trigger('click');
+        };
 
         let readURL = function (elem) {
             let imgTag = $(elem).siblings('img');
@@ -653,26 +729,27 @@
         }
 
         let sort = function(e) {
+
             let sortBy = $(this).attr('sort');
             if (sortBy == undefined) return console.log('sorting not present');
-            let href = $('a[data-pjax].active').attr('href').split('?')[0];
+
+            let href = $('a[data-pjax].active').attr('href');
+            let search = href.search('__sort=');
+            href = href.substr(0, search);
             let aTagSortBy = $('a[data-pjax].active').attr('sortBy'); 
-            console.log({sortBy, aTagSortBy});
             sortBy = sortBy == aTagSortBy ? `-${sortBy}` : sortBy;
+            let newhref = href + `__sort=${sortBy}`;
             $('a[data-pjax].active').attr({
-                href: href + `?__sort=${sortBy}`,
+                href: newhref,
                 sortBy: sortBy
             });
-            console.log({sortBy, href});
             $('a[data-pjax].active').trigger('click');
         }
 
         let pjaxLoaded = function(e) {
-            console.log('document loaded');
             let currentSort = window.location.href.split('__sort=')[1];
             let current_th = /-/.test(currentSort) ? currentSort.replace('-','') : currentSort;
             let status = /-/.test(currentSort) ? "down"  : "up";
-            console.log({currentSort, current_th, status});
             $(`th`).removeClass('active').removeClass('up').removeClass('down');
             $(`[sort=${current_th}]`).addClass(`active ${status}`);
             let current_html = $(`[sort=${current_th}]`).html();
@@ -681,6 +758,12 @@
                 <path d="M4 0L8 3.99H0L4 0Z" fill="#4F4F4F"/>
                 </svg>
             `);
+            let activeCard = $('.content').find('table').attr('myId');
+            if ( activeCard != undefined ) {
+                $('.cards > a').removeClass('active');
+                $(`#${activeCard}`).addClass('active');
+            }
+            $('.results').addClass('d-none');
         }
 
         let searchMe = function(elem) {
@@ -688,6 +771,7 @@
             let new_data = $(elem).val().trim();
 
             if (old_data == new_data) return console.log("nothing changed");
+            if (new_data == '') return $('.searchP').find('.results').addClass('d-none');
 
             $(elem).data('old_data', new_data)
 
@@ -699,19 +783,88 @@
                 url: "/{{data.brand}}/admin/data/searchDashboard/keyWord",
                 data: data,
                 method: "post",
-                success: res => showSearchResults(res),
+                success: res => showSearchResults(res, data.text),
                 fail: err => console.log({err})
             });
         }
 
-        let showSearchResults = function(data) {
-            console.log(data);
-            $('.searchP').find('.results').removeClass('d-none');
+        let showSearchResults = function(data, pattern) {
+            let keyWord = new RegExp(pattern, "i");
+            let output = [],
+                myLink = '';
+            if (data.orders.length > 0) {
+                data.orders.forEach( val => {
+                    myLink = `/{{data.brand}}/admin/pjax/allOrders/dashboard?orderNo=${val.orderNo}&__sort=updatedAt`;
+                    output.push(`<p><a href="${myLink}" data-pjax>Order <span> — ${ Object.values(val).filter( val => keyWord.test(val) )  } </span></a></p>`) 
+                });
+            }
+            if (data.items.length > 0) {
+                data.items.forEach( val => {
+                    myLink = `/{{data.brand}}/admin/pjax/allProducts/dashboard?_id=${val._id}&__sort=updatedAt`;
+                    delete val._id;
+                    output.push(`<p><a href="${myLink}" data-pjax>Product <span> — ${ Object.values(val).filter( val => keyWord.test(val) )  } </span></a></p>`) 
+                });
+            }
+            if (data.users.length > 0) {
+                data.users.forEach( val => {
+                    myLink = `/{{data.brand}}/admin/pjax/allEmployees/dashboard?email=${val.email}&__sort=updatedAt`;
+                    output.push(`<p><a href="${myLink}" data-pjax>User <span> — ${ Object.values(val).filter( val => keyWord.test(val) )  } </span></a></p>`) 
+                });
+            }
+            if (data.resources.length > 0) {
+                data.resources.forEach( val => {
+                    myLink = `/{{data.brand}}/admin/pjax/branding/dashboard`;
+                    output.push(`<p><a href="${myLink}" data-pjax>Branding <span> — ${ Object.values(val).filter( val => keyWord.test(val) )  } </span></a></p>`) 
+                });
+            }
+            if (data.pages.length > 0) {
+                data.pages.forEach( val => {
+                    myLink = `/{{data.brand}}/admin/pjax/showPages/dashboard?_id=${val._id}`;
+                    delete val._id;
+                    output.push(`<p><a href="${myLink}" data-pjax>Pages <span> — ${val.page} </span></a></p>`) 
+                });
+            }
+            output = output.reduce( (total, val) => total = val + total, '' );
+            $('.searchP').find('.results').removeClass('d-none').html(output);
+        }
+
+        let hideModel = function(event) {
+            let is_Search = $(event.target).closest('.searchP').get().length;
+            console.log(is_Search);
+            if (is_Search != 0) return $('.searchP').find('.results').removeClass('d-none');
+            $('.searchP').find('.results').addClass('d-none');
+        }
+
+        let showResult = function(event) {
+            console.log(this);
+            let href = $(this).attr('myLink');
+            let button_id = $(this).attr('myId');
+            $(`#${button_id}`).attr({href: href}).trigger('click');
+        }
+
+        let showNotifications = function(elem) {
+            $(elem).find('.box').toggleClass('d-none');
+        }
+
+        let clearNotification = function(elem) {
+
+            let myId = $(elem).attr('myId');
+            $.get(`/{{data.brand}}/admin/data/clearNotification/${myId}`, function(data) {
+                console.log(data)
+                $(elem).remove();
+                let currentVal = $('.cartBtn').html();
+                let newVal = Number(currentVal) - 1;
+                console.log({currentVal, newVal});
+                $('.cartBtn').html(newVal);
+            });
+
         }
 
         $('.cards a').on('click', changeState);
         $(document).on('click', 'th' , sort);
         $('#pjax-container').on('pjax:end', pjaxLoaded); 
+        $(document).on('click', 'html', hideModel);
+        $(document).on('click', '.searchP > .results > p > button', showResult);
     </script>
 </body>
 </html>

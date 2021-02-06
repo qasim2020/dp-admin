@@ -618,11 +618,13 @@ var myFuncs = {
         };
     },
 
-    signin: function(req,res) {
+    signin: async function(req,res) {
         return {
             status: 200,
             success: 'sign in page comes here',
             brand: req.params.brand,
+            resources: await this.fetchResources(req,res),
+            countCart: await this.countItemsInCart(req,res),
         };
     },
 

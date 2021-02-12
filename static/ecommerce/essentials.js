@@ -48,6 +48,7 @@ let showSizeGuide = function(elem) {
         category: $(elem).closest('.size-guide').attr('my-category')
     };
     $.get(`/${brandMix.brand}/gen/data/getSizes/${brandMix.category}`, function(data) {
+        console.log({data});
         $(elem).closest('.size-guide').children('button').toggleClass('d-none');
         let headings = Object.keys(data[0]).reduce( (total, val) => total = `<td>${val.charAt(0).toUpperCase() + val.slice(1)}</td>` + total, '' );
         let bodies = data.map( val => Object.values(val).reduce( (total, vall) => total = `<td>${vall}</td>` + total, '' ) );

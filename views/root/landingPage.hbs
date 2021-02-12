@@ -2,27 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create your App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create App</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ecommerce/essentials.css">
+
     <style type="text/css">
-    form > * {
-        display: block;
-        margin-top: 10px;
-    }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #828282;
+            margin: 0px;
+            margin-top: 5rem;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        body > p {
+            font-size: 35px;
+            font-weight: 200;
+            line-height: 1.5;
+            color: #333333;
+        }
+
+        form {
+            width: 365px;
+            max-width: 98%;
+            border: 1px solid #E0E0E0;
+            box-sizing: border-box;
+            border-radius: 5px;
+            padding: 15px 15px 27px 15px;
+            margin-top: 14px;
+        }
+
+        form > * {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 13px 0 0px 0;
+        } 
+
+        label {
+            font-weight: 300;
+        }
+
+        label , h2 {
+            color: #333333;
+            font-size: 19px;
+        }
+
+        input, textarea , select {
+            font-size: 19px;
+            color: #333333;
+            padding: 10px 13px;
+            font-family: 'Didact Gothic';
+        }
+
+        form > .domainBox {
+            display: flex;
+            align-items: center;
+        }
+
+        form > .domainBox > p {
+            font-weight: 300;
+            color: #333333;
+            margin-right: 10px;
+        }
+
+        form > .domainBox > input {
+            flex-grow: 1;
+        }
+
+        form > .imageBox {
+            height: 241px;
+            background: whitesmoke;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-right: 5px;
+            color: #333333;
+            position: relative;
+        }
+
+        form > .imageBox > img {
+            position: absolute;
+            max-width: 88%;
+            max-height: 88%;
+            border-radius: 5px;
+            z-index: 5;
+        }
+
+        form > .imageBox > p {
+            color: #828282;
+            font-weight: 300;
+            border-bottom: 1px solid #828282;
+            padding: 6px;
+        }
+
+        label[for="mainLogo"], label[for="secLogo"] {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        #mainLogo, #secLogo {
+            opacity: 0;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .loader {
+            border: 15px solid white;
+            border-top: 15px solid mediumpurple;
+            border-radius: 50%;
+            box-sizing: border-box;
+            width: 90px;
+            height: 90px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            z-index: 10;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
     </style>
 </head>
 <body>
-    <p>Create New App — </p>
+    <p>Create your online store in 3 steps. Pay when you start selling!</p>
     <form action="/{{data.brand}}/admin/page/startApp/n" method="post">
 
-        <label for="theme">App Theme</label>
+        <label for="theme">Store type</label>
         <select id="theme" name="theme">
-            <option value="ecommerce" selected>E-Commerce</option>
+            <option value="clothing" selected>Clothing Store</option>
+            <option value="schooluniform">School Uniform's Store</option>
         </select>
 
-        <label for="brand">Name of brand</label>
-        <input type="text" id="brand" name="brand">
-    
-        <button>Generate</button>
+        <label for="brand">Domain</label>
+        <div class="domainBox">
+            <p>onlineshop.io/</p>
+            <input type="text" id="brand" name="brand">
+        </div>
+
+        <label for="">Shop Logo</label>
+        <div class="imageBox">
+            <label for="mainLogo"></label>
+            <input type="file" id="mainLogo" name="photo" accept="image/*" onchange="readURL(this)" />
+            <img src="" alt="">
+            <p>Click to Upload</p>
+            <div class="loader d-none"></div>
+            <input type="text" class="d-none" value="{{data.resources.[0].logo.[1]}}">
+        </div>
+
+        <button class="secondary">Create Store</button>
     </form>
 </body>
 </html>

@@ -43,8 +43,7 @@ if (env === 'development' || env === 'test') {
   });
 }
 
-const token = process.env.Slack;
-const web = new WebClient(token);
+const web = new WebClient();
 
 app.use(
   session({
@@ -151,8 +150,12 @@ hbs.registerHelper('split0', (val) => {
 });
 
 hbs.registerHelper('split1', (val) => {
-    let output =  val.split(' ')[1] == undefined ? val : val.split(' ')[1] ;
-    return output;
+    try {
+        let output =  val.split(' ')[1] == undefined ? val : val.split(' ')[1] ;
+        return output;
+    } catch(e) {
+        return val
+    }
 });
 
 hbs.registerHelper('split', (val) => {
@@ -249,7 +252,6 @@ var myFuncs = {
         console.log(JSON.stringify(data,'',2));
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
-            console.log( chalk.red.bold('error in data') );
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
@@ -379,6 +381,7 @@ var myFuncs = {
             _id: this.getMongoId(req,res),
             resources: await this.fetchResources(req,res)
         };
+        req.params.theme = 'ecommerce';
         req.params.module = 'editDocument';
         return output;
     },
@@ -388,6 +391,8 @@ var myFuncs = {
         req.values = await model.findOne({_id: req.query._id}).lean();
         if (req.values == undefined) return {status: 404, error: 'document does not exist so it can not be edited'};
         let inputs = await this.getFormInputs(req,res);
+
+        req.params.theme = 'ecommerce';
         
         let output = {
             inputs: inputs,
@@ -418,6 +423,7 @@ var myFuncs = {
         let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
         if (modelExistsAlready) { mongoose.models[modelName] = ''; };
         let schema = await Collections.findOne({name: modelName}).lean();
+        console.log({modelName});
         return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         
     },
@@ -624,7 +630,7 @@ var myFuncs = {
             success: 'sign in page comes here',
             brand: req.params.brand,
             resources: await this.fetchResources(req,res),
-            countCart: await this.countItemsInCart(req,res),
+            // countCart: await this.countItemsInCart(req,res),
         };
     },
 
@@ -671,6 +677,8 @@ var myFuncs = {
 
         let collectionHeadings = Object.keys(properties);
         collectionHeadings.unshift('_id');
+
+        req.params.theme = 'ecommerce';
 
         return {
             brand: req.params.brand,
@@ -886,7 +894,7 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: '7am-items',
+                   from: `${req.params.brand}-items`,
                    localField: 'itemId',
                    foreignField: '_id',
                    as: 'items'
@@ -894,7 +902,7 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: '7am-items',
+                   from: `${req.params.brand}-items`,
                    localField: 'connectingID',
                    foreignField: 'connectingID',
                    as: 'allSizes'
@@ -1005,12 +1013,19 @@ var myFuncs = {
         return 'cartClosed';
     },
 
-    notifySlack: async function(msg,conversationId) {
-        const result = await web.chat.postMessage({
-            text: msg,
-            channel: conversationId,
-        });
-        return result;
+    notifySlack: async function(token, msg, conversationId) {
+        console.log( {token, msg, conversationId} );
+        try {
+            const result = await web.chat.postMessage({
+                token: token,
+                text: msg,
+                channel: conversationId,
+            });
+            return result;
+        } catch (e) {
+            console.log(e);
+            return e
+        }
     },
 
     createOrder: async function(req,res) {
@@ -1039,8 +1054,12 @@ var myFuncs = {
         io.sockets.emit(`${req.params.brand}newOrder`,notifications);
 
         let msg = ` ————————\nNew Order \nOrder No : ${order.orderNo} \nCustomer : ${order.name} · ${order.mobile} \nShipping Address : ${order.address} \nOrder Details : <http://${order.myURL}/${req.params.brand}/gen/page/orderReceiptPage/n?mobile=${order.mobile}&orderNo=${order.orderNo}| Show Receipt> \n—————————`;
+        
+        let resources = await this.fetchResources(req,res);
+        console.log( resources );
 
-        let slackNotify = this.notifySlack(msg,`${req.params.brand}-orders`);
+        let slackNotify = this.notifySlack(resources[0].slackToken, msg, resources[0].slackChannelId);
+        console.log(slackNotify);
 
         return output;
     },
@@ -1063,7 +1082,7 @@ var myFuncs = {
         return {order: output};
     },
 
-    getCartItemsInArray: async function(model,cartIds) {
+    getCartItemsInArray: async function(req, model, cartIds) {
         cartIds = cartIds.split(' ').map( val => mongoose.Types.ObjectId(val) );
         console.log({cartIds});
         let result = await model
@@ -1080,7 +1099,7 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: '7am-items',
+                   from: `${req.params.brand}-items`,
                    localField: 'itemId',
                    foreignField: '_id',
                    as: 'items'
@@ -1088,7 +1107,7 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: '7am-items',
+                   from: `${req.params.brand}-items`,
                    localField: 'connectingID',
                    foreignField: 'connectingID',
                    as: 'allSizes'
@@ -1111,7 +1130,7 @@ var myFuncs = {
 
         let cartModel = await this.createModel(`${req.params.brand}-cart`);
         let cartIds = myOrder.order.cartIds;
-        let result = await this.getCartItemsInArray(cartModel, cartIds);
+        let result = await this.getCartItemsInArray(req, cartModel, cartIds);
         // let myOrder = await this.findOrderInSession(req,res);
         let totalCost = result.reduce( (total, val, index) => {
             total = Number(total) + ( Number(val.quantity) * Number(val.items[0].cost) ) ;
@@ -1189,7 +1208,7 @@ var myFuncs = {
             },{
                 $lookup:
                  {
-                   from: '7am-items',
+                   from: `${req.params.brand}-items`,
                    localField: 'itemId',
                    foreignField: '_id',
                    as: 'items'
@@ -1241,7 +1260,7 @@ var myFuncs = {
         let orders = await model.find({}).lean();
         let cartModel = await this.createModel(`${req.params.brand}-cart`);
         let ordersWithItems = await Promise.all( orders.map( val => {
-            return this.getCartItemsInArray(cartModel,val.cartIds);
+            return this.getCartItemsInArray(req, cartModel,val.cartIds);
         }) );
 
         let finalOrdersOutput = orders.map( (val,index) => {
@@ -1315,7 +1334,8 @@ var myFuncs = {
 
     getSizes: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-sizes`);
-        let output = model.find({category: req.params.input}).lean();
+        let output = await model.find({category: req.params.input}).lean();
+        console.log({output});
         output = output.map( size => {
             Object.values(size).forEach( data => {
                 Object.keys(data).forEach(k => data[k] == '' || k == '_id' || k == 'category' ?  delete data[k] : data[k]);
@@ -1426,7 +1446,8 @@ var myFuncs = {
             items : await this.createModel(`${req.params.brand}-items`),
             orders : await this.createModel(`${req.params.brand}-orders`),
             users : await this.createModel(`${req.params.brand}-users`),
-            pages : await this.createModel(`${req.params.brand}-pages`)
+            pages : await this.createModel(`${req.params.brand}-pages`),
+            sizes: await this.createModel(`${req.params.brand}-sizes`)
         }
 
         let counts = {
@@ -1436,7 +1457,8 @@ var myFuncs = {
             allOrders : await models.orders.find().count(),
             allProducts: await models.items.find().count(),
             allEmployees : await models.users.find().count(),
-            staticPages: await models.pages.find().count()
+            staticPages: await models.pages.find().count(),
+            allSizes: await models.sizes.find().count()
         };
 
         return {
@@ -1474,7 +1496,7 @@ var myFuncs = {
                 }
             },{
                 $lookup : {
-                    from : "7am-carts",
+                    from : `${req.params.brand}-carts`,
                     localField : "cartIds",
                     foreignField : "_id",
                     as : "carts"
@@ -1499,7 +1521,7 @@ var myFuncs = {
                 }
             },{
                 $lookup : {
-                    from : "7am-items",
+                    from : `${req.params.brand}-items`,
                     localField : "itemId",
                     foreignField : "_id",
                     as : "item"
@@ -1547,6 +1569,7 @@ var myFuncs = {
                 }
             }
         ]);
+
         let grossResult = {
             totalOrders : output.reduce( (total,val) => total = total + 1 , 0 ),
             purchaseCost : output.reduce( (total,val) => total = total + val.purchaseCost , 0 ),
@@ -1558,6 +1581,25 @@ var myFuncs = {
             gross : grossResult
         }
         return result;
+    },
+
+    sendSlackMsg: async function(req, res, token, channelId) {
+
+        token = token || req.query.token;
+        channelId = channelId || req.query.channelId;
+        console.log( chalk.bold.red({token, channelId}) );
+        let result;
+        try {
+            result = await web.chat.postMessage({
+                token : token, 
+                text: `Great ! Your Slack channel is working. — ${req.params.brand}`,
+                channel: channelId,
+            });
+            return {result}
+        } catch(e) {
+            console.log( e );
+            return {status: 400, error: e.data.error}
+        }
     },
 
     // pjax modules
@@ -1855,6 +1897,29 @@ var myFuncs = {
 
     },
 
+    allSizes : async function(req,res) {
+        console.log( chalk.bold.blue('Showing all sizes') );
+        var query = processQuery(req.query);
+        delete query.filter._pjax;
+
+        console.log(query);
+
+        let model = await this.createModel(`${req.params.brand}-sizes`);
+        let sizes = await model.aggregate([
+            {
+                $match: query.filter
+            }, {
+                $sort: query.sort
+            }
+        ]);
+
+        return {
+            brand: req.params.brand,
+            sizes: sizes,
+            count: sizes.length
+        }
+    },
+
     allEmployees: async function(req,res) {
         console.log( chalk.bold.blue('showing all employees') );
         let model = await this.createModel(`${req.params.brand}-users`);
@@ -1915,6 +1980,10 @@ var myFuncs = {
                     insta: req.body.insta,
                     youtube: req.body.youtube,
                     scripts: req.body.scripts,
+                    email: req.body.email,
+                    mobile: req.body.mobile,
+                    slackToken: req.body.slackToken,
+                    slackChannelId: req.body.slackChannelId
                 }
             },{
                 new: true
@@ -2120,6 +2189,11 @@ var myFuncs = {
 
         return output;
     },
+
+    // clothing store starts here
+
+
+
 
 
 };

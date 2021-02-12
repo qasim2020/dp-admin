@@ -1,0 +1,48 @@
+<div>
+    <h3>Showing {{data.count}} x Sizes.</h3>
+    <div class="right">
+        {{#if data.filterApplied}}
+        <a href="/{{data.brand}}/admin/pjax/allSizes/dashboard?__sort=created_at" data-pjax>Clear Filter</a>
+        {{/if}}
+        <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.brand}}-sizes">Bulk Upload</a>
+        <a href="/{{data.brand}}/admin/page/newDocument/{{data.brand}}-sizes">Add New Size</a>
+    </div>
+</div>
+
+<table>
+    <tr>
+        <th class="sortable" sort="name">Name</th>
+        <th class="sortable" sort="category">Category</th>
+        <th class="sortable" sort="age">Age</th>
+        <th class="sortable" sort="arm">Arm</th>
+        <th class="sortable" sort="chest">Chest</th>
+        <th class="sortable" sort="collar">Collar</th>
+        <th class="sortable" sort="hip">Hip</th>
+        <th class="sortable" sort="length">Length</th>
+        <th class="sortable" sort="waist">Waist</th>
+        <th class="sortable" sort="yolk">Yolk</th>
+        <th>Action</th>
+    </tr>
+    {{#each data.sizes}}
+    <tr>
+        <td>{{#if this.name}} {{this.name}} {{/if}}</td>
+        <td>{{#if this.category}} {{this.category}} {{/if}}</td>
+        <td>{{#if this.age}} {{this.age}} {{/if}}</td>
+        <td>{{#if this.arm}} {{this.arm}} {{/if}}</td>
+        <td>{{#if this.chest}} {{this.chest}} {{/if}}</td>
+        <td>{{#if this.collar}} {{this.collar}} {{/if}}</td>
+        <td>{{#if this.hip}} {{this.hip}} {{/if}}</td>
+        <td>{{#if this.length}} {{this.length}} {{/if}}</td>
+        <td>{{#if this.waist}} {{this.waist}} {{/if}}</td>
+        <td>{{#if this.yolk}} {{this.yolk}} {{/if}}</td>
+        <td>
+            <p>
+                <a class="edit" href="/{{../data.brand}}/admin/page/editDocument/{{../data.brand}}-sizes?_id={{this._id}}">Edit</a>
+            </p>
+            <p>
+                <button onclick="deleteItem(this)" my-id="{{this._id}}">Delete</button>
+            </p>
+        </td>
+    </tr>
+    {{/each}}
+</table>

@@ -296,7 +296,6 @@
         }
 
         .content > .branding > div {
-            height: 241px;
             width: 261px;
             background: whitesmoke;
             border-radius: 5px;
@@ -331,6 +330,10 @@
             border-radius: 5px;
         }
 
+        .branding > form > p:nth-last-child(1) {
+            margin-bottom: 0px;
+        }
+
         .branding > form > p > input {
             width: 100%;
             font-size: 17px;
@@ -343,12 +346,60 @@
         .branding > box {
             width: 100%;
             margin-bottom: 10px;
+            margin-top: 8px;
+            padding: 7px;
+            margin-bottom: 0px;
+            border-radius: 5px;
+            background: whitesmoke;
+        }
+
+        .branding > box > * {
+            display: block;
+            width: fit-content;
+            margin: 10px 10px;
+            box-sizing: border-box;
+        }
+
+        .branding > box > div {
+            display: flex;
+            align-items: center;
+        }
+
+        .branding > box > div > svg {
+            margin-right: 10px;
+        }
+
+        .branding > box > div > h3 {
+            margin: 18px 0;
+            color: #333333;
+        }
+
+        .branding > box > label {
+            color: #333333;
+            line-height: 2;
+            font-size: 18px;
+        }
+
+        .branding > box > input {
+            padding: 14px 11px;
+            width: 98%;
+            font-size: 17px;
+            border: 1px solid whitesmoke;
+            border-radius: 5px;
+            margin-bottom: 18px;
+        }
+
+        .branding > box > button.secondary {
+            border: 1px solid #333333;
+            font-size: 17px;
+            padding: 14px 11px;
+            color: #333333;
         }
 
         .branding > box > textarea {
-            width: 100%;
+            width: 98%;
             box-sizing: border-box;
-            background: whitesmoke;
+            background: white;
             border-radius: 5px;
             border: 0px;
             padding: 12px;
@@ -357,6 +408,7 @@
 
         .branding > button {
             width: fit-content;
+            margin-top: 10px;
         }
 
         label[for="mainLogo"], label[for="secLogo"] {
@@ -530,7 +582,7 @@
                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M63.3333 10H16.6667C13 10 10 13 10 16.6667V40C10 43.6667 13 46.6667 16.6667 46.6667H63.3333C67 46.6667 70 43.6667 70 40V16.6667C70 13 67 10 63.3333 10ZM63.3333 30H50C50 35.4 45.4 40 40 40C34.6 40 30 35.4 30 30H16.6667V16.6667H63.3333V30ZM50 53.3333H70V63.3333C70 67 67 70 63.3333 70H16.6667C13 70 10 67 10 63.3333V53.3333H30C30 58.8667 34.4667 63.3333 40 63.3333C45.5333 63.3333 50 58.8667 50 53.3333Z" fill="#4F4F4F"/>
 </svg>
-                     <p>All Orders</p>
+                     <p>Orders</p>
                      <p><bold>{{data.counts.allOrders}}</bold></p>
                  </a>
 
@@ -538,15 +590,23 @@
                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M66.666 20H53.3327V13.3333C53.3327 9.63329 50.366 6.66663 46.666 6.66663H33.3327C29.6327 6.66663 26.666 9.63329 26.666 13.3333V20H13.3327C9.63268 20 6.69935 22.9666 6.69935 26.6666L6.66602 63.3333C6.66602 67.0333 9.63268 70 13.3327 70H66.666C70.366 70 73.3327 67.0333 73.3327 63.3333V26.6666C73.3327 22.9666 70.366 20 66.666 20ZM46.666 20H33.3327V13.3333H46.666V20Z" fill="#4F4F4F"/>
 </svg>
-                    <p>All Products</p>
+                    <p>Products</p>
                     <p><bold>{{data.counts.allProducts}}</bold></p>
+                 </a>
+
+                 <a href="/{{data.brand}}/admin/pjax/allSizes/dashboard?__sort=updatedAt" data-pjax id="">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M70.0006 20H10.0007C6.33398 20 3.33398 23 3.33398 26.6667V53.3333C3.33398 57 6.33398 60 10.0007 60H70.0006C73.6673 60 76.6673 57 76.6673 53.3333V26.6667C76.6673 23 73.6673 20 70.0006 20ZM70.0006 53.3333H10.0007V26.6667H16.6673V40H23.334V26.6667H30.0006V40H36.6673V26.6667H43.334V40H50.0006V26.6667H56.6673V40H63.334V26.6667H70.0006V53.3333Z" fill="#4F4F4F"/>
+                    </svg>
+                    <p>Sizes</p>
+                    <p><bold>{{data.counts.allSizes}}</bold></p>
                  </a>
 
                  <a href="/{{data.brand}}/admin/pjax/allEmployees/dashboard" data-pjax id="employees">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M53.334 36.6666C58.8673 36.6666 63.3006 32.2 63.3006 26.6666C63.3006 21.1333 58.8673 16.6666 53.334 16.6666C47.8006 16.6666 43.334 21.1333 43.334 26.6666C43.334 32.2 47.8006 36.6666 53.334 36.6666ZM26.6673 36.6666C32.2006 36.6666 36.634 32.2 36.634 26.6666C36.634 21.1333 32.2006 16.6666 26.6673 16.6666C21.134 16.6666 16.6673 21.1333 16.6673 26.6666C16.6673 32.2 21.134 36.6666 26.6673 36.6666ZM26.6673 43.3333C18.9006 43.3333 3.33398 47.2333 3.33398 55V63.3333H50.0006V55C50.0006 47.2333 34.434 43.3333 26.6673 43.3333ZM53.334 43.3333C52.3673 43.3333 51.2673 43.4 50.1006 43.5C53.9673 46.3 56.6673 50.0666 56.6673 55V63.3333H76.6673V55C76.6673 47.2333 61.1006 43.3333 53.334 43.3333Z" fill="#4F4F4F"/>
                     </svg>
-                    <p>All Employees</p>
+                    <p>Employees</p>
                     <p><bold>{{data.counts.allEmployees}}</bold></p>
                  </a>
 
@@ -710,7 +770,11 @@
                 twitter: $('#twitter').val(),
                 insta: $('#insta').val(),
                 youtube: $('#youtube').val(),
-                scripts: $('#scripts').val()
+                scripts: $('#scripts').val(),
+                email : $('#mail').val(),
+                mobile: $('#mobile').val(),
+                slackToken: $('#slackToken').val(),
+                slackChannelId: $('#channelId').val()
             }
 
 
@@ -830,7 +894,6 @@
 
         let hideModel = function(event) {
             let is_Search = $(event.target).closest('.searchP').get().length;
-            console.log(is_Search);
             if (is_Search != 0) return $('.searchP').find('.results').removeClass('d-none');
             $('.searchP').find('.results').addClass('d-none');
         }
@@ -858,6 +921,20 @@
                 $('.cartBtn').html(newVal);
             });
 
+        }
+
+        let sendSlackMsg = function(elem) {
+            let token = $('#slackToken').val();
+            let channelId = $('#channelId').val();
+
+            console.log({token, channelId});
+            if (token == '' || channelId == '') return $(elem).html('Please fill the form');
+
+            $.ajax({
+                url: `/{{data.brand}}/admin/data/sendSlackMsg/n?token=${token}&channelId=${channelId}`,
+                method: 'get',
+                success: (data) => $(elem).html('Message sent!'),
+            }).fail( err => $(elem).html(err.responseText) );
         }
 
         $('.cards a').on('click', changeState);

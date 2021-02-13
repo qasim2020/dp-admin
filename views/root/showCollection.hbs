@@ -101,6 +101,8 @@
             <p>{{this.text}}</p>
             {{/each}}
                 " onclick="showData(this)">Notifications {{data.notifications.count}}</button>
+            <button onclick="createAppBackup(this)">Create App Backup</button>
+            <button onclick="loadBackUp(this)">Load Backup</button>
             <a href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a>
         </p>
     
@@ -174,6 +176,26 @@
         let closeModal = function() {
             $('.modal').addClass('d-none');
         };
+
+        let createAppBackup = function(elem) {
+
+            $.ajax({
+                url : "/{{data.brand}}/admin/data/createAppBackup/n",
+                method: "get",
+                success: (data) => $(elem).html('Backup created!')
+            }).fail( err => $(elem).html(err) );
+        
+        }
+
+        let loadBackUp = function(elem) {
+
+            $.ajax({
+                url: "/{{data.brand}}/admin/data/loadBackUp/n",
+                method: "get",
+                success: (data) => $(elem).html('Backup Loaded')
+            }).fail( err => $(err).html(err) );
+            
+        }
 
     </script>
 

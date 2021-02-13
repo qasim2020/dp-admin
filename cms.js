@@ -249,7 +249,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
-        console.log(JSON.stringify(data,'',2));
+        // console.log(JSON.stringify(data,'',2));
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             return res.status(data.status).send(data.error);
@@ -2190,11 +2190,72 @@ var myFuncs = {
         return output;
     },
 
-    // clothing store starts here
+    // Create backup of app
+    
+    createAppBackup : async function(req,res) {
 
+        // store all collections inside a separate file
 
+        let names = await Collections.find({},{name:1});
 
+        let models  = await Promise.all( names.map( val => this.createModel(val.name) ) ); 
 
+        console.log( models );
+
+        let outputs = await Promise.all( models.map( (val,index) => val.find({}) ) );
+
+        outputs = outputs.map( (val,index) => {
+            return {
+                name: names[index].name,
+                data: val
+            }
+        });
+
+        let file = await fs.writeFile(
+            './static/backup.json', 
+            JSON.stringify( outputs, 0 , 2 ) , 
+            (err) => {
+                if (err) {
+                  return 'Failed to backup';
+                }
+                return 'Successful';
+            });
+
+        return {success: "done"};
+
+    },
+
+    loadBackUp : async function(req,res) {
+
+        let file = await new Promise( (resolve, reject) => {
+
+            fs.readFile('./static/backup.json', 'utf8', (err, data) => {
+                if (err) reject(err)
+                resolve( JSON.parse(data) );
+            });
+
+        }); 
+
+        let models = await Promise.all( file.map( val => this.createModel(val.name) ) );
+
+        let funcs = [];
+        models.forEach( (val,index) => {
+            file[index].data.forEach( (data) => {
+                console.log ( val, data );
+                funcs.push({
+                    model: val,
+                    data: data
+                })
+            })
+        });
+
+        // console.log( funcs );
+        let outputs = await Promise.all( funcs.map( val => val.model.findOneAndUpdate({_id: val.data._id}, val.data, {upsert: true}) ) );
+
+        console.log(outputs);
+        return {success: true};
+
+    }
 
 };
 

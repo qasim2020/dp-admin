@@ -16,6 +16,9 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'zeekay/vim-beautify'
 Plugin 'sbdchd/neoformat'
 Plugin 'mustache/vim-mustache-handlebars'
+Plugin 'mattn/emmet-vim'
+
+let g:user_emmet_leader_key=','
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required

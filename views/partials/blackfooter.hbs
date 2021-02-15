@@ -1,1 +1,95 @@
-hello wolrd
+<style>
+
+    .footerContainer {
+        background: black;
+    }
+
+    .footer {
+        padding: 6rem 4rem;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        line-height: 2;
+        font-size: 17px;
+        font-weight: 300;
+        max-width: 1400px;
+        margin: auto;
+    }
+
+    .footer p, 
+    .footer a {
+        color: #838383;
+        text-decoration: none;
+        margin: 8px 0;
+    }
+
+    .footer > box:nth-child(1) {
+        max-width: 117px;
+    }
+
+    .footer > box:nth-child(1) > img {
+        max-width: 99%;
+        border: 1px dashed #6B6B6B;
+        margin-bottom: 10px;
+    }
+
+    .footer > box:nth-child(1) > p {
+        font-style: italic;
+    }
+
+    .footer > box:nth-child(3) {
+        max-width: 253px;
+    }
+
+</style>
+
+<div class="footerContainer">
+
+    <div class="footer">
+        <box>
+
+            <img src="{{split2 data.resources.[0].logo}}" alt="">
+            <p>We are promoting Quran values through outstanding business ethics.</p>
+        
+        </box>
+
+        <box>
+            
+            <h3>Explore</h3>
+            <p><a href="/{{data.brand}}/gen/page/landingPage/n">Home</a></p>
+            <p><a href="/{{data.brand}}/gen/page/cartPage/n">Cart</a></p>
+            <p><a href="/{{data.brand}}/gen/page/showPage/about-us">About</a></p>
+            <p><a href="/{{data.brand}}/gen/page/showPage/faqs">FAQs</a></p>
+        
+        </box>
+
+        <box>
+
+            <h3>Visit</h3>
+            <p>Shop # 10, Barkat Market, Opp Hameed Plaza, Chakwal</p>
+
+            <h3>Contact</h3>
+            <p><a href="mailto:{{data.resources.[0].email}}">{{data.resources.[0].email}}</a></p>
+            <p><a href="tel:{{data.resources.[0].mobile}}">{{data.resources.[0].mobile}}</a></p>
+        
+        </box>
+
+        <box>
+
+            <h3>Follow</h3>
+            <p><a href="{{data.resources.[0].facebook}}">Facebook</a></p>
+            <p><a href="{{data.resources.[0].twitter}}">Twitter</a></p>
+            <p><a href="{{data.resources.[0].insta}}">Instagram</a></p>
+        
+        </box>
+
+        <box>
+
+            <h3>Legal</h3>
+            <p><a href="/{{data.brand}}/gen/page/showPage/terms">Terms</a></p>
+            <p><a href="/{{data.brand}}/gen/page/showPage/policy">Policy</a></p>
+        
+        </box>
+
+ </div>
+</div>

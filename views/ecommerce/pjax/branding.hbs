@@ -58,6 +58,32 @@
         {{/if}}
     </div>
 
+    <div>
+        {{#if data.resources.[0].logo.[2]}}
+
+            <label for="footLogo"></label>
+            <input type="file" id="footLogo" name="footLogo" accept="image/*" onchange="readURL(this)" />
+            <img src="{{data.resources.[0].logo.[2]}}" alt="">
+    
+            <div class="loader d-none"></div>
+            <input type="text" class="d-none" value="{{data.resources.[0].logo.[2]}}">
+
+        {{else}}
+            <label for="footLogo"></label>
+            <input type="file" id="footLogo" name="footLogo" accept="image/*" onchange="readURL(this)" />
+            <img src="" alt="">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M63.3327 43.3334H43.3327V63.3334H36.666V43.3334H16.666V36.6667H36.666V16.6667H43.3327V36.6667H63.3327V43.3334Z" fill="#4F4F4F"/>
+            </svg>
+            <p>Footer Logo</p>
+        
+            <div class="loader d-none"></div>
+            <input type="text" class="d-none" value="">
+        {{/if}}
+    </div>
+
+
+
     <form action="">
 
         <p>

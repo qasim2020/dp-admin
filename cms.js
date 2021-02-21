@@ -108,7 +108,7 @@ let schema = {
     },
     redirect: {
         type: "String",
-        required: true
+        required: false
     },
     properties: {
         type: "Object",
@@ -158,6 +158,15 @@ hbs.registerHelper('split1', (val) => {
     }
 });
 
+hbs.registerHelper('split2', (val) => {
+    try {
+        let output =  val.split(' ')[2] == undefined ? val : val.split(' ')[2] ;
+        return output;
+    } catch(e) {
+        return val
+    }
+});
+
 hbs.registerHelper('split', (val) => {
     let output = val.split(' ');
     return output;
@@ -196,7 +205,6 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     };
     
     let collectionsSavedCheck = await Collections.findOne({name: "collections"}).lean();
-    console.log(collectionsSavedCheck);
     if (collectionsSavedCheck == undefined) {
         let data = {
             name: 'collections',
@@ -205,19 +213,16 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
         };
         let output = await myFuncs.save(Collections,data);
         console.log(chalk.bold.red('first collection created'));
-        console.log(output);
         return next();
     };
 
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
-    console.log(checkCollectionExists, `${req.params.brand}-users`);
 
     if (checkCollectionExists) {
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
     
     checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
-    console.log(checkCollectionExists, `${req.params.brand}-users`);
 
     if (checkCollectionExists) {
         return res.redirect(`/myapp/gen/page/signin/home/`);
@@ -318,12 +323,16 @@ var myFuncs = {
     },
 
     getThemeName: async function(brand) {
-        let themesExist = await this.checkCollectionExists('myapp-themes');
-        if (themesExist == false) return 'root';
-        let theme = await myFuncs.createModel(`myapp-themes`);
-        let extract = await theme.findOne({brand: brand}).lean();
-        if (extract == null) return 'root'; 
-        return extract.theme;
+        try {
+            let themesExist = await this.checkCollectionExists('myapp-themes');
+            if (themesExist == false) return 'root';
+            let theme = await myFuncs.createModel(`myapp-themes`);
+            let extract = await theme.findOne({brand: brand}).lean();
+            if (extract == null) return 'root'; 
+            return extract.theme;
+        } catch (e) {
+            return 'root';
+        }
     },
 
     getDirectoryList : async function(directoryName) {
@@ -344,10 +353,7 @@ var myFuncs = {
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
         let output = keys.map(val => {
-            console.log('req.values', val, properties[val]['html'] );
             if (properties[val]['html'] == 'imgURL' && req.values && req.values[val] != undefined) {
-                console.log('checking if this is triggered');
-                console.log(chalk.red(req.values && req.values[val].split(' ')));
                 req.values[val] = req.values && req.values[val].split(' ');
             }
             return {
@@ -419,12 +425,17 @@ var myFuncs = {
 
     createModel : async function(modelName) {
 
-        let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
-        let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-        if (modelExistsAlready) { mongoose.models[modelName] = ''; };
-        let schema = await Collections.findOne({name: modelName}).lean();
-        console.log({modelName});
-        return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
+        try {
+            let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
+            let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
+            if (modelExistsAlready) { mongoose.models[modelName] = ''; };
+            let schema = await Collections.findOne({name: modelName}).lean();
+            console.log({modelName});
+            return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
+        } catch(e) {
+            console.log( chalk.blue.bold( 'Failed to create Model' ) );
+            return e;
+        }
         
     },
 
@@ -447,10 +458,8 @@ var myFuncs = {
     dropCollection: async function(req,res) {
         try {
             let collectionName = req.params.input.indexOf('-') > 0 ? req.params.input.split('-')[1] : req.params.input;
-            console.log(collectionName);
             let output = await Collections.remove({name: `${req.params.brand}-collectionName`});
             await mongoose.connection.db.dropCollection(req.params.input);
-            console.log({collectionName, output});
             return {
                 success: 'collection dropped'
             }
@@ -489,7 +498,6 @@ var myFuncs = {
         if (req.params.input == 'n') return {
             error: 'Please give collection Name'
         };
-        console.log(`creating new collection at ${req.params.input}`);
         let types = this.getTypes();
 
         req.params.theme = 'root';
@@ -507,7 +515,6 @@ var myFuncs = {
             error: 'Please give a Collection Name'
         };
 
-        console.log(`editing a collection at ${req.params.input}`);
         let collectionDetails = await Collections.findOne({name: req.params.input}).lean();
         let output = Object.keys(collectionDetails.properties).map(val => {
             return {
@@ -539,7 +546,6 @@ var myFuncs = {
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
         let navRows = collectionsTable.map(val => val.name);
-        console.log({collectionsTable: collectionsTable});
 
         if (collectionsTable.length == 0) return {
             status:200, 
@@ -580,10 +586,8 @@ var myFuncs = {
 
         if (inputCollection.hasOwnProperty('redirect') && inputCollection.redirect != 'showCollection' && inputCollection.redirect != '') {
 
-            console.log( chalk.bold.red('redirect found'));
             req.query.redirect = inputCollection.redirect && inputCollection.redirect.split('/')[0] || 'showCollection';
             req.query.redirectInput = inputCollection.redirect && inputCollection.redirect.split('/')[1] || 'n';
-            console.log(req.query);
 
         };
 
@@ -591,6 +595,7 @@ var myFuncs = {
         req.params.theme = 'root';
 
         model = await this.createModel(`${req.params.brand}-notifications`);
+
         let notifications = {
             count: await model.countDocuments({status: 'unread'}),
             texts: await model.find({status: 'unread'})
@@ -645,12 +650,10 @@ var myFuncs = {
     checkSignIn: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        console.log(`user found in ${req.params.brand}-users`,output);
         // if 7am does not have this user look into myapp. it can be an brand. 
         if (!output) {
             model = await this.createModel('myapp-users');
             output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-            console.log(`user found in ${req.params.brand}-users`,output);
         };
 
         // If still no user found , return mismatch
@@ -716,7 +719,6 @@ var myFuncs = {
         });
         newRows.unshift(collectionHeadings);
         csv = this.array2CSV(newRows);
-        console.log(csv);
 
         return new Promise ((resolve,reject) => {
             fs.writeFile('./static/myFile.csv', csv, (err) => {
@@ -729,7 +731,6 @@ var myFuncs = {
     },
 
     uploadMany: async function(req,res) {
-        console.log(req.body.data);
         let model = await this.createModel(req.params.input);
         let mongoId =   req.body.data.map( val => val._id.match(/^[0-9a-fA-F]{24}$/) ? val._id : new mongoose.mongo.ObjectID() );
         let dataWithOutId = req.body.data.map( val => delete val._id );
@@ -742,7 +743,6 @@ var myFuncs = {
     },
 
     ecommerce: async function(req,res) {
-        console.log('ecommerce trigger');
         // cart, schools, items, resources, categories
         let models = {};
         models.cart= await this.createModel(`${req.params.brand}-cart`);
@@ -832,7 +832,6 @@ var myFuncs = {
     },
 
     uploadCloudinary: async function(req,res) {
-        console.log(req.body.width,req.body.height);
         let output = await cloudinary.uploader.upload(req.body.img,
               {
                 resource_type: "image",
@@ -843,7 +842,6 @@ var myFuncs = {
                   { width: req.body.width, height: req.body.height, crop: "limit" }
                 ],
               });
-        console.log(output);
         return output;
     },
 
@@ -956,10 +954,8 @@ var myFuncs = {
     },
 
     removeItemFromCart: async function(req,res) {
-        console.log(req.body);
         let model = await this.createModel(`${req.params.brand}-cart`);
         let out = await model.deleteOne({_id: req.body.myId});
-        console.log(out);
         return out.deletedCount == 0 ? {status: 300, error: 'item did not remove'} : {success: 'item removed', output: out} ;
     },
 
@@ -973,8 +969,6 @@ var myFuncs = {
         while (my_string.length < length) {
             my_string = '0' + my_string;
         }
-
-        console.log({number, length, my_string});
 
         return my_string;
 
@@ -1008,13 +1002,10 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-cart`);
         let cartIds = req.body.cartIds.split(' ');
         let output = await Promise.all(cartIds.map(val => model.findOneAndUpdate({_id: val.trim()}, {cartStatus: 'closed'}) ) );
-        console.log({output});
-        console.log({cartIds});
         return 'cartClosed';
     },
 
     notifySlack: async function(token, msg, conversationId) {
-        console.log( {token, msg, conversationId} );
         try {
             const result = await web.chat.postMessage({
                 token: token,
@@ -1031,8 +1022,6 @@ var myFuncs = {
     createOrder: async function(req,res) {
         
         let closeCart = await this.closeCartItems(req,res);
-
-        console.log(chalk.bold.red( {closeCart} ));
 
         let order = req.body;
         order._id = order._id == '' ? new mongoose.mongo.ObjectID() : order._id ;
@@ -1056,10 +1045,8 @@ var myFuncs = {
         let msg = ` ————————\nNew Order \nOrder No : ${order.orderNo} \nCustomer : ${order.name} · ${order.mobile} \nShipping Address : ${order.address} \nOrder Details : <http://${order.myURL}/${req.params.brand}/gen/page/orderReceiptPage/n?mobile=${order.mobile}&orderNo=${order.orderNo}| Show Receipt> \n—————————`;
         
         let resources = await this.fetchResources(req,res);
-        console.log( resources );
 
         let slackNotify = this.notifySlack(resources[0].slackToken, msg, resources[0].slackChannelId);
-        console.log(slackNotify);
 
         return output;
     },
@@ -1068,7 +1055,6 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({sessionId: req.sessionID}).lean();
         let highestOrder = await model.find({}, {orderNo: 1, _id:0}).sort({orderNo:-1}).limit(1);
-        console.log({highestOrder});
         return {order: output, orderNo: highestOrder.length > 0 ? highestOrder[0].orderNo : '000000'};
     },
 
@@ -1084,7 +1070,6 @@ var myFuncs = {
 
     getCartItemsInArray: async function(req, model, cartIds) {
         cartIds = cartIds.split(' ').map( val => mongoose.Types.ObjectId(val) );
-        console.log({cartIds});
         let result = await model
             .aggregate([
             {
@@ -1173,7 +1158,6 @@ var myFuncs = {
 
     findItemWithId: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-items`);
-        console.log({itemID: req.params.input});
         let result = await model
             .aggregate([
             {
@@ -1292,7 +1276,6 @@ var myFuncs = {
 
     updateOrder: async function(req,res) {
         let order = req.body.order;
-        console.log({order});
         let itemStatus;
         if (req.body.quantityTest != 0) {
             itemStatus = await this.orderDelivered(req,res);
@@ -1312,14 +1295,12 @@ var myFuncs = {
             case (req.body.quantityTest == -1) :
                 items = items.map( val => {
                     val.newQty = Number(val.quantity) - Number(val.quantityDiff);
-                    console.log({newQty : val.newQty, oldQty: val.quantity, orderPlaced: val.quantityDiff});
                     return val;
                 });
                 break;
             case (req.body.quantityTest == 1) :
                 items = items.map( val => {
                     val.newQty = Number(val.quantity) + Number(val.quantityDiff);
-                    console.log({newQty : val.newQty, oldQty: val.quantity, orderPlaced: val.quantityDiff});
                     return val;
                 });
                 break;
@@ -1335,7 +1316,6 @@ var myFuncs = {
     getSizes: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-sizes`);
         let output = await model.find({category: req.params.input}).lean();
-        console.log({output});
         output = output.map( size => {
             Object.values(size).forEach( data => {
                 Object.keys(data).forEach(k => data[k] == '' || k == '_id' || k == 'category' ?  delete data[k] : data[k]);
@@ -1374,7 +1354,6 @@ var myFuncs = {
     },
 
     updatePage: async function(req,res) {
-        console.log(req.body);
         let model = await this.createModel(`${req.params.brand}-pages`);
         let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
         return output;
@@ -1452,13 +1431,13 @@ var myFuncs = {
 
         let counts = {
             netRevenue : output.reduce( (total,val) => total = total + val.netRevenue , 0 ),
-            outOfStock : await models.items.find({quantity:0}).count(),
-            unhandledOrders : await models.orders.find({status: "Order Placed in Store"}).count(),
-            allOrders : await models.orders.find().count(),
-            allProducts: await models.items.find().count(),
-            allEmployees : await models.users.find().count(),
-            staticPages: await models.pages.find().count(),
-            allSizes: await models.sizes.find().count()
+            outOfStock : await models.items.find({quantity:0}).countDocuments(),
+            unhandledOrders : await models.orders.find({status: "Order Placed in Store"}).countDocuments(),
+            allOrders : await models.orders.find().countDocuments(),
+            allProducts: await models.items.find().countDocuments(),
+            allEmployees : await models.users.find().countDocuments(),
+            staticPages: await models.pages.find().countDocuments(),
+            allSizes: await models.sizes.find().countDocuments()
         };
 
         return {
@@ -1587,7 +1566,6 @@ var myFuncs = {
 
         token = token || req.query.token;
         channelId = channelId || req.query.channelId;
-        console.log( chalk.bold.red({token, channelId}) );
         let result;
         try {
             result = await web.chat.postMessage({
@@ -1597,7 +1575,6 @@ var myFuncs = {
             });
             return {result}
         } catch(e) {
-            console.log( e );
             return {status: 400, error: e.data.error}
         }
     },
@@ -1605,7 +1582,6 @@ var myFuncs = {
     // pjax modules
 
     profits: async function(req,res) {
-        console.log( chalk.bold.blue('Own profits') );
         var date = new Date();
         let from = req.query.from && new Date(req.query.from).setHours(00,00,00) || new Date(date.getFullYear(), date.getMonth(), 1).setHours(00,00,00); 
         let to = req.query.to && new Date(req.query.to).setHours(23,59,59) || new Date().setHours(23,59,59);
@@ -1643,7 +1619,6 @@ var myFuncs = {
 
         var query = processQuery(req.query);
         delete query.filter._pjax;
-        console.log(query);
 
         let model = await this.createModel(`${req.params.brand}-items`);
         let output = await model.aggregate([
@@ -1676,7 +1651,6 @@ var myFuncs = {
 
     fetchOrders: async function(req,query) {
         let model = await this.createModel(`${req.params.brand}-orders`);
-        console.log(query);
         let orders = await model.aggregate([
             {
                 $match: query
@@ -1796,14 +1770,11 @@ var myFuncs = {
 
     unhandledOrders: async function(req,res) {
 
-        console.log( chalk.bold.blue('unhandled Orders') );
-
         req.query = processQuery(req.query);
         delete req.query.filter._pjax;
 
         req.query.filter.status = 'Order Placed in Store';
 
-        console.log(req.query);
         let orders = await this.fetchOrders(req,req.query.filter);
 
         return {
@@ -1815,7 +1786,6 @@ var myFuncs = {
     },
 
     updateOrderStatuses: async function(req,res) {
-        console.log( chalk.bold.blue('updating Order Statuses') );
         let model = await this.createModel(`${req.params.brand}-orders`);
 
         let output = await model.findOneAndUpdate(
@@ -1836,8 +1806,6 @@ var myFuncs = {
 
     allOrders: async function(req,res) {
 
-        console.log( chalk.bold.blue('Showing all Orders placed between given dates') );
-
         var date = new Date();
         let from = req.query.from && new Date(req.query.from).setHours(00,00,00) || new Date(date.getFullYear(), date.getMonth(), 1).setHours(00,00,00); 
         let to = req.query.to && new Date(req.query.to).setHours(23,59,59) || new Date().setHours(23,59,59);
@@ -1848,7 +1816,6 @@ var myFuncs = {
         delete req.query.filter.from;
 
         query = Object.values(req.query.filter).length > 0 ? req.query.filter :  {};
-        console.log(query);
         let output = await this.fetchOrders(req,query);
 
         return {
@@ -1863,10 +1830,8 @@ var myFuncs = {
 
     allProducts : async function(req,res) {
 
-        console.log( chalk.bold.blue('Showing all products') );
         var query = processQuery(req.query);
         delete query.filter._pjax;
-        console.log(query);
 
         let model = await this.createModel(`${req.params.brand}-items`);
         let output = await model.aggregate([
@@ -1898,12 +1863,8 @@ var myFuncs = {
     },
 
     allSizes : async function(req,res) {
-        console.log( chalk.bold.blue('Showing all sizes') );
         var query = processQuery(req.query);
         delete query.filter._pjax;
-
-        console.log(query);
-
         let model = await this.createModel(`${req.params.brand}-sizes`);
         let sizes = await model.aggregate([
             {
@@ -1921,11 +1882,9 @@ var myFuncs = {
     },
 
     allEmployees: async function(req,res) {
-        console.log( chalk.bold.blue('showing all employees') );
         let model = await this.createModel(`${req.params.brand}-users`);
         var query = processQuery(req.query);
         delete query.filter._pjax;
-        console.log(query);
 
         let output = await model.aggregate([
             {
@@ -2032,7 +1991,6 @@ var myFuncs = {
         if (modelExistsAlready) { mongoose.models[modelName] = ''; };
 
         let collection = await Collections.findOne({name: modelName}).lean();
-        console.log({properties: collection.properties});
         let schema = new mongoose.Schema(collection.properties);
 
         switch (true) {
@@ -2049,8 +2007,6 @@ var myFuncs = {
                 schema.index = { brandName: "text", twitter: "text", facebook: "text", youtube: "text", insta: "text", scripts: "text" };
                 break;
         };
-
-        console.log({index: schema.index});
 
         return mongoose.model(modelName, schema);
 
@@ -2200,8 +2156,6 @@ var myFuncs = {
 
         let models  = await Promise.all( names.map( val => this.createModel(val.name) ) ); 
 
-        console.log( models );
-
         let outputs = await Promise.all( models.map( (val,index) => val.find({}) ) );
 
         outputs = outputs.map( (val,index) => {
@@ -2236,12 +2190,19 @@ var myFuncs = {
 
         }); 
 
+        // first load collections from the file
+        let collectionFile = file.filter( val => val.name === 'collections' )[0];
+
+        try { let collectionDrop = await mongoose.connection.db.dropCollection('collections'); } 
+        catch (e) { console.log(e) }
+
+        let collectionSave = await Collections.insertMany( collectionFile.data );
+        
         let models = await Promise.all( file.map( val => this.createModel(val.name) ) );
 
         let funcs = [];
         models.forEach( (val,index) => {
             file[index].data.forEach( (data) => {
-                console.log ( val, data );
                 funcs.push({
                     model: val,
                     data: data
@@ -2249,10 +2210,9 @@ var myFuncs = {
             })
         });
 
-        // console.log( funcs );
+        let emptyAllCollections = await Promise.all( funcs.map( val => val.model.deleteMany({}) ) );
         let outputs = await Promise.all( funcs.map( val => val.model.findOneAndUpdate({_id: val.data._id}, val.data, {upsert: true}) ) );
 
-        console.log(outputs);
         return {success: true};
 
     }

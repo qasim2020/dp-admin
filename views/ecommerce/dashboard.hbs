@@ -411,7 +411,9 @@
             margin-top: 10px;
         }
 
-        label[for="mainLogo"], label[for="secLogo"] {
+        label[for="mainLogo"], 
+        label[for="footLogo"], 
+        label[for="secLogo"] {
             height: 100%;
             width: 100%;
             position: absolute;
@@ -419,7 +421,9 @@
             cursor: pointer;
         }
 
-        #mainLogo, #secLogo {
+        #mainLogo, 
+        #secLogo, 
+        #footLogo {
             opacity: 0;
             position: absolute;
             z-index: -1;
@@ -763,9 +767,10 @@
 
             let mainLogo = $('#mainLogo').siblings('input[type=text]').attr('value') ;
             let secLogo = $('#secLogo').siblings('input[type=text]').attr('value') ; 
+            let footLogo = $('#footLogo').siblings('input[type=text]').attr('value') ; 
             
             let data = {
-                logo: secLogo + ' ' + mainLogo,
+                logo: secLogo + ' ' + mainLogo + ' ' + footLogo,
                 facebook: $('#facebook').val(),
                 twitter: $('#twitter').val(),
                 insta: $('#insta').val(),

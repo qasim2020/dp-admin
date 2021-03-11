@@ -79,14 +79,23 @@
             font-weight: 300;
         }
 
+        .cards::-webkit-scrollbar, 
+        article::-webkit-scrollbar {
+            display: none;
+        }
+
         article {
             max-width: 100%;
             overflow: scroll;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         .cards {
             display: flex;
             overflow: scroll;
             padding-left: 1px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         .cards > a {
@@ -295,6 +304,12 @@
             flex-wrap: wrap;
         }
 
+        .content > .branding > * {
+            margin-bottom: 5px;
+            border: 1px dashed lightblue;
+            border-radius: 5px;
+        }
+
         .content > .branding > div {
             width: 261px;
             background: whitesmoke;
@@ -306,6 +321,7 @@
             margin-right: 5px;
             color: #333333;
             position: relative;
+            min-height: 261px;
         }
 
         .content > .branding > div > img {
@@ -343,14 +359,17 @@
             margin-left: 8px;
         }
 
+        .branding > box:nth-child(even) {
+            flex-grow: 1;
+            margin-left: 5px;
+        }
+
         .branding > box {
-            width: 100%;
-            margin-bottom: 10px;
-            margin-top: 8px;
+            width: 49%;
             padding: 7px;
-            margin-bottom: 0px;
             border-radius: 5px;
             background: whitesmoke;
+            box-sizing: border-box;
         }
 
         .branding > box > * {
@@ -404,6 +423,8 @@
             border: 0px;
             padding: 12px;
             color: #333333;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
         .branding > button {
@@ -779,7 +800,9 @@
                 email : $('#mail').val(),
                 mobile: $('#mobile').val(),
                 slackToken: $('#slackToken').val(),
-                slackChannelId: $('#channelId').val()
+                slackChannelId: $('#channelId').val(),
+                address: $('#address').val(),
+                slogan: $('#slogan').val(),
             }
 
 

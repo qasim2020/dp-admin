@@ -777,6 +777,10 @@ var myFuncs = {
         return {success: true};
     },
 
+    life: async function(req,res) {
+        return {success: true}
+    },
+
     landingPage: async function(req,res) {
         console.log({theme: req.params.theme});
         let output = this[req.params.theme](req,res);
@@ -1927,6 +1931,7 @@ var myFuncs = {
 
     updateResources: async function(req,res) {
 
+        console.log({body: req.body});
         let model = await this.createModel(`${req.params.brand}-resources`);
         let output = await model.findOneAndUpdate(
             {
@@ -1942,13 +1947,16 @@ var myFuncs = {
                     email: req.body.email,
                     mobile: req.body.mobile,
                     slackToken: req.body.slackToken,
-                    slackChannelId: req.body.slackChannelId
+                    slackChannelId: req.body.slackChannelId,
+                    address: req.body.address,
+                    slogan: req.body.slogan
                 }
             },{
                 new: true
             }
         );
 
+        console.log({output});
         return output;
     },
 

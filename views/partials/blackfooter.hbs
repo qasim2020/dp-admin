@@ -16,11 +16,22 @@
         margin: auto;
     }
 
+
     .footer p, 
     .footer a {
         color: #838383;
         text-decoration: none;
-        margin: 8px 0;
+        margin: -4px 0;
+    }
+
+    .footer a:hover {
+        border-bottom: 1px solid #F2F2F2;
+        color: #828282;
+    }
+
+    .footer box > h3 {
+        color: #ffffff;
+        font-weight: 300;
     }
 
     .footer > box:nth-child(1) {
@@ -30,7 +41,7 @@
     .footer > box:nth-child(1) > img {
         max-width: 99%;
         border: 1px dashed #6B6B6B;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .footer > box:nth-child(1) > p {
@@ -49,7 +60,7 @@
         <box>
 
             <img src="{{split2 data.resources.[0].logo}}" alt="">
-            <p>We are promoting Quran values through outstanding business ethics.</p>
+            <p>{{data.resources.[0].slogan}}</p>
         
         </box>
 
@@ -66,7 +77,7 @@
         <box>
 
             <h3>Visit</h3>
-            <p>Shop # 10, Barkat Market, Opp Hameed Plaza, Chakwal</p>
+            <p>{{data.resources.[0].address}}</p>
 
             <h3>Contact</h3>
             <p><a href="mailto:{{data.resources.[0].email}}">{{data.resources.[0].email}}</a></p>

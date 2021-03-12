@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&display=swap" rel="stylesheet">
+
+  <title></title>
+  <style media="screen">
+    body {
+      background: black;
+      display: flex;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin-right: auto;
+      margin-left: auto;
+      padding-top: 0;
+      padding-bottom: 15px;
+
+      max-width: 900px;
+    }
+
+    .block {
+      max-width: 400px;
+    }
+
+    input {
+      border: 0px;
+      border-bottom: 1px solid lightgray;
+      padding: 1rem 1rem 0.5rem 1rem;
+      display: block;
+      width: 100%;
+      margin-bottom: 4px;
+      color: black;
+      font-size: 1.3rem;
+      font-weight: 100;
+    }
+
+    form .btn-submit {
+      color: black;
+      background-color: white;
+      border-color: white;
+      border-radius: 0%;
+      font-size: 1.3rem;
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-height: 630px) {
+      body {
+        align-items: flex-start;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  {{> challenge_menu}}
+  <div class="container">
+
+    <div class="card special">
+      <h1>Hey 👋, Qasim !</h1>
+      {{#if msg}}
+      <p>{{msg}}</p>
+      {{else}}
+      <p>Make necessary edits and hit Save below. Happy Changing.</p>
+      {{/if}}
+    </div>
+    <form class="block" action="/profile" method="post">
+      <input type="text" name="" value="Qasim Ali">
+      <input type="text" name="" value="qasimali24@gmail.com">
+      {{#unless verified}}
+      <p><small>Your email verification is pending.</small></p>
+      <button type="button" name="button">Resend Verification</button>
+      {{/unless}}
+      <input type="text" name="" value="Old Password">
+      <input type="text" name="" value="New Password">
+      <input type="text" name="" value="Confirm Password">
+      <button class="btn btn-submit" type="submit" name="button">Save</button>
+    </form>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

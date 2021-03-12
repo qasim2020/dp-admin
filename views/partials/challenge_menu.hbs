@@ -1,0 +1,169 @@
+<style media="screen">
+  .menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    padding: 0 1rem;
+  }
+
+  .menu {
+    padding-top: 1.5rem;
+    width: 100%;
+    max-width: 720px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .menu .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+  }
+
+  .menu .card>*:not(img) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .menu h5 {
+    font-size: 1.7rem;
+    color: lightcoral;
+    font-weight: bold;
+  }
+
+  .menu small {
+    font-size: 93%;
+    font-weight: 400;
+    color: dimgray;
+  }
+
+  .menu .card:hover {
+    background: lightcoral;
+    cursor: pointer;
+  }
+
+  .menu .card:hover h5,
+  .menu .card:hover small {
+    color: white;
+  }
+
+  .menu button {
+    /* display: inline-block; */
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+
+    width: fit-content;
+  }
+
+  .menu a {
+    text-decoration: none;
+    color: black;
+    font-weight: 200;
+    padding: 0 15px;
+  }
+
+  a:hover {
+    text-decoration: none;
+    opacity: 0.6;
+  }
+
+  .btn-submit {
+    color: #fff;
+    background-color: #f0807f;
+    border-color: #f0807f;
+  }
+
+  .btn:hover {
+    opacity: 0.6;
+  }
+
+  .btn-close {
+    color: #f0807e;
+    background-color: #fdf4f4;
+    border-color: #fdf4f4;
+  }
+
+  .menu-btn.btn,
+  .menu .btn-close {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 5;
+    box-shadow: 0px 0px 5px black;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0px;
+  }
+
+  .card.special {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 4px;
+    border-radius: 0%;
+    background: white;
+    color: black;
+    max-width: 800px;
+  }
+
+  .card.special h1 {
+    font-size: 2.5rem;
+    font-weight: 100;
+  }
+
+  .card.special p {
+    font-size: 1.3rem;
+    font-weight: 200;
+  }
+
+  .menu h1 {
+    font-size: 2.5rem;
+    background: white;
+    width: fit-content;
+    border-radius: 0%;
+    padding: 3px 0px;
+    color: black;
+    margin-left: auto;
+  }
+
+  .mb-68px {
+    margin-bottom: 68px;
+  }
+</style>
+
+<button class="menu-btn btn" type="button" name="button" onclick="$('.menu-container').toggleClass('d-none')">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+  <path d="M0 0h24v24H0z" fill="none"/>
+  <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+</svg>
+
+</button>
+
+<div class="menu-container d-none">
+
+  <div class="menu">
+
+    <h1 class="mt-auto"><a href="/challenge/auth/page/landingPage/n">Home</a> </h1>
+    <h1><a href="/challenge/auth/page/profile/n">Profile</a> </h1>
+    <h1><a href="/challenge/auth/page/challenges/n">Challenges</a> </h1>
+    <h1 class="mb-68px"><a href="/challenge/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">Log Out</a> </h1>
+    <!-- <h1 onclick="$('.menu-container').toggleClass('d-none')"><a href="#">Close Menu</a> </h1> -->
+
+
+    <button class="btn btn-close" type="button" name="button" onclick="$('.menu-container').toggleClass('d-none')">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+
+  </div>
+
+</div>

@@ -233,6 +233,14 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     next();
 });
 
+let openBrand = async (req,res) => {
+    return res.redirect(`/${req.params.brand}/gen/page/landingPage/n`);
+};
+
+let openAdmin = async (req,res) => {
+    return res.redirect(`/${req.params.brand}/admin/page/signin/n`);
+};
+
 
 let replyFunction = async (req,res) => {
 
@@ -249,6 +257,8 @@ let replyFunction = async (req,res) => {
 
 app.get( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 app.post( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
+app.get('/:brand', openBrand);
+app.get('/:brand/:admin', openAdmin);
 
 var myFuncs = {
 
@@ -320,6 +330,10 @@ var myFuncs = {
         showPage: 'gen',
         updatePage: 'admin',
         dashboard: 'admin',
+        forgotpw: 'gen',
+        challenges: 'auth',
+        profile: 'auth',
+        openChallenge: 'auth',
     },
 
     getThemeName: async function(brand) {
@@ -629,11 +643,17 @@ var myFuncs = {
         };
     },
 
+    forgotpw: async function(req,res) {
+        console.log('Send a 4 digit code here');
+        return {success: true}
+    },
+
     signin: async function(req,res) {
         return {
             status: 200,
-            success: 'sign in page comes here',
             brand: req.params.brand,
+            nextPage: req.query.nextPage,
+            nextPageInput: req.query.nextPageInput,
             resources: await this.fetchResources(req,res),
             // countCart: await this.countItemsInCart(req,res),
         };
@@ -779,6 +799,12 @@ var myFuncs = {
 
     life: async function(req,res) {
         return {success: true}
+    },
+
+    challenge: async function(req,res) {
+        return {
+            sessionExists: req.session.hasOwnProperty('person') 
+        };
     },
 
     landingPage: async function(req,res) {
@@ -1134,6 +1160,12 @@ var myFuncs = {
             brand: req.params.brand,
         };
         return output;
+    },
+
+    profile : async function(req,res) {
+        return {
+            success: true
+        };
     },
 
     profilePage: async function(req,res) {
@@ -2223,7 +2255,94 @@ var myFuncs = {
 
         return {success: true};
 
-    }
+    },
+
+    challenges: async function(req,res) {
+        return {
+            sessionExists: true
+        };
+    },
+
+    openChallenge: async function(req,res) {
+        // if user has this challenge in selected list than fine else route to payment page and welcome screen
+          let box = [];
+          for (var i = 1; i < 31; i++) {
+            switch (true) {
+              case i == 1:
+                box.push({
+                  number: i,
+                  past: 'true',
+                  locked: 'true',
+                  logged: 'true',
+                  feelingType: 1,
+                  feeling: '/emojis/depressed.svg',
+                  comments: 'I am feeling kind of happy today. Let`s see till what point can I get moving'
+                })
+                break;
+              case i == 2:
+                box.push({
+                  number: i,
+                  past: 'true',
+                  locked: 'true',
+                  logged: 'true',
+                  feelingType: 2,
+                  feeling: '/emojis/exhausted.svg',
+                  comments: 'I am feeling kind of happy today. Let`s see till what point can I get moving'
+                })
+                break;
+              case i == 3:
+                box.push({
+                  number: i,
+                  past: 'true',
+                  locked: 'true',
+                  logged: 'true',
+                  feelingType: 3,
+                  feeling: '/emojis/bored.svg',
+                  comments: 'I am feeling kind of happy today. Let`s see till what point can I get moving'
+                })
+                break;
+              case i == 4:
+                box.push({
+                  number: i,
+                  past: 'true',
+                  locked: 'true',
+                  logged: 'true',
+                  feelingType: 4,
+                  feeling: '/emojis/happy.svg',
+                  comments: 'I am feeling kind of happy today. Let`s see till what point can I get moving'
+                })
+                break;
+              case i == 5:
+                box.push({
+                  number: i,
+                  past: 'true',
+                  locked: 'true',
+                  logged: 'true',
+                  feelingType: 5,
+                  feeling: '/emojis/flow.svg',
+                  comments: 'I am feeling kind of happy today. Let`s see till what point can I get moving'
+                })
+                break;
+              case i == 6:
+                box.push({
+                  number: i,
+                  present: 'true',
+                  locked:'false'
+                })
+                break;
+              default:
+                box.push({
+                  number: i,
+                  future: 'true',
+                  locked:'true'
+                });
+            }
+
+          }
+        return {
+            box: box
+        }
+    },
 
 };
 

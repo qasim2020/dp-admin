@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&display=swap" rel="stylesheet">
+  <style media="screen">
+    body {
+      background-color: black;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .box-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      display: grid;
+      width: 97vw;
+      grid-template-columns: repeat(auto-fill, minmax(13vw, 1fr));
+    }
+
+    .box-grid .card {
+      height: 19vh;
+      font-size: 8vh;
+      font-weight: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #565656;
+      border-radius: 0px;
+      box-sizing: border-box;
+      border: 1px solid rgb(246 246 246);
+    }
+
+    .box-grid .card:not(.locked):hover {
+      background: #eaeaea;
+      cursor: pointer;
+      color: black;
+    }
+
+    textarea {
+      display: inline-block;
+      width: 100%;
+      box-sizing: border-box;
+      border: 0px solid transparent;
+      padding: 10px;
+      font-size: 2.2rem;
+      background: #f0807f17;
+      font-family: 'Josefin Sans', sans-serif;
+      color: indianred;
+    }
+
+    textarea:focus {
+      outline: 0px solid transparent;
+    }
+
+    .emojis {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      margin-bottom: 13px;
+    }
+
+    .emojis img {
+      width: 17%;
+    }
+
+    .modal h5 {
+      font-size: 3.25rem;
+      font-weight: bolder;
+      color: lightcoral;
+    }
+
+    .modal img:hover {
+      margin-top: -2px;
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding-bottom: 0;
+    }
+
+    .modal-footer {
+      border-top: 0px solid #e9ecef;
+    }
+
+    img.selected {
+      opacity: 0.2;
+    }
+
+    .card.feeling-1 {
+      /* background: #ffdede; */
+    }
+
+    .card.feeling-2 {
+      /* background: #e8f9e9; */
+    }
+
+    .card.feeling-3 {
+      /* background: #fff7c1; */
+    }
+
+    .card.feeling-4 {
+      /* background: #fffbdf; */
+    }
+
+    .card.feeling-5 {
+      /* background: darkcyan; */
+    }
+
+    .card.locked img {
+      width: 11vh;
+      opacity: 1;
+      max-width: 110px;
+    }
+
+    .card.locked.future img {
+      display: none;
+    }
+
+    .card.locked.future:hover img {
+      display: block;
+    }
+
+    .card.locked.future p {
+      display: block;
+    }
+
+    .card.locked.future:hover p {
+      display: none;
+    }
+
+    .card.locked.past p {
+      width: 31px;
+      height: 31px;
+      background: lavenderblush;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .welcome_toast {
+        position: absolute;
+    z-index: 10;
+    max-width: 95vw;
+    width: 600px;
+    top: 2rem;
+    background: black;
+    padding: 1rem 3rem;
+    border: 4px solid white;
+    /* background: white; */
+    border-radius: 52px;
+    box-sizing: border-box;
+
+    display: flex;
+    /* align-items: center; */
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem 3rem;
+    }
+
+    .welcome_toast > img {
+        width: 100px;
+    }
+
+    .welcome_toast > p {
+        margin-bottom: 0;
+    margin-top: 19px;
+    /* padding-left: 2rem; */
+    font-weight: bold;
+    font-size: 32px;
+    font-weight: 300;
+    /* color: orangered; */
+    color: antiquewhite;
+    font-weight: 100;
+    line-height: 1.3;
+    }
+
+    .welcome_toast > button {
+        width: fit-content;
+    margin-top: 15px;
+    background: white;
+    border: 1px solid white;
+    font-size: 17px;
+    padding: 2px 1rem;
+    }
+    /* @media (max-width: 1272px) {
+      .box-grid {
+        grid-template-columns: repeat(5, 1fr);
+        height: auto;
+      }
+
+      .box-grid .card {
+        height: 272px;
+        min-width: 200px;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .box-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .box-grid .card {
+        height: 200px;
+        min-width: 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .box-grid {
+
+      }
+    } */
+
+    @media (orientation: portrait) {
+      .box-grid {
+        min-width: 95vw;
+        grid-template-columns: repeat(auto-fill, minmax(20vw, 1fr));
+      }
+
+      .box-grid .card {
+        height: 12vh;
+        font-size: 5vh;
+      }
+
+      .card.locked img {
+        height: 7vh;
+      }
+    }
+  </style>
+  <title>30 Days Challenge</title>
+</head>
+
+<body>
+
+  {{> challenge_menu}}
+
+  <div class="welcome_toast">
+
+      <img src="/challenge/satisfaction.svg" alt="">
+      <p>Best of luck to your namaz challenge !</p>
+      <button>Close</button>
+  
+  </div>
+
+  <div class="box-grid">
+    {{#each data.box}}
+
+      {{#if this.past}}
+
+        <div class="card locked past feeling-{{this.feelingType}}">
+          <img src="/challenge/{{this.feeling}}" alt="" data-linked="{{this.comment}}">
+        </div>
+
+      {{/if}}
+
+      {{#if this.present}}
+
+        <div class="card" data-toggle="modal" data-target="#staticBackdrop">
+          <p class="m-auto">{{this.number}}</p>
+        </div>
+
+      {{/if}}
+
+      {{#if this.future}}
+
+        <div class="card locked future">
+          <img src="/challenge/emojis/padlock.svg" alt="">
+          <p class="m-auto">{{this.number}}</p>
+        </div>
+
+      {{/if}}
+    {{/each}}
+  </div>
+
+  <div class="modal" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h5>Log your Day.</h5>
+          <div class="emojis">
+            <img src="/challenge/emojis/depressed.svg" alt="depressed" data-linked="Kind of Failing">
+            <img src="/challenge/emojis/exhausted.svg" alt="exhausted" data-linked="Really Exhausted">
+            <img src="/challenge/emojis/bored.svg" alt="bored" data-linked="Kind of Bored">
+            <img src="/challenge/emojis/happy.svg" alt="happy" data-linked="I am Happy">
+            <img src="/challenge/emojis/flow.svg" alt="flow" data-linked="In the Flow">
+          </div>
+          <textarea name="name" rows="6" cols="80" placeholder="enter your today's feelings here..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-close" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-submit">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    $(document).on('mouseenter mouseleave', '.modal img', function() {
+      var text = $(this).attr('data-linked');
+      $('.modal h5').text(text);
+    })
+
+    $(document).on('mouseleave', '.modal .emojis', function() {
+      console.log($('img.active'));
+      if ($('img.selected').length > 0) {
+        var text = $('img.active').attr('data-linked');
+        console.log(text);
+        $('.modal h5').text(text);
+        return;
+      };
+      $('.modal h5').text('Log your Day.');
+    })
+
+    $(document).on('click', '.modal img', function() {
+      $('img').addClass('selected').removeClass('active');
+      $(this).removeClass('selected').addClass('active');
+      var text = $(this).attr('data-linked');
+      $('.modal h5').text(text);
+    })
+  </script>
+</body>
+
+</html>

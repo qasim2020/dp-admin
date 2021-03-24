@@ -1,0 +1,205 @@
+<html>
+
+<head>
+
+    <title>Show Collections</title>
+
+<style type="text/css">
+    
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    nav a , nav input, nav button {
+        text-decoration: none;
+        padding: 4px;
+        border: 1px solid lightgrey;
+        color: black;
+    }
+
+    .container {
+        display: flex;
+    }
+
+    .sidebar {
+        width: 233px;
+        min-width: 190px;
+        background: lightgrey;
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 1px;
+    }
+
+    .tables {
+        overflow: scroll;
+        flex-grow: 1;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    form {
+        display: block;
+        height: 11px;
+    }
+
+    td,th {
+        border: 1px solid grey;
+        padding: 5px;
+        white-space: nowrap;
+        text-align: center;
+        max-width: 100px;
+        overflow: hidden;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    .modal {
+        position: absolute;
+        background: white;
+        border: 1px solid grey;
+        padding: 1rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        background: whitesmoke;
+    }
+
+    button.active {
+        background: darkred;
+        color: white;
+        font-weight: bold;
+    }
+
+</style>
+</head>
+
+<body>
+
+    <nav>
+
+        <form>
+            <label>Create New Collection</label>
+            <input name="name" id="collectionName" type='text' placeholder='Enter Collection Name' required>
+            <button id="submitButton" type="submit">Submit</button>
+        </form>
+
+        <p>
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
+            <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a>
+            <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
+            <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <button class="{{#if data.notifications.count}}active{{/if}}" my-data="
+            {{#each data.notifications.texts}}
+            <p>{{this.text}}</p>
+            {{/each}}
+                " onclick="showData(this)">Notifications {{data.notifications.count}}</button>
+            <button onclick="createAppBackup(this)">Create App Backup</button>
+            <button onclick="loadBackUp(this)">Load Backup</button>
+            <a href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a>
+        </p>
+    
+    </nav>
+
+        {{#if data.success}}
+        <p>{{data.success}}</p>
+        {{/if}}
+
+    <div class="container">
+
+        <div class="sidebar">
+            {{#each data.navRows}}
+                <p><a href="/{{../data.brand}}/admin/page/showCollection/{{this}}">{{this}}</a></p>
+            {{/each}}
+        </div>
+
+        <div class="tables">
+            <table>
+                <tbody>
+                    <tr>
+                        {{#each data.th}}
+                            <th>{{this}}</th>
+                        {{/each}}
+                    </tr> 
+
+                    {{#each data.dataRows}}
+                    <tr>
+                        {{#each this}}
+                            <td>{{{this}}}</td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+
+                </tbody>
+            </table> 
+        </div>
+
+    </div>
+
+    <div class="modal d-none">
+        <div class="data"></div>
+        <button onclick="closeModal()">Close</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <script>
+
+        $('form').on('submit',function(e) {
+            e.preventDefault();
+            console.log($(this).serialize());
+            console.log('/{{data.brand}}/admin/page/createNewCollection/' + $('#collectionName').val());
+            return window.location.href = '/{{data.brand}}/admin/page/createNewCollection/' + $('#collectionName').val();
+            $.ajax({
+              type: "GET",
+              url: '/{{data.brand}}/admin/data/createNewCollection/'+$('#collectionName').val(),
+              success: (data) => {
+                console.log('successful data sent'),
+                console.log(data);
+                $('#submitButton').html(data.error);
+              }
+            });
+        });
+
+        let showData = function(elem) {
+            let data = $(elem).attr('my-data');
+            $('.modal').removeClass('d-none').find('.data').html(data);
+        };
+
+        let closeModal = function() {
+            $('.modal').addClass('d-none');
+        };
+
+        let createAppBackup = function(elem) {
+
+            $.ajax({
+                url : "/{{data.brand}}/admin/data/createAppBackup/n",
+                method: "get",
+                success: (data) => $(elem).html('Backup created!')
+            }).fail( err => $(elem).html(err) );
+        
+        }
+
+        let loadBackUp = function(elem) {
+
+            $.ajax({
+                url: "/{{data.brand}}/admin/data/loadBackUp/n",
+                method: "get",
+                success: (data) => $(elem).html('Backup Loaded')
+            }).fail( err => $(err).html(err) );
+            
+        }
+
+    </script>
+
+
+</body>
+
+</html>

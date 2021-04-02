@@ -255,10 +255,10 @@ let replyFunction = async (req,res) => {
 
 };
 
-app.get( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
+app.get(  '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 app.post( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
-app.get('/:brand', openBrand);
-app.get('/:brand/:admin', openAdmin);
+app.get(  '/:brand', openBrand);
+app.get(  '/:brand/admin', openAdmin);
 
 var myFuncs = {
 
@@ -798,7 +798,10 @@ var myFuncs = {
     },
 
     life: async function(req,res) {
-        return {success: true}
+        let model = await this.createModel(`life-blogs`);
+        let output = await model.find().lean();
+        console.log({output});
+        return {blogs: output};
     },
 
     challenge: async function(req,res) {

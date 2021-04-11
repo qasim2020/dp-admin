@@ -92,8 +92,9 @@
 
         <p>
             <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            <a href="/{{data.brand}}/admin/page/airtablePull/{{data.modelName}}">Airtable Pull</a>
             <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
-            <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a>
+            <!-- <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a> -->
             <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
             <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
             <button class="{{#if data.notifications.count}}active{{/if}}" my-data="
@@ -132,7 +133,7 @@
                     {{#each data.dataRows}}
                     <tr>
                         {{#each this}}
-                            <td>{{{this}}}</td>
+                            <td>{{this}}</td>
                         {{/each}}
                     </tr>
                     {{/each}}

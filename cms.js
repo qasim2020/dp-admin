@@ -234,13 +234,17 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
 });
 
 let openBrand = async (req,res) => {
+    if (req.params.brand.indexOf('.') > 0) {
+        console.log( chalk.bold.red("===== Wrong Call ===== \n", req.params.brand ) );
+        return res.status(300).send('Wrong Attempt');
+    };
+
     return res.redirect(`/${req.params.brand}/gen/page/landingPage/n`);
 };
 
 let openAdmin = async (req,res) => {
     return res.redirect(`/${req.params.brand}/admin/page/signin/n`);
 };
-
 
 let replyFunction = async (req,res) => {
 
@@ -299,6 +303,8 @@ var myFuncs = {
         deleteDocument: 'admin',
         checkCollectionExists: 'admin',
         createModel: 'admin',
+        airtablePull: 'admin',
+        mergeDataIntoCollection: 'admin',
         save: 'admin',
         dropCollection: 'admin',
         createNewCollection: 'admin',
@@ -451,6 +457,26 @@ var myFuncs = {
             return e;
         }
         
+    },
+
+    airtablePull: async function(req,res) {
+        console.log('show airtable pull page here');
+        req.params.theme = 'root';
+        return {
+            brand: req.params.brand,
+            collection: req.params.input
+        };
+    },
+
+    mergeDataIntoCollection : async function(req,res) {
+        console.log(' merge data into collection here ');
+        // console.log( JSON.parse(req.body.data) );
+        console.log(req.body.results);
+
+        let model = await this.createModel(req.params.input);
+        let output = await model.insertMany(req.body.results);
+        console.log(output);
+        return {success: true, output: output}
     },
 
     save : async function(model,data) {
@@ -797,11 +823,43 @@ var myFuncs = {
         return {success: true};
     },
 
+    daysSinceDate: function(start,end) {
+        // To set two dates to two variables
+        var date1 = new Date(start);
+        var date2 = new Date(end);
+
+        // To calculate the no. of time between two dates
+        var Difference_In_Time = date2.getTime() - date1.getTime();
+
+        // To calculate the no. of days between two dates
+        var difference = Math.ceil(Difference_In_Time / (1000 * 3600 * 24));
+
+        return difference;
+    },
+
     life: async function(req,res) {
         let model = await this.createModel(`life-blogs`);
         let output = await model.find().lean();
-        console.log({output});
-        return {blogs: output};
+
+        let start_date = "01/01/2020";
+        let difference = this.daysSinceDate(start_date,new Date());
+
+        let array = [], this_date;
+
+        for (let i = 1 ; i <= difference ; i++) {
+            this_date = new Date(new Date(start_date).getTime() + (1000 * 60 * 60  * 24 * i) ) ;
+            array.push( {
+                date: this_date,
+                blog: output.find( val => {
+                    let diff = Math.ceil( (new Date(val.date).getTime() - this_date.getTime()) / 1000 / 60 / 60 / 24 );
+                    return Math.abs( diff ) < 1;
+                })
+            });
+        }
+
+        console.log(array);
+
+        return {blogs: array};
     },
 
     challenge: async function(req,res) {

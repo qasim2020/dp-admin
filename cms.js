@@ -140,6 +140,11 @@ hbs.registerHelper('removeSpaces', (val) => {
     return val.replace(/ /gi,'');
 });
 
+hbs.registerHelper('match', function(val1,val2) {
+  // console.log(val1,val2);
+  return val1.toUpperCase() == val2.toUpperCase() ? true : false;
+})
+
 hbs.registerHelper('split0', (val) => {
     try {
     let output =  val.split(' ')[0] == undefined ? val : val.split(' ')[0] ;
@@ -369,6 +374,9 @@ var myFuncs = {
         openChallenge: 'auth',
         dashboardBlogs: 'admin',
         addNewBlog: 'admin',
+        saveBlog: 'admin',
+        openBlog: 'gen',
+        subscribeCustomer: 'gen',
     },
 
     getThemeName: async function(brand) {
@@ -871,25 +879,26 @@ var myFuncs = {
 
     life: async function(req,res) {
         let model = await this.createModel(`life-blogs`);
-        let output = await model.find().lean();
+        let output = await model.find().sort({ser: -1}).lean();
 
         let start_date = "01/01/2020";
         let difference = this.daysSinceDate(start_date,new Date());
 
         let array = [], this_date;
 
-        for (let i = 1 ; i <= difference ; i++) {
+        for (let i = 1 ; i < difference ; i++) {
             this_date = new Date(new Date(start_date).getTime() + (1000 * 60 * 60  * 24 * i) ) ;
             array.push( {
                 date: this_date,
                 blog: output.find( val => {
                     let diff = Math.ceil( (new Date(val.date).getTime() - this_date.getTime()) / 1000 / 60 / 60 / 24 );
                     return Math.abs( diff ) < 1;
-                })
+                }),
+                postNo: i,
             });
         }
 
-        console.log(array);
+        array.sort( (a,b) => b.postNo - a.postNo );
 
         return {blogs: array};
     },
@@ -2442,22 +2451,95 @@ var myFuncs = {
         req.isLocal = true;
         let output = await this.showCollection(req,res);
         req.params.theme = 'life';
+        console.log(output);
         return output;
     },
 
     addNewBlog: async function(req,res) {
-        return {success: true};
+        return {
+            blog: {
+                _id: this.getMongoId(req,res),
+            }
+        };
     },
 
     editThisBlog: async function(req,res) {
         req.params.module = "addNewBlog";
         console.log(req.query);
         let model = await this.createModel(req.params.input);
-        let output = await model.findOne({_id: req.query._id});
+        let output = await model.findOne({_id: req.query._id}).lean();
+        output.date = this.getFormattedDate(output.date);
+        console.log(output);
         return {
             blog: output
         };
     },
+
+    saveBlog: async function(req,res) {
+        let model = await this.createModel('life-blogs');
+        let myId = req.query._id;
+        delete req.query._id;
+        let output = await model.findOneAndUpdate({
+            _id: myId 
+        },
+            req.query
+        ,{
+            upsert: true
+        });
+        return {
+            success: true
+        }
+    },
+
+    publishBlog: async function(req,res) {
+        console.log(req.body);
+        let model = await this.createModel('life-blogs');
+        let output = await model.findOneAndUpdate({
+            _id: req.body._id
+        },{
+            publish: req.body.publish
+        });
+        return output;
+    },
+
+    getFormattedDate : function(inputDate) {
+        var date = new Date(inputDate);
+        return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())); 
+    },
+
+    openBlog: async function(req,res) {
+        let model = await this.createModel('life-blogs');
+        let output = await model.findOne({slug: req.params.input});
+        let body = output.body.split('\n').map(val => {
+            return {
+              type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
+              msg: val.split(': ')[1].trim(),
+              class: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.').slice(1,4).join(' ') : ''
+            }
+          });
+        let d = new Date(output.date);
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+        output.date = `${da} ${mo}, ${ye}`;
+        return {
+            output: output,
+            body: body,
+            tags: output.tags.split(',')
+        };
+    },
+
+    subscribeCustomer: async function(req,res) {
+
+        console.log(req.body);
+        let model = await this.createModel(`${req.params.brand}-subscribers`);
+        let output = await model.findOneAndUpdate({email: req.body.email},{email: req.body.email, validation: false}, {upsert: true});
+        return {
+            output
+        }
+
+    },
+
 };
 
 server.listen(3000)

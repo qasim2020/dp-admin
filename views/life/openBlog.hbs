@@ -3,8 +3,6 @@
 
 <head>
 
-  {{>googleAnalytics}}
-
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Primary Meta Tags -->
@@ -116,9 +114,12 @@
     }
 
     .date {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      background: whitesmoke;
+      margin-top: 25px;
     }
 
     h1 {
@@ -206,8 +207,9 @@
       background: #4f4f4f;
       font-size: 14px;
       color: #e6e6e6;
-      padding: 3px 5px;
+      padding: 4px 7px;
       white-space: nowrap;
+      border-radius: 4px;
     }
 
     .font-normal {
@@ -683,23 +685,25 @@
 </head>
 
 <body>
-  <div class="logo-area" onclick="window.location.href = '/quranDaily'">
+  <div class="logo-area" onclick="window.location.href = '/life/gen/page/landingPage/n'">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M21 11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V11Z" fill="#4F4F4F" />
     </svg>
 
-    <p>Quran Daily</p>
+    <p>qasimali.xyz</p>
   </div>
 
   <section id="blog">
 
-    {{#each data.Content}}
+    {{#each data.body}}
 
       {{#if (match 'h1' type)}}
+        <p class="date">{{../data.output.date}}</p>
+
         <h1 class="{{{class}}}">{{{msg}}}</h1>
 
         <p class="tags">
-          {{#each ../tags}}
+          {{#each ../data.tags}}
             <span>{{this}}</span>
           {{/each}}
         </p>
@@ -847,14 +851,13 @@
       $('.subscribe>.error:not(input)').addClass('d-none');
 
       let data = {
-        "query": 'subscription',
         "email": $('#subscribe-input').val(),
       };
 
       data = JSON.stringify(data);
 
       $.ajax({
-        url: '/signing',
+        url: '/life/gen/data/subscribeCustomer/n',
         type: 'post',
         data,
         headers: {
@@ -863,7 +866,6 @@
       }).done((msg) => {
         console.log(msg);
         $('.subscribe>.success').removeClass('d-none');
-        // $('button').attr('disabled',true);
       }).fail((e) => {
         $('.error').removeClass('d-none').html(e.responseText);
         console.log(e.responseText);

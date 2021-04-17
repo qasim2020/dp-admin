@@ -4,24 +4,113 @@
     <meta charset="UTF-8">
     <title>Edit Blog</title>
     <style type="text/css">
+
+    body {
+        max-width: 900px;
+        margin: auto;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    form > label {
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 23px;
+    }
+
+    form > * {
+        display: block;
+        width: 100%;
+        min-height: 22px;
+        box-sizing: border-box;
+    }
+
+    form > input, form > textarea {
+        background: whitesmoke;
+        border: 1px solid whitesmoke;
+        padding: 10px;
+    }
     
     textarea {
-        width: 100%;
-        box-sizing: border-box;
         height: 60vh;
         font-size: 16px;
         font-family: none;
         line-height: 1.5;
-        padding: 10px;
-        border: 1px solid whitesmoke;
     }
 
     </style>
 </head>
 <body>
-    <p>124 - 29 Dec 2021 — Qasim Ali - Quran Class</p>
-    <textarea id="" name="" cols="30" rows="10">{{data.blog.body}}</textarea>
-    <button>Save</button>
-    <button>Publish</button>
+    <form action="">
+
+        <label for="_id">ID</label>
+        <input type="text" name="_id" id="_id" value="{{data.blog._id}}" required>
+        
+        <label for="body">Blog Post</label>
+        <textarea id="body" name="body" cols="30" rows="10" required>{{data.blog.body}}</textarea>
+
+        <label for="ser">Ser #</label>
+        <input type="text" name="ser" id="ser" value="{{data.blog.ser}}" required>
+    
+        <label for="date">Date</label>
+        <input type="date" name="date" id="date" value="{{data.blog.date}}" required>
+
+        <label for="verses">Verses</label>
+        <input type="text" name="verses" id="verses" value="{{data.blog.verses}}" required>
+
+        <label for="author">Author</label>
+        <input type="text" name="author" id="author" value="{{data.blog.author}}" required>
+
+        <label for="tags">Tags</label>
+        <input type="text" name="tags" id="tags" value="{{data.blog.tags}}" required>
+    
+        <label for="slug">Slug</label>
+        <input type="text" name="slug" id="slug" value="{{data.blog.slug}}" required>
+    
+        <label for="type">Type</label>
+        <input type="text" name="type" id="type" value="{{data.blog.type}}" required>
+
+    </form>
+
+    <button onclick="saveBlog()">Save</button>
+    <button onclick="publishBlog(this)" publish={{data.blog.publish}}>Published ? = {{data.blog.publish}}</button>
+    <p class="error"></p>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        let saveBlog = function() {
+            let data = $('form').serialize();
+            console.log(data);
+            $.ajax({
+                url : "/life/admin/data/saveBlog/n?"+data,
+                method: "GET",
+            }).done( msg => $('.error').html(msg) )
+              .fail( err => $('.error').html(err) );
+        }
+
+        let publishBlog = function(elem) {
+            let currentStatus = $(elem).attr("publish");
+            let newStatus = currentStatus == "true" ? "false" : "true";
+            console.log({currentStatus });
+            $(elem).html('Toggling Publish');
+
+            $.ajax({
+                url: "/life/admin/data/publishBlog/n",
+                method: "POST",
+                data: {
+                    _id: "{{data.blog._id}}",
+                    publish: newStatus 
+                }
+            }).done( msg => {
+                    console.log(msg);
+                    $(elem).attr({publish: newStatus})
+                           .html(`Published ? = ${newStatus}`);
+            }).fail( err => {
+                $('.error').html(err)
+                $(elem).html(`Published ? = ${currentStatus}`);
+            }) 
+        }
+    </script>
 </body>
 </html>

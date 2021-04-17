@@ -154,7 +154,7 @@
       font-family: Roboto;
       font-style: normal;
       font-weight: bold;
-      font-size: 40px;
+      font-size: 30px;
       line-height: 157.9%;
       /* or 63px */
       text-align: center;
@@ -249,6 +249,13 @@
         margin-top: 13px;
       }
 
+      .left-part > svg {
+        position: absolute;
+        z-index: -10;
+        left: 0;
+        top: -29px;
+      }
+
       .right-part {
         padding: 0;
         width: auto;
@@ -286,7 +293,11 @@
 
       <div class="right-part">
         {{#each data.blogs}}
-        <span class="{{locked}} {{this.data}}">{{@index}}</span>
+            {{#if this.blog}}
+                <span class="active" slug="{{this.blog.slug}}">{{this.postNo}}</span>
+            {{else}}
+                <span class="{{locked}} {{this.data}}">{{postNo}}</span>
+            {{/if}}
         {{/each}}
       </div>
     </div>
@@ -298,8 +309,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
     <script type="text/javascript">
       $('span.active').on('click',function() {
-        console.log('hoell');
-        window.location.href = `/blogpost?serialNo=${$(this).html()}`
+          window.location.href = `/life/gen/page/openBlog/${$(this).attr('slug')}`;
       })
     </script>
   </body>

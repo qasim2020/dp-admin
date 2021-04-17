@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h2>This is the list of all active apps :—</h2>
+    <ul>
+            {{#each apps}}
+        <li>
+            <a href="/{{url}}">{{name}}</a> — 
+            <a href="/{{url}}/admin/page/showCollection/{{url}}-users">Dashboard</a>
+        </li>
+            {{/each}}
+    </ul>
+</body>
+</html>

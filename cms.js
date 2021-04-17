@@ -263,6 +263,33 @@ app.get(  '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 app.post( '/:brand/:permit/:requiredType/:module/:input', replyFunction );
 app.get(  '/:brand', openBrand);
 app.get(  '/:brand/admin', openAdmin);
+app.get(  '/', async (req,res) => {
+    // HERE ADD THE NEW APP YOU ARE WORKING ON
+    return res.status(200).render('root/showApps.hbs',{
+        apps: [
+            {
+                name: 'My App',
+                url: 'myapp'
+            },
+            {
+                name: '7am',
+                url: '7am',
+            },
+            {
+                name: 'trends',
+                url: 'trends',
+            },
+            {
+                name: '30 Days Challenge',
+                url: 'challenge',
+            },
+            {
+                name: 'portfolio',
+                url: 'life'
+            }
+        ]
+    });
+});
 
 var myFuncs = {
 
@@ -340,6 +367,8 @@ var myFuncs = {
         challenges: 'auth',
         profile: 'auth',
         openChallenge: 'auth',
+        dashboardBlogs: 'admin',
+        addNewBlog: 'admin',
     },
 
     getThemeName: async function(brand) {
@@ -585,7 +614,6 @@ var myFuncs = {
 
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
-        let navRows = collectionsTable.map(val => val.name);
 
         if (collectionsTable.length == 0) return {
             status:200, 
@@ -593,12 +621,30 @@ var myFuncs = {
             brand: req.params.brand
         };
 
+        let inputCollection = await Collections.findOne({name: req.params.input}).lean();
+
+        if (
+            inputCollection.hasOwnProperty('redirect') && 
+            inputCollection.redirect != 'showCollection' && 
+            inputCollection.redirect != '' &&
+            req.isLocal != true // IS IT A LOCAL REQUEST 
+        ) {
+            req.query.redirect = inputCollection.redirect && inputCollection.redirect.split('/')[0] || 'showCollection';
+            req.query.redirectInput = inputCollection.redirect && inputCollection.redirect.split('/')[1] || 'n';
+            return {
+                status: 200,
+                success: 'Request is now redirected to redirected page mentioned inside the database',
+                brand: req.params.brand
+            }
+        };
+
+        let navRows = collectionsTable.map(val => val.name);
+
         req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
 
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
 
         collectionHeadings.unshift('_id');
-        collectionHeadings = collectionHeadings.concat(['edit','delete']);
 
         let model = await this.createModel(req.params.input);
         let dataRows = await model.find().lean();
@@ -606,12 +652,6 @@ var myFuncs = {
             let total = [];
             for (i=0; i<collectionHeadings.length; i++) {
                 switch (true) {
-                    case (collectionHeadings[i] == 'edit'):
-                        total.push(`<a href="/${req.params.brand}/admin/page/editDocument/${req.params.input}?_id=${val._id}">Edit</a>`)
-                        break;
-                    case (collectionHeadings[i] == 'delete'):
-                        total.push(`<a href="/${req.params.brand}/admin/page/deleteDocument/${req.params.input}?_id=${val._id}&redirect=showCollection&redirectInput=${req.params.input}">Delete</a>`)
-                        break;
                     case (collectionHeadings[i] == 'properties'):
                         total.push(JSON.stringify(val[collectionHeadings[i]]));
                         break;
@@ -622,14 +662,6 @@ var myFuncs = {
             return total;
         });
 
-        let inputCollection = await Collections.findOne({name: req.params.input}).lean();
-
-        if (inputCollection.hasOwnProperty('redirect') && inputCollection.redirect != 'showCollection' && inputCollection.redirect != '') {
-
-            req.query.redirect = inputCollection.redirect && inputCollection.redirect.split('/')[0] || 'showCollection';
-            req.query.redirectInput = inputCollection.redirect && inputCollection.redirect.split('/')[1] || 'n';
-
-        };
 
         // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
         req.params.theme = 'root';
@@ -2405,6 +2437,27 @@ var myFuncs = {
         }
     },
 
+    dashboardBlogs: async function(req,res) {
+        req.params.input = 'life-blogs';
+        req.isLocal = true;
+        let output = await this.showCollection(req,res);
+        req.params.theme = 'life';
+        return output;
+    },
+
+    addNewBlog: async function(req,res) {
+        return {success: true};
+    },
+
+    editThisBlog: async function(req,res) {
+        req.params.module = "addNewBlog";
+        console.log(req.query);
+        let model = await this.createModel(req.params.input);
+        let output = await model.findOne({_id: req.query._id});
+        return {
+            blog: output
+        };
+    },
 };
 
 server.listen(3000)

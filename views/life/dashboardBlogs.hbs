@@ -1,3 +1,4 @@
+
 <html>
 
 <head>
@@ -94,9 +95,7 @@
             <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
             <a href="/{{data.brand}}/admin/page/airtablePull/{{data.modelName}}">Airtable Pull</a>
             <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
-            <!-- <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a> -->
-            <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
-            <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <a href="/{{data.brand}}/admin/page/addNewBlog/n">Add New Blog</a>
             <button class="{{#if data.notifications.count}}active{{/if}}" my-data="
             {{#each data.notifications.texts}}
             <p>{{this.text}}</p>
@@ -132,23 +131,13 @@
                         <th>Delete</th>
                     </tr> 
 
-                    <!--
-                    {{#each data.dataRows}}
-                    <tr>
-                        {{#each this}}
-                            <td>{{{this}}}</td>
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    -->
-
                     {{#each data.dataRows}}
                     <tr>
                         {{#each this}}
                             <td>{{{this}}}</td>
                         {{/each}}
                         <td>
-                            <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.[0]}}">Edit</a>
+                            <a href="/{{../data.brand}}/admin/page/editThisBlog/{{../data.modelName}}?_id={{this.[0]}}">Edit</a>
                         </td>
                         <td>
                             <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.[0]}}&redirect=showCollection&redirectInput={{../data.modelName}}">Delete</a>

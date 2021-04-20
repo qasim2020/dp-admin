@@ -8,26 +8,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Primary Meta Tags -->
-  <title>{{data.Content.0.msg}}</title>
+  <title>{{data.body.0.msg}}</title>
 
-  <meta name="title" content="{{data.Content.0.msg}}">
-  <meta name="description" content="{{data.Content.1.msg}}">
+  <meta name="title" content="{{data.body.0.msg}}">
+  <meta name="description" content="{{data.body.1.msg}}">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.zakatlists.com/blogpost?serialNo={{data.Ser}}">
-  <meta property="og:title" content="{{data.Content.0.msg}}">
-  <meta property="og:description" content="{{data.Content.1.msg}}">
-  <meta property="og:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.Ser}}.png">
+  <meta property="og:url" content="https://qasimali.xyz/life/gen/page/openBlog/{{data.output.slug}}">
+  <meta property="og:title" content="{{data.body.0.msg}}">
+  <meta property="og:description" content="{{data.body.1.msg}}">
+  <meta property="og:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.output.slug}}.png">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://www.zakatlists.com/blogpost?serialNo={{data.Ser}}">
-  <meta property="twitter:title" content="{{data.Content.0.msg}}">
-  <meta property="twitter:description" content="{{data.Content.1.msg}}">
-  <meta property="twitter:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.Ser}}.png">
+  <meta property="twitter:url" content="https://qasimali.xyz/life/gen/openBlog/{{data.output.slug}}">
+  <meta property="twitter:title" content="{{data.body.0.msg}}">
+  <meta property="twitter:description" content="{{data.body.1.msg}}">
+  <meta property="twitter:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.output.slug}}.png">
 
   <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:100,300i,400,400i,700,900&display=swap" rel="stylesheet">
+
   <style media="screen" type="text/css">
 
     .line-red {

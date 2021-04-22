@@ -881,20 +881,24 @@ var myFuncs = {
         let model = await this.createModel(`life-blogs`);
         let output = await model.find().sort({ser: -1}).lean();
 
+        // const offset = (new Date() ).getTimezoneOffset()
+        // console.log( output.filter( val => val.ser == 1035 || val.ser == 1036 ).map( val => new Date( (new Date(val.date)).getTime() + (offset + 60 * 1000 * 5) ) ) );
+        
         let start_date = "01/01/2020";
         let difference = this.daysSinceDate(start_date,new Date());
 
         let array = [], this_date;
 
-        for (let i = 1 ; i < difference ; i++) {
+        for (let i = 0 ; i < difference ; i++) {
             this_date = new Date(new Date(start_date).getTime() + (1000 * 60 * 60  * 24 * i) ) ;
             array.push( {
                 date: this_date,
                 blog: output.find( val => {
-                    let diff = Math.ceil( (new Date(val.date).getTime() - this_date.getTime()) / 1000 / 60 / 60 / 24 );
+                    var diff =  Math.floor(( Date.parse(val.date) - Date.parse(this_date) ) / 86400000);
+                    // let diff = Math.ceil( (new Date(val.date).getTime() - this_date.getTime()) / 1000 / 60 / 60 / 24 );
                     return Math.abs( diff ) < 1;
                 }),
-                postNo: i,
+                postNo: i + 1,
             });
         }
 
@@ -2477,18 +2481,17 @@ var myFuncs = {
 
     saveBlog: async function(req,res) {
         let model = await this.createModel('life-blogs');
-        let myId = req.query._id;
-        delete req.query._id;
+        console.log(req.body);
+        let myId = req.body._id;
+        delete req.body._id;
         let output = await model.findOneAndUpdate({
             _id: myId 
         },
-            req.query
+            req.body
         ,{
             upsert: true
         });
-        return {
-            success: true
-        }
+        return output;
     },
 
     publishBlog: async function(req,res) {
@@ -2538,6 +2541,32 @@ var myFuncs = {
             output
         }
 
+    },
+
+    sendMail : async function(template, context) {
+        let testAccount = await nodemailer.createTestAccount();
+        let transporter = nodemailer.createTransport({
+          host: "smtppro.zoho.eu",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: process.env.zoho, // generated ethereal user
+              // TODO: ADD THE EMAILS HERE
+            pass: testAccount.pass, // generated ethereal password
+          },
+        });
+        let info = await transporter.sendMail({
+          from: '"Fred Foo 👻" <foo@example.com>', // sender address
+          to: "bar@example.com, baz@example.com", // list of receivers
+          subject: "Hello ✔", // Subject line
+          text: "Hello world?", // plain text body
+          html: "<b>Hello world?</b>", // html body
+        });
+
+        console.log("Message sent: %s", info.messageId);
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     },
 
 };

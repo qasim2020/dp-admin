@@ -80,13 +80,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script>
         let saveBlog = function() {
-            let data = $('form').serialize();
+            // let data = $('form').serialize();
+            let data = {
+                _id: $('#_id').val(),
+                body: $('#body').val(),
+                ser: $('#ser').val(),
+                date: $('#date').val(),
+                verses: $('#verses').val(),
+                author: $('#author').val(),
+                tags: $('#tags').val(),
+                slug: $('#slug').val(),
+                type: $('#type').val()
+            };
             console.log(data);
             $.ajax({
                 url : "/life/admin/data/saveBlog/n?"+data,
-                method: "GET",
-            }).done( msg => $('.error').html(msg) )
-              .fail( err => $('.error').html(err) );
+                method: "POST",
+                data: data,
+            }).done( msg => {
+                console.log(msg);
+                $('.error').html(msg) 
+            }).fail( err => {
+                console.log(err);
+                $('.error').html(err)
+            });
         }
 
         let publishBlog = function(elem) {

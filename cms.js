@@ -18,6 +18,8 @@ const http = require('http');
 const server = http.createServer(app);
 const socketio = require('socket.io');
 const io = socketio(server);
+const nodemailer = require('nodemailer');
+const mailHbs = require('nodemailer-express-handlebars');
 
 var qpm = require('query-params-mongo');
 let getObjectId = function(val) {
@@ -377,6 +379,7 @@ var myFuncs = {
         saveBlog: 'admin',
         openBlog: 'gen',
         subscribeCustomer: 'gen',
+        verifyEmail: 'gen',
     },
 
     getThemeName: async function(brand) {
@@ -2534,41 +2537,107 @@ var myFuncs = {
 
     subscribeCustomer: async function(req,res) {
 
-        console.log(req.body);
         let model = await this.createModel(`${req.params.brand}-subscribers`);
-        let output = await model.findOneAndUpdate({email: req.body.email},{email: req.body.email, validation: false}, {upsert: true});
+        
+        let checkEmailExists = await model.findOne({email: req.body.email, validation: true}).lean();
+
+        if (checkEmailExists != null) {
+            return {
+                status: 404,
+                error: 'You have already subscribed to the mailing list'
+            }
+        };
+                
+        // Add this customer with the special subscription code
+        let output = await model.findOneAndUpdate({email: req.body.email},{email: req.body.email, validation: false}, {upsert: true, new: true});
+
+        // Send an Email to the customer saying "Please click on this link to verify your subscription request"
+        let url = '';
+
+        if (env == 'development' || env == 'test') {
+            url = process.env.url;
+        } else {
+            url = 'https://qasimali.xyz'
+        }
+
+        url = url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
+
+        let mailResponse = await this.sendMail({template: 'verifyEmail', context: {url : url}, toEmail: req.body.email, subject: 'Verify Email'});
+
         return {
             output
         }
 
     },
 
-    sendMail : async function(template, context) {
+    sendMail : async function({template, context, toEmail, subject}) {
         let testAccount = await nodemailer.createTestAccount();
+
         let transporter = nodemailer.createTransport({
           host: "smtppro.zoho.eu",
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
             user: process.env.zoho, // generated ethereal user
-              // TODO: ADD THE EMAILS HERE
-            pass: testAccount.pass, // generated ethereal password
+            pass: process.env.zohop,
           },
         });
-        let info = await transporter.sendMail({
-          from: '"Fred Foo 👻" <foo@example.com>', // sender address
-          to: "bar@example.com, baz@example.com", // list of receivers
-          subject: "Hello ✔", // Subject line
-          text: "Hello world?", // plain text body
-          html: "<b>Hello world?</b>", // html body
-        });
 
-        console.log("Message sent: %s", info.messageId);
-        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        var options = {
+            extName: '.hbs',
+            viewEngine: {
+                extname: '.hbs',
+                layoutsDir: 'views/emails/',
+                partialsDir: 'views/emails/partials/',
+                defaultLayout : template,
+            },
+            viewPath: 'views/emails/'
+        }
+
+        transporter.use('compile', mailHbs(options));
+
+        var mail = {
+           from: `qasimali.xyz <${process.env.zoho}>`,
+           to: toEmail,
+           subject: subject,
+           template: template,
+           context: context 
+        }
+
+        const info = await transporter.sendMail(mail);
+
+        console.log(info);
+
     },
 
+    verifyEmail: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-subscribers`);
+        let output = await model.findOneAndUpdate({
+            email: req.query.email,
+            _id: req.query.uniqueCode,
+            validation: "false"
+        },{
+            validation: true
+        },{
+            new: true
+        });
+
+        if (output != null) {
+            let email = this.sendMail({template: 'welcomeEmail', context: {}, toEmail: req.query.email, subject: 'Welcome ✌️'});
+            return {
+                brand: req.params.brand,
+                msg: 'Email Verified. Thank you for subscribing to my weekly newsletter.',
+            }
+        } else {
+            return {
+                brand: req.params.brand,
+                msg: 'Sorry, Could not find your email in my mailing list. Please subscribe again from the subcsription input.'
+            }
+        }
+
+    },
+           
 };
 
 server.listen(3000)

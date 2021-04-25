@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {{> analyticsLife}}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify Email</title>
+
+    <meta name="title" content="Portfolio - Qasim">
+    <meta name="description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://qasimali.xyz">
+    <meta property="og:title" content="Portfolio - Qasim">
+    <meta property="og:description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+    <meta property="og:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1618731614/zakatlists/qasimali-xyz.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://qasimali.xyz">
+    <meta property="twitter:title" content="Portfolio - Qasim">
+    <meta property="twitter:description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+    <meta property="twitter:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1618731614/zakatlists/qasimali-xyz.png">
+
+    <!-- <link rel=icon href=/favicon.png> -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700,900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+
+    <style media="screen">
+
+        body {
+            height: 100vh;
+            widht: 100vw;
+            box-sizing: border-box;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            font-family: "Roboto";
+            margin: auto;
+        }
+
+        body > p, body > a {
+            max-width: 800px;
+            text-align: left;
+            display: block;
+            font-size: 19px;
+            line-height: 1.5;
+            font-weight: bold;
+            color: #333333;
+        }
+
+    </style>
+
+  </head>
+  <body>
+
+      <p> {{data.msg}} </p>
+
+      <a href="/{{data.brand}}/gen/page/landingPage/n">Explore</a>
+
+  </body>
+</html>
+

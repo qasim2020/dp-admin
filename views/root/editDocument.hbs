@@ -33,6 +33,10 @@
             padding: 5px;
         }
 
+        form > textarea {
+            width: 100%;
+        }
+
         .d-none {
             display: none;
         }
@@ -90,13 +94,34 @@
 
             {{#if (matchValues this.type 'input')}}
                 <label for="{{name}}">{{this.label}}</label>
-                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} required {{/if}} value="{{this.value}}">
+                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} {{/if}} value="{{this.value}}">
             {{/if}}
 
+            {{#if (matchValues this.type 'textarea')}}
+                <label for="{{name}}">{{this.label}}</label>
+                <textarea name="{{this.name}}" rows="10" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} {{/if}} value="{{this.value}}">{{this.value}}</textarea>
+            {{/if}}
+
+            {{#if (matchValues this.type 'date')}}
+                <label for="{{name}}">{{this.label}}</label>
+                <input name="{{this.name}}" type="datetime-local" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} {{/if}} value="{{getDatePickerValue this.value}}">
+            {{/if}}
 
         {{/each}}
 
         <button id="submitButton" type="submit">Submit</button>
+
+        {{#each data.inputs}}
+
+            {{#if (matchValues this.type 'date')}}
+
+            <button id="runTimer" type="button" onclick="runMyTimer(this)">Run timer</button>
+
+            <p id="timerResponse"></p>
+
+            {{/if}}
+
+        {{/each}}
 
         </form>
 
@@ -225,8 +250,6 @@
                 formData = `${formData}&${imageTagsName}=${imageCSV}`;
             }
 
-            console.log(formData);
-
             // TODO: Make serialize() take only one imageURL
 
             $.ajax({
@@ -234,8 +257,6 @@
               url: '/{{data.brand}}/admin/data/updateSequence/n',
               data: formData,
               success: (data) => {
-                console.log('successful data sent'),
-                console.log(data);
                 $('#submitButton').html(data.error);
                   return;
                 window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.collection}}';
@@ -249,6 +270,23 @@
             console.log($(`#${inputId}`))
             let inputURL = $(`#${inputId}`).attr('value');
             console.log(inputURL);
+        };
+
+        let runMyTimer = function(elem) {
+            // run Timer in the server for this brand so that if any thing important related to this project needs to be done server does itself
+
+            $.ajax({
+                type: "GET",
+                url: "/{{data.brand}}/admin/data/runTimer/n",
+            }).done( val => {
+                let string = val.success + "<br>" + (
+                    (val.status != null) ? val.status.reduce( (total, val, index) => total += val + "<br>" , "" ) : val.status
+                    );
+                $(elem).siblings('#timerResponse').html(string);
+            }).fail( err => {
+                $(elem).siblings('#timerResponse').html(val.success);
+            });
+
         };
 
     </script>

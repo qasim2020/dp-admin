@@ -20,6 +20,7 @@ const socketio = require('socket.io');
 const io = socketio(server);
 const nodemailer = require('nodemailer');
 const mailHbs = require('nodemailer-express-handlebars');
+const axios = require('axios');
 
 var qpm = require('query-params-mongo');
 let getObjectId = function(val) {
@@ -143,9 +144,20 @@ hbs.registerHelper('removeSpaces', (val) => {
 });
 
 hbs.registerHelper('match', function(val1,val2) {
-  // console.log(val1,val2);
   return val1.toUpperCase() == val2.toUpperCase() ? true : false;
 })
+
+hbs.registerHelper('getDatePickerValue', function(val) {
+    let date = new Date(val);
+    let formatted = 
+        date.getFullYear() + '-' + 
+        ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + 
+        ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + 
+        'T' +
+        ((date.getHours() > 9) ? date.getHours() : ('0' + date.getHours())) + ":" + 
+        ((date.getMinutes() > 9) ? date.getMinutes() : ('0' + date.getMinutes())) ;
+    return formatted;
+});
 
 hbs.registerHelper('split0', (val) => {
     try {
@@ -380,6 +392,8 @@ var myFuncs = {
         openBlog: 'gen',
         subscribeCustomer: 'gen',
         verifyEmail: 'gen',
+        runTimer: 'admin',
+        unsubscribeMe: 'gen',
     },
 
     getThemeName: async function(brand) {
@@ -412,6 +426,7 @@ var myFuncs = {
         let properties = collection.properties;
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
+        console.log(values);
         let output = keys.map(val => {
             if (properties[val]['html'] == 'imgURL' && req.values && req.values[val] != undefined) {
                 req.values[val] = req.values && req.values[val].split(' ');
@@ -447,7 +462,7 @@ var myFuncs = {
             _id: this.getMongoId(req,res),
             resources: await this.fetchResources(req,res)
         };
-        req.params.theme = 'ecommerce';
+        req.params.theme = 'root';
         req.params.module = 'editDocument';
         return output;
     },
@@ -458,7 +473,7 @@ var myFuncs = {
         if (req.values == undefined) return {status: 404, error: 'document does not exist so it can not be edited'};
         let inputs = await this.getFormInputs(req,res);
 
-        req.params.theme = 'ecommerce';
+        req.params.theme = 'root';
         
         let output = {
             inputs: inputs,
@@ -493,7 +508,7 @@ var myFuncs = {
             console.log({modelName});
             return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         } catch(e) {
-            console.log( chalk.blue.bold( 'Failed to create Model' ) );
+            console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
             return e;
         }
         
@@ -555,6 +570,12 @@ var myFuncs = {
             {
                 name: 'String',
                 html: 'input'
+            },{
+                name: 'String',
+                html: 'textarea'
+            },{
+                name: 'Date',
+                html: 'date'
             },{
                 name: 'Number',
                 html: 'numberInput'
@@ -2513,16 +2534,21 @@ var myFuncs = {
         return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())); 
     },
 
-    openBlog: async function(req,res) {
-        let model = await this.createModel('life-blogs');
-        let output = await model.findOne({slug: req.params.input});
-        let body = output.body.split('\n').map(val => {
+    convertStringToArticle: function( string ) {
+        let body = string.split('\n').map(val => {
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
               msg: val.split(': ')[1].trim(),
               class: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.').slice(1,4).join(' ') : ''
             }
           });
+        return body;
+    },
+
+    openBlog: async function(req,res) {
+        let model = await this.createModel('life-blogs');
+        let output = await model.findOne({slug: req.params.input});
+        let body = this.convertStringToArticle(output.body);
         let d = new Date(output.date);
         let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
         let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
@@ -2539,9 +2565,9 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-subscribers`);
         
-        let checkEmailExists = await model.findOne({email: req.body.email, validation: true}).lean();
+        let isSubscribed = await model.findOne({email: req.body.email, validation: true}).lean();
 
-        if (checkEmailExists != null) {
+        if (isSubscribed != null) {
             return {
                 status: 404,
                 error: 'You have already subscribed to the mailing list'
@@ -2549,7 +2575,19 @@ var myFuncs = {
         };
                 
         // Add this customer with the special subscription code
-        let output = await model.findOneAndUpdate({email: req.body.email},{email: req.body.email, validation: false}, {upsert: true, new: true});
+        let output = await model.findOneAndUpdate(
+            {
+                email: req.body.email
+            },{
+                email: req.body.email, 
+                validation: false, 
+                isUnsubscribed: false,
+                lists: 'public'
+            }, {
+                upsert: true, 
+                new: true
+            }
+        );
 
         // Send an Email to the customer saying "Please click on this link to verify your subscription request"
         let url = '';
@@ -2570,7 +2608,8 @@ var myFuncs = {
 
     },
 
-    sendMail : async function({template, context, toEmail, subject}) {
+    sendMail : async function({template, context, toEmail, subject, brand}) {
+
         let testAccount = await nodemailer.createTestAccount();
 
         let transporter = nodemailer.createTransport({
@@ -2583,30 +2622,30 @@ var myFuncs = {
           },
         });
 
-        var options = {
-            extName: '.hbs',
-            viewEngine: {
-                extname: '.hbs',
-                layoutsDir: 'views/emails/',
-                partialsDir: 'views/emails/partials/',
-                defaultLayout : template,
-            },
-            viewPath: 'views/emails/'
-        }
+        let file = await new Promise( (resolve, reject) => {
 
-        transporter.use('compile', mailHbs(options));
+            fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
+                if (err) reject(err)
+                resolve(data);
+            });
+
+        });
+
+        let  hbstemplate = hbs.compile(file);
+        let  html = hbstemplate(context);
+
+        // console.log(html);
 
         var mail = {
-           from: `qasimali.xyz <${process.env.zoho}>`,
+           from: `Qasim Ali<${process.env.zoho}>`,
            to: toEmail,
            subject: subject,
-           template: template,
-           context: context 
+           html: html
         }
 
         const info = await transporter.sendMail(mail);
 
-        console.log(info);
+        return info;
 
     },
 
@@ -2616,15 +2655,15 @@ var myFuncs = {
         let output = await model.findOneAndUpdate({
             email: req.query.email,
             _id: req.query.uniqueCode,
-            validation: "false"
+            validation: false 
         },{
-            validation: true
+            validation: true,
         },{
             new: true
         });
 
         if (output != null) {
-            let email = this.sendMail({template: 'welcomeEmail', context: {}, toEmail: req.query.email, subject: 'Welcome ✌️'});
+            this.sendEmailWithTemplate(req.params.brand, 'welcome-email', output);
             return {
                 brand: req.params.brand,
                 msg: 'Email Verified. Thank you for subscribing to my weekly newsletter.',
@@ -2632,12 +2671,194 @@ var myFuncs = {
         } else {
             return {
                 brand: req.params.brand,
-                msg: 'Sorry, Could not find your email in my mailing list. Please subscribe again from the subcsription input.'
+                msg: 'Sorry — this link is already used.'
             }
         }
 
     },
-           
+
+    runTimer: async function(req,res) {
+        if (req.params.brand == 'life') {
+            return await this[`${req.params.brand}Timer`]();
+        } else {
+            return {success: 'No timer is configured for this brand'}
+        };
+    },
+
+    lifeTimer: async function(req,res) {
+
+        let model = await this.createModel('life-newsletters');
+
+        let pendingLetters = await model.find({
+            publishTime: {
+                $gte: new Date()
+            }
+        }).lean();
+
+        if (pendingLetters.length == 0) return {success: 'Currently there are no newsletters pending Publish'};
+
+        let output = pendingLetters.map( val => this.setTimerToPublish(val) );
+
+        console.log({output});
+
+        return {
+            success: 'Timer for website Life is now running',
+            status: output,
+        }
+
+    },
+
+    setTimerToPublish: function(letter) {
+
+        var now = new Date();
+        var publishTime = letter.publishTime;
+
+        console.log('Time Now: ' + now);
+        console.log('Publish Time: ' + publishTime);
+
+        var millisTillPublish = new Date(letter.publishTime) - now;
+
+        console.log({minutesToPublish: ( millisTillPublish / 1000 / 60 ) });
+
+        setTimeout( async () => {
+            
+            console.log( chalk.bold.red( 'PUBLISHING THE NEWSLETTER NOW : ' + letter.slug ) );
+
+            let body = this.convertStringToArticle(letter.body);
+
+            let output;
+
+            let model = await this.createModel(`life-subscribers`);
+
+            let regex = new RegExp(letter.list, 'i');
+
+            output = await model.find({
+                lists: regex,
+                validation: true,
+                isUnsubscribed: false
+            }).lean();
+
+            let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
+
+            let url = env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+
+            let notifyOnTelegram = await this.axiosRequest({
+                URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
+                data: {
+                    Status: "Sent",
+                    People: mailSent.length,
+                    Slug: letter.slug,
+                    URL: url + "/life/gen/page/newsletter/" + letter.slug
+                },
+                method: 'POST',
+            });
+
+        // }, 000 , letter);
+        }, millisTillPublish, letter);
+
+        return `Publishing <b>${letter.slug}</b> in - ${Math.floor(millisTillPublish / 1000 / 60)} minutes`;
+
+    },
+
+    sendBulkEmailWithTemplate: async function( brand, templateSlug, subscribers ) {
+
+        let model = await this.createModel(`${brand}-newsletters`);
+        let letter = await model.findOne({slug: templateSlug}).lean();
+        
+        let arrayOfPromises = subscribers.map( val => {
+
+            return this.sendMail({
+                template: 'lifeNewsletter',
+                context: {
+                    body: this.convertStringToArticle(letter.body),
+                    Id: val._id,
+                    email: val.email,
+                    url: env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+                },
+                toEmail: val.email,
+                subject: letter.subject
+            });
+
+        });
+
+        let sentMails = await Promise.all( arrayOfPromises );
+
+        return sentMails;
+
+    },
+
+    sendEmailWithTemplate: async function(brand, templateSlug, subscriber) {
+
+        let model = await this.createModel(`${brand}-newsletters`);
+        let output = await model.findOne({slug: templateSlug}).lean();
+        if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
+        let sentMails = await this.sendMail(
+            {
+                template: 'lifeNewsletter', 
+                context: {
+                    body: this.convertStringToArticle(output.body),
+                    Id: subscriber._id,
+                    email: subscriber.email ,
+                    url: env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+                }, 
+                toEmail: subscriber.email, 
+                subject: output.subject
+            }
+        );
+    },
+
+    unsubscribeMe: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-subscribers`);
+        let output = await model.findOneAndUpdate({
+            _id: req.query.Id,
+            email: req.query.email,
+            validation: true
+        },{
+            isUnsubscribed: true
+        },{
+            new: true
+        }).lean();
+
+        console.log(output);
+
+        if (output != null) {
+            return {
+                msg: 'You have successfully unsubscribed from my mailing list. You will not receive my future newsletters / important announcements and most cool things I am doing. :p',
+                brand: req.params.brand
+            }
+        } else {
+            return {
+                msg: 'Sorry something bad happened. Please leave an email to Qasim at <a href="mailto:qasimali24@gmail.com>qasimali24@gmail.com</a> and he will manually unsubscribe you.',
+                brand: req.params.brand
+            }
+        };
+
+    },
+
+    axiosRequest: async function({ method, data, URL }) {
+
+        let output;
+
+        if (method == 'post' || method == 'POST') {
+
+            output = await axios.post(URL, data)
+                      .then(res => {
+                          return res;
+                      })
+                      .catch(error => {
+                        console.error(error)
+                          return error;
+                      })
+
+            console.log(output);
+
+        }
+
+        console.log( chalk.bold.red( 'AXIOS REQUEST FINISHED') );
+
+        return output;
+        
+    }
 };
 
 server.listen(3000)

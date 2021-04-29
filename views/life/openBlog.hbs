@@ -844,6 +844,8 @@
   <script type="text/javascript">
     $(document).on('click', '.subscribe>button', function() {
 
+        $(this).html('Subscribing...');
+
       if (!($(".subscribe").valid())) {
 
         return;
@@ -868,8 +870,10 @@
         }
       }).done((msg) => {
         console.log(msg);
+        $(this).html('Subscribed');
         $('.subscribe>.success').removeClass('d-none');
       }).fail((e) => {
+        $(this).html('Subscribe');
         $('.error').removeClass('d-none').html(e.responseText);
         console.log(e.responseText);
       });

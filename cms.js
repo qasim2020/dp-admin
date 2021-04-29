@@ -2536,6 +2536,7 @@ var myFuncs = {
 
     convertStringToArticle: function( string ) {
         let body = string.split('\n').map(val => {
+            console.log(val);
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
               msg: val.split(': ')[1].trim(),
@@ -2724,7 +2725,7 @@ var myFuncs = {
             
             console.log( chalk.bold.red( 'PUBLISHING THE NEWSLETTER NOW : ' + letter.slug ) );
 
-            let body = this.convertStringToArticle(letter.body);
+            // let body = this.convertStringToArticle(letter.body);
 
             let output;
 
@@ -2754,8 +2755,8 @@ var myFuncs = {
                 method: 'POST',
             });
 
-        // }, 000 , letter);
-        }, millisTillPublish, letter);
+        }, 000 , letter);
+        // }, millisTillPublish, letter);
 
         return `Publishing <b>${letter.slug}</b> in - ${Math.floor(millisTillPublish / 1000 / 60)} minutes`;
 

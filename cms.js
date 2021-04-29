@@ -2740,7 +2740,8 @@ var myFuncs = {
 
             let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
 
-            let url = env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+            let url = process.env.url;
+            // let url = env == 'test' || env == 'development' ? process.env. : 'https://qasimali.xyz'
 
             let notifyOnTelegram = await this.axiosRequest({
                 URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
@@ -2773,7 +2774,7 @@ var myFuncs = {
                     body: this.convertStringToArticle(letter.body),
                     Id: val._id,
                     email: val.email,
-                    url: env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+                    url: process.env.url, 
                 },
                 toEmail: val.email,
                 subject: letter.subject
@@ -2799,7 +2800,7 @@ var myFuncs = {
                     body: this.convertStringToArticle(output.body),
                     Id: subscriber._id,
                     email: subscriber.email ,
-                    url: env == 'test' || env == 'development' ? 'http://localhost:3000' : 'https://qasimali.xyz'
+                    url: process.env.url, 
                 }, 
                 toEmail: subscriber.email, 
                 subject: output.subject

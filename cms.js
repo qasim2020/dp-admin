@@ -394,6 +394,7 @@ var myFuncs = {
         verifyEmail: 'gen',
         runTimer: 'admin',
         unsubscribeMe: 'gen',
+        showNewsletter: 'gen',
     },
 
     getThemeName: async function(brand) {
@@ -2536,6 +2537,7 @@ var myFuncs = {
 
     convertStringToArticle: function( string ) {
         let body = string.split('\n').map(val => {
+            console.log(val);
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
               msg: val.split(': ')[1].trim(),
@@ -2632,9 +2634,7 @@ var myFuncs = {
         });
 
         let  hbstemplate = hbs.compile(file);
-        let  html = hbstemplate(context);
-
-        // console.log(html);
+        let  html = hbstemplate({data: context});
 
         var mail = {
            from: `Qasim Ali<${process.env.zoho}>`,
@@ -2851,15 +2851,34 @@ var myFuncs = {
                           return error;
                       })
 
-            console.log(output);
-
         }
 
         console.log( chalk.bold.red( 'AXIOS REQUEST FINISHED') );
 
         return output;
         
-    }
+    },
+
+    showNewsletter: async function(req,res) {
+
+        // PLACE VIEW BUTTON ON THE FORM > AND CHECK WHAT IT LOOKS LIKE WHEN LOADED IN TO THE BROWSER
+        
+        req.params.theme = "emails";
+        req.params.module = "lifeNewsletter";
+
+        let model = await this.createModel(`${req.params.brand}-newsletters`);
+        let output = await model.findOne({slug: req.params.input}).lean();
+
+        console.log(output);
+
+        return {
+            body: await this.convertStringToArticle(output.body),
+            url: process.env.url,
+            email: 'qasimali24@gmail.com',
+            Id: 'doNotRemember'
+        }
+
+    },
 };
 
 server.listen(3000)

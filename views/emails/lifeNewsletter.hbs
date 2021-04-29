@@ -1,27 +1,32 @@
 {{> header}}
 
-{{#each body}}
+{{#each data.body}}
 
   {{#if (match 'h1' type)}}
 
     <h1 style="
-        margin-top: 20px;
-        color: #333333;
-        ">{{msg}}</h1>
+    background: #f44336 !important;
+    padding: 7px 10px;
+    width: fit-content;
+    color: white !important;
+    font-size: 21px !important;
+    transform: rotate( -1deg);
+    margin: 0px 0 25px 0;
+        ">{{{msg}}}</h1>
 
   {{/if}}
 
   {{#if (match 'p' type)}}
 
     <p style="
-            font-size: 16px;
-            line-height: 1.5;
+            font-size: 17px;
+            line-height: 1.7;
             font-weight: 300;
             color: #333333;
-            ">{{msg}}</p>
+            ">{{{msg}}}</p>
 
   {{/if}}
 
 {{/each}}
 
-{{> footer url=url email=email Id=Id}}
+{{> footer url=data.url email=data.email Id=data.Id}}

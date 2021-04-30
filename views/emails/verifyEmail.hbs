@@ -1,18 +1,23 @@
 {{>header}}
 
     <h1 style="
-        margin-top: 20px;
-        color: #333333;
+	background: #219653;
+	padding: 7px 10px;
+	width: fit-content;
+	color: white !important;
+	font-size: 21px !important;
+	transform: rotate( -1deg);
+	margin: 0px 0 25px 0;
     ">— Hi 👋</h1>
 
     <p style="
-        font-size: 16px;
-        line-height: 1.5;
-        font-weight: 300;
-        color: #333333;
+	font-size: 17px;
+	line-height: 1.7;
+	color: #333333;
+	word-break: break-word;
     ">You just attempted to subscribe to my mailing list. Please click below to confirm it was you.</p>
 
-    <a href="{{url}}" style="
+    <a href="{{data.url}}" style="
         font-size: 13px;
         line-height: 1.5;
         font-weight: bold;
@@ -20,10 +25,10 @@
         ">Verify Email</a>
 
     <p style="
-        font-size: 16px;
-        line-height: 1.5;
-        font-weight: 300;
-        color: #333333;
+	font-size: 17px;
+	line-height: 1.7;
+	color: #333333;
+	word-break: break-word;
     ">Or paste below URL to your browser and it will take you to confirmation page.</p>
 
     <a href="" style="
@@ -31,23 +36,23 @@
         line-height: 1.5;
         font-weight: bold;
         color: black;
-    ">{{url}}</a>
+    ">{{data.url}}</a>
 
     <p style="
-        font-size: 16px;
-        line-height: 1.5;
-        font-weight: 300;
-        color: #333333;
+	font-size: 17px;
+	line-height: 1.7;
+	color: #333333;
+	word-break: break-word;
     ">If you did not subscribe, you can ignore this message.</p>
 
     <p class="" style="
-        font-size: 16px;
-        line-height: 1.5;
-        font-weight: 300;
-        color: #333333;
+	font-size: 17px;
+	line-height: 1.7;
+	color: #333333;
+	word-break: break-word;
     ">Best Regards, Qasim</p>
     
-    <hr>
+	{{> footer url=data.url}}
 
 </body>
 </html>

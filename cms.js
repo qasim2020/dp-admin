@@ -2594,13 +2594,7 @@ var myFuncs = {
         // Send an Email to the customer saying "Please click on this link to verify your subscription request"
         let url = '';
 
-        if (env == 'development' || env == 'test') {
-            url = process.env.url;
-        } else {
-            url = 'https://qasimali.xyz'
-        }
-
-        url = url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
+        url = process.env.url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
         let mailResponse = await this.sendMail({template: 'verifyEmail', context: {url : url}, toEmail: req.body.email, subject: 'Verify Email'});
 
@@ -2792,7 +2786,10 @@ var myFuncs = {
 
         let model = await this.createModel(`${brand}-newsletters`);
         let output = await model.findOne({slug: templateSlug}).lean();
+	console.log(output);
         if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
+
+
         let sentMails = await this.sendMail(
             {
                 template: 'lifeNewsletter', 

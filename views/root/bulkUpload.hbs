@@ -2,23 +2,47 @@
 
 <head>
 
-    <title>Edit Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bulk Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">     
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/ecommerce/essentials.css">
+
 
     <style type="text/css">
 
+        .container h3 {
+                font-size: 18px;
+            font-weight: 300;
+            color: #333333;
+        }
+
+        .container p {
+            line-height: 1.5;
+            color: #333333;
+        }
+
         .container #fileInp, .container a, .container button {
             padding: 7px;
-            background: floralwhite;
             border: 1px solid black;
             color: black;
             text-decoration: none;
             display: block;
             margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: smaller;
             background: floralwhite;
+            width: fit-content;
         }
 
         .container {
             padding: 5px;
+            max-width: 98vw;
+            margin: auto;
+            width: 576px;
         }
 
     </style>
@@ -28,9 +52,25 @@
 <body>
 
     <nav>
+        <div class="left">
+            <a href="/{{data.brand}}/admin/page/dashboard/n">
+                <img src="{{split0 data.resources.[0].logo}}" height="44">
+            </a>
+            <p>
+            <span>·</span>
+            <a href="/{{data.brand}}/admin/page/dashboard/n">Dashboard</a>
+            /
+            <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.collection}}" class="active">Bulk Upload</a>
+            </p>
+        </div>
 
-        <a href="/{{data.brand}}/admin/page/showCollection/{{data.collection}}">{{data.collection}}</a>
-    
+        <div class="right">
+            <a href="/{{data.brand}}/gen/page/cartPage/n">
+                <span>Notifications</span>
+                <span class="cartBtn">0</span>
+            </a>
+            <a href="/{{data.brand}}/gen/page/logOut/n">Sign Out</a>
+        </div>
     </nav>
 
     <div class="container">

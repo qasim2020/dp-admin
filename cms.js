@@ -395,6 +395,7 @@ var myFuncs = {
         runTimer: 'admin',
         unsubscribeMe: 'gen',
         showNewsletter: 'gen',
+        downloadCSVFile: 'gen',
     },
 
     getThemeName: async function(brand) {
@@ -792,7 +793,7 @@ var myFuncs = {
         let collectionHeadings = Object.keys(properties);
         collectionHeadings.unshift('_id');
 
-        req.params.theme = 'ecommerce';
+        req.params.theme = 'root';
 
         return {
             brand: req.params.brand,
@@ -836,7 +837,7 @@ var myFuncs = {
                 if (err) {
                   return reject(err);
                 }
-                resolve('myFile.csv');
+                resolve('static/myFile.csv');
             });
         });
     },

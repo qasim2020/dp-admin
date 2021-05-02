@@ -1,0 +1,59 @@
+<h1>In Progress</h1>
+
+{{#each data.list}}
+
+    {{#if (match 'In progress' priority)}}
+
+    <div class="roadmap">
+
+        <p class="category">{{category}}</p>
+        <h2>{{feature}}</h1>
+        <h5>Progress Bar</h5>
+        <h5>STARTED ON</h5>
+        <p>{{"start date"}}</p>
+    
+    </div>
+
+    {{/if}}
+
+{{/each}}
+
+<h1>Implemented</h1>
+
+{{#each data.list}}
+
+    {{#if (match 'Implemented' priority)}}
+
+    <div class="roadmap">
+
+        <p class="category">{{category}}</p>
+        <h2>{{feature}}</h1>
+        <h5>LEAD</h5>
+        <p>{{"feature lead"}}</p>
+        <h5>DAYS TAKEN</h5>
+        <p>{{"Days Taken"}}</p>
+    
+    </div>
+
+    {{/if}}
+
+{{/each}}
+
+<h1>Road Map</h1>
+
+{{#each data.list}}
+
+    {{#if (match 'Roadmap' priority)}}
+
+    <div class="roadmap">
+
+        <p class="category">{{category}}</p>
+        <h2>{{feature}}</h1>
+        <h5>LEAD</h5>
+        <p>{{"feature lead"}}</p>
+    
+    </div>
+
+    {{/if}}
+
+{{/each}}

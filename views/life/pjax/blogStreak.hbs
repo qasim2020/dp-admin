@@ -1,0 +1,13 @@
+
+<div class="right-part">
+
+    {{#each data.blogs}}
+        {{#if this.blog}}
+            <span class="active" slug="{{this.blog.slug}}" onclick="openBlog(this)">{{this.postNo}}</span>
+        {{else}}
+            <span class="{{locked}} {{this.data}}">{{postNo}}</span>
+        {{/if}}
+    {{/each}}
+  
+
+</div>

@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Welcome home</title>
+    <title>Welcome — </title>
 
     <meta name="title" content="Portfolio - Qasim">
     <meta name="description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
@@ -87,6 +87,10 @@
 
     .left-part {
       padding: 0 34px;
+      position: -webkit-sticky;
+      position: sticky;
+      height: 60vh;
+      top: 10px;
     }
 
     .left-part > * {
@@ -108,9 +112,24 @@
       display: flex;
       align-items: center;
 
-      /* Gray 2 */
       color: #4F4F4F;
       padding: 20px 0 40px 0;
+    }
+
+    .left-part > p > a {
+        text-decoration: none;
+        color: #4F4F4F;
+        padding: 8px;
+    }
+
+    .left-part > p > input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #4F4F4F;
+        font-size: 16px;
+        color: #4F4F4F;
+        font-family: 'Roboto';
+        font-weight: 300;
     }
 
     .muted {
@@ -131,22 +150,76 @@
       font-weight: lighter;
     }
 
-    .right-part {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0 20px;
-      height: fit-content;
+    .content {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 20px;
+        height: fit-content;
+    }
 
+    .content > .blogs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card {
+        font-size: 80%;
+        min-width: 150px;
+        padding: 15px;
+        box-sizing: border-box;
+        word-break: break-word;
+        background: whitesmoke;
+        margin: 5px;
+        border-radius: 5px;
+        font-family: "Roboto";
+        display: flex;
+        flex-direction: column;
+
+    }
+
+    .card:hover {
+        background: white;
+        cursor: pointer;
+    }
+
+    .card > h4 {
+        color: #4F4F4F;
+        margin: 12px 0;
+    }
+
+    .card > h1 {
+        margin-bottom: auto;
+        color: #4F4F4F;
+        background: #219653;
+        box-sizing: border-box;
+        transform: rotate( -1deg );
+        color: white;
+        padding: 8px;
+    }
+
+    .card > h5 {
+        padding: 2px 4px;
+        margin-top: 22px;
+        margin-bottom: 0px;
+        font-weight: 300;
+    }
+
+    .card > p {
+        padding: 7px 4px 2px 4px;
+        margin-top: 0;
+        font-weight: bold;
+        font-size: 14px;
+        color: #4F4F4F;
+    }
+
+    .right-part {
       display: grid;
-      /* grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); */
       grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       grid-template-rows: repeat(auto,100px);
     }
 
     .right-part > span {
-      /* Gray 6 */
       background: #F2F2F2;
-      /* Gray 5 */
       border: 1px solid #E0E0E0;
       height: 100px;
 
@@ -155,15 +228,11 @@
       font-weight: bold;
       font-size: 30px;
       line-height: 157.9%;
-      /* or 63px */
       text-align: center;
       display: flex;
       justify-content: center;
       align-items: center;
-
-      /* Gray 4 */
       color: #BDBDBD;
-
 
     }
 
@@ -239,6 +308,8 @@
       .left-part {
         padding: 0;
         width: 100%;
+        position: relative;
+        height: auto;
       }
 
       .left-part > a {
@@ -253,6 +324,10 @@
         z-index: -10;
         left: 0;
         top: -29px;
+      }
+
+      .content {
+          padding: 0;
       }
 
       .right-part {
@@ -288,28 +363,73 @@
         <path d="M49.9993 141.667H74.9993L91.666 108.333V58.3333H41.666V108.333H66.666L49.9993 141.667ZM116.666 141.667H141.666L158.333 108.333V58.3333H108.333V108.333H133.333L116.666 141.667Z" fill="#F2F2F2"/>
         </svg>
         <p>I am committing to writing for the rest of my life...</p>
+
+        <p>
+            <input id="searchBlog" type="text" placeholder="Search and hit Enter">
+        </p>
+        <p>
+            <a id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
+        </p>
+        <p>
+            <a id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage?input=blogStreak" data-pjax>Streak</a>
+        </p>
+        <!--
+            PENDING IMPLEMENTATION
+        <p>
+            <a id="roadMap"  href="/{{data.brand}}/gen/pjax/roadMap/landingPage?input=roadMap" data-pjax>Roadmap</a>
+        </p>
+        <p>
+            <a id="videos"  href="/{{data.brand}}/gen/pjax/blogStreak/landingPage" data-pjax>Videos</a>
+        </p>
+        -->
+
+
       </div>
 
-      <div class="right-part">
-        {{#each data.blogs}}
-            {{#if this.blog}}
-                <span class="active" slug="{{this.blog.slug}}">{{this.postNo}}</span>
-            {{else}}
-                <span class="{{locked}} {{this.data}}">{{postNo}}</span>
-            {{/if}}
-        {{/each}}
-      </div>
+      <div class="content" id="pjax-container"></div>
+
     </div>
 
     <div class="popover shadow"></div>
 
-
-
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    <script src="/root/pjax.js"></script>
     <script type="text/javascript">
-      $('span.active').on('click',function() {
-          window.location.href = `/life/gen/page/openBlog/${$(this).attr('slug')}`;
-      })
+
+        $(document).pjax('a[data-pjax]', '#pjax-container');
+        $(document).ready( () => {
+
+            $('#{{data.pjaxId}}').trigger('click');
+
+            console.log('document is ready');
+
+        })
+
+        $.pjax.defaults.scrollTo = false;
+
+        let openBlog = function(elem) {
+
+            console.log('opening the blog post');
+          window.location.href = `/life/gen/page/openBlog/${$(elem).attr('slug')}`;
+
+        }
+
+        $('#searchBlog').on('keyup', function(event) {
+            console.log( 'typed a thing');
+            let value = $(this).val();
+            let string = '';
+            console.log(value);
+            if (value == '') {
+                string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
+                $('#showBlogs').attr({href: string}).trigger('click');
+                return console.log('Value is null');  
+            } 
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode != '13') return console.log('Let user press enter');
+            string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
+            $('#showBlogs').attr({href: string}).trigger('click');
+        });
+
     </script>
   </body>
 </html>

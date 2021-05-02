@@ -396,6 +396,11 @@ var myFuncs = {
         unsubscribeMe: 'gen',
         showNewsletter: 'gen',
         downloadCSVFile: 'gen',
+        blogStreak: 'gen',
+        blogs: 'gen',
+        fetchAirtable: 'gen',
+        roadMap: 'gen',
+
     },
 
     getThemeName: async function(brand) {
@@ -904,12 +909,52 @@ var myFuncs = {
     },
 
     life: async function(req,res) {
+
+        return {
+            pjaxId: req.params.input == 'n' ? 'showBlogs' : req.params.input,
+            brand: req.params.brand
+        };
+    },
+
+    blogs: async function(req,res) {
+        let model = await this.createModel(`life-blogs`);
+        // let output = await model.find().sort({ser: -1}).lean();
+        let exp = new RegExp(req.query.keyWord,'i');
+        let output = await model.aggregate(
+            [
+                {
+                    $match: {
+                        body: exp
+                    }
+                },{
+                    $addFields: {
+                        intSer: {
+                            $toInt: "$ser"
+                        }
+                    }
+                },{
+                    $sort: {
+                        intSer: -1
+                    }
+                }
+            ]);
+        output = output.map( (val,index) => {
+            val.index = output.length - index;
+            val.date = this.dateBlogHeader(val.date);
+            val.body = this.convertStringToArticle(val.body);
+            return val;
+        });
+        console.log(output);
+        return {
+            blogs: output,
+        }
+    },
+
+    blogStreak: async function(req,res) {
+
         let model = await this.createModel(`life-blogs`);
         let output = await model.find().sort({ser: -1}).lean();
 
-        // const offset = (new Date() ).getTimezoneOffset()
-        // console.log( output.filter( val => val.ser == 1035 || val.ser == 1036 ).map( val => new Date( (new Date(val.date)).getTime() + (offset + 60 * 1000 * 5) ) ) );
-        
         let start_date = "01/01/2020";
         let difference = this.daysSinceDate(start_date,new Date());
 
@@ -930,7 +975,10 @@ var myFuncs = {
 
         array.sort( (a,b) => b.postNo - a.postNo );
 
-        return {blogs: array};
+        return {
+            blogs: array
+        }
+
     },
 
     challenge: async function(req,res) {
@@ -2536,9 +2584,18 @@ var myFuncs = {
         return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())); 
     },
 
+    dateBlogHeader: function(date) {
+
+        let d = new Date(date);
+        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+        return `${da} ${mo}, ${ye}`;
+
+    },
+
     convertStringToArticle: function( string ) {
         let body = string.split('\n').map(val => {
-            console.log(val);
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
               msg: val.split(': ')[1].trim(),
@@ -2552,11 +2609,7 @@ var myFuncs = {
         let model = await this.createModel('life-blogs');
         let output = await model.findOne({slug: req.params.input});
         let body = this.convertStringToArticle(output.body);
-        let d = new Date(output.date);
-        let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-        let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
-        let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-        output.date = `${da} ${mo}, ${ye}`;
+        output.date = this.dateBlogHeader(output.date);
         return {
             output: output,
             body: body,
@@ -2852,6 +2905,10 @@ var myFuncs = {
 
         }
 
+        if (method == 'get' || method == "GET") {
+            output = await axios.get(URL).then( res => res ).catch( err => err );
+        }
+
         console.log( chalk.bold.red( 'AXIOS REQUEST FINISHED') );
 
         return output;
@@ -2878,6 +2935,37 @@ var myFuncs = {
         }
 
     },
+
+    fetchAirtable: async function(value) {
+
+        let string = "";
+        switch (true) {
+            case (value == 'todos') :
+                string = "https://v1.nocodeapi.com/punch__lines/airtable/WuNbPFGxKERSqrOC?tableName=features"
+                break;
+            default: 
+                return {
+                    status: 404,
+                    error: 'Not Allowed'
+                }
+        }
+
+        let output = await this.axiosRequest({
+            URL: string,
+            method: "GET"
+        });
+
+        return output;
+    },
+
+    roadMap: async function(req,res) {
+        let output = await this.fetchAirtable('todos');
+        console.log( output.data.records );
+        return {
+            list: output.data.records.map( val => val.fields )
+        }
+    },
+
 };
 
 server.listen(3000)

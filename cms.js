@@ -2725,15 +2725,15 @@ var myFuncs = {
 
             let model = await this.createModel(`life-subscribers`);
 
-            let regex = new RegExp(letter.list, 'i');
-
             output = await model.find({
-                lists: regex,
+                lists: letter.list,
                 validation: true,
                 isUnsubscribed: false
             }).lean();
 
             let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
+
+	   console.log(mailSent);
 
             let url = process.env.url;
             // let url = env == 'test' || env == 'development' ? process.env. : 'https://qasimali.xyz'
@@ -2741,10 +2741,11 @@ var myFuncs = {
             let notifyOnTelegram = await this.axiosRequest({
                 URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
                 data: {
-                    Status: "Sent",
-                    People: mailSent.length,
                     Slug: letter.slug,
-                    URL: url + "/life/gen/page/newsletter/" + letter.slug
+		    Accepted: mailSent.reduce( (total, val) => total += val.accepted  != ''  ? val.accepted[0] : ''  + ',', '' ),
+		    Rejected: mailSent.reduce( (total, val) => total += val.rejected  != ''  ? val.rejected[0] + ',' : ''  + '', '' ),
+                    People: mailSent.length,
+                    URL: url + "/life/gen/page/showNewsletter/" + letter.slug
                 },
                 method: 'POST',
             });

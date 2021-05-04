@@ -1,0 +1,16 @@
+<div class="blogs">
+
+    {{#each data.letters}}
+
+        <div class="card letter" onclick="openNewsletter(this)" slug="{{slug}}">
+        
+            <h4>{{index}}</h4>
+            <h1>{{subject}}</h1>
+            <h5>PUBLISHED ON</h5>
+            <p>{{date}}</p>
+
+        </div>
+
+    {{/each}}
+
+</div>

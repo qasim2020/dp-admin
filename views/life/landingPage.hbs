@@ -64,18 +64,14 @@
 
     .logo-area > p {
       padding-left: 10px;
-      /* Quran Daily */
       margin-left: auto;
       font-family: Montserrat;
       font-style: normal;
       font-weight: bold;
       font-size: 14px;
       line-height: 157.9%;
-      /* identical to box height, or 32px */
       display: flex;
       align-items: center;
-
-      /* Gray 2 */
       color: #4F4F4F;
     }
 
@@ -113,18 +109,43 @@
       align-items: center;
 
       color: #4F4F4F;
-      padding: 20px 0 40px 0;
+      padding: 20px 0 1px 0;
+      max-width: 268px;
     }
 
-    .left-part > p > a {
-        text-decoration: none;
+    .left-part > .selector {
+        margin: 0;
+        padding: 10px 0;
+        padding-left: 18px;
+        font-size: 16px;
         color: #4F4F4F;
-        padding: 8px;
+        font-family: 'Roboto';
+        font-weight: 300;
+        display: block;
+    }
+
+    .left-part > .selector:hover {
+        background: whitesmoke;
+    }
+
+    .left-part > .selector.active {
+        color: orange;
+    }
+
+    .left-part > .selector.active::after {
+        content: "   »"
+    }
+
+    .left-part > a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
     }
 
     .left-part > p > input {
         width: 100%;
-        padding: 8px;
+        padding: 18px;
+        box-sizing: border-box;
         border: 1px solid #4F4F4F;
         font-size: 16px;
         color: #4F4F4F;
@@ -177,6 +198,10 @@
 
     }
 
+    .letter {
+        border: 1px dashed orange;
+    }
+
     .card:hover {
         background: white;
         cursor: pointer;
@@ -195,6 +220,10 @@
         transform: rotate( -1deg );
         color: white;
         padding: 8px;
+    }
+
+    .letter > h1 {
+        background: orange;
     }
 
     .card > h5 {
@@ -247,6 +276,7 @@
       background: green;
     }
 
+    /**
     .left-part > a {
       font-family: Roboto;
       font-style: normal;
@@ -262,6 +292,7 @@
       padding: 10px;
       margin-top: 15px;
     }
+    **/
 
     .left-part > a:hover {
       background: #f2f2f2;
@@ -307,6 +338,7 @@
 
       .left-part {
         padding: 0;
+        padding-bottom: 18px;
         width: 100%;
         position: relative;
         height: auto;
@@ -323,7 +355,7 @@
         position: absolute;
         z-index: -10;
         left: 0;
-        top: -29px;
+        top: -52px;
       }
 
       .content {
@@ -338,6 +370,12 @@
       iframe {
         display: none;
       }
+    }
+
+    @media (max-width: 375px) {
+        .left-part > * {
+            max-width: 375px;
+        }
     }
 
     </style>
@@ -362,17 +400,18 @@
         <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M49.9993 141.667H74.9993L91.666 108.333V58.3333H41.666V108.333H66.666L49.9993 141.667ZM116.666 141.667H141.666L158.333 108.333V58.3333H108.333V108.333H133.333L116.666 141.667Z" fill="#F2F2F2"/>
         </svg>
-        <p>I am committing to writing for the rest of my life...</p>
+        <p>Hi 👋 — I am a software developer trying to write articles and record videos. </p>
+        <!-- <p>I am committing to writing for the rest of my life...</p> -->
 
-        <p>
-            <input id="searchBlog" type="text" placeholder="Search and hit Enter">
+        <p> 
+            <input id="searchBlog" type="text" placeholder="Write and hit Enter">
         </p>
-        <p>
-            <a id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
-        </p>
-        <p>
-            <a id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage?input=blogStreak" data-pjax>Streak</a>
-        </p>
+        
+        <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
+        <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage?input=blogStreak" data-pjax>Streak</a>
+        <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage?input=newsletters" data-pjax>Newsletters</a>
+        <a class="selector pending" href="">Roadmap (in progress)</a>
+        <a class="selector pending" href="">Videos (in progress)</a>
         <!--
             PENDING IMPLEMENTATION
         <p>
@@ -386,7 +425,30 @@
 
       </div>
 
-      <div class="content" id="pjax-container"></div>
+      <div class="content" id="pjax-container">
+      
+            {{#if (match "n" data.pjaxId)}}
+
+            <div class="blogs">
+
+                {{#each data.blogs}}
+                <div class="card" slug="{{slug}}" onclick="openBlog(this)">
+
+
+                        <h4>{{index}}</h4>
+                        <h1>{{body.0.msg}}</h1>
+                        <h5>PUBLISHED ON</h5>
+                        <p>{{date}}</p>
+                    
+                </div>
+                {{/each}}
+
+
+            </div>
+
+            {{/if}}
+
+      </div>
 
     </div>
 
@@ -399,9 +461,9 @@
         $(document).pjax('a[data-pjax]', '#pjax-container');
         $(document).ready( () => {
 
-            $('#{{data.pjaxId}}').trigger('click');
+            if ("{{data.pjaxId}}" == "n") return console.log('Home loaded');
 
-            console.log('document is ready');
+            $('#{{data.pjaxId}}').trigger('click');
 
         })
 
@@ -410,9 +472,21 @@
         let openBlog = function(elem) {
 
             console.log('opening the blog post');
-          window.location.href = `/life/gen/page/openBlog/${$(elem).attr('slug')}`;
+            window.location.href = `/life/gen/page/openBlog/${$(elem).attr('slug')}`;
 
         }
+
+        let openNewsletter = function(elem) {
+
+            console.log('opening the newsletter page ');
+            window.location.href = `/life/gen/page/showNewsletter/${$(elem).attr('slug')}`;
+
+        }
+
+        $('[data-pjax]').on('click', function() {
+            $(".selector").removeClass('active');
+            $(this).closest('.selector').addClass('active');
+        });
 
         $('#searchBlog').on('keyup', function(event) {
             console.log( 'typed a thing');

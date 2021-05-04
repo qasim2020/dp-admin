@@ -1,0 +1,132 @@
+<head>
+
+    {{> analyticsLife}}
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags -->
+  <title>{{data.body.0.msg}}</title>
+
+  <meta name="title" content="{{data.body.0.msg}}">
+  <meta name="description" content="{{data.body.1.msg}}">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://qasimali.xyz/life/gen/page/showNewsletter/{{data.output.slug}}">
+  <meta property="og:title" content="{{data.body.0.msg}}">
+  <meta property="og:description" content="{{data.body.1.msg}}">
+  <meta property="og:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.output.slug}}.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://qasimali.xyz/life/gen/showNewsletter/{{data.output.slug}}">
+  <meta property="twitter:title" content="{{data.body.0.msg}}">
+  <meta property="twitter:description" content="{{data.body.1.msg}}">
+  <meta property="twitter:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{data.output.slug}}.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:100,300i,400,400i,700,900&display=swap" rel="stylesheet">
+
+</head>
+
+<style>
+
+    body {
+        max-width: 550px;
+        margin: auto;
+        font-family: 'Roboto';
+        padding: 30px;
+    }
+
+    .logo-area {
+      display: flex;
+      height: 44px;
+      align-items: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .logo-area>p:hover {
+      color: black;
+    }
+
+    .logo-area>p {
+      padding-left: 10px;
+      /* Quran Daily */
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 157.9%;
+      /* identical to box height, or 32px */
+      display: flex;
+      align-items: center;
+
+      /* Gray 2 */
+      color: #4F4F4F;
+      margin-left: auto;
+    }
+
+    @media (max-width: 799px) {
+
+      .logo-area {
+        margin-left: 0px;
+        padding: 0px;
+      }
+
+      .logo-area > p {
+        padding-left: 10px;
+      }
+
+    }
+</style>
+
+<body>
+
+  <div class="logo-area" onclick="window.location.href = '/life/gen/page/landingPage/n'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V11Z" fill="#4F4F4F" />
+    </svg>
+    <p>qasimali.xyz</p>
+  </div>
+
+  <section id="blog">
+  
+    {{#each data.body}}
+
+      {{#if (match 'h1' type)}}
+
+        <h1 style="
+        background: #219653;
+        padding: 7px 10px;
+        width: fit-content;
+        color: white !important;
+        font-size: 21px !important;
+        transform: rotate( -1deg);
+        margin: 0px 0 25px 0;
+            ">{{{msg}}}</h1>
+
+      {{/if}}
+
+      {{#if (match 'p' type)}}
+
+        <p style="
+                font-size: 17px;
+                line-height: 1.7;
+                color: #333333;
+                word-break: break-word;
+                ">{{{msg}}}</p>
+
+      {{/if}}
+
+    {{/each}}
+  
+    {{> footer url=data.url email=data.email Id=data.Id}}
+
+  </section>
+
+</body>
+
+</html>
+

@@ -400,6 +400,7 @@ var myFuncs = {
         blogs: 'gen',
         fetchAirtable: 'gen',
         roadMap: 'gen',
+        newsletters: 'gen',
 
     },
 
@@ -910,15 +911,17 @@ var myFuncs = {
 
     life: async function(req,res) {
 
+        let output = await this.getBlogs(req,res);
         return {
-            pjaxId: req.params.input == 'n' ? 'showBlogs' : req.params.input,
-            brand: req.params.brand
+            pjaxId: req.params.input,
+            brand: req.params.brand,
+            blogs: output,
         };
     },
 
-    blogs: async function(req,res) {
+    getBlogs: async function(req,res) {
+
         let model = await this.createModel(`life-blogs`);
-        // let output = await model.find().sort({ser: -1}).lean();
         let exp = new RegExp(req.query.keyWord,'i');
         let output = await model.aggregate(
             [
@@ -944,6 +947,13 @@ var myFuncs = {
             val.body = this.convertStringToArticle(val.body);
             return val;
         });
+
+        return output;
+    },
+
+    blogs: async function(req,res) {
+
+        let output = await this.getBlogs(req,res);
         console.log(output);
         return {
             blogs: output,
@@ -979,6 +989,20 @@ var myFuncs = {
             blogs: array
         }
 
+    },
+
+    newsletters: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-newsletters`);
+        let output = await model.find().lean();
+        output = output.map( (val,index) => {
+            val.index = output.length - index;
+            val.date = this.dateBlogHeader(val.publishTime);
+            val.body = this.convertStringToArticle(val.body);
+            return val;
+        });
+        return {
+            letters: output
+        };
     },
 
     challenge: async function(req,res) {
@@ -2919,8 +2943,8 @@ var myFuncs = {
 
         // PLACE VIEW BUTTON ON THE FORM > AND CHECK WHAT IT LOOKS LIKE WHEN LOADED IN TO THE BROWSER
         
-        req.params.theme = "emails";
-        req.params.module = "lifeNewsletter";
+        // req.params.theme = "emails";
+        // req.params.module = "lifeNewsletter";
 
         let model = await this.createModel(`${req.params.brand}-newsletters`);
         let output = await model.findOne({slug: req.params.input}).lean();
@@ -2928,9 +2952,10 @@ var myFuncs = {
         console.log(output);
 
         return {
+            output: output,
             body: await this.convertStringToArticle(output.body),
             url: process.env.url,
-            email: 'qasimali24@gmail.com',
+            email: 'doNotRemember',
             Id: 'doNotRemember'
         }
 

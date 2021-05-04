@@ -113,6 +113,10 @@
       max-width: 268px;
     }
 
+    .left-part > .selector.pending {
+	color: brown;
+    }
+
     .left-part > .selector {
         margin: 0;
         padding: 10px 0;
@@ -400,11 +404,11 @@
         <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M49.9993 141.667H74.9993L91.666 108.333V58.3333H41.666V108.333H66.666L49.9993 141.667ZM116.666 141.667H141.666L158.333 108.333V58.3333H108.333V108.333H133.333L116.666 141.667Z" fill="#F2F2F2"/>
         </svg>
-        <p>Hi 👋 — I am a software developer trying to write articles and record videos. </p>
+        <p>Hi 👋 — I am a software developer writing articles and recording videos. Happy exploring ✌️</p>
         <!-- <p>I am committing to writing for the rest of my life...</p> -->
 
         <p> 
-            <input id="searchBlog" type="text" placeholder="Write and hit Enter">
+            <input id="searchBlog" type="text" placeholder="Write keyword » Enter">
         </p>
         
         <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
@@ -412,6 +416,8 @@
         <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage?input=newsletters" data-pjax>Newsletters</a>
         <a class="selector pending" href="">Roadmap (in progress)</a>
         <a class="selector pending" href="">Videos (in progress)</a>
+        <a class="selector pending" href="">Subscribe (in progress)</a>
+        <a class="selector pending" href="">Contact Me (in progress)</a>
         <!--
             PENDING IMPLEMENTATION
         <p>

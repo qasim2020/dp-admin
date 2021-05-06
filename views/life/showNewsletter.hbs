@@ -109,6 +109,20 @@
 
       {{/if}}
 
+      {{#if (match 'h3' type)}}
+
+        <h3 style="
+        background: whitesmoke;
+        padding: 7px 10px;
+        width: fit-content;
+        color: #4F4F4F !important;
+        font-size: 19px !important;
+        margin: 0px 0 25px 0;
+        border-radius: 5px;
+            ">{{{msg}}}</h3>
+
+      {{/if}}
+
       {{#if (match 'p' type)}}
 
         <p style="
@@ -118,6 +132,26 @@
                 word-break: break-word;
                 ">{{{msg}}}</p>
 
+      {{/if}}
+
+      {{#if (match 'img' type)}}
+
+          <img style="
+            width: 100%;
+            margin-bottom: 32px;
+            border: 1px solid whitesmoke;
+            border-radius: 5px;
+          " src="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{{msg}}}" alt="">
+
+      {{/if}}
+
+      {{#if (match 'quote' type)}}
+          <p class="quote" style="
+              line-height: 1.9;
+              font-style: italic;
+        ">
+          {{{msg}}}
+        </p>
       {{/if}}
 
     {{/each}}

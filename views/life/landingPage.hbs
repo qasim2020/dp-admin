@@ -459,12 +459,117 @@
 
     <div class="popover shadow"></div>
 
+<style>
+
+.subscribe {
+    position: fixed;
+    left: 50%;
+    max-width: 300px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 25px rgb(0 0 0 / 25%);
+    border-radius: 5px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    padding: 20px 30px 30px 30px;
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 19px;
+}
+
+.subscribe > * {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-style: inherit;
+}
+
+.subscribe > p {
+    line-height: 1.7;
+    color: #4F4F4F;
+    font-weight: 300;
+}
+
+.subscribe > input , .subscribe > button {
+    padding: 20px;
+    margin-top: 10px;
+    border: 1px;
+    font-size: inherit;
+    text-align: center;
+}
+
+.subscribe > input {
+    font-weight: normal;
+    font-style: italic;
+    letter-spacing: 1px;
+    color: green;
+    border: 1px solid #6FCF97;
+}
+
+.subscribe > button.submit {
+    border: 1px solid #6FCF97;
+    background: #6FCF97;
+    color: white;
+}
+
+.subscribe > button.secondary {
+    background: white;
+    border: 1px solid whitesmoke;
+    color: #4F4F4F;
+}
+
+.overlay.active {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    opacity: 0.85;
+}
+
+.d-none {
+  display: none;
+}
+
+.subscribe>.success {
+font-weight: normal;
+font-size: 16px;
+font-style: italic;
+color: darkcyan;
+}
+
+.subscribe>.error {
+font-weight: normal;
+font-size: 16px;
+font-style: italic;
+color: darkred;
+}
+</style>
+    <div class="overlay active"></div>
+    <form class="subscribe">
+
+        <p>Subscribe to recieve my progress report in your inbox <b>every Friday</b>. It includes all of it — why I write everyday — what is motivating me — and how we can join hands and — bring a positive change across the world.. 👇</p>
+
+        <input type="email" placeholder="you@email.com" id="subscribe-input" name="email" value="">
+        <p class="success d-none">Thank you. Please check your email to verify your subscription.</p>
+        <p class="error d-none"></p>
+        <button type="button" class="submit">Submit</button>
+        <button type="button" class="secondary">Cancel</button>
+    
+    </form>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/life/importantFuncs.js"></script>
     <script src="/root/pjax.js"></script>
     <script type="text/javascript">
 
         $(document).pjax('a[data-pjax]', '#pjax-container');
         $(document).ready( () => {
+
+            console.log('page is ready'); 
 
             if ("{{data.pjaxId}}" == "n") return console.log('Home loaded');
 
@@ -509,6 +614,7 @@
             $('#showBlogs').attr({href: string}).trigger('click');
         });
 
+        // TODO : HERE SUBSCRIBE BUTTON SHOULD DISAPPEAAR
     </script>
   </body>
 </html>

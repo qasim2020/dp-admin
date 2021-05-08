@@ -96,7 +96,6 @@
     {{#each data.body}}
 
       {{#if (match 'h1' type)}}
-
         <h1 style="
         background: #219653;
         padding: 7px 10px;
@@ -105,54 +104,85 @@
         font-size: 21px !important;
         transform: rotate( -1deg);
         margin: 0px 0 25px 0;
-            ">{{{msg}}}</h1>
-
+        ">{{{msg}}}</h1>
       {{/if}}
 
-      {{#if (match 'h3' type)}}
 
+      {{#if (match 'h3' type)}}
         <h3 style="
-        background: whitesmoke;
+        background: {{pickRandomColor @index}};
         padding: 7px 10px;
         width: fit-content;
         color: #4F4F4F !important;
         font-size: 19px !important;
-        margin: 0px 0 25px 0;
+        margin: 25px 0 25px 0;
         border-radius: 5px;
-            ">{{{msg}}}</h3>
-
+        ">{{{msg}}}</h3>
       {{/if}}
 
       {{#if (match 'p' type)}}
-
         <p style="
                 font-size: 17px;
                 line-height: 1.7;
                 color: #333333;
                 word-break: break-word;
                 ">{{{msg}}}</p>
-
       {{/if}}
 
-      {{#if (match 'img' type)}}
 
+      {{#if (match 'img' type)}}
           <img style="
             width: 100%;
-            margin-bottom: 32px;
             border: 1px solid whitesmoke;
             border-radius: 5px;
           " src="https://res.cloudinary.com/miscellaneous/image/upload/v1592022597/qurandaily/{{{msg}}}" alt="">
+      {{/if}}
+
+      {{#if (match 'captionO' type)}}
+        <p style="
+                margin-bottom: 40px;
+                font-size: 12px;
+                text-align: center;
+                line-height: 1.7;
+                color: #333333 !important;
+                word-break: break-word;
+                ">{{{msg}}}
+      {{/if}}
+
+      {{#if (match 'po' type)}}
+        <p style="
+                font-size: 17px;
+                line-height: 1.7;
+                color: #333333;
+                word-break: break-word;
+                ">{{{msg}}}
+      {{/if}}
+
+      {{#if (match 'ao' type)}}
+
+          <a style="
+            text-decoration: none;
+            color: indianred;
+            border-bottom: 1px dashed;
+            font-style: italic;
+            padding-bottom: 9px;
+          " href="{{{msg}}}">{{{class}}}
 
       {{/if}}
 
       {{#if (match 'quote' type)}}
           <p class="quote" style="
-              line-height: 1.9;
-              font-style: italic;
-        ">
-          {{{msg}}}
-        </p>
+                line-height: 1.9;
+                font-style: italic;
+                font-size: 17px;
+                color: #333333;
+              "> {{{msg}}}</p>
       {{/if}}
+
+
+      {{#if (match "ao/" type) }} {{{msg}}} </a> {{/if}}
+      {{#if (match "po/" type) }} {{{msg}}}</p> {{/if}}
+      {{#if (match "captionO/" type) }} {{{msg}}}</p> {{/if}}
 
     {{/each}}
   

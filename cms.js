@@ -123,6 +123,12 @@ let Collections = mongoose.model('collections', new mongoose.Schema(schema));
 
 hbs.registerPartials(__dirname + '/views/partials');
 
+hbs.registerHelper('pickRandomColor', (val) => {
+    let array = [ "lightblue", "pink" , "lavender" , "lightskyblue", "lightgoldenrodyellow" , "lightgreen", "beige" , "#f0dbeb" , "#c9eeeb" , "#f0d0a0" ];
+    let randomNo = Math.floor(Math.random() * 4); 
+    return array[randomNo];
+})
+
 hbs.registerHelper('breaklines', (val) => {
   return val.split(/\n/g).join('<br>');
 })
@@ -993,7 +999,7 @@ var myFuncs = {
 
     newsletters: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-newsletters`);
-        let output = await model.find().lean();
+        let output = await model.find().sort({publishTime: -1}).lean();
         output = output.map( (val,index) => {
             val.index = output.length - index;
             val.date = this.dateBlogHeader(val.publishTime);

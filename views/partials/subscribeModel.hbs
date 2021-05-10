@@ -1,0 +1,124 @@
+<style>
+
+.subscribe {
+    position: fixed;
+    left: 50%;
+    max-width: 300px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 25px rgb(0 0 0 / 25%);
+    border-radius: 5px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    padding: 20px 30px 30px 30px;
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 19px;
+}
+
+.subscribe > * {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-style: inherit;
+}
+
+.subscribe > p {
+    line-height: 1.7;
+    color: #4F4F4F;
+    font-weight: 300;
+}
+
+.subscribe > input , .subscribe > button {
+    padding: 20px;
+    margin-top: 10px;
+    border: 1px;
+    font-size: inherit;
+    text-align: center;
+}
+
+.subscribe > input {
+    font-weight: normal;
+    font-style: italic;
+    letter-spacing: 1px;
+    color: green;
+    border: 1px solid #6FCF97;
+}
+
+.subscribe > button.submit {
+    border: 1px solid #6FCF97;
+    background: #6FCF97;
+    color: white;
+}
+
+.subscribe > button.secondary {
+    background: white;
+    border: 1px solid whitesmoke;
+    color: #4F4F4F;
+}
+
+.overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    opacity: 0.85;
+}
+
+.d-none {
+    display: none;
+}
+
+.subscribe>.success {
+    font-weight: normal;
+    font-size: 16px;
+    font-style: italic;
+    color: darkcyan;
+}
+
+.subscribe>.error {
+    font-weight: normal;
+    font-size: 16px;
+    font-style: italic;
+    color: darkred;
+}
+
+
+.subscribe > button.submit:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+.subscribe > button.secondary:hover {
+    cursor: pointer;
+    background: whitesmoke;
+}
+
+@media (max-width:470px) {
+    .subscribe {
+        position: absolute;
+        max-width: 75vw;
+        width: 100%;
+        top: 10px;
+        transform: translate(-50%, 0);
+        font-size: 19px;
+    }
+}
+</style>
+
+    <div class="overlay d-none"></div>
+    <form class="subscribe d-none">
+
+        <p>Subscribe to recieve my progress report in your inbox <b>every Friday</b>. It includes all of it — why I write everyday — what is motivating me — and how we can join hands and — bring a positive change across the world.. 👇</p>
+
+        <input type="email" placeholder="you@email.com" id="subscribe-input" name="email" value="">
+        <p class="success d-none">Thank you. Please check your email to verify your subscription.</p>
+        <p class="error d-none"></p>
+        <button type="button" class="submit">Subscribe</button>
+        <button type="button" class="secondary" onclick="hideModel()">Close</button>
+    
+    </form>
+
+

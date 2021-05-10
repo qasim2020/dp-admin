@@ -104,13 +104,23 @@
       font-weight: bold;
       font-size: 20px;
       line-height: 157.9%;
-      /* or 32px */
       display: flex;
       align-items: center;
-
       color: #4F4F4F;
       padding: 20px 0 1px 0;
       max-width: 268px;
+      margin-bottom: 30px;
+    }
+
+    .left-part > .search {
+        position: relative;
+    }
+
+    .left-part > .search > svg {
+        position: absolute;
+        right: 17px;
+        top: 50%;
+        transform: translate(0%, -50%);
     }
 
     .left-part > .selector.pending {
@@ -128,8 +138,16 @@
         display: block;
     }
 
+    .left-part > button.selector {
+        background: white;
+        border: 1px solid white;
+        width: 100%;
+        text-align: left;
+    }
+
     .left-part > .selector:hover {
         background: whitesmoke;
+        cursor: pointer;
     }
 
     .left-part > .selector.active {
@@ -406,27 +424,24 @@
         </svg>
         <p>I am committing to writing for the rest of my life...</p>
 
-        <p> 
-            <input id="searchBlog" type="text" placeholder="Write keyword » Enter">
+        <p class="search"> 
+            <input id="searchBlog" type="text" placeholder="Search blogs">
+            <svg width="40" height="40" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g opacity="0.49">
+            <path d="M17.0156 17.0156C16.6563 17.375 16.0625 17.375 15.6875 17.0156L13.7031 15.0312C13.3437 14.6719 13.3437 14.0781 13.7031 13.7031C14.0625 13.3438 14.6563 13.3438 15.0313 13.7031L17.0156 15.6875C17.375 16.0625 17.375 16.6562 17.0156 17.0156Z" fill="white"/>
+            <path d="M4.30247 4.3108C3.2769 5.33641 2.70075 6.72741 2.70078 8.17782C2.7008 9.62822 3.277 11.0192 4.3026 12.0448C5.32821 13.0704 6.71922 13.6465 8.16962 13.6465C9.62003 13.6464 11.011 13.0703 12.0366 12.0446C13.0622 11.019 13.6383 9.62803 13.6383 8.17763C13.6383 6.72722 13.0621 5.33624 12.0365 4.31066C11.0108 3.28509 9.61984 2.70895 8.16943 2.70897C6.71903 2.709 5.32804 3.28519 4.30247 4.3108V4.3108Z" fill="white"/>
+            <path d="M4.30247 4.3108C3.2769 5.33641 2.70075 6.72741 2.70078 8.17782C2.7008 9.62822 3.277 11.0192 4.3026 12.0448C5.32821 13.0704 6.71922 13.6465 8.16962 13.6465C9.62003 13.6464 11.011 13.0703 12.0366 12.0446C13.0622 11.019 13.6383 9.62803 13.6383 8.17763C13.6383 6.72722 13.0621 5.33624 12.0365 4.31066C11.0108 3.28509 9.61984 2.70895 8.16943 2.70897C6.71903 2.709 5.32804 3.28519 4.30247 4.3108V4.3108Z" fill="white"/>
+            <path d="M8.17188 13.1719C7.90625 13.1719 7.70312 12.9688 7.70312 12.7031C7.70312 12.4375 7.90625 12.2344 8.17188 12.2344C9.25 12.2344 10.2812 11.8125 11.0469 11.0469C12.0469 10.0469 12.4531 8.625 12.125 7.23438C12.0625 6.98438 12.2188 6.73438 12.4688 6.67188C12.7188 6.60938 12.9688 6.76563 13.0313 7.01563C13.4375 8.71875 12.9531 10.4844 11.7188 11.7188C10.7656 12.6563 9.51563 13.1719 8.17188 13.1719ZM11.3906 5.46875C11.2656 5.46875 11.1563 5.42187 11.0625 5.32812V5.3125C10.875 5.125 10.875 4.82813 11.0625 4.64063C11.25 4.45312 11.5313 4.45312 11.7188 4.64063L11.7344 4.65625C11.9219 4.84375 11.9219 5.14062 11.7344 5.32812C11.6406 5.42187 11.5156 5.46875 11.3906 5.46875Z" fill="#ADF9D2"/>
+            <path d="M8.17188 14.1094C6.65625 14.1094 5.125 13.5313 3.96875 12.375C1.65625 10.0625 1.65625 6.29688 3.96875 3.98438C6.28125 1.67187 10.0469 1.67187 12.3594 3.98438C14.6875 6.29688 14.6875 10.0625 12.375 12.375C11.2187 13.5313 9.70313 14.1094 8.17188 14.1094ZM8.17188 3.1875C6.89063 3.1875 5.60938 3.67188 4.64063 4.65625C2.6875 6.60938 2.6875 9.78125 4.64063 11.7344C6.59375 13.6563 9.76563 13.6563 11.7188 11.7188C13.6719 9.76563 13.6719 6.59375 11.7188 4.64063C10.7344 3.67188 9.45312 3.1875 8.17188 3.1875ZM17.3437 15.3594L15.3594 13.375C15.0937 13.1094 14.7344 12.9688 14.3594 12.9688C14.1406 12.9688 13.9375 13.0156 13.75 13.1094L13.3594 12.7188C13.1719 12.5313 12.875 12.5313 12.7031 12.7188C12.5156 12.9063 12.5156 13.2031 12.7031 13.375L13.0938 13.7656C12.8437 14.2813 12.9375 14.9375 13.3594 15.3594L15.3594 17.3438C15.6406 17.625 16 17.75 16.3594 17.75C16.7187 17.75 17.0781 17.6094 17.3594 17.3438C17.625 17.0781 17.7656 16.7188 17.7656 16.3438C17.7656 15.9844 17.6094 15.625 17.3437 15.3594ZM16.6875 16.6875C16.5 16.875 16.2031 16.875 16.0312 16.6875L14.0312 14.7031C13.8437 14.5156 13.8437 14.2188 14.0312 14.0469C14.125 13.9531 14.2344 13.9063 14.3594 13.9063C14.4844 13.9063 14.6094 13.9531 14.6875 14.0469L16.6719 16.0313C16.7656 16.125 16.8125 16.2344 16.8125 16.3594C16.8125 16.4844 16.7813 16.5938 16.6875 16.6875Z" fill="#444B54"/>
+            </g>
+            </svg>
+
         </p>
         
         <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
         <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage?input=blogStreak" data-pjax>Streak</a>
         <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage?input=newsletters" data-pjax>Newsletters</a>
-        <!--
-            PENDING IMPLEMENTATION
-        <a class="selector pending" href="">Roadmap (in progress)</a>
-        <a class="selector pending" href="">Videos (in progress)</a>
-        <a class="selector pending" href="">Subscribe (in progress)</a>
-        <a class="selector pending" href="">Contact Me (in progress)</a>
-        <p>
-            <a id="roadMap"  href="/{{data.brand}}/gen/pjax/roadMap/landingPage?input=roadMap" data-pjax>Roadmap</a>
-        </p>
-        <p>
-            <a id="videos"  href="/{{data.brand}}/gen/pjax/blogStreak/landingPage" data-pjax>Videos</a>
-        </p>
-        -->
-
+        <button class="selector" onclick="showModel()">Subscribe</button>
 
       </div>
 
@@ -438,7 +453,6 @@
 
                 {{#each data.blogs}}
                 <div class="card" slug="{{slug}}" onclick="openBlog(this)">
-
 
                         <h4>{{index}}</h4>
                         <h1>{{body.0.msg}}</h1>
@@ -459,106 +473,7 @@
 
     <div class="popover shadow"></div>
 
-<style>
-
-.subscribe {
-    position: fixed;
-    left: 50%;
-    max-width: 300px;
-    background: #FFFFFF;
-    box-shadow: 0px 0px 25px rgb(0 0 0 / 25%);
-    border-radius: 5px;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    padding: 20px 30px 30px 30px;
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 19px;
-}
-
-.subscribe > * {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    font-style: inherit;
-}
-
-.subscribe > p {
-    line-height: 1.7;
-    color: #4F4F4F;
-    font-weight: 300;
-}
-
-.subscribe > input , .subscribe > button {
-    padding: 20px;
-    margin-top: 10px;
-    border: 1px;
-    font-size: inherit;
-    text-align: center;
-}
-
-.subscribe > input {
-    font-weight: normal;
-    font-style: italic;
-    letter-spacing: 1px;
-    color: green;
-    border: 1px solid #6FCF97;
-}
-
-.subscribe > button.submit {
-    border: 1px solid #6FCF97;
-    background: #6FCF97;
-    color: white;
-}
-
-.subscribe > button.secondary {
-    background: white;
-    border: 1px solid whitesmoke;
-    color: #4F4F4F;
-}
-
-.overlay.active {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background: white;
-    opacity: 0.85;
-}
-
-.d-none {
-  display: none;
-}
-
-.subscribe>.success {
-font-weight: normal;
-font-size: 16px;
-font-style: italic;
-color: darkcyan;
-}
-
-.subscribe>.error {
-font-weight: normal;
-font-size: 16px;
-font-style: italic;
-color: darkred;
-}
-</style>
-    <div class="overlay active"></div>
-    <form class="subscribe">
-
-        <p>Subscribe to recieve my progress report in your inbox <b>every Friday</b>. It includes all of it — why I write everyday — what is motivating me — and how we can join hands and — bring a positive change across the world.. 👇</p>
-
-        <input type="email" placeholder="you@email.com" id="subscribe-input" name="email" value="">
-        <p class="success d-none">Thank you. Please check your email to verify your subscription.</p>
-        <p class="error d-none"></p>
-        <button type="button" class="submit">Submit</button>
-        <button type="button" class="secondary">Cancel</button>
-    
-    </form>
+    {{> subscribeModel}}
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
@@ -614,7 +529,10 @@ color: darkred;
             $('#showBlogs').attr({href: string}).trigger('click');
         });
 
-        // TODO : HERE SUBSCRIBE BUTTON SHOULD DISAPPEAAR
+        
+        
+        
+
     </script>
   </body>
 </html>

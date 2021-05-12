@@ -93,6 +93,7 @@
         <p>
             <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
             <a href="/{{data.brand}}/admin/page/airtablePull/{{data.modelName}}">Airtable Pull</a>
+            <a href="/{{data.brand}}/admin/page/airtableSync/{{data.modelName}}">Airtable Sync</a>
             <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
             <!-- <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a> -->
             <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
@@ -132,20 +133,10 @@
                         <th>Delete</th>
                     </tr> 
 
-                    <!--
                     {{#each data.dataRows}}
                     <tr>
                         {{#each this}}
-                            <td>{{{this}}}</td>
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    -->
-
-                    {{#each data.dataRows}}
-                    <tr>
-                        {{#each this}}
-                            <td>{{{this}}}</td>
+                            <td>{{this}}</td>
                         {{/each}}
                         <td>
                             <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.[0]}}">Edit</a>

@@ -116,10 +116,14 @@ let schema = {
     properties: {
         type: "Object",
         required: true,
+    },
+    airtable: {
+        type: "Object",
     }
 };
 
 let Collections = mongoose.model('collections', new mongoose.Schema(schema));
+
 
 hbs.registerPartials(__dirname + '/views/partials');
 
@@ -326,7 +330,7 @@ var myFuncs = {
             return res.status(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
             break;
           case (req.params.requiredType == 'data'):
             return res.status(200).send(data);
@@ -407,7 +411,6 @@ var myFuncs = {
         fetchAirtable: 'gen',
         roadMap: 'gen',
         newsletters: 'gen',
-
     },
 
     getThemeName: async function(brand) {
@@ -502,9 +505,21 @@ var myFuncs = {
 
     updateSequence: async function(req,res) {
         let model = await this.createModel(req.body.modelName);
+        delete req.body.modelName;
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
+        console.log(result);
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
+        // CHECK IF IT IS SAVED IN AIRTABLE OR NOT ??
+
+        this.syncWithAirtable(req,res);
+
         return {success: true, result: result};
+    },
+
+    syncWithAirtable: async function(req,res) {
+        
+        console.log('checking if this collection is synced with Airtable or not');
+
     },
 
     checkCollectionExists: async function(collectionName) {
@@ -528,6 +543,442 @@ var myFuncs = {
         
     },
 
+    airtableSync: async function(req,res) {
+        console.log('show Airtable Sync page here');
+        req.params.theme = 'root';
+        let output = await Collections.findOne({name: req.params.input}).lean();
+        console.log(output.airtable);
+        console.log(req.query.msg);
+        return {
+            modelName: req.params.input,
+            brand: req.params.brand,
+            collection: req.params.input,
+            values: output.airtable,
+            msg: req.query.msg
+        };
+    },
+
+    saveAirtableURLs: async function(req,res) {
+
+        let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
+
+        req.params.theme = 'root';
+
+        return {
+            output: airtableAdded,
+            msg: "Successfully saved in database",
+        }
+
+    },
+
+    updateManyByKey: async function(req,res) {
+
+        console.log(req.body.data);
+
+       //  return {
+       //      output: req.body.data
+       //  };
+        
+        let model = await this.createModel(`${req.params.input}`);
+        let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({ [val.key] : val.data[val.key] }, val.data , { new: true, upsert:true }) ));
+
+        console.log(output);
+        return {
+            output
+        };
+
+    },
+
+    fetchAirtableData: async function(req,res) {
+
+        console.log('Fetching airtable data now');
+
+        let airtableURLs = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
+
+        let output = await this.axiosRequest({method: "GET", URL: airtableURLs.get});
+
+        output = output.data.records;
+
+        req.params.theme = 'root';
+        req.params.module = 'airtableVslocal';
+
+        let file = await fs.writeFile(
+            './static/test.json', 
+            JSON.stringify( output , 0 , 2 ) , 
+            (err) => {
+                if (err) {
+                  return 'Failed to backup';
+                }
+                return 'Successful';
+            });
+
+        return {
+            brand: req.params.brand,
+            modelName: req.params.input
+        };
+
+    },
+
+
+    airtableVslocal: async function(req,res) {
+
+        let airtableURLs = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
+
+        req.params.theme = 'root';
+
+        let file = await new Promise( (resolve, reject) => {
+
+            fs.readFile('./static/test.json', 'utf8', (err, data) => {
+                if (err) reject(err)
+                resolve( JSON.parse(data) );
+            });
+
+        }); 
+
+        if (airtableURLs.put == undefined || airtableURLs == undefined || file == undefined) {
+            req.query.redirect = "airtableSync";
+            req.query.redirectInput = req.params.input;
+            return {msg: 'The PUT URL is not listed in the form. Please update PUT URL and press the Analyze btn'}
+        }
+
+        let model = await this.createModel(req.params.input);
+
+        let output2 = await model.find().lean();
+
+        let localToAirtable  = output2.map( val => {
+            let matchInAirtable = file.find( row  => row["fields"][airtableURLs.key] == val[airtableURLs.key] );
+            return {
+                local: val,
+                airtable: matchInAirtable
+            }
+        });
+
+        let airtableToLocal = file.map( val => {
+            let matchInLocal = output2.find( row  => val["fields"][airtableURLs.key] == row[airtableURLs.key] );
+            if (matchInLocal != undefined) return null;
+            return {
+                local: matchInLocal,
+                airtable: val
+            }
+        }).filter( val => val != null );
+            
+        let sidebyside = localToAirtable.concat(airtableToLocal);
+
+        sidebyside = [...new Set(sidebyside)];
+
+        let getDifferences = function (focal) {
+
+            if (focal.local == undefined || focal.airtable == undefined) {
+
+                let makeObjectAnArray = function(object, database) {
+
+                    console.log( object, database );
+                    let output = Object.keys(object).map( val => {
+                        return {
+                            field: val,
+                            local: database == "local" ? "<span>" + object[val] + "</span>" : null,
+                            airtable: database == "airtable" ? "<span>" + object[val] + "</span>" : null,
+                        }
+                    });
+
+                    return output;
+
+                };
+
+                console.log({
+                    local: focal.local,
+                    airtable: focal.airtable,
+                });
+
+                let diff =  makeObjectAnArray(focal.local == undefined ? focal.airtable.fields : focal.local, focal.local == undefined ? "airtable" : "local");
+
+                return {
+                    local: focal.local == undefined ? focal.local = {_id : myFuncs.getMongoId()} : focal.local,
+                    airtable: focal.airtable,
+                    diff: diff,
+                    foundInBoth: false
+                };
+
+            }
+
+            let output = Object.keys(focal.local).map( val => {
+
+                if (val == 'created_at' || val == 'updatedAt' || val == '_id' || val == '__v' || val == 'ser') return null;
+
+                console.log( focal.local[val], focal.airtable.fields[val] );
+
+                let diff = myFuncs.patienceDiffPlus( focal.local[val] == undefined ? " " : focal.local[val] , focal.airtable.fields[val] == undefined ? " " : focal.airtable.fields[val]).lines.filter( val => val.bIndex == -1 );
+
+                if (diff.length == 0) return null;
+
+                // place a tick to both entries
+                
+                let replaceAt = function(string, index, replacement) {
+
+                    let output = string.slice(0, index) + replacement + string.slice(index + 1, string.length );
+
+                    return output;
+
+                }
+
+                let highltString = focal.local[val];
+                
+                diff.sort( (a,b) => b.aIndex - a.aIndex ).forEach( val => {
+                    
+                    highltString = replaceAt(highltString, val.aIndex, "<span>" + val.line + "</span>")
+
+                });
+
+                return {
+                    field: val,
+                    local: highltString,
+                    airtable: focal.airtable.fields[val],
+                }
+
+            }).filter( val => val != null ) ;
+
+            if (output == []) return "";
+
+            return {
+                local: focal.local,
+                airtable: focal.airtable,
+                diff: output,
+                foundInBoth: true
+            };
+
+        };
+
+        let rows = sidebyside.map( val => getDifferences(val) ).filter( val => val != "" ).map( val => {
+            val.keyValue = val.local[airtableURLs.key] || val.airtable[airtableURLs.key];
+            val.local = JSON.stringify(val.local);
+            val.airtable = JSON.stringify(val.airtable);
+            val.key = airtableURLs.key;
+            return val;
+        });
+
+        console.log( JSON.stringify( rows[rows.length - 1], 0 , 2) );
+        
+        return {
+            modelName: req.params.input,
+            rows: rows,
+            key: airtableURLs.key,
+            nocodeapiURL: airtableURLs.put,
+            totalDiffs: rows.filter( val => val.diff.length > 0 ).length
+        }
+    },
+
+    patienceDiff: function(aLines, bLines, diffPlusFlag) {
+
+      function findUnique(arr, lo, hi) {
+
+        var lineMap = new Map();
+
+        for (let i = lo; i <= hi; i++) {
+          let line = arr[i];
+          if (lineMap.has(line)) {
+            lineMap.get(line).count++;
+            lineMap.get(line).index = i;
+          } else {
+            lineMap.set(line, {count:1, index: i});
+          }
+        }
+
+        lineMap.forEach((val, key, map) => {
+          if (val.count !== 1) {
+            map.delete(key);
+          } else {
+            map.set(key, val.index);
+          }
+        });
+
+        return lineMap;
+      }
+
+      function uniqueCommon(aArray, aLo, aHi, bArray, bLo, bHi) {
+        let ma = findUnique(aArray, aLo, aHi);
+        let mb = findUnique(bArray, bLo, bHi);
+
+        ma.forEach((val, key, map) => {
+          if (mb.has(key)) {
+            map.set(key, {indexA: val, indexB: mb.get(key)});
+          } else {
+            map.delete(key);
+          }
+        });
+
+        return ma;
+      }
+
+      function longestCommonSubsequence(abMap) {
+
+        var ja = [];
+
+        abMap.forEach((val, key, map) => {
+          let i = 0;
+          while (ja[i] && ja[i][ja[i].length-1].indexB < val.indexB) {
+            i++;
+          }
+
+          if (!ja[i]) {
+            ja[i] = [];
+          }
+
+          if (0 < i) {
+            val.prev = ja[i-1][ja[i-1].length - 1];
+          }
+
+          ja[i].push(val);
+        });
+
+        var lcs = [];
+        if (0 < ja.length) {
+          let n = ja.length - 1;
+          var lcs = [ja[n][ja[n].length - 1]];
+          while (lcs[lcs.length - 1].prev) {
+            lcs.push(lcs[lcs.length - 1].prev);
+          }
+        }
+
+        return lcs.reverse();
+      }
+
+      let result = [];
+      let deleted = 0;
+      let inserted = 0;
+
+      let aMove = [];
+      let aMoveIndex = [];
+      let bMove = [];
+      let bMoveIndex = [];
+
+      function addToResult(aIndex, bIndex) {
+
+        if (bIndex < 0) {
+          aMove.push(aLines[aIndex]);
+          aMoveIndex.push(result.length);
+          deleted++;
+        } else if (aIndex < 0) {
+          bMove.push(bLines[bIndex]);
+          bMoveIndex.push(result.length);
+          inserted++;
+        }
+
+        result.push({line: 0 <= aIndex ? aLines[aIndex] : bLines[bIndex], aIndex: aIndex, bIndex: bIndex});
+      }
+
+      function addSubMatch(aLo, aHi, bLo, bHi) {
+
+        while (aLo <= aHi && bLo <= bHi && aLines[aLo] === bLines[bLo]) {
+          addToResult(aLo++, bLo++);
+        }
+
+        let aHiTemp = aHi;
+        while (aLo <= aHi && bLo <= bHi && aLines[aHi] === bLines[bHi]) {
+          aHi--;
+          bHi--;
+        }
+
+        let uniqueCommonMap = uniqueCommon(aLines, aLo, aHi, bLines, bLo, bHi);
+        if (uniqueCommonMap.size === 0) {
+          while (aLo <= aHi) {
+            addToResult(aLo++, -1);
+          }
+          while (bLo <= bHi) {
+            addToResult(-1, bLo++);
+          }
+        } else {
+          recurseLCS(aLo, aHi, bLo, bHi, uniqueCommonMap);
+        }
+
+        while (aHi < aHiTemp) {
+          addToResult(++aHi, ++bHi);
+        }
+      }
+
+      function recurseLCS(aLo, aHi, bLo, bHi, uniqueCommonMap) {
+        var x = longestCommonSubsequence(uniqueCommonMap || uniqueCommon(aLines, aLo, aHi, bLines, bLo, bHi));
+        if (x.length === 0) {
+          addSubMatch(aLo, aHi, bLo, bHi);
+        } else {
+          if (aLo < x[0].indexA || bLo < x[0].indexB) {
+            addSubMatch(aLo, x[0].indexA-1, bLo, x[0].indexB-1);
+          }
+
+          let i;
+          for (i = 0; i < x.length - 1; i++) {
+            addSubMatch(x[i].indexA, x[i+1].indexA-1, x[i].indexB, x[i+1].indexB-1);
+          }
+
+          if (x[i].indexA <= aHi || x[i].indexB <= bHi) {
+            addSubMatch(x[i].indexA, aHi, x[i].indexB, bHi);
+          }
+        }
+      }
+
+      recurseLCS(0, aLines.length-1, 0, bLines.length-1);
+
+      if (diffPlusFlag) {
+        return {lines: result, lineCountDeleted: deleted, lineCountInserted: inserted, lineCountMoved: 0, aMove: aMove, aMoveIndex: aMoveIndex, bMove: bMove, bMoveIndex: bMoveIndex};
+      }
+
+      return {lines: result, lineCountDeleted: deleted, lineCountInserted: inserted, lineCountMoved:0};
+    },
+        
+    patienceDiffPlus: function( aLines, bLines ) {
+
+      let difference = this.patienceDiff( aLines, bLines, true );
+
+      let aMoveNext = difference.aMove;
+      let aMoveIndexNext = difference.aMoveIndex;
+      let bMoveNext = difference.bMove;
+      let bMoveIndexNext = difference.bMoveIndex;
+
+      delete difference.aMove;
+      delete difference.aMoveIndex;
+      delete difference.bMove;
+      delete difference.bMoveIndex;
+
+      do {
+
+        let aMove = aMoveNext;
+        let aMoveIndex = aMoveIndexNext;
+        let bMove = bMoveNext;
+        let bMoveIndex = bMoveIndexNext;
+
+        aMoveNext = [];
+        aMoveIndexNext = [];
+        bMoveNext = [];
+        bMoveIndexNext = [];
+
+        let subDiff = this.patienceDiff( aMove, bMove );
+
+        var lastLineCountMoved = difference.lineCountMoved;
+
+        subDiff.lines.forEach( (v, i) => {
+
+          if (0 <= v.aIndex && 0 <= v.bIndex) {
+            difference.lines[aMoveIndex[v.aIndex]].moved = true;
+            difference.lines[bMoveIndex[v.bIndex]].aIndex = aMoveIndex[v.aIndex];
+            difference.lines[bMoveIndex[v.bIndex]].moved = true;
+            difference.lineCountInserted--;
+            difference.lineCountDeleted--;
+            difference.lineCountMoved++;
+            foundFlag = true;
+          } else if (v.bIndex < 0) {
+            aMoveNext.push(aMove[v.aIndex]);
+            aMoveIndexNext.push(aMoveIndex[v.aIndex]);
+          } else {  // if (v.aIndex < 0)
+            bMoveNext.push(bMove[v.bIndex]);
+            bMoveIndexNext.push(bMoveIndex[v.bIndex]);
+          }
+
+        });
+
+      } while ( 0 < difference.lineCountMoved - lastLineCountMoved );
+
+      return difference;
+    },
+
     airtablePull: async function(req,res) {
         console.log('show airtable pull page here');
         req.params.theme = 'root';
@@ -539,12 +990,11 @@ var myFuncs = {
 
     mergeDataIntoCollection : async function(req,res) {
         console.log(' merge data into collection here ');
-        // console.log( JSON.parse(req.body.data) );
-        console.log(req.body.results);
 
         let model = await this.createModel(req.params.input);
         let output = await model.insertMany(req.body.results);
         console.log(output);
+
         return {success: true, output: output}
     },
 

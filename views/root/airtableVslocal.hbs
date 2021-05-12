@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<style>
+
+.card {
+    font-size: 12px;
+    background: lightcyan;
+    padding: 16px;
+    margin: 10px;
+    border: 1px solid black;
+}
+
+    .flex {
+        display: flex;
+        gap: 30px;
+    }
+
+    .flex > * {
+        width: 50%;
+    }
+
+    .local > span , .airtable > span {
+
+        font-size: 14px;
+        color: red;
+        font-weight: bold;
+
+    }
+
+    button {
+        padding: 10px;
+    color: blc;
+    background: white;
+    border: 1px solid #333333;
+    }
+
+    button.success {
+        background: green;
+            color: white;
+    }
+
+    .flex.top {
+        padding: 10px;
+    }
+
+    .container > p {
+        padding: 10px;
+        text-align: center;
+        color: green;
+        font-weight: bold;
+        padding-top: 0;
+    }
+
+    .top > div:nth-child(2) > p > button {
+        width: 100%;
+        text-align: left;
+    }
+
+    .top > div:nth-child(1) > p > button , .top > div:nth-child(1) > h2 {
+        width: 100%;
+        text-align: right;
+    }
+
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+
+    {{#if data.rows}}
+        <div class="flex top">
+
+            <div>
+                <h2>Local</h2>
+                <p><button onclick="pushToAirtable()">Push all local data to Airtable — </button></p>
+            </div>
+        
+            <div>
+                <h2>Airtable</h2>
+                <p><button onclick="pushToLocal()"> — Push all Airtable data to Local DB</button></p>
+            </div>
+        
+        </div>
+
+        <p>Total Differences found: {{data.totalDiffs}}</p>
+    {{/if}}
+    
+    {{#each data.rows}}
+
+        {{#if this.diff}}
+
+
+        <div class="card" localId="{{this.local._id}}" airtableId="{{this.airtable._id}}">
+
+            {{#each this.diff}}
+        
+                <h3>{{{this.field}}}</h3>
+
+                <div class="flex" key="{{this.field}}">
+                
+                    <p class="local">{{{this.local}}}</p>
+
+                    <p class="airtable">{{{this.airtable}}}</p>
+                
+                </div>
+
+            {{/each}}
+
+            <div class="flex">
+
+                <p class="local">{{#if this.local}}<button class="{{this.key}}{{this.keyValue}}" onclick="updateAirtable({{this.airtable}}, this, {{this.local}})">Keep this</button>{{/if}}</p>
+            
+                <p class="airtable">{{#if this.airtable}}<button class="{{this.key}}{{this.keyValue}}" onclick="updateLocalDB({{this.airtable}}, this, {{this.local}})">Keep this</button>{{/if}}</p>
+            
+            </div>
+        
+        </div>
+
+        {{/if}}
+
+    {{/each}}
+    
+    {{#unless data.rows}}
+        <div class="card">
+
+            <p>Your data is stored in a text file in server. Click below to find differences.</p>
+
+            <a href="/{{data.brand}}/admin/page/airtableVslocal/{{data.modelName}}"><button>Find Differences</button></a>
+        
+        </div>
+    {{/unless}}
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+
+    <script>
+
+
+    let pushToAirtable = function() {
+
+        let allBtns = $(".flex > .local > button").each( (i, val) => $(val).trigger('click') );
+
+    };
+
+    let pushToLocal = function() {
+
+        let output = [
+            {{#each data.rows}}
+            {{#if this.diff}}
+            {
+                key : "{{{this.key}}}",
+                data : {{{this.airtable}}}.fields
+            },
+            {{/if}}
+            {{/each}}
+            ];
+
+        let key = "{{data.key}}";
+
+        console.log( output );
+
+        $.ajax({
+            contentType: "application/json",
+            url: "/life/admin/data/updateManyByKey/{{data.modelName}}",
+            method: "POST",
+            data: JSON.stringify({data: output}),
+        }).done( val => {
+
+            console.log(val);
+            val.output.map( (obj) => cardDone( `.airtable > .${key}${obj[key]}`, 'success', 'Done', 'disable' ) );
+        
+        })
+          .fail( err => console.log(err) );
+
+        return;
+
+    };
+
+    let updateAirtable = function(airtable, elem, data) {
+
+        let output = mapDataToKeys(elem, data);
+
+        // [{"id":"rec2CO7nLufSs5pKx","fields":{"title":"New Example 2","website":"https://example2.com"}}]
+
+        let myData = [
+            {
+                id: airtable.id,
+                fields: output
+            },
+        ];
+
+        console.log(myData)
+        
+        $.ajax({
+            contentType: "application/json",
+            url: "{{{data.nocodeapiURL}}}",
+            method: "PUT",
+            data: JSON.stringify(myData),
+        }).done( val => cardDone(elem, 'success' , val.message, "disable") )
+          .fail( err => cardDone(elem, 'fail', err ) );
+
+        return ;
+
+    }
+
+    let cardDone = function(elem, cls, msg, attr) {
+
+        console.log({ elem, cls, msg, attr});
+        $(elem).addClass(cls).html(msg).attr(attr);
+
+    }
+
+    let updateLocalDB = function(data, elem, local) {
+        
+        let output = mapDataToKeys(elem, data.fields);
+
+        output._id = local._id;
+        output.modelName = "{{data.modelName}}";
+
+        $.ajax({
+            url: "/life/admin/data/updateSequence/n",
+            method: "POST",
+            data: output,
+        }).done( val => cardDone(elem, 'success' , "Done" , "disable") )
+          .fail( err => cardDone(elem, 'fail', err ) );
+
+        return ;
+
+    };
+
+    let mapDataToKeys = function(elem, data) {
+
+        let keysToUpdate = $(elem).closest('.card').find('h3').map( function(i,obj) {
+            console.log( $(obj).html() );
+            return $(obj).html();
+        }).toArray();
+
+        console.log(keysToUpdate);
+
+        let output = keysToUpdate.reduce( (total, val) => {
+            total = Object.assign( total, {
+                [val]: data[val]
+            });
+            return total;
+        },{});
+
+        return output;
+    }
+    
+    
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+    
+    form {
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    body {
+        max-width: 800px;
+        margin: auto;
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    label , button {
+        margin: 28px 0 13px 0;
+    }
+
+    input {
+        padding: 10px;
+        width: 100%;
+    }
+
+    button {
+        padding: 10px;
+    }
+
+    p.success {
+        color: green;
+        font-weight: bold;
+    }
+    
+    </style>
+</head>
+<body>
+    
+    {{#if data.msg}}
+
+    <p class="success">{{data.msg}}</p>
+
+    {{/if}}
+    
+    <p>Enter the NoCodeAPI URL Below and submit Form</p>
+
+    <form action="/{{data.brand}}/admin/page/saveAirtableURLs/{{data.collection}}?redirect=airtableSync&redirectInput={{data.collection}}" method="POST">
+    
+        <label for="get">GET — to fetch entries</label>
+        <input type="text" name="get" id="get" value="{{data.values.get}}" required>
+
+        <label for="post">POST — to add a new entry</label>
+        <input type="text" name="post" id="post" value="{{data.values.post}}" required>
+
+        <label for="put">PUT — to update existing entry</label>
+        <input type="text" name="put" id="put" value="{{data.values.put}}" required>
+
+        <label for="delete">DELETE — to delete an entry</label>
+        <input type="text" name="delete" id="delete" value="{{data.values.delete}}" required>
+
+        <label for="key">Common Key b/w your database and airtable</label>
+        <input type="text" name="key" id="key" value="{{data.values.key}}" required>
+        
+        <button class="submit">Save</button>
+    
+    </form>
+
+    <a href="/{{data.brand}}/admin/page/fetchAirtableData/{{data.modelName}}"><button>Fetch Airtable Data</button></a>
+    <a href="/{{data.brand}}/admin/page/airtableVslocal/{{data.modelName}}"><button>Find Differences</button></a>
+
+</body>
+</html>

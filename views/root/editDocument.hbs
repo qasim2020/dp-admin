@@ -7,34 +7,52 @@
     <style type="text/css">
 
         .container {
-            max-width: 800px;
+            max-width: 1400px;
             display: flex;
             align-items: flex-start;
             margin: auto;
-
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .container > * {
-            width: 50%;
-            border-radius: 5px;
-        }
-
-        form {
+        .container > div, .container > form  {
+            width: 100%;
+            flex-grow: 1;
             display: block;
             margin: 0 5px;
-            background: lightgrey;
             padding: 12px;
-            border: 1px solid grey;
+        }
+
+        form > label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 23px;
         }
 
         form > * {
             display: block;
-            margin-bottom: 10px;
-            padding: 5px;
+            width: 100%;
+            min-height: 22px;
+            box-sizing: border-box;
         }
 
-        form > textarea {
-            width: 100%;
+        form > input, form > textarea {
+            background: whitesmoke;
+            border: 1px solid whitesmoke;
+            padding: 10px;
+        }
+        
+        textarea {
+            height: 60vh;
+            font-size: 16px;
+            font-family: none;
+            line-height: 1.5;
+        }
+
+        button {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #333333;
         }
 
         .d-none {
@@ -85,6 +103,50 @@
 
     <div class="container">
 
+        <div>
+
+        {{#each data.inputs}}
+
+            {{#if (matchValues this.type 'imgURL')}}
+
+                {{#each this.value}}
+
+                <div class="imageUpload" id="">
+
+                    {{#if this}}
+                        <img counter='1' linkedTo="img" src="{{this}}" class="image">
+                    {{else}}
+                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
+                    {{/if}}
+
+                    <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
+
+                    <p counter='1' class="error">After image upload, your image link is shown below! </p>
+
+                    <input 
+                       class='imageURL' 
+                       counter='1' 
+                       name="{{../this.name}}" 
+                       type="text" 
+                       id="{{../this.id}}{{@index}}" 
+                       placeholder="" 
+                       value="{{{this}}}" 
+                       />
+
+                    <button type="button" onclick="removeImage('{{../this.id}}{{@index}}')">Remove Image</button>
+
+                </div>
+
+                {{/each}}
+
+                <button id="addImage" type="button">Add another Image</button>
+
+            {{/if}}
+
+        {{/each}}
+
+        </div>
+
         <form action="" method="post">
 
             <input name="modelName" type="text" class="d-none" value="{{data.collection}}">
@@ -125,48 +187,6 @@
 
         </form>
 
-        <div>
-
-        {{#each data.inputs}}
-
-            {{#if (matchValues this.type 'imgURL')}}
-
-                {{#each this.value}}
-
-                <div class="imageUpload" id="">
-
-                    {{#if this}}
-                        <img counter='1' linkedTo="img" src="{{this}}" class="image">
-                    {{else}}
-                        <img counter='1' linkedTo="img" src="" class="image" onload="uploadCloudinary(this)">
-                    {{/if}}
-
-                    <input counter='1' type="file" id="img" name="img" accept="image/*" onchange="readURL(this)">
-
-                    <p counter='1' class="error">After image upload, your image link is shown below! </p>
-
-                    <input 
-                       class='imageURL' 
-                       counter='1' 
-                       name="{{../this.name}}" 
-                       type="text" 
-                       id="{{../this.id}}{{@index}}" 
-                       placeholder="" 
-                       value="{{{this}}}" 
-                       />
-
-                    <button type="button" onclick="removeImage('{{../this.id}}{{@index}}')">Remove Image</button>
-
-                </div>
-
-                {{/each}}
-
-                <button id="addImage" type="button">Add another Image</button>
-            {{/if}}
-
-        {{/each}}
-
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 
@@ -257,9 +277,10 @@
               url: '/{{data.brand}}/admin/data/updateSequence/n',
               data: formData,
               success: (data) => {
-                $('#submitButton').html(data.error);
-                  return;
-                window.location.href = '/{{data.brand}}/admin/page/showCollection/{{data.collection}}';
+                console.log(data);
+                if (data.error) msg = data.error
+                else msg = data.success
+                $('#submitButton').html(msg);
               }
             });
         });

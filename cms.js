@@ -413,6 +413,120 @@ var myFuncs = {
         newsletters: 'gen',
     },
 
+    syncWithAirtable: async function({collection, data}) {
+        
+        console.log('checking if this collection is synced with Airtable or not');
+
+        let airtableURLs = ( await Collections.findOne({name: collection}).lean() ).airtable;
+        let properties = ( await Collections.findOne({name: collection}).lean() ).properties;
+
+        if (airtableURLs == undefined) {
+
+            console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+
+            return {success: false};
+
+        }
+
+        let formatData = function( matchingID, data ) {
+
+            delete data._id;
+
+            let dateProperty = Object.keys(properties).find( val => properties[val]["type"] == 'Date' );
+
+            if (dateProperty != undefined) {
+
+                data[dateProperty] = myFuncs.getFormattedDate(data[dateProperty]);
+
+            }
+
+            if (matchingID == undefined) return [ data ];
+
+            return [{
+                id: matchingID.id,
+                fields: data
+            }];
+            
+        };
+
+        let pushNewToAirtable = async function( matchingID, data ) {
+
+
+                console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND - PUSHING NEW DATA TO AIRTABLE" ) );
+
+                let newUpload = await myFuncs.axiosRequest({ method: "POST", data: formatData(matchingID, data), URL: airtableURLs.post});
+
+                console.log(newUpload.data);
+
+                // if newUPLOAD IS DONE — STORE ITS MATCHING ID INTO LOCAL DB
+                    
+                return {
+                    success: true,
+                    airtableReply: newUpload.data[0].fields
+                }
+
+        };
+
+        console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE" ) );
+
+        let matchingID = airtableURLs.connectingKeys.find( val => val.fields[airtableURLs.key] == data[airtableURLs.key] );
+
+        if (matchingID == undefined) {
+
+            // PULL ALL IDS FROM AIRTABLE FOR THIS COLLECTION
+            //
+            // STORE IN LOCAL DATABASE
+            //
+            // IF FOUND then MAKE A PUT REQUEST
+            //
+            // IF NOT FOUND MAKE A POST REQUEST
+            
+            let connectingKeys = ( await this.axiosRequest({ method: "GET", URL: airtableURLs.get + "&fields=" + airtableURLs.key }) ).data.records;
+
+            let newStore = Collections.findOneAndUpdate( { name: collection } , { $set : { "airtable.connectingKeys" : connectingKeys } } , { new : true } ).lean();
+
+            console.log( newStore );
+
+            matchingID = connectingKeys.find( val => val.fields[airtableURLs.key] == data[airtableURLs.key] );
+
+            if (matchingID == undefined) {
+
+                return await pushNewToAirtable(matchingID, data);
+
+            }
+
+            console.log( chalk.bold.bgYellow.black( "MATCHING ID FETCHED FROM AIRTABLE - NOW SENDING NEW DATA TO AIRTABLE" ) );
+
+        }
+
+        let updateToAirtable = await this.axiosRequest({ method: "PUT", data: formatData(matchingID, data), URL: airtableURLs.put});
+
+        console.log( updateToAirtable );
+
+        // IF RECORD ID HAS BEEN DELETED FROM AIRTABLE THEN MAKE A POST CALL AGAIN — DONE
+
+        if (updateToAirtable.data.hasOwnProperty("error")) {
+            
+            return await pushNewToAirtable(matchingID, data);
+
+        } else if (updateToAirtable.data.message != undefined) {
+
+            return {
+                success: true,
+                airtableReply: updateToAirtable.data.message
+            }
+
+        } else {
+
+            return {
+                success: true,
+                airtableReply: updateToAirtable.data
+            }
+
+        }
+
+    },
+
     getThemeName: async function(brand) {
         try {
             let themesExist = await this.checkCollectionExists('myapp-themes');
@@ -505,22 +619,31 @@ var myFuncs = {
 
     updateSequence: async function(req,res) {
         let model = await this.createModel(req.body.modelName);
+        let modelName = req.body.modelName;
         delete req.body.modelName;
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
         console.log(result);
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
         // CHECK IF IT IS SAVED IN AIRTABLE OR NOT ??
+        let airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body});
 
-        this.syncWithAirtable(req,res);
+        console.log(airtableSync);
 
-        return {success: true, result: result};
+        if ( airtableSync.airtableReply == 'Updated' ) {
+            msg = "Saved and stored in Airtable"
+        } else if ( airtableSync.success == true ) {
+            msg = "Saved and got from airtable > " + airtableSync.airtableReply;
+        } else if (airtableSync.success == false) {
+            msg = "Saved but not linked to Airtable"
+        };
+
+        return {
+            success: msg, 
+            result: result, 
+            airtableSync: airtableSync,
+        };
     },
 
-    syncWithAirtable: async function(req,res) {
-        
-        console.log('checking if this collection is synced with Airtable or not');
-
-    },
 
     checkCollectionExists: async function(collectionName) {
         let result = await mongoose.connection.db.listCollections().toArray();
@@ -560,13 +683,32 @@ var myFuncs = {
 
     saveAirtableURLs: async function(req,res) {
 
-        let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
+        try {
 
-        req.params.theme = 'root';
+            let connectingKeys = ( await this.axiosRequest({ method: "GET", URL: req.body.get + "&fields=" + req.body.key }) ).data.records;
 
-        return {
-            output: airtableAdded,
-            msg: "Successfully saved in database",
+            if (connectingKeys == undefined) throw "Could not find matching data in airtable";
+
+            req.body.connectingKeys = connectingKeys;
+
+            let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
+
+            console.log( airtableAdded );
+
+            req.params.theme = 'root';
+
+            return {
+                output: airtableAdded,
+                msg: "Successfully saved in database",
+            }
+
+        } catch (e) {
+            console.log(e);
+            req.params.theme = 'root';
+            return {
+                output: '',
+                msg: "Could not find matching data in airtable"
+            }
         }
 
     },
@@ -575,10 +717,6 @@ var myFuncs = {
 
         console.log(req.body.data);
 
-       //  return {
-       //      output: req.body.data
-       //  };
-        
         let model = await this.createModel(`${req.params.input}`);
         let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({ [val.key] : val.data[val.key] }, val.data , { new: true, upsert:true }) ));
 
@@ -3377,20 +3515,23 @@ var myFuncs = {
 
             output = await axios.post(URL, data)
                       .then(res => {
+                          console.log(res);
                           return res;
                       })
                       .catch(error => {
-                        console.error(error)
-                          return error;
+                        console.error(error.response.data)
+                          return error.response.data;
                       })
 
+        }
+
+        if (method == 'put' || method == "PUT") {
+            output = await axios.put(URL, data).then( res => res ).catch( err => err );
         }
 
         if (method == 'get' || method == "GET") {
             output = await axios.get(URL).then( res => res ).catch( err => err );
         }
-
-        console.log( chalk.bold.red( 'AXIOS REQUEST FINISHED') );
 
         return output;
         

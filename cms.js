@@ -474,6 +474,10 @@ var myFuncs = {
 
                 let newUpload = await myFuncs.axiosRequest({ method: "POST", data: formatData(matchingID, data), URL: airtableURLs.post});
                 
+		console.log(newUpload);
+
+		if ( newUpload.error == 1 ) return { msg: newUpload.info } ;
+
                 let dataToStore = formatObjectToStore( newUpload.data[0].id ); 
 
                 await saveNewKeyInLocalDB( dataToStore );
@@ -503,7 +507,7 @@ var myFuncs = {
                 console.log( updateToAirtable.response );
                 
                 return {
-                    msg: "ERROR OCCURED - Click again"
+                    msg: "Airtable > " + updateToAirtable.response.data.info
                 };
                 
             };

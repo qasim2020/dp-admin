@@ -415,8 +415,6 @@ var myFuncs = {
 
     syncWithAirtable: async function({collection, data}) {
         
-        console.log('checking if this collection is synced with Airtable or not');
-
         let airtableURLs = ( await Collections.findOne({name: collection}).lean() ).airtable;
         let properties = ( await Collections.findOne({name: collection}).lean() ).properties;
 
@@ -424,7 +422,7 @@ var myFuncs = {
 
             console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
-            return {success: false};
+            return {msg: "not linked with Airtable"};
 
         }
 
@@ -449,78 +447,110 @@ var myFuncs = {
             
         };
 
+        let formatObjectToStore = function( onlyID ) {
+
+                return {
+                    id: onlyID,
+                    fields: { [airtableURLs.key] : data[airtableURLs.key] }
+                };
+
+        };
+
+        let saveNewKeyInLocalDB = async function ( dataToStore ) {
+
+                console.log( chalk.bold.bgYellow.black( "DATA IS PUSHED - SAVING ITS ID INTO LOCAL DB - "  + dataToStore.id) );
+
+                let deleteOldKeys = await Collections.findOneAndUpdate( { name: collection } , { $pull : { "airtable.connectingKeys" : { fields : { [airtableURLs.key] : data[airtableURLs.key] } } } } ) ;
+
+                let newStore = await Collections.findOneAndUpdate( { name: collection } , { $push : { "airtable.connectingKeys" : dataToStore } } , { new : true } ).lean();
+
+                console.log( "DATA IS STORED LOCALLY" );
+
+        };
+
         let pushNewToAirtable = async function( matchingID, data ) {
 
-
-                console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND - PUSHING NEW DATA TO AIRTABLE" ) );
+                console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND IN AIRTABLE - PUSHING DATA AS NEW" ) );
 
                 let newUpload = await myFuncs.axiosRequest({ method: "POST", data: formatData(matchingID, data), URL: airtableURLs.post});
+                
+                let dataToStore = formatObjectToStore( newUpload.data[0].id ); 
 
-                console.log(newUpload.data);
+                await saveNewKeyInLocalDB( dataToStore );
 
-                // if newUPLOAD IS DONE — STORE ITS MATCHING ID INTO LOCAL DB
-                    
                 return {
                     success: true,
-                    airtableReply: newUpload.data[0].fields
+                    airtableReply: newUpload.data[0].fields,
+                    msg: "Addded new in airtable"
                 }
 
         };
 
-        console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE" ) );
+        let lookForValueinAirtable = async function(matchingID, data) {
 
-        let matchingID = airtableURLs.connectingKeys.find( val => val.fields[airtableURLs.key] == data[airtableURLs.key] );
+            let connectingKeys = ( await myFuncs.axiosRequest({ method: "GET", URL: airtableURLs.get + "&fields=" + airtableURLs.key }) ).data.records;
+
+            let connectingKey = connectingKeys.find( val => val.fields[airtableURLs.key] == data[airtableURLs.key] );
+
+            if (connectingKey == undefined) return await pushNewToAirtable(undefined, data);
+
+            console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
+
+            let updateToAirtable = await myFuncs.axiosRequest({ method: "PUT", data: formatData(connectingKey , data), URL: airtableURLs.put});
+
+            if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
+                
+                console.log( updateToAirtable.response );
+                
+                return {
+                    msg: "ERROR OCCURED - Click again"
+                };
+                
+            };
+
+            let dataToStore = formatObjectToStore( connectingKey.id ); 
+
+            await saveNewKeyInLocalDB( dataToStore );
+
+            return {
+                success: true,
+                airtableReply: updateToAirtable.data,
+                msg: updateToAirtable.data.message + " existing (found) in Airtable"
+            }
+
+        };
+
+        console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE AGAINST UNIQUE KEY - " + airtableURLs.key ) );
+
+        let matchingID = airtableURLs.connectingKeys.find( val => val && val.fields && val.fields[airtableURLs.key] == data[airtableURLs.key] );
 
         if (matchingID == undefined) {
 
-            // PULL ALL IDS FROM AIRTABLE FOR THIS COLLECTION
-            //
-            // STORE IN LOCAL DATABASE
-            //
-            // IF FOUND then MAKE A PUT REQUEST
-            //
-            // IF NOT FOUND MAKE A POST REQUEST
-            
-            let connectingKeys = ( await this.axiosRequest({ method: "GET", URL: airtableURLs.get + "&fields=" + airtableURLs.key }) ).data.records;
-
-            let newStore = Collections.findOneAndUpdate( { name: collection } , { $set : { "airtable.connectingKeys" : connectingKeys } } , { new : true } ).lean();
-
-            console.log( newStore );
-
-            matchingID = connectingKeys.find( val => val.fields[airtableURLs.key] == data[airtableURLs.key] );
-
-            if (matchingID == undefined) {
-
-                return await pushNewToAirtable(matchingID, data);
-
-            }
-
-            console.log( chalk.bold.bgYellow.black( "MATCHING ID FETCHED FROM AIRTABLE - NOW SENDING NEW DATA TO AIRTABLE" ) );
+            return await lookForValueinAirtable(matchingID, data);
 
         }
 
         let updateToAirtable = await this.axiosRequest({ method: "PUT", data: formatData(matchingID, data), URL: airtableURLs.put});
 
-        console.log( updateToAirtable );
 
-        // IF RECORD ID HAS BEEN DELETED FROM AIRTABLE THEN MAKE A POST CALL AGAIN — DONE
+        if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
 
-        if (updateToAirtable.data.hasOwnProperty("error")) {
+            return await lookForValueinAirtable(matchingID, data);
             
-            return await pushNewToAirtable(matchingID, data);
-
         } else if (updateToAirtable.data.message != undefined) {
 
             return {
                 success: true,
-                airtableReply: updateToAirtable.data.message
+                airtableReply: updateToAirtable.data.message,
+                msg: updateToAirtable.data.message + " in Airtable"
             }
 
         } else {
 
             return {
                 success: true,
-                airtableReply: updateToAirtable.data
+                airtableReply: updateToAirtable.data,
+                msg: "Don't know why this else is here"
             }
 
         }
@@ -621,24 +651,25 @@ var myFuncs = {
         let model = await this.createModel(req.body.modelName);
         let modelName = req.body.modelName;
         delete req.body.modelName;
+
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
-        console.log(result);
+
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
-        // CHECK IF IT IS SAVED IN AIRTABLE OR NOT ??
-        let airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body});
+
+        let airtableSync = {};
+
+        console.log( req.body );
+
+        if (req.body.airtableSync != "false" ) {
+            airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body})
+        } else {
+            airtableSync.msg = "Sync manually kept off";
+        }
 
         console.log(airtableSync);
 
-        if ( airtableSync.airtableReply == 'Updated' ) {
-            msg = "Saved and stored in Airtable"
-        } else if ( airtableSync.success == true ) {
-            msg = "Saved and got from airtable > " + airtableSync.airtableReply;
-        } else if (airtableSync.success == false) {
-            msg = "Saved but not linked to Airtable"
-        };
-
         return {
-            success: msg, 
+            success: "Stored & " + airtableSync.msg, 
             result: result, 
             airtableSync: airtableSync,
         };
@@ -757,7 +788,6 @@ var myFuncs = {
 
     },
 
-
     airtableVslocal: async function(req,res) {
 
         let airtableURLs = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
@@ -792,13 +822,22 @@ var myFuncs = {
         });
 
         let airtableToLocal = file.map( val => {
-            let matchInLocal = output2.find( row  => val["fields"][airtableURLs.key] == row[airtableURLs.key] );
+            let matchInLocal = output2.find( row  => {
+                // if (val["fields"][airtableURLs.key] == row[airtableURLs.key] ) console.log( val['fields'][airtableURLs.key], row[airtableURLs.key] );
+                return val["fields"][airtableURLs.key] == row[airtableURLs.key] ;
+            });
             if (matchInLocal != undefined) return null;
             return {
                 local: matchInLocal,
                 airtable: val
             }
         }).filter( val => val != null );
+
+        console.log({
+            localToAirtable: localToAirtable.length, 
+            airtableToLocal: airtableToLocal.length,
+            inFocus: file.filter( val => val.fields.ser == '1061' || val.fields.ser == '1062' )
+        });
             
         let sidebyside = localToAirtable.concat(airtableToLocal);
 
@@ -810,7 +849,7 @@ var myFuncs = {
 
                 let makeObjectAnArray = function(object, database) {
 
-                    console.log( object, database );
+                    // console.log( object, database );
                     let output = Object.keys(object).map( val => {
                         return {
                             field: val,
@@ -822,11 +861,6 @@ var myFuncs = {
                     return output;
 
                 };
-
-                console.log({
-                    local: focal.local,
-                    airtable: focal.airtable,
-                });
 
                 let diff =  makeObjectAnArray(focal.local == undefined ? focal.airtable.fields : focal.local, focal.local == undefined ? "airtable" : "local");
 
@@ -843,7 +877,7 @@ var myFuncs = {
 
                 if (val == 'created_at' || val == 'updatedAt' || val == '_id' || val == '__v' || val == 'ser') return null;
 
-                console.log( focal.local[val], focal.airtable.fields[val] );
+                // console.log( focal.local[val], focal.airtable.fields[val] );
 
                 let diff = myFuncs.patienceDiffPlus( focal.local[val] == undefined ? " " : focal.local[val] , focal.airtable.fields[val] == undefined ? " " : focal.airtable.fields[val]).lines.filter( val => val.bIndex == -1 );
 
@@ -894,7 +928,7 @@ var myFuncs = {
             return val;
         });
 
-        console.log( JSON.stringify( rows[rows.length - 1], 0 , 2) );
+        // console.log( JSON.stringify( rows[rows.length - 1], 0 , 2) );
         
         return {
             modelName: req.params.input,
@@ -3515,11 +3549,11 @@ var myFuncs = {
 
             output = await axios.post(URL, data)
                       .then(res => {
-                          console.log(res);
+                          // console.log(res);
                           return res;
                       })
                       .catch(error => {
-                        console.error(error.response.data)
+                        // console.error(error.response.data)
                           return error.response.data;
                       })
 

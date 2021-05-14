@@ -221,6 +221,7 @@
 
         output._id = local._id;
         output.modelName = "{{data.modelName}}";
+        output.airtableSync = false;
 
         $.ajax({
             url: "/life/admin/data/updateSequence/n",

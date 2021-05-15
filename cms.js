@@ -411,7 +411,21 @@ var myFuncs = {
         fetchAirtable: 'gen',
         roadMap: 'gen',
         newsletters: 'gen',
+	listenToWebhook: 'gen',
     },
+
+	listenToWebhook: function(req,res) {
+
+		console.log(req.query);
+		console.log(req.body);
+
+		return {
+			status: 200,
+			msg: "Receieved the message successfully",
+			challenge: req.body.challenge
+		}
+
+	},
 
     syncWithAirtable: async function({collection, data}) {
         

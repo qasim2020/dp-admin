@@ -3256,6 +3256,7 @@ var myFuncs = {
 
     dateBlogHeader: function(date) {
 
+        // let formattedDate = this.getFormattedDate(date);
         let d = new Date(date);
         let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
         let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
@@ -3278,7 +3279,7 @@ var myFuncs = {
 
     openBlog: async function(req,res) {
         let model = await this.createModel('life-blogs');
-        let output = await model.findOne({slug: req.params.input});
+        let output = await model.findOne({slug: req.params.input}).lean();
         let body = this.convertStringToArticle(output.body);
         output.date = this.dateBlogHeader(output.date);
         return {

@@ -14,16 +14,29 @@
         ">{{{msg}}}</h1>
       {{/if}}
 
+      {{#if (match 'announcement' type)}}
+
+          <p class="announcement" style="
+            padding: 5px;
+            color: #333333;
+            font-size: 15px;
+            font-style: italic;
+            line-height: 1.5;
+            background: lightyellow;
+            border-radius: 5px;
+          ">{{{msg}}}</p>
+
+      {{/if}}
 
       {{#if (match 'h3' type)}}
         <h3 style="
-            background: {{pickRandomColor @index}};
-            padding: 7px 10px;
-            width: fit-content;
-            color: #4F4F4F !important;
-            font-size: 19px !important;
-            margin: 25px 0 25px 0;
-            border-radius: 5px;
+        background: {{pickRandomColor @index}};
+        padding: 7px 10px;
+        width: fit-content;
+        color: #4F4F4F !important;
+        font-size: 19px !important;
+        margin: 25px 0 25px 0;
+        border-radius: 5px;
         ">{{{msg}}}</h3>
       {{/if}}
 
@@ -36,6 +49,28 @@
                 ">{{{msg}}}</p>
       {{/if}}
 
+      {{#if (match 'bullet' type)}}
+
+          <p class="bullet" style="
+            display: flex;
+            line-height: 1.7;
+            color: #333333;
+            font-size: 17px;
+            ">
+
+          <span style="
+          padding: 0px 15px 0 5px;
+          ">•</span>{{{msg}}}
+          
+          </p>
+
+      {{/if}}
+
+      {{#if (match 'text' type)}}
+
+          {{{msg}}}
+
+      {{/if}}
 
       {{#if (match 'img' type)}}
           <img style="
@@ -48,7 +83,7 @@
       {{#if (match 'captionO' type)}}
         <p style="
                 margin-bottom: 40px;
-                font-size: 12px;
+                font-size: 15px;
                 text-align: center;
                 line-height: 1.7;
                 color: #333333 !important;
@@ -65,12 +100,33 @@
                 ">{{{msg}}}
       {{/if}}
 
+      {{#if (match 'a' type) }}
+
+          <p style="
+            font-size: 17px;
+            line-height: 1.7;
+            color: #333333;
+            word-break: break-word;
+            " >
+
+              <a style="
+                text-decoration: none;
+                color: indianred;
+                font-style: italic;
+                padding-bottom: 9px;
+                " href="{{{msg}}}">
+                  {{{class}}}
+              </a>
+          
+          </p>
+
+      {{/if}}
+
       {{#if (match 'ao' type)}}
 
           <a style="
             text-decoration: none;
             color: indianred;
-            border-bottom: 1px dashed;
             font-style: italic;
             padding-bottom: 9px;
           " href="{{{msg}}}">{{{class}}}

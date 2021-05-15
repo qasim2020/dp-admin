@@ -3248,7 +3248,7 @@ var myFuncs = {
 
     convertStringToArticle: function( string ) {
         let body = string.split('\n').map(val => {
-		// console.log(val);
+            // console.log(val);
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
               msg: val.split(': ')[1].trim(),

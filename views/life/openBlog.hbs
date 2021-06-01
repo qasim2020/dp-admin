@@ -75,6 +75,10 @@
       color: #dc0ea5;
     }
 
+    .bold {
+        font-weight: bold;
+    }
+
     .logo-area {
       display: flex;
       height: 44px;
@@ -555,7 +559,37 @@
       color: orange;
     }
 
+    p.bullet {
+        margin: auto;
+        font-size: 18px;
+        background: whitesmoke;
+        padding-left: 15px;
+        color: inherit;
+        font-style: italic;
+    }
+
+    p.bullet::before {
+        content: '— ';
+    display: inline-block;
+    margin-right: 10px;
+    }
+
+    p.bullet.first {
+        padding-top: 15px;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    p.bullet.last {
+        padding-bottom: 15px;
+    border-radius: 0px 0px 5px 5px;
+    margin-bottom: 40px;
+    }
+
     @media (max-width: 799px) {
+
+        p.bullet {
+            font-size: 15px;
+        }
 
       .code {
         padding: 15px 17px;
@@ -634,6 +668,7 @@
         font-size: 22px;
         line-height: 157.9%;
         color: #4F4F4F;
+        align-items: start;
       }
 
       h6,
@@ -722,15 +757,6 @@
 
 
           </a>
-
-          <!-- <a href="#">
-            <svg width="29" height="29" viewBox="0 0 29 29" fill="#4f4f4f" class="q">
-              <path d="M5 6.36C5 5.61 5.63 5 6.4 5h16.2c.77 0 1.4.61 1.4 1.36v16.28c0 .75-.63 1.36-1.4 1.36H6.4c-.77 0-1.4-.6-1.4-1.36V6.36z"></path>
-              <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M10.76 20.9v-8.57H7.89v8.58h2.87zm-1.44-9.75c1 0 1.63-.65 1.63-1.48-.02-.84-.62-1.48-1.6-1.48-.99 0-1.63.64-1.63 1.48 0 .83.62 1.48 1.59 1.48h.01zM12.35 20.9h2.87v-4.79c0-.25.02-.5.1-.7.2-.5.67-1.04 1.46-1.04 1.04 0 1.46.8 1.46 1.95v4.59h2.87v-4.92c0-2.64-1.42-3.87-3.3-3.87-1.55 0-2.23.86-2.61 1.45h.02v-1.24h-2.87c.04.8 0 8.58 0 8.58z"
-                fill="#fff"></path>
-            </svg>
-          </a> -->
 
           <a href="https://www.facebook.com/dialog/share?app_id=177485573697078&display=popup&href=https://www.zakatlists.com/blogpost?serialNo={{../data.Ser}}&redirect_uri=https://www.zakatlists.com" target="_blank">
             <svg width="29" height="29" class="q" fill="#4f4f4f">
@@ -825,6 +851,10 @@
         <p class="{{{class}}}">
           {{msg}}
         </p>
+      {{/if}}
+
+      {{#if (match 'bullet' type)}}
+          <p class=" bullet {{{class}}}">{{{msg}}}</p>
       {{/if}}
 
     {{/each}}

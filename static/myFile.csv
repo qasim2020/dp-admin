@@ -1,85 +1,31 @@
-"_id","name","publishTime","subject","body","slug","list","status"
-"6084d31833d1caa8210c5653","Edition 4th / April","Sun May 02 2021 14:10:00 GMT+0000 (Coordinated Universal Time)","I think I am back...","h1: Hi (Assalam o Alaikum) — 👋
-p: This is my first newsletter, and I am so nervous. But as the term goes “Just Do it” and “Great things lie on the other side of the fear” — I feel it is the right thing to do. Soo shipping my newsletter 🚀
-p: I started learning to code in 2016, on Udemy. It lead me to an amazing community of software developers (<a href="https://getmakerlog.com">getmakerlog</a> and <a href="https://ramadanmakers.com">ramadanmakers</a>). Felt pumped and since that day — I am doing things I love. Talking on <a href="https://youtube.com/playlist?list=PLhS951y_K7IE6ZyFP9R9PsylNs4MpcI8i">meetups</a> and writing <a href="https://qasimali.xyz">articles</a>.
-p: Recently, I got a developer job of 500 USD / month ❤️. And slowly my dream (that I sketched 5 years before) is becoming a reality. 
-h1: What should you expect in newsletters? 
-p: — My <b>Weekly Progress Report</b>. 
-p: — <b>List of articles</b> I wrote over the week.
-p: — <b>Videos</b> I recorded and uploaded on Youtube.
-p: — My <b>Favorite Quote</b> that impacted my life.
-p: I plan on sending it every Friday 2100 hrs (Pakistan Time GMT +5). Sorry this reaching on Sunday. 
-h1: Important Links
-p: Daily article at <a href="https://qasimali.xyz">https://qasimali.xyz</a>
-p: Videos on developer tricks at <a href="https://youtube.com/nocodeapi">https://youtube.com/nocodeapi</a>
-p: Our 12 x meet-ups in 12 months <a href="https://youtube.com/playlist?list=PLhS951y_K7IE6ZyFP9R9PsylNs4MpcI8i">https://youtube.com/playlist?list=PLhS951y_K7IE6ZyFP9R9PsylNs4MpcI8i</a>
-p: <hr>
-p: So — this is all for today. See you next Friday. Happy Living » Growing » Succeeding. ✌️","1st-newsletter-of-my-life","local","true"
-"6084c9bb23e840a6cf67a219","Welcome","Sun Apr 25 2021 05:41:00 GMT+0000 (Coordinated Universal Time)","Welcome — ","h1: Hey 👋 —
-p: Welcome to my weekly newsletter.
-p: If I had to tell you that you can change your life in a moment — "NOW" was the perfect moment, when I am writing this email. I just had a low negative ingress of thoughts. It was a mega push to throw me in to negativity. But, here I am, 2 minutes later, sitting back on my desk and in peak productive state. The magic is <b>states</b>. We can change everything in our life, in a snap. All it needs is to understand how our brain works.
-p: Over the following few days, I will try to share how I control my thoughts process and manage to live up-to the standard I have set for myself.
-p: While you receive these newsletters, I hope you will also learn these amazing tricks to handle your brain activity. Such as sub-modalities, pattern interrupt, punishment value and much more. These techniques have shaped nearly all areas of my life. I managed to Quit smoking, started learning to code, get a remote tech job, started writing articles and grew my relationship stronger.
-p: But it is going to take its time, some practice and learning. Be with me — while you commit to growing. Thank you.
-p: — Qasim","welcome-email","public","true"
-"60934b08f0b774113da12f13","Portfolio redesigned","Mon May 10 2021 19:09:00 GMT+0000 (Coordinated Universal Time)","To master our craft —","h1: Hi — Assalam o Alaikum ❤️
-p: It was a fully packed week, to be honest. I got tired so many times. And I doubted myself more than ever. The burden to send out the newsletter, meet the videos deadlines, write an article everyday and match Ramadan's pace — I felt sad and depressed. 
-p: One belief, that kept me going was "CANI" or say <i>"KAIZAN" in Japanese</i>. CANI stands for "<i>Consistent and Never Ending Improvement</i>". Every time a doubt had hit me, I told myself, "<b>It is alright. You are better than yesterday today. Just ACT and Move forward</b>". — Every time I acted, I came 1 step closer to feeling accomplished.
-p: Nice thing about the CANI method is; it is a <b>single word</b>. Easy to recall when trying to break the pattern. Keeps you in action zone. 
-p: I have created these trigger words to break negative patterns. <br> <b>Hammer</b> [ to stay disciplined ] , <br> <b>Remove Doubt</b> [ to prepare for an action in advance ] , <br> <b>Scratch Negativity</b> [ to physically scratch limiting thoughts ] , <br> <b>Show Up</b> [ to readily recover from guilt ] , <br> and <b>Change Norms</b> [ to be ok with staying outcast ].
-p: Moving to my Progress 🏃‍♂️ —
-h3: 1/ Re-designed my portfolio website 
-p: My portfolio was dead for so long. Nearly a year to be precise. Recently, when I decided I need to get back in action — and after writing ~ 15 days in a row. I got my confidence back. And started fixing it the First. I can see all my articles listed with proper headings. A search bar to find relevant pieces. And gave these Newsletters a dedicated corner.
-img: fly-wheel-2.png
-captionO: 
-ao.https://qasimali.xyz: https://qasimali.xyz
-ao/: 
-captionO/: 
-h3: 2/ Recorded 3 x Videos for the part time job I am currently doing 
-p: I tried to position the camera a little farther away. Installed 2 Mics. And tried to give more time to editing. These are developer tips. I am sure for some these won't be useful. But sharing anyway — that it might push you to Act. 
-po: 
-ao.Spotify API: https://youtu.be/2rRiuPflrkA
-ao/: 
-po/: 
-po: 
-ao.Instagram API: https://youtu.be/twuKtkBxvVk
-ao/: 
-po/:  
-po: 
-ao.Firebase API: https://youtu.be/6CkkkfAYmpo
-ao/: 
-po/:   
-h3: 3/ And wrote 7 x Articles
-p: My articles are fuel to my portfolio. Any one coming to my website is because I am writing everyday. Sometimes I write real bad. But at times — I take pride in some pieces. Read some at your convenience. And reply your feedback to this email. 
-po: 1st May —  
-ao.Motivation Loop: https://qasimali.xyz/life/gen/page/openBlog/motivation-loop
-ao/: 
-po/: 
-po: 2nd May —  
-ao.The Drought: https://qasimali.xyz/life/gen/page/openBlog/the-drought
-ao/: 
-po/: 
-po: 3rd May —  
-ao.Punishment Value: https://qasimali.xyz/life/gen/page/openBlog/punishment-value
-ao/: 
-po/: 
-po: 4th May —  
-ao.Standing tall to the Storm: https://qasimali.xyz/life/gen/page/openBlog/standing-tall-to-the-storm
-ao/: 
-po/: 
-po: 5th May —  
-ao.When do we Crash ?: https://qasimali.xyz/life/gen/page/openBlog/when-do-we-crash
-ao/: 
-po/: 
-po: 6th May —  
-ao.When should we Forgive ?: https://qasimali.xyz/life/gen/page/openBlog/when-should-we-forgive
-ao/: 
-po/: 
-po: 7th May —  
-ao.Act NOW !: https://qasimali.xyz/life/gen/page/openBlog/act-now
-ao/: 
-po/: 
-h3: 4/ Quote that helped me the Most
-quote: We cannot predict the value our work will provide to the world. That’s fine. It is not our job to judge our own work. It is our job to create it, to pour ourselves into it, and to master our craft as best we can. <br> — by James Clear
-p: <hr>
-p: So — this is all for today. See you next Friday. Happy Living » Growing » Succeeding. ✌️","fly-wheel","public","true"
+"_id","email","validation","lists","isUnsubscribed"
+"608b62c2979556893598b1e0","qasimali24@gmail.com","true","local","false"
+"608e062579452d2fa276a418","sufi92211@gmail.com","true","public","false"
+"608e062579452d2fa276a419","sayemb@gmail.com","true","public","false"
+"608e062579452d2fa276a41a","mf380165@gmail.com","true","public","false"
+"608e062579452d2fa276a41c","alexawesomecode@gmail.com","true","public","false"
+"608e062579452d2fa276a41e","asif.samad@gmail.com","true","public","false"
+"608e062579452d2fa276a41d","bmweinstein7@gmail.com","true","public","false"
+"608e062579452d2fa276a421","iqbal.18sig@gmail.com","true","public","false"
+"608e062579452d2fa276a41b","a_m-choudry@hotmail.com","true","public","false"
+"608e062579452d2fa276a424","ahmadrasul38@gmail.com","true","public","false"
+"608e062579452d2fa276a41f","shagufta.omar@iiu.edu.pk","true","public","false"
+"608e062579452d2fa276a423","rahmanj4u@gmail.com","true","public","false"
+"608e062579452d2fa276a422","mihfazhillah@gmail.com","true","public","false"
+"608e062579452d2fa276a425","maa132527@gmail.com","true","public","false"
+"608e062579452d2fa276a426","majid_ijaz@hotmail.com","true","public","false"
+"608e062579452d2fa276a427","mudassirkhan600@gmail.com","true","public","false"
+"608e062579452d2fa276a428","abidabano1024@gmail.com","true","public","false"
+"608e062579452d2fa276a429","fahd.chishty@gmail.com","true","public","false"
+"608e062579452d2fa276a420","xubairamd@gmail.com","true","public","false"
+"608ebf6b979556893599a906","sanagul84@yahoo.com","true","public","false"
+"608edb31979556893599b01c","aashir@justaashir.com","true","public","false"
+"6095e5bdf0b774113da12f37","lubnanazakat@gmail.com","true","public","false"
+"6095e5c8f0b774113da12f38","mindthecircle@gmail.com","true","public","false"
+"60a684d00f728ebc155d7f2d","lubbna.y@gmail.com","true","public","false"
+"60a6850a4b551cba5a6864a0","iram.riaz@hotmail.com","true","public","false"
+"60a743ec4b551cba5a689a20","abdulwahab68395@gmail.com","true","public","false"
+"60ad16684b551cba5a6a33ad","affaan.masud@gmail.com","true","public","false"
+"60ae819c4b551cba5a6a972f","hamidbanaras@gmail.com","true","public","false"
+"60b0defc4b551cba5a6b37cf","hamzabinmushtak@gmail.com","true","public","false"
+"60b15a774b551cba5a6b5923","saddou58@gmail.com","true","public","false"

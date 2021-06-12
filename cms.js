@@ -419,6 +419,8 @@ var myFuncs = {
 		console.log(req.query);
 		console.log(req.body);
 
+		console.log( JSON.stringify(req.body, 0, 2) );
+
 		return {
 			status: 200,
 			msg: "Receieved the message successfully",

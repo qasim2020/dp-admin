@@ -119,6 +119,7 @@ let schema = {
     },
     airtable: {
         type: "Object",
+        required: false
     }
 };
 
@@ -414,20 +415,24 @@ var myFuncs = {
 	listenToWebhook: 'gen',
     },
 
-	listenToWebhook: function(req,res) {
+    listenToWebhook: function(req,res) {
 
-		console.log(req.query);
-		console.log(req.body);
+        console.log(req.query);
+        console.log( JSON.stringify(req.body, 0, 2) );
 
-		console.log( JSON.stringify(req.body, 0, 2) );
+        return {
+                status: 200,
+                msg: "Receieved the message successfully",
+                challenge: req.body.challenge
+        }
 
-		return {
-			status: 200,
-			msg: "Receieved the message successfully",
-			challenge: req.body.challenge
-		}
+    },
 
-	},
+    syncFromAirtableToLocal: async function({ text, recordId, updates  }){
+        // Is this Collection Connected with Airtable
+        // If YES -- Pull this entry from Airtable and Store locally
+        // Send a message to telegram that the new updates made in airtable have been updated on the server
+    },
 
     syncWithAirtable: async function({collection, data}) {
         
@@ -3088,6 +3093,8 @@ var myFuncs = {
         try { let collectionDrop = await mongoose.connection.db.dropCollection('collections'); } 
         catch (e) { console.log(e) }
 
+        // console.log( Collections.schema );
+
         let collectionSave = await Collections.insertMany( collectionFile.data );
         
         let models = await Promise.all( file.map( val => this.createModel(val.name) ) );
@@ -3101,6 +3108,8 @@ var myFuncs = {
                 })
             })
         });
+
+        console.log(funcs);
 
         let emptyAllCollections = await Promise.all( funcs.map( val => val.model.deleteMany({}) ) );
         let outputs = await Promise.all( funcs.map( val => val.model.findOneAndUpdate({_id: val.data._id}, val.data, {upsert: true}) ) );

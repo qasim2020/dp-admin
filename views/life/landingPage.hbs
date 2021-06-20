@@ -438,9 +438,9 @@
 
         </p>
         
-        <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs" data-pjax>Blogs</a>
-        <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage?input=blogStreak" data-pjax>Streak</a>
-        <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage?input=newsletters" data-pjax>Newsletters</a>
+        <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage" data-pjax>Blogs</a>
+        <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage" data-pjax>Streak</a>
+        <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage" data-pjax>Newsletters</a>
         <button class="selector" onclick="showModel()">Subscribe</button>
 
       </div>
@@ -484,15 +484,14 @@
         $(document).pjax('a[data-pjax]', '#pjax-container');
         $(document).ready( () => {
 
-            console.log('page is ready'); 
+            console.log('Home Loaded — end of pjax I think'); 
 
             if ("{{data.pjaxId}}" == "n") return console.log('Home loaded');
-
-            $('#{{data.pjaxId}}').trigger('click');
 
         })
 
         $.pjax.defaults.scrollTo = false;
+        $.pjax.defaults.timeout = 10000000;
 
         let openBlog = function(elem) {
 
@@ -519,19 +518,16 @@
             let string = '';
             console.log(value);
             if (value == '') {
-                string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
+                // string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
+                string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
                 $('#showBlogs').attr({href: string}).trigger('click');
                 return console.log('Value is null');  
             } 
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if(keycode != '13') return console.log('Let user press enter');
-            string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
+            string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
             $('#showBlogs').attr({href: string}).trigger('click');
         });
-
-        
-        
-        
 
     </script>
   </body>

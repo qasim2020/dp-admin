@@ -1629,7 +1629,6 @@ var myFuncs = {
                 date: this_date,
                 blog: output.find( val => {
                     var diff =  Math.floor(( Date.parse(val.date) - Date.parse(this_date) ) / 86400000);
-                    // let diff = Math.ceil( (new Date(val.date).getTime() - this_date.getTime()) / 1000 / 60 / 60 / 24 );
                     return Math.abs( diff ) < 1;
                 }),
                 postNo: i + 1,

@@ -419,7 +419,7 @@ var myFuncs = {
 
         console.log(req.query);
 
-        if (req.body[0].hasOwnProperty('text')) syncFromAirtableToLocal({ data: req.body, brand: 'life' });
+        if (req.body[0].hasOwnProperty('text')) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
 
         return {
                 status: 200,
@@ -430,17 +430,136 @@ var myFuncs = {
     },
 
     syncFromAirtableToLocal: async function({ data, brand }){
-        // Is this Collection Connected with Airtable
-        // If YES -- Pull this entry from Airtable and Store locally
-        // Send a message to telegram that the new updates made in airtable have been updated on the server
-        console.log( JSON.stringify(data, 0, 2) );
-        let notifyOnTelegram = await this.axiosRequest({
-            URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
-            data: {
-                msg: data[0].text
-            },
-            method: 'POST',
-        });
+
+        // ONLY OPEN BELOW WHEN TESTING IN DEV MODE
+
+        // data = [
+        //     {
+        //         text: 'Qasim Ali updated 4 records in table *newsletters* in Blogs',
+        //         recordId: 'recfsZkbT6qb2m0K1',
+        //     },
+        //     {
+        //         text: 'Qasim Ali updated 4 records in table *newsletters* in Blogs',
+        //         recordId: 'reckvEh0g60z5q32s',
+        //     },
+        //     {
+        //         text: 'Qasim Ali updated 4 records in table *newsletters* in Blogs',
+        //         recordId: 'recezyFl4wuxa69O0',
+        //     },
+        //     {
+        //         text: 'Qasim Ali updated 4 records in table *newsletters* in Blogs',
+        //         recordId: 'rec5NMmBoLMc3IEOf',
+        //     }
+        // ];
+
+        brand = 'life';
+
+        // ------------------------------
+        let create_models = async (data, brand) => {
+
+            let onlyTexts = data.map( val => val.text );
+
+            uniq = [...new Set(onlyTexts)];
+
+            console.log( uniq );
+
+            let models = await Promise.all( uniq.map( val => {
+
+                let name = brand + '-' + val.split('*')[1];
+                
+                console.log(name);
+                return myFuncs.createModel(name);
+
+            }) );
+
+            uniq = uniq.map( (val,index) => {
+                return {
+                    text: val,
+                    model: models[index]
+                }
+            });
+
+
+            data = data.map( val => {
+
+                val.model = uniq.find( uni => uni.text == val.text ).model;
+
+                return val;
+
+            });
+
+            return data;
+
+        };
+
+        data = await create_models( data, brand );
+
+        let pipe_airtable_upload = async (record) => {
+
+            let collectionName = brand + '-' + record.text.split('*')[1];
+            let airtableURLs = ( await Collections.findOne({name: collectionName}).lean() ).airtable;
+
+            if (airtableURLs == undefined) {
+
+                console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+
+                return { msg: "Data not connected to Airtable" };
+
+            }
+
+            let airtableRecord = await this.axiosRequest({
+                // URL: https://v1.nocodeapi.com/punch__lines/airtable/EKBsTHngHjQgCFJp?tableName=All&id=recKQ7nDXFx75VrE8
+                URL: airtableURLs.get + '&id=' + record.recordId,
+                method: 'GET'
+            });
+
+            // console.log( airtableRecord.data );
+
+            let remoteData = airtableRecord.data.fields;
+
+            // console.log( remoteData );
+
+            // let storeNow = await record.model.findOne({ [airtableURLs.key]: remoteData[airtableURLs.key] }).lean();
+
+            let storeNow = await record.model.findOneAndUpdate({ [airtableURLs.key]: remoteData[airtableURLs.key] }, remoteData, { new: true });
+
+            console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
+
+            return { msg: remoteData[airtableURLs.key] + ' — Updated locally' }
+
+        };
+
+        let output = await Promise.all( data.map( val => pipe_airtable_upload( val ) ) );
+
+        let send_note_telegram = async ( records ) => {
+
+            let data = {
+                0 : `${records.length} x records have been updated in Airtable`
+            };
+
+            data = Object.assign( data, 
+                records.reduce( (total, val, index) => {
+                    console.log( val, index );
+                    Object.assign( total, {
+                        [index+1] : val.msg
+                    });
+                    return total;
+                }, {})
+            );
+            
+            let notifyOnTelegram = await this.axiosRequest({
+                URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
+                data: data,
+                method: 'POST',
+            });
+
+        };
+
+        await send_note_telegram( output );
+
+        return {
+            success: true
+        }
     },
 
     syncWithAirtable: async function({collection, data}) {
@@ -722,7 +841,7 @@ var myFuncs = {
             let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
             if (modelExistsAlready) { mongoose.models[modelName] = ''; };
             let schema = await Collections.findOne({name: modelName}).lean();
-            console.log({modelName});
+            // console.log({modelName});
             return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         } catch(e) {
             console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );

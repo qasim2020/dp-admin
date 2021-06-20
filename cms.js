@@ -418,7 +418,8 @@ var myFuncs = {
     listenToWebhook: function(req,res) {
 
         console.log(req.query);
-        console.log( JSON.stringify(req.body, 0, 2) );
+
+        if (req.body[0].hasOwnProperty('text')) syncFromAirtableToLocal({ data: req.body, brand: 'life' });
 
         return {
                 status: 200,
@@ -428,10 +429,18 @@ var myFuncs = {
 
     },
 
-    syncFromAirtableToLocal: async function({ text, recordId, updates  }){
+    syncFromAirtableToLocal: async function({ data, brand }){
         // Is this Collection Connected with Airtable
         // If YES -- Pull this entry from Airtable and Store locally
         // Send a message to telegram that the new updates made in airtable have been updated on the server
+        console.log( JSON.stringify(data, 0, 2) );
+        let notifyOnTelegram = await this.axiosRequest({
+            URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
+            data: {
+                msg: data[0].text
+            },
+            method: 'POST',
+        });
     },
 
     syncWithAirtable: async function({collection, data}) {

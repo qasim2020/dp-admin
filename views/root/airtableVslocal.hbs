@@ -81,7 +81,7 @@
         
             <div>
                 <h2>Airtable</h2>
-                <p><button onclick="pushToLocal()"> — Push all Airtable data to Local DB</button></p>
+                <p><button onclick="pushToLocal(this)"> — Push all Airtable data to Local DB</button></p>
             </div>
         
         </div>
@@ -112,7 +112,11 @@
 
             <div class="flex">
 
+            {{#if this.airtable}}
                 <p class="local">{{#if this.local}}<button class="{{this.key}}{{this.keyValue}}" onclick="updateAirtable({{this.airtable}}, this, {{this.local}})">Keep this</button>{{/if}}</p>
+            {{else}}
+                <p class="local">{{#if this.local}}<button class="{{this.key}}{{this.keyValue}}" onclick="addNewAirtable(this, {{this.local}})">Post this</button>{{/if}}</p>
+            {{/if}}
             
                 <p class="airtable">{{#if this.airtable}}<button class="{{this.key}}{{this.keyValue}}" onclick="updateLocalDB({{this.airtable}}, this, {{this.local}})">Keep this</button>{{/if}}</p>
             
@@ -147,15 +151,20 @@
 
     };
 
-    let pushToLocal = function() {
+    let pushToLocal = function(elem) {
+
+
+        // should not work if airtable is empty
 
         let output = [
             {{#each data.rows}}
             {{#if this.diff}}
+            {{#if this.airtable}}
             {
                 key : "{{{this.key}}}",
                 data : {{{this.airtable}}}.fields
             },
+            {{/if}}
             {{/if}}
             {{/each}}
             ];
@@ -164,22 +173,57 @@
 
         console.log( output );
 
+        $(elem).html( '— Storing data to Local Now' );
+
+        if (output.length == 0) return $(elem).html( '— Nothing to Store in Airtable' );
+
         $.ajax({
             contentType: "application/json",
             url: "/life/admin/data/updateManyByKey/{{data.modelName}}",
             method: "POST",
             data: JSON.stringify({data: output}),
         }).done( val => {
-
             console.log(val);
             val.output.map( (obj) => cardDone( `.airtable > .${key}${obj[key]}`, 'success', 'Done', 'disable' ) );
-        
-        })
-          .fail( err => console.log(err) );
+            $(elem).html( '— Uploaded all Airtable entries to Local DB.' );
+        }).fail( err => {
+            console.log(err);
+            $(elem).html( '— Failed due to an error. Check Console.' );
+        }) ;
 
         return;
 
     };
+
+    let addNewAirtable = function( elem, data ) {
+
+        console.log( 'ADDING NEW BECAUSE AIRTABLE MATCH DO NOT EXIST' );
+        delete data._id;
+        delete data.__v;
+        delete data.created_at;
+        delete data.updatedAt;
+        console.log(data);
+
+        let myData = [
+            data
+        ];
+
+        $.ajax({
+            contentType: "application/json",
+            url: "{{{data.nocodeapiURL}}}",
+            method: "POST",
+            data: JSON.stringify(myData),
+        }).done( val => {
+            console.log(val);
+            cardDone(elem, 'success' , val.message, "disable") 
+        }).fail( err => {
+            console.log(err);
+            cardDone(elem, 'fail', err ) 
+        });
+
+        return ;
+
+    }
 
     let updateAirtable = function(airtable, elem, data) {
 

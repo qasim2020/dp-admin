@@ -953,8 +953,6 @@ var myFuncs = {
             return val;
         });
 
-        // console.log( JSON.stringify( rows[rows.length - 1], 0 , 2) );
-        
         return {
             modelName: req.params.input,
             rows: rows,
@@ -3087,18 +3085,33 @@ var myFuncs = {
         }); 
 
         // first load collections from the file
+
+        console.log(file);
+
         let collectionFile = file.filter( val => val.name === 'collections' )[0];
 
         try { let collectionDrop = await mongoose.connection.db.dropCollection('collections'); } 
+
         catch (e) { console.log(e) }
 
         // console.log( Collections.schema );
+        // console.log(collectionFile); 
 
-        let collectionSave = await Collections.insertMany( collectionFile.data );
+        let collectionSave = await Promise.all( collectionFile.data.map( val => Collections.findOneAndUpdate({_id: val._id}, val, {upsert: true}) ) );
+
+        // remove collections from file now
+
+        file = file.filter( val => val.name !== 'collections' );
+
+        console.log( 'FILE SHOWING' );
+        console.log( file );
+
+        // let collectionSave = await Collections.insertMany( collectionFile.data );
         
         let models = await Promise.all( file.map( val => this.createModel(val.name) ) );
 
         let funcs = [];
+
         models.forEach( (val,index) => {
             file[index].data.forEach( (data) => {
                 funcs.push({
@@ -3108,7 +3121,7 @@ var myFuncs = {
             })
         });
 
-        console.log(funcs);
+        // console.log(funcs);
 
         let emptyAllCollections = await Promise.all( funcs.map( val => val.model.deleteMany({}) ) );
         let outputs = await Promise.all( funcs.map( val => val.model.findOneAndUpdate({_id: val.data._id}, val.data, {upsert: true}) ) );

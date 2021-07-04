@@ -413,6 +413,7 @@ var myFuncs = {
         roadMap: 'gen',
         newsletters: 'gen',
 	listenToWebhook: 'gen',
+        editWeb: 'admin',
     },
 
     listenToWebhook: function(req,res) {

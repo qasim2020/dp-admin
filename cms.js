@@ -3795,7 +3795,7 @@ var myFuncs = {
     },
 
     editWeb: async function(req,res) {
-        let output = 'something';
+        let output = 'somethinn new is here now';
         return {
             msg: output
         }

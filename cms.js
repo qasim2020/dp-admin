@@ -3793,6 +3793,14 @@ var myFuncs = {
         }
     },
 
+    editWeb: async function(req,res) {
+        let output = 'something';
+        return {
+            msg: output
+        }
+    },
+
+
 };
 
 server.listen(3000)

@@ -3795,9 +3795,13 @@ var myFuncs = {
     },
 
     editWeb: async function(req,res) {
-        let output = 'somethinn new is here now';
+        let theme = req.params.theme;
+        console.log( { theme } );
+        req.params.theme = 'root';
         return {
-            msg: output
+            msg: 'hello world',
+            theme: theme,
+            pageName: req.params.input
         }
     },
 

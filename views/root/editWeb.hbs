@@ -3,8 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+<style>
+
+iframe {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+}
+
+.editors {
+    width: 400px;
+    background: lightblue;
+    padding: 20px;
+    z-index: 100;
+    position: absolute;
+    background: whitesmoke;
+    border: 2px solid darkcyan;
+}
+
+.editors > * {
+    width: 100%;
+    box-sizing: border-box;
+    border: 0px;
+}
+
+.editors > p {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 10px;
+    background: white;
+    position: relative;
+    display: inline-block;
+    width: initial;
+    border-radius: 5px;
+    font-family: system-ui;
+    color: lightseagreen;
+    line-height: 1.5;
+    margin-top: 0px;
+}
+
+.editors > textarea {
+    background: whitesmoke;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: monospace;
+}
+
+.editors > button {
+    width: initial;
+    padding: 8px 19px;
+    font-weight: bold;
+    background: white;
+    border-radius: 5px;
+    color: darkgray;
+}
+
+</style>
 </head>
 <body>
-    Hi people. this is a place where are planning to edit the pages...
+    <div class="editors" id="draggable">
+
+        <p>HTML</p>
+        <textarea id="" name="" cols="30" rows="10"></textarea>
+        <button>Save</button>
+
+    </div>
+    <iframe src="/{{data.theme}}/admin/page/{{data.pageName}}/n" frameborder="0"></iframe>
+
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+
+
+        $( function() {
+            $( "#draggable" ).draggable();
+          } );
+
+
+    </script>
 </body>
 </html>

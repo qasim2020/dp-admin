@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Editing · {{data.pageName}}</title>
 <style>
+
+body {
+    padding: 0;
+    margin: 0;
+}
 
 iframe {
     position: absolute;
@@ -14,13 +19,12 @@ iframe {
 }
 
 .editors {
-    width: 400px;
+    width: 600px;
     background: lightblue;
-    padding: 20px;
     z-index: 100;
+    padding: 0px;
     position: absolute;
     background: whitesmoke;
-    border: 2px solid darkcyan;
 }
 
 .editors > * {
@@ -51,37 +55,135 @@ iframe {
     font-family: monospace;
 }
 
-.editors > button {
+button {
     width: initial;
-    padding: 8px 19px;
-    font-weight: bold;
+    padding: 3px 8px;
     background: white;
-    border-radius: 5px;
-    color: darkgray;
+    color: black;
+    font-size: 12px;
+    border: 1px solid #333333;   
+}
+
+.editors > #editor {
+    position: relative;
+    height:500px;
+    width: 600px
+}
+
+.buttons {
+    position: absolute;
+    bottom: 4px;
+    left: 5px;
+    z-index: 10;
+}
+
+.minimize {
+    display: none;
+}
+
+.bottom_bottons {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.bottom_buttons > button {
+    background: white;
+    border: 1px solid white;
+    padding: 4px;
+    color: black;
+    font-weight: bold;
+}
+
+.editors.fullScreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+.editors.fullScreen > #editor {
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
 }
 
 </style>
 </head>
 <body>
-    <div class="editors" id="draggable">
-
-        <p>HTML</p>
-        <textarea id="" name="" cols="30" rows="20">{{data.file}}</textarea>
-        <button>Save</button>
-
+    <div class="editors html" id="draggable">
+        <div id="editor">{{data.file}}</div>
+        <div class="buttons">
+            <button onclick=saveFile()>Save</button>
+            <button onclick=minimize(this)>Minimize</button>
+            <button onclick=fullScreen(this)>Toggle Size</button>
+        </div>
     </div>
-    <iframe src="/{{data.theme}}/admin/page/{{data.pageName}}/n" frameborder="0"></iframe>
 
+    {{#if data.file}}
+        <iframe id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
+    {{/if}}
 
+    <div class="bottom_bottons">
+        <button onclick=maximize(this) block="html" class="active">HTML</button>
+        <button onclick=maximize(this) block="css">CSS</button>
+        <button onclick=maximize(this) block="js">JS</button>
+    </div>
+    
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script>
+    <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 
+    <script>
+    
+        let fullScreen = function(elem) {
+            $(elem).closest(".editors").toggleClass('fullScreen');
+            startEditor();
+            $( "#draggable" ).draggable();
+            console.log('toggled screen bro');
+        }
+
+        let minimize = function(elem) {
+            $(elem).closest(".editors").addClass('minimize');
+            console.log('down bro');
+        }
+         
+        let maximize = function(elem) {
+            let className = $(elem).attr("block");
+            $(`.${className}`).toggleClass('minimize');
+            console.log('maximized bro');
+        }
+
+        let editor;
+
+        let startEditor = function() {
+            editor = ace.edit("editor");
+            editor.getSession().setUseWorker(false);
+            editor.setTheme("ace/theme/monokai");
+            editor.getSession().setMode("ace/mode/html");   
+        }
 
         $( function() {
             $( "#draggable" ).draggable();
+            startEditor();
           } );
 
+        let saveFile = function() {
+
+            let data = {
+                html: editor.getSession().getValue(),
+            };
+
+            $.ajax({
+                url: "/{{data.brand}}/admin/data/saveWeb/{{data.pageName}}",
+                method: "POST",
+                data: data,
+                success: (done) => {
+                 $( '#iframe' ).attr( 'src', function ( i, val ) { return val; });
+                 console.log(done);
+                },
+            }).fail( err => console.log(err) );
+
+        };
+    
 
     </script>
 </body>

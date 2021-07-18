@@ -3794,53 +3794,78 @@ var myFuncs = {
         }
     },
 
-    readHBSFile: async function(path) {
-
-        let file = await new Promise( (resolve, reject) => {
-
-            fs.readFile(path, 'utf8', (err, data) => {
-                if (err) {
-                    console.log(err);
-                    reject(err);
-                }
-                resolve( data );
-            });
-
-        }); 
-
-        let detachWithName = function(text, tag) {
-
-            return text.split(`<${tag}`)[1].split(`</${tag}`)[0];
-
-        };
-
-        let object = {
-            css: detachWithName(file, 'style'),
-            html: detachWithName(file, 'body'),
-            js: detachWithName(file, 'script'),
-        }
-
-        console.log(object);
-
-        return file;
-
-    },
 
     editWeb: async function(req,res) {
+
         let theme = req.params.theme;
         console.log( { theme } );
         req.params.theme = 'root';
 
-        let file = await this.readHBSFile(`./views/${theme}/${req.params.input}.hbs`);
+        let file;
+        let readHBSFile = async function(path) {
 
-        console.log(file);
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(path, 'utf8', (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return file;
+
+        };
+
+        if (req.params.input == 'n') {
+            file = false;
+        } else {
+            file = await readHBSFile(`./views/${theme}/${req.params.input}.hbs`);
+        }
 
         return {
             msg: 'hello world',
             file: file,
-            theme: theme,
-            pageName: req.params.input
+            brand: req.params.brand,
+            manualInput: req.query.hasOwnProperty("manualInput") ? req.query.manualInput : "n",
+            pageName: req.params.input,
         }
+
+    },
+
+    saveWeb: async function(req,res) {
+
+        console.log(req.body)
+
+        let writeFile = async function(path,data) {
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.writeFile(path, data, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return file;
+
+        };
+
+        let file = await writeFile(`./views/${req.params.theme}/${req.params.input}.hbs`, req.body.html);
+
+        console.log(file);
+
+        return {
+            msg: 'file has been saved in desired directory'
+        }
+
     },
 
 

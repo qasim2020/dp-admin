@@ -421,7 +421,6 @@
         </p>
         
         <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage" data-pjax>Blogs</a>
-        <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage" data-pjax>Streak</a>
         <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage" data-pjax>Newsletters</a>
         <button class="selector" onclick="showModel()">Subscribe</button>
 
@@ -500,7 +499,6 @@
             let string = '';
             console.log(value);
             if (value == '') {
-                // string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
                 string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
                 $('#showBlogs').attr({href: string}).trigger('click');
                 return console.log('Value is null');  

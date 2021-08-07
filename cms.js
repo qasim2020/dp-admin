@@ -316,6 +316,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: 'portfolio',
                 url: 'life'
+            },
+            {
+                name: 'richpakistan',
+                url: 'richpakistan'
             }
         ]
     });
@@ -1740,6 +1744,12 @@ var myFuncs = {
         }
     },
 
+    vlogs: async function(req,res) {
+        return {
+            msg: "vlogs show up here"
+        }
+    },
+
     blogStreak: async function(req,res) {
 
         let model = await this.createModel(`life-blogs`);
@@ -1788,6 +1798,13 @@ var myFuncs = {
         return {
             sessionExists: req.session.hasOwnProperty('person') 
         };
+    },
+
+    richpakistan: async function(req,res) {
+        console.log('opening rich pakistan');
+        return {
+            success: true
+        }
     },
 
     landingPage: async function(req,res) {

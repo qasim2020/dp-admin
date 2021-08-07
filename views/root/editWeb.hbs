@@ -1,3 +1,5 @@
+
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +26,18 @@ iframe {
     position: absolute;
     background: white;
     padding: 6px;
+}
+
+.editors.html {
     border: 4px solid #27AE60;
+}
+
+.editors.css {
+    border: 4px solid orange;
+}
+
+.editors.js {
+    border: 4px solid blue;
 }
 
 .editors.fullScreen {
@@ -34,7 +47,7 @@ iframe {
 }
 
 .editors.fullScreen > #editor {
-    width: 76vw;
+    width: 99vw;
     height: 89vh;
     box-sizing: border-box;
 }
@@ -143,6 +156,7 @@ iframe {
 </head>
 <body>
     <div class="editors html" id="draggable">
+        
         <div class="top-bar">
             <input type="text" placeholder="Search an html tag in File">
             <p onclick=minimize(this)>
@@ -151,15 +165,60 @@ iframe {
                 <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
                 </svg>
             </p>
-            <p onclick=fullScreen(this)>
+            <p onclick=goFull(this)>
                 <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="25" height="26" fill="#F2F2F2"/>
                     <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
                 </svg>
             </p>
         </div>
-        <div id="editor">{{data.file}}</div>
+        <div class="editor">{{data.file}}</div>
         <button class="save-button" onclick=saveFile()>Save</button>
+        
+    </div>
+    
+    <div class="editors css" id="draggableCSS">
+        
+        <div class="top-bar">
+            <input type="text" placeholder="Search a css tag in File">
+            <p onclick=minimize(this)>
+                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="25" height="26" fill="#F2F2F2"/>
+                <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
+                </svg>
+            </p>
+            <p onclick=goFull(this)>
+                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="25" height="26" fill="#F2F2F2"/>
+                    <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
+                </svg>
+            </p>
+        </div>
+        <div class="editor">{{data.file}}</div>
+        <button class="save-button" onclick=saveFile()>Save</button>
+        
+    </div>
+    
+    <div class="editors js" id="draggableJS">
+        
+        <div class="top-bar">
+            <input type="text" placeholder="Search a css tag in File">
+            <p onclick=minimize(this)>
+                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="25" height="26" fill="#F2F2F2"/>
+                <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
+                </svg>
+            </p>
+            <p onclick=goFull(this)>
+                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="25" height="26" fill="#F2F2F2"/>
+                    <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
+                </svg>
+            </p>
+        </div>
+        <div class="editor">{{data.file}}</div>
+        <button class="save-button" onclick=saveFile()>Save</button>
+        
     </div>
 
     {{#if data.file}}
@@ -178,11 +237,31 @@ iframe {
 
     <script>
     
-        let fullScreen = function(elem) {
-            $(elem).closest(".editors").toggleClass('fullScreen');
+        let goSmall = function(elem) {
+            let editors = $(elem).closest('.editors');
+            let lastPosn = editors.attr('lastPosn');
+            editors.removeClass('fullScreen').attr({
+                    style: lastPosn + "; z-index: 10",
+                });   
+            $(elem).attr({
+                onclick: "goFull(this)"
+            })
             startEditor();
-            $( "#draggable" ).draggable();
-            console.log('toggled screen bro');
+            console.log('went Small screen bro');
+        }
+    
+        let goFull = function(elem) {
+            let editors = $(elem).closest('.editors');
+            let lastPosn = editors.attr('style');
+            editors.addClass('fullScreen').attr({
+                    style: "left: 0px; top: 0px; z-index: 90",
+                    lastPosn: lastPosn,
+                });   
+            $(elem).attr({
+                onclick: "goSmall(this)"
+            })
+            startEditor();
+            console.log('went Full screen bro');
         }
 
         let minimize = function(elem) {
@@ -198,24 +277,25 @@ iframe {
 
         let editor;
 
-        let startEditor = function() {
-            editor = ace.edit("editor");
+        $('.editor').each(function( index ) {
+            editor = ace.edit(this);
+            editor.getSession().setMode('ace/mode/csharp');
             editor.getSession().setUseWorker(false);
             editor.setTheme("ace/theme/chrome");
-            editor.getSession().setMode("ace/mode/html");   
             editor.renderer.setShowGutter(false);
             editor.setShowPrintMargin(false);
-        }
+        });
 
         $( function() {
             $( "#draggable" ).draggable();
-            startEditor();
+            $( "#draggableCSS" ).draggable();
+            $( "#draggableJS" ).draggable();
           } );
 
         let saveFile = function() {
 
             let data = {
-                html: editor.getSession().getValue(),
+                html: editorHTML.getSession().getValue(),
             };
 
             $.ajax({
@@ -234,3 +314,6 @@ iframe {
     </script>
 </body>
 </html>
+
+
+

@@ -12,53 +12,56 @@ body {
     margin: 0;
 }
 
-iframe {
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
-    left: 0;
-    top: 0;
-}
-
 .editors {
-    width: 600px;
     z-index: 100;
     position: absolute;
     background: white;
-    padding: 6px;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    border: 10px solid red;
+    box-sizing: border-box;
+    display: flex;
 }
 
-.editors.html {
+.editors > * {
+    width: 25%;
+    box-sizing: border-box;
+    padding: 4px;
+}
+
+.editors > .html {
     border: 4px solid #27AE60;
 }
 
-.editors.css {
+.editors > .css {
     border: 4px solid orange;
 }
 
-.editors.js {
+.editors > .js {
     border: 4px solid blue;
 }
 
-.editors.fullScreen {
+.editors > .fullScreen {
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
+    position: absolute;
+    background: white;
 }
 
-.editors.fullScreen > #editor {
+.editors > .fullScreen > #editor {
     width: 99vw;
     height: 89vh;
     box-sizing: border-box;
 }
 
-.editors > * {
+.dev > * {
     width: 100%;
-    box-sizing: border-box;
     border: 0px;
 }
 
-.editors > p {
+.dev > p {
     font-size: 14px;
     font-weight: bold;
     padding: 8px 10px;
@@ -73,30 +76,31 @@ iframe {
     margin-top: 0px;
 }
 
-.editors > textarea {
+.dev > textarea {
     background: whitesmoke;
     border-radius: 5px;
     padding: 10px;
     font-family: monospace;
 }
 
-.editors > .top-bar {
+.dev > .top-bar {
     display: flex;
     align-items: center;
     line-height: 0;
     box-sizing: border-box;
-    width: 100%;
+    max-width: 100%;
 }
 
-.editors > .top-bar > input {
+.dev > .top-bar > input {
     flex-grow: 1;
     background: #f2f2f2;
     border: 1px solid #f2f2f2;
     padding: 4px 5px;
     box-sizing: border-box;
+    width: 100%;
 }
 
-.editors > .top-bar > p {
+.dev > .top-bar > p {
     line-height: 0;
     padding: 0;
     margin: 0;
@@ -104,7 +108,7 @@ iframe {
     box-sizing: border-box;
 }
 
-.editors > #editor {
+.dev > #editor {
     position: relative;
     margin-top: 10px;
     margin-bottom: 8px;
@@ -112,7 +116,7 @@ iframe {
     width: 600px;
 }
 
-.editors > .save-button {
+.dev > .save-button {
     background: whitesmoke;
     border: 1px solid whitesmoke;
     padding: 8px 8px;
@@ -152,78 +156,117 @@ iframe {
     background: #2D9CDB;
 }
 
+    #shortCut {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        font-size: 40px;
+        z-index: 100;
+        border: 2px solid black;
+        font-weight: bold;
+    }
+
+    #shortCut:focus, 
+    #shortCut:active,
+    #shortCut:focus-within, 
+    #shortCut:focus-visible {
+        outline: none !important;
+    }
+
+    .d-none {
+        display: none;
+    }
+
 </style>
 </head>
 <body>
-    <div class="editors html" id="draggable">
-        
-        <div class="top-bar">
-            <input type="text" placeholder="Search an html tag in File">
-            <p onclick=minimize(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="25" height="26" fill="#F2F2F2"/>
-                <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                </svg>
-            </p>
-            <p onclick=goFull(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+    <div class="editors">
+
+        {{#if data.file}}
+
+            <iframe id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
+
+        {{else}}
+
+            <iframe src="" frameborder="0"></iframe>
+
+        {{/if}}
+
+        <div class="dev html" id="draggable">
+
+            
+            <div class="top-bar">
+                <input type="text" placeholder="Search an html tag in File">
+                <p onclick=minimize(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="25" height="26" fill="#F2F2F2"/>
-                    <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                </svg>
-            </p>
+                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
+                    </svg>
+                </p>
+                <p onclick=goFull(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="25" height="26" fill="#F2F2F2"/>
+                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
+                    </svg>
+                </p>
+            </div>
+            <div class="editor">{{data.file}}</div>
+            <button class="save-button" onclick=saveFile()>Save</button>
+            
         </div>
-        <div class="editor">{{data.file}}</div>
-        <button class="save-button" onclick=saveFile()>Save</button>
         
-    </div>
+        <div class="dev css" id="draggableCSS">
+            
+            <div class="top-bar">
+                <input type="text" placeholder="Search a css tag in File">
+                <p onclick=minimize(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="25" height="26" fill="#F2F2F2"/>
+                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
+                    </svg>
+                </p>
+                <p onclick=goFull(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="25" height="26" fill="#F2F2F2"/>
+                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
+                    </svg>
+                </p>
+            </div>
+            <div class="editor">{{data.file}}</div>
+            <button class="save-button" onclick=saveFile()>Save</button>
+            
+        </div>
+        
+        <div class="dev js" id="draggableJS">
+            
+            <div class="top-bar">
+                <input type="text" placeholder="Search a css tag in File">
+                <p onclick=minimize(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="25" height="26" fill="#F2F2F2"/>
+                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
+                    </svg>
+                </p>
+                <p onclick=goFull(this)>
+                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="25" height="26" fill="#F2F2F2"/>
+                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
+                    </svg>
+                </p>
+            </div>
+            <div class="editor">{{data.file}}</div>
+            <button class="save-button" onclick=saveFile()>Save</button>
+            
+        </div>
     
-    <div class="editors css" id="draggableCSS">
-        
-        <div class="top-bar">
-            <input type="text" placeholder="Search a css tag in File">
-            <p onclick=minimize(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="25" height="26" fill="#F2F2F2"/>
-                <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                </svg>
-            </p>
-            <p onclick=goFull(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="25" height="26" fill="#F2F2F2"/>
-                    <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                </svg>
-            </p>
-        </div>
-        <div class="editor">{{data.file}}</div>
-        <button class="save-button" onclick=saveFile()>Save</button>
-        
-    </div>
-    
-    <div class="editors js" id="draggableJS">
-        
-        <div class="top-bar">
-            <input type="text" placeholder="Search a css tag in File">
-            <p onclick=minimize(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="25" height="26" fill="#F2F2F2"/>
-                <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                </svg>
-            </p>
-            <p onclick=goFull(this)>
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="25" height="26" fill="#F2F2F2"/>
-                    <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                </svg>
-            </p>
-        </div>
-        <div class="editor">{{data.file}}</div>
-        <button class="save-button" onclick=saveFile()>Save</button>
-        
     </div>
 
-    {{#if data.file}}
-        <iframe id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
-    {{/if}}
+
+    <input type="text" id="shortCut" class="d-none">
+
 
     <div class="bottom_buttons">
         <button onclick=maximize(this) block="html" class="active">HTML</button>
@@ -236,9 +279,20 @@ iframe {
     <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 
     <script>
-    
+
+        $( "body" ).keypress(function( event ) {
+            if ( event.keyCode != 58 ) {
+                console.log(event.keyCode);
+                return;
+            }
+            
+            console.log('semicolon pressed — open the keyboard');
+            $("#shortCut").removeClass("d-none").focus();
+
+        });
+
         let goSmall = function(elem) {
-            let editors = $(elem).closest('.editors');
+            let editors = $(elem).closest('.dev');
             let lastPosn = editors.attr('lastPosn');
             editors.removeClass('fullScreen').attr({
                     style: lastPosn + "; z-index: 10",
@@ -251,7 +305,7 @@ iframe {
         }
     
         let goFull = function(elem) {
-            let editors = $(elem).closest('.editors');
+            let editors = $(elem).closest('.dev');
             let lastPosn = editors.attr('style');
             editors.addClass('fullScreen').attr({
                     style: "left: 0px; top: 0px; z-index: 90",
@@ -265,7 +319,7 @@ iframe {
         }
 
         let minimize = function(elem) {
-            $(elem).closest(".editors").addClass('minimize');
+            $(elem).closest(".dev").addClass('minimize');
             console.log('down bro');
         }
          

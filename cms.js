@@ -418,6 +418,7 @@ var myFuncs = {
         newsletters: 'gen',
 	listenToWebhook: 'gen',
         editWeb: 'admin',
+        emptyFile: 'admin',
     },
 
     listenToWebhook: function(req,res) {
@@ -3811,6 +3812,13 @@ var myFuncs = {
         }
     },
 
+    emptyFile: async function(req,res) {
+
+        return {
+            success: "true"
+        }
+
+    },
 
     editWeb: async function(req,res) {
 

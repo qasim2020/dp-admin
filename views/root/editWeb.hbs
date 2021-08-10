@@ -13,10 +13,6 @@ body {
 }
 
 .editors {
-    z-index: 100;
-    position: absolute;
-    background: white;
-    position: absolute;
     width: 100vw;
     height: 100vh;
     border: 10px solid red;
@@ -25,9 +21,9 @@ body {
 }
 
 .editors > * {
-    width: 25%;
     box-sizing: border-box;
     padding: 4px;
+    overflow: hidden;
 }
 
 .editors > .html {
@@ -92,7 +88,6 @@ body {
 }
 
 .dev > .top-bar > input {
-    flex-grow: 1;
     background: #f2f2f2;
     border: 1px solid #f2f2f2;
     padding: 4px 5px;
@@ -156,18 +151,6 @@ body {
     background: #2D9CDB;
 }
 
-    #shortCut {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 20px;
-        font-size: 40px;
-        z-index: 100;
-        border: 2px solid black;
-        font-weight: bold;
-    }
-
     #shortCut:focus, 
     #shortCut:active,
     #shortCut:focus-within, 
@@ -175,8 +158,36 @@ body {
         outline: none !important;
     }
 
+    .inputOverlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+    }
+
     .d-none {
         display: none;
+    }
+
+
+    .inputOverlay > input {
+        padding: 8px;
+        background: whitesmoke;
+        border: 1px solid whitesmoke;
+        border-radius: 5px;
+        color: dimgrey;
+        font-size: 27px;
+    }
+
+    .inputOverlay > button {
+        position: absolute;
+        right: 0;
+        transform: translate(-50%);
+        padding: 8px;
     }
 
 </style>
@@ -265,7 +276,12 @@ body {
     </div>
 
 
-    <input type="text" id="shortCut" class="d-none">
+    <div class="inputOverlay d-none">
+
+        <input type="number" id="shortCut" class="">
+        <button onclick="changeLayout()">Enter</button>
+    
+    </div>
 
 
     <div class="bottom_buttons">
@@ -280,14 +296,57 @@ body {
 
     <script>
 
-        $( "body" ).keypress(function( event ) {
-            if ( event.keyCode != 58 ) {
+        let changeLayout = function() {
+
+            let value = $(".inputOverlay > input").val();
+            console.log(value);
+
+            if (value.length != 4) return alert("please enter a value in range");
+
+                    let sum = value.split('').reduce( (total, val, index) => {
+                                total += Number(val);
+                                return total;
+                            },0);
+
+                    value = value.split('').map( val => val/sum*100 );
+
+                    console.log(sum, value);
+
+            console.log(value[1]);
+                    $('.editors > *').eq(0).attr({style: `width: ${value[0]}%`}); 
+                    $('.editors > *').eq(1).attr({style: `width: ${value[1]}%`}); 
+                    $('.editors > *').eq(2).attr({style: `width: ${value[2]}%`}); 
+                    $('.editors > *').eq(3).attr({style: `width: ${value[3]}%`}); 
+
+        }
+
+        $( "body" ).keyup(function( event ) {
+
+            if (event.keyCode == 27) {
+                console.log('hiding the input fields');
+                $(".inputOverlay")
+                    .addClass('d-none');
+                return;
+            }
+
+            if (event.keyCode == 13 && $(".inputOverlay").hasClass('d-none') == false) {
+                console.log('change layout as per entered parameters');
+                $(".inputOverlay > button")
+                    .trigger("click");
+                return;
+            }
+
+            if ( event.keyCode != 186 ) {
                 console.log(event.keyCode);
                 return;
             }
+
             
             console.log('semicolon pressed — open the keyboard');
-            $("#shortCut").removeClass("d-none").focus();
+            $(".inputOverlay")
+                .removeClass("d-none")
+                .find('input')
+                .focus();
 
         });
 

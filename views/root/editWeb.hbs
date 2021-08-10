@@ -224,7 +224,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div class="editor">{{data.file}}</div>
+            <div id="editor">{{data.file}}</div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -246,7 +246,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div class="editor">{{data.file}}</div>
+            <div id="editor2">{{data.file}}</div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -268,7 +268,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div class="editor">{{data.file}}</div>
+            <div id="editor3">{{data.file}}</div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -292,7 +292,7 @@ body {
     
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js" crossorigin="anonymous" integrity="sha256-T5QdmsCQO5z8tBAXMrCZ4f3RX8wVdiA0Fu17FGnU1vU=" ></script>
 
     <script>
 
@@ -333,6 +333,8 @@ body {
                 console.log('change layout as per entered parameters');
                 $(".inputOverlay > button")
                     .trigger("click");
+                var e = $.Event( "keyup", { keyCode: 27 } );
+                $('body').trigger(e);
                 return;
             }
 
@@ -388,22 +390,25 @@ body {
             console.log('maximized bro');
         }
 
-        let editor;
+        let editor = ace.edit("editor");
+        editor.setSession().setMode('ace/mode/csharp');
+        editor.session.setUseWorker(false);
+        editor.setTheme("ace/theme/chrome");
+        editor.renderer.setShowGutter(false);
+        editor.setShowPrintMargin(false);
 
-        $('.editor').each(function( index ) {
-            editor = ace.edit(this);
-            editor.getSession().setMode('ace/mode/csharp');
-            editor.getSession().setUseWorker(false);
-            editor.setTheme("ace/theme/chrome");
-            editor.renderer.setShowGutter(false);
-            editor.setShowPrintMargin(false);
-        });
+//      let editor2 = ace.edit("editor2");
+//      editor2.session.setMode('ace/mode/csharp');
+//      editor2.session.setUseWorker(false);
+//      editor2.setTheme("ace/theme/chrome");
+//      editor2.renderer.setShowGutter(false);
+//      editor2.setShowPrintMargin(false);
 
         $( function() {
             $( "#draggable" ).draggable();
             $( "#draggableCSS" ).draggable();
             $( "#draggableJS" ).draggable();
-          } );
+        } );
 
         let saveFile = function() {
 

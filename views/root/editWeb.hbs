@@ -46,7 +46,7 @@ body {
     background: white;
 }
 
-.editors > .fullScreen > #editor {
+.editors > .fullScreen > .editor {
     width: 99vw;
     height: 89vh;
     box-sizing: border-box;
@@ -103,12 +103,16 @@ body {
     box-sizing: border-box;
 }
 
-.dev > #editor {
+.dev > .editor {
     position: relative;
     margin-top: 10px;
     margin-bottom: 8px;
     height: 500px;
-    width: 600px;
+}
+
+.dev > .editor > * {
+    height: 100%;
+    width: 100%;
 }
 
 .dev > .save-button {
@@ -190,6 +194,10 @@ body {
         padding: 8px;
     }
 
+    .CodeMirror {
+        height: 100%;
+    }
+
 </style>
 </head>
 <body>
@@ -224,7 +232,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div id="editor">{{data.file}}</div>
+            <div class="editor" id="editor" value="{{data.file}}"></div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -246,7 +254,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div id="editor2">{{data.file}}</div>
+            <div class="editor" id="editorCSS" value="{{data.file}}"></div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -268,7 +276,7 @@ body {
                     </svg>
                 </p>
             </div>
-            <div id="editor3">{{data.file}}</div>
+            <div class="editor" id="editorJS" value="{{data.file}}"></div>
             <button class="save-button" onclick=saveFile()>Save</button>
             
         </div>
@@ -292,9 +300,54 @@ body {
     
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js" crossorigin="anonymous" integrity="sha256-T5QdmsCQO5z8tBAXMrCZ4f3RX8wVdiA0Fu17FGnU1vU=" ></script>
+
+    <link rel="stylesheet" href="/root/codemirror/css/codemirror.css">
+    <link rel="stylesheet" href="/root/codemirror/css/neo.css">
+    <script src="/root/codemirror/js/codemirror.js"></script>
+    <script src="/root/codemirror/js/xml.js"></script>
 
     <script>
+
+        $(document).ready(function() {
+
+            unwrapHTML();
+
+        });
+
+        let unwrapHTML = function() {
+
+            let html = $("#editor").attr("value");
+
+            console.log(html);
+            console.log("unwrap the html and place values in each box");
+
+        };
+
+        var editor = CodeMirror(document.getElementById("editor"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editor").attr("value"),
+        });
+
+
+        var editorCSS = CodeMirror(document.getElementById("editorCSS"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editorCSS").attr("value"),
+        });
+
+        
+        var editorJS = CodeMirror(document.getElementById("editorJS"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editorJS").attr("value"),
+        });
 
         let changeLayout = function() {
 
@@ -313,10 +366,10 @@ body {
                     console.log(sum, value);
 
             console.log(value[1]);
-                    $('.editors > *').eq(0).attr({style: `width: ${value[0]}%`}); 
-                    $('.editors > *').eq(1).attr({style: `width: ${value[1]}%`}); 
-                    $('.editors > *').eq(2).attr({style: `width: ${value[2]}%`}); 
-                    $('.editors > *').eq(3).attr({style: `width: ${value[3]}%`}); 
+            $('.editors > *').eq(0).attr({style: `width: ${value[0]}%`}); 
+            $('.editors > *').eq(1).attr({style: `width: ${value[1]}%`}); 
+            $('.editors > *').eq(2).attr({style: `width: ${value[2]}%`}); 
+            $('.editors > *').eq(3).attr({style: `width: ${value[3]}%`}); 
 
         }
 
@@ -361,7 +414,7 @@ body {
             $(elem).attr({
                 onclick: "goFull(this)"
             })
-            startEditor();
+            // startEditor();
             console.log('went Small screen bro');
         }
     
@@ -375,7 +428,7 @@ body {
             $(elem).attr({
                 onclick: "goSmall(this)"
             })
-            startEditor();
+            // startEditor();
             console.log('went Full screen bro');
         }
 
@@ -390,24 +443,10 @@ body {
             console.log('maximized bro');
         }
 
-        let editor = ace.edit("editor");
-        editor.setSession().setMode('ace/mode/csharp');
-        editor.session.setUseWorker(false);
-        editor.setTheme("ace/theme/chrome");
-        editor.renderer.setShowGutter(false);
-        editor.setShowPrintMargin(false);
-
-//      let editor2 = ace.edit("editor2");
-//      editor2.session.setMode('ace/mode/csharp');
-//      editor2.session.setUseWorker(false);
-//      editor2.setTheme("ace/theme/chrome");
-//      editor2.renderer.setShowGutter(false);
-//      editor2.setShowPrintMargin(false);
-
         $( function() {
-            $( "#draggable" ).draggable();
-            $( "#draggableCSS" ).draggable();
-            $( "#draggableJS" ).draggable();
+            //$( "#draggable" ).draggable();
+            //$( "#draggableCSS" ).draggable();
+            //$( "#draggableJS" ).draggable();
         } );
 
         let saveFile = function() {
@@ -427,7 +466,8 @@ body {
             }).fail( err => console.log(err) );
 
         };
-    
+
+
 
     </script>
 </body>

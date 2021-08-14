@@ -30,28 +30,37 @@ let html = `
 
 let string = html.match(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g);
 
-string = string.map( val => {
+string = string.map( (val, index)  => {
 
-    let tag = val.split(/<|>/g)[1];
+    let tag = val.replace(/^<\s*/g, "").split(/\s|>/g)[0];
 
-    let checkClosingExists = function(tag) {
-        console.log(tag);
-        if ( tag.match(/ \/ /g) != null ) return null;
-        return html.match(`/${tag}`) != null ? `</${tag}>` : null;
+    let findClosingTag = function(tag) {
+        if ( tag.match(/ \/ /g ) != null ) return null;
+        return html.match( `/${tag}` ) != null ? `</${tag}>` : null;
     }
 
-    let checkChildTags = function ( tag, closingTag ) {
-        return 'true';
+    let getContent = function ( tag, closingTag ) {
+        if ( closingTag == null ) return null;
+        return html.split(val)[1].split(closingTag)[0];
     };
 
-    let closingTag = checkClosingExists(tag);
-    let childTags = checkChildTags( tag, closingTag );
+    let findCSS = function ( tag ) {
+        console.log( tag, val);
+    };
+
+    let closingTag = findClosingTag(tag);
+    let content = getContent(tag, closingTag);
+    if ( closingTag == null ) return null;
+    let connectedCSS = findCSS( tag );
 
     return {
-        allTags: val,
-        closingTag: closingTag,
-        childTags: childTags
+        tagId: index+"-"+tag,
+        content: content != null ? content.length : 0,  // TODO: Change this to content when final,
+        connectedCSS: true,
+        connectedJS: true,
+        childTagsLabels: true,
+        namingConvention: true
     }
-})
+}).filter( val => val != null );
 
 console.table(string);

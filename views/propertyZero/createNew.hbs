@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <style media="screen">
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+
+<body>
+  {{> navbar}}
+
+  <form class="" action="/updateUser" method="post">
+    <label for="name">Name</label>
+    <input type="text" name="name" value="{{name}}" required>
+
+    <label for="email">Email</label>
+    <input type="email" name="email" value="{{email}}" required>
+
+    {{#unless email_verified}}
+      <div class="notice">
+        <p>Your email is not verified</p>
+        <button type="button" name="button">Resend Verification</button>
+      </div>
+    {{/unless}}
+
+    <label for="oldPassword">Old Password</label>
+    <input type="password" name="oldPassword" value="" placeholder="Enter your old password here" required>
+
+    <label for="newPassword">New Password</label>
+    <input type="password" name="newPassword" value="" placeholder="Enter your New password here" required>
+
+    <button type="submit" name="button">Save</button>
+    <a href="/forgotPasswod?">Forgot Old Password</a>
+
+  </form>
+</body>
+
+</html>

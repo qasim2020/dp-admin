@@ -320,6 +320,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: 'richpakistan',
                 url: 'richpakistan'
+            },
+            {
+                name: 'propertyZero',
+                url: 'propertyZero'
             }
         ]
     });
@@ -419,6 +423,7 @@ var myFuncs = {
 	listenToWebhook: 'gen',
         editWeb: 'admin',
         emptyFile: 'admin',
+        showAll: 'auth',
     },
 
     listenToWebhook: function(req,res) {
@@ -1551,6 +1556,7 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
+        console.log('checking signin');
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         // if 7am does not have this user look into myapp. it can be an brand. 
@@ -1806,6 +1812,14 @@ var myFuncs = {
         return {
             success: true
         }
+    },
+
+    propertyZero: async function(req, res) {
+
+        return {
+            success: true
+        }
+
     },
 
     landingPage: async function(req,res) {
@@ -3723,7 +3737,7 @@ var myFuncs = {
             }
         } else {
             return {
-                msg: 'Sorry something bad happened. Please leave an email to Qasim at <a href="mailto:qasimali24@gmail.com>qasimali24@gmail.com</a> and he will manually unsubscribe you.',
+                msg: 'Sorry something bad happened. Please leave an email to Qasim at <!-- <a href="mailto:qasimali24@gmail.com>qasimali24@gmail.com</a> --> and he will manually unsubscribe you.',
                 brand: req.params.brand
             }
         };
@@ -3885,13 +3899,77 @@ var myFuncs = {
 
         let file = await writeFile(`./views/${req.params.theme}/${req.params.input}.hbs`, req.body.html);
 
-        console.log(file);
-
         return {
             msg: 'file has been saved in desired directory'
         }
 
     },
+
+
+    showAll: async function(req,res) {
+
+        return {
+            success: true
+        }
+
+    },
+
+    createProject: async function(req,res) {
+        console.log( " create project page opening ");
+        return {
+            success: true
+        }
+
+    },
+
+    createdProj: async function(req,res) {
+
+        console.log(req.body); 
+
+        let missingValues = Object.values(req.body).some( val => val.length == 0 );
+        console.log( missingValues );
+        if (missingValues == true) {
+            req.params.module = "createProject";
+            return {
+                errorMsg: "Some values are missing. Please fill out complete form."
+            }
+        };
+
+        // create a new directory with this project Name
+        // create all the listed files inside this directory
+        // create brand-users
+        // add this user / email / password to myapp-users
+        // send all the credentials to the createdProj folder
+
+        var dir = `./views/${req.body.projName}`;
+
+        let createFile = function(dir, name) {
+            return new Promise ((resolve,reject) => {
+                fs.writeFile(`${dir}/${name}.hbs`, '', (err) => {
+                    if (err) {
+                      return reject(err);
+                    }
+                    resolve();
+                });
+            });
+        };
+
+        if (!fs.existsSync(dir)){
+            console.log(dir);
+            fs.mkdirSync(dir);
+            let files = req.body.files.match(/,/g).length > 0 ? req.body.files.split(',') : 'landingPage.hbs';
+            await Promise.all( files.map( val => createFile(dir, val) ) );
+        }
+        
+        console.log("new project created successfully");
+        req.params.module = "createdProj"
+
+        return {
+            success: true
+        }
+
+    },
+
 
 
 };

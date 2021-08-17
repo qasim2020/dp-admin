@@ -97,12 +97,13 @@
             <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
             <!-- <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a> -->
             <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
-            <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add New Document</a>
+            <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add Document</a>
+            <a href="/{{data.brand}}/admin/page/createProject/{{data.modelName}}">Create Project</a>
             <button class="{{#if data.notifications.count}}active{{/if}}" my-data="
-            {{#each data.notifications.texts}}
-            <p>{{this.text}}</p>
-            {{/each}}
-                " onclick="showData(this)">Notifications {{data.notifications.count}}</button>
+                {{#each data.notifications.texts}}
+                <p>{{this.text}}</p>
+                {{/each}}
+            " onclick="showData(this)">Notifications {{data.notifications.count}}</button>
             <button onclick="createAppBackup(this)">Create App Backup</button>
             <button onclick="loadBackUp(this)">Load Backup</button>
             <a href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a>

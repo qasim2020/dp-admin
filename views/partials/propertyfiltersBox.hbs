@@ -1,0 +1,26 @@
+
+    <div class="firstBox">
+    
+        <div class="filters cities">
+
+            <p class="box-hdg">LOCATIONS</p>
+
+            {{#each cities}}
+
+                <span onclick="filterPress(this)">{{this}}</span> 
+
+            {{/each}}
+        
+        </div>
+
+        <div class="filters status">
+            <p class="box-hdg">SHOW PROPERTIES</p>
+            <span onclick="filterPress(this)" class="active">Selling</span>
+            <span onclick="filterPress(this)">Required</span>
+            {{#if admin}}
+            <span onclick="filterPress(this)">Sold</span>
+            <span onclick="filterPress(this)">Archived</span>
+            {{/if}}
+        </div>
+
+    </div>

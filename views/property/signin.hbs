@@ -27,12 +27,6 @@
 
 <body>
 
-    <nav>
-
-        <a href="/{{data.brand}}/admin/page/showCollection/root-users">show Collections</a>
-    
-    </nav>
-
     <div class="container">
 
         <form action="" method="post">
@@ -46,8 +40,6 @@
             <button id="submitButton" type="submit">Submit</button>
 
         </form>
-
-        <a href="/{{data.brand}}/admin/page/signup/n">Sign Up</a>
 
     </div>
 
@@ -66,7 +58,7 @@
                 console.log(data);
                 $('#submitButton').html(data.error || data.success);
                 if (data.error) return 'Click on show collections to go home';
-                window.location.href = `/${data.brand}/${data.role}/page/showCollection/${data.brand}-users`;
+                window.location.href = `/${data.brand}/${data.role}/page/showAll/n`;
               }
             });
         });

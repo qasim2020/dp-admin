@@ -16,6 +16,9 @@ form > *{
 </head>
 <body>
     <p>{{data.errorMsg}}</p>
+    {{#if data.alreadyExists}}
+    <p><a href="/myapp/admin/page/showProj/{{data.alreadyExists}}">Open Existing Details</a></p>
+    {{/if}}
     <form action="/myapp/admin/page/createdProj/n" method="post">
 
         <label for="projName">Project Name</label>
@@ -23,6 +26,9 @@ form > *{
     
         <label for="listFiles">List of Files</label>
         <input type="text" id="" name="files" placeholder="landingPage, signin, signup, showAll">
+
+        <label for="brandName">Brand Name</label>
+        <input type="text" id="" name="brandName" placeholder="">
 
         <label for="ownerName">Owner Name</label>
         <input type="text" id="" name="ownerName" placeholder="">

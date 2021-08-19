@@ -322,8 +322,8 @@ app.get(  '/', async (req,res) => {
                 url: 'richpakistan'
             },
             {
-                name: 'propertyZero',
-                url: 'propertyZero'
+                name: 'chodhry',
+                url: 'chodhry'
             }
         ]
     });
@@ -1629,12 +1629,18 @@ var myFuncs = {
         newRows.unshift(collectionHeadings);
         csv = this.array2CSV(newRows);
 
+
         return new Promise ((resolve,reject) => {
             fs.writeFile('./static/myFile.csv', csv, (err) => {
                 if (err) {
                   return reject(err);
                 }
-                resolve('static/myFile.csv');
+                let localhost = process.env.url.includes("localhost:3000");
+                if (localhost == true) {
+                    resolve('myFile.csv');
+                } else {
+                    resolve('static/myFile.csv');
+                }
             });
         });
     },
@@ -1814,13 +1820,6 @@ var myFuncs = {
         }
     },
 
-    propertyZero: async function(req, res) {
-
-        return {
-            success: true
-        }
-
-    },
 
     landingPage: async function(req,res) {
         console.log({theme: req.params.theme});
@@ -3906,14 +3905,6 @@ var myFuncs = {
     },
 
 
-    showAll: async function(req,res) {
-
-        return {
-            success: true
-        }
-
-    },
-
     createProject: async function(req,res) {
         console.log( " create project page opening ");
         return {
@@ -3928,15 +3919,21 @@ var myFuncs = {
 
         let missingValues = Object.values(req.body).some( val => val.length == 0 );
         console.log( missingValues );
-        if (missingValues == true) {
+
+        let redirect = function(msg) { 
             req.params.module = "createProject";
             return {
-                errorMsg: "Some values are missing. Please fill out complete form."
-            }
+                errorMsg: msg ,
+                alreadyExists: req.body.brandName
+            } 
+        }
+
+        if (missingValues == true) {
+            return redirect("Some values are missing. Please fill out complete form.");
         };
 
-        // create a new directory with this project Name
-        // create all the listed files inside this directory
+        // create a new directory with this project Name — DONE 
+        // create all the listed files inside this directory — DONE
         // create brand-users
         // add this user / email / password to myapp-users
         // send all the credentials to the createdProj folder
@@ -3957,19 +3954,207 @@ var myFuncs = {
         if (!fs.existsSync(dir)){
             console.log(dir);
             fs.mkdirSync(dir);
-            let files = req.body.files.match(/,/g).length > 0 ? req.body.files.split(',') : 'landingPage.hbs';
+            let files = req.body.files.includes(",") ? req.body.files.split(',') : ['landingPage', req.body.files];
+            console.log({files});
             await Promise.all( files.map( val => createFile(dir, val) ) );
         }
+
+        let createUsersCollection = async function({brandName}) {
+
+            let data = {
+                name: brandName+'-users',
+                brand: brandName,
+                properties: {
+                    "name" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "email" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "password" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "role" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    }
+                },
+                redirect: ''
+            };
+
+            await Collections.findOneAndUpdate({name: brandName-"users"},data,{upsert: true});
+            console.log('created a new User row inside the Collections'); 
+
+        }
+        
+        let createNotificationsCollection = async function({brandName}) {
+
+            let data = {
+                "brand" : brandName,
+                "name" : brandName+"-notifications",
+                "properties" : {
+                    "text" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "status" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "type" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "data" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    }
+                },
+                "redirect" : ""
+            }
+
+            await Collections.findOneAndUpdate({name: brandName-"notifications"},data,{upsert: true});
+            console.log('created a new Notifications row inside the Collections'); 
+
+        }
+
+        let model =  await this.createModel('myapp-themes');
+        let model2 =  await this.createModel('myapp-users');
+
+        let checkEarlierExists = async function({brandName}){
+
+            let count = {
+                inCollectionUsers : await Collections.find({name: brandName+"-users"}).count(),
+                inCollectionNotifications: await Collections.find({name: brandName+"-notifications"}).count(),
+                inThemes: await model.find({brand: brandName}).count(),
+                inUsers: await model2.find({brand: brandName}).count()
+            };
+
+            console.log(count);
+
+            return count;
+
+
+        };
+
+        let checkPrvs = await checkEarlierExists({brandName: req.body.brandName});
+
+        if (Object.values(checkPrvs).some(val => val != 0)) {
+
+            return redirect("Already exists in the collection = " + JSON.stringify(checkPrvs) );
+
+        }
+
+
+
+        await createUsersCollection({brandName: req.body.brandName});
+        await createNotificationsCollection({brandName: req.body.brandName});
+        let output = await model.create({brand: req.body.brandName, theme: req.body.projName});
+        console.log(output); 
+        let output2 = await model2.create({
+            email: req.body.ownerEmail, 
+            name: req.body.ownerName, 
+            password: req.body.ownerPassword,
+            brand: req.body.brandName,
+            role: 'admin'
+        });
+
+        console.log(output2); 
         
         console.log("new project created successfully");
         req.params.module = "createdProj"
 
         return {
-            success: true
+            msg: "new project created successfully",
+            name: req.body.ownerName,
+            email: req.body.ownerEmail,
+            password: req.body.ownerPassword,
+            brand: req.body.brandName,
+            projName: req.body.projName
         }
 
     },
 
+    showProj: async function(req,res) {
+
+        let model =  await this.createModel('myapp-themes');
+        let model2 =  await this.createModel('myapp-users');
+
+        let getData = async function({brandName}){
+
+            let data = {
+                inCollectionUsers : await Collections.find({name: brandName+"-users"}).count(),
+                inCollectionNotifications: await Collections.findOne({name: brandName+"-notifications"}).count(),
+                inThemes: await model.findOne({brand: brandName}),
+                inUsers: await model2.findOne({brand: brandName})
+            };
+
+            console.log(data);
+            return {
+                inCollectionUsers: data.inCollectionUsers,
+                inCollectionNotifications: data.inCollectionNotifications,
+                theme: data.inThemes.theme,
+                brand: data.inThemes.brand,
+                name: data.inUsers.name,
+                email: data.inUsers.email,
+                password: data.inUsers.password,
+                showDetails: true,
+            }
+
+        };
+
+        let allData = await getData({brandName: req.params.input});
+
+        console.log(allData);
+
+        req.params.module = "createdProj";
+        req.params.theme = "root";
+
+        return allData;
+
+    },
+
+    // TODO: Create SHOW ALL PAGE
+
+    property: async function(req, res) {
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+        let output = {
+            properties : await model.find({status:/Selling|Required/gi}).lean(),
+            cities: await model.distinct("city")
+        };
+        console.log(output);
+        return {
+            properties: output.properties,
+            cities: output.cities
+        }
+    },
+
+    showAll: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+        let output = {
+            properties : await model.find().lean(),
+            cities: await model.distinct("city")
+        };
+        console.log(output);
+        return {
+            properties: output.properties,
+            cities: output.cities
+        }
+
+    },
 
 
 };

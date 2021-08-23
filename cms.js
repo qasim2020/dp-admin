@@ -155,6 +155,7 @@ hbs.registerHelper('checkExists', (val) => {
 })
 
 hbs.registerHelper('matchValues', (val1,val2) => {
+    console.log(val1,val2);
     return val1 == val2
 });
 
@@ -4154,7 +4155,13 @@ var myFuncs = {
 
     showAll: async function(req,res) {
 
-        return await this.fetchPropertiesDataForPage(req,res);
+        let output =  await this.fetchPropertiesDataForPage(req,res);
+
+        output.forms = this.getForms({msgBoxAdmin: true, addProperty: true});
+
+        console.log(JSON.stringify(output, 0, 2));
+
+        return output;
 
     },
 
@@ -4329,6 +4336,126 @@ var myFuncs = {
         console.log(query);
 
         return query;
+
+    },
+
+    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty}) {
+
+        let object = {};
+
+        if (msgBoxClient == true) {
+
+            object.msgBoxClient = {
+                heading: "MESSAGE BOX",
+                note: "Write your message below and choose the option at the bottom to contact us.",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "textarea",
+                        val: "Sir are these properties available? What is your final demand. Please contact back.",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        val: "WHATSAPP",
+                        info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        val: "EMAIL",
+                        info: "Opens Contact Form where you will enter your Contact No and Name.",
+                        onclick: "openLayer('.contactForm')"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        val: "CLOSE",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+            }
+
+        }
+
+        if (msgBoxAdmin == true) {
+
+            object.msgBoxAdmin = {
+                heading: "MESSAGE BOX",
+                note: "Draft your message and broadcast using WhatsApp.",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "textarea",
+                        value: "Sir fresh properties for today; contact to inquire more, please.",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "WHATSAPP",
+                        info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+            }
+
+        }
+
+        if (addProperty == true) {
+
+            object.addProperty = {
+                heading: "ADD NEW PROPERTY",
+                note: "Delightfully add your properties. Make it breezing fast for your customers to understand you.",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "price",
+                        type: "number",
+                        label: "PRICE (PKR)",
+                        value: "2000000"
+                    },{
+                        elem: "input",
+                        name: "city",
+                        type: "text",
+                        label: "CITY",
+                        value: "Islamabad"
+                    },{
+                        elem: "input",
+                        name: "town",
+                        type: "text",
+                        label: "TOWN",
+                        value: "BAHRIA 9"
+                    },{
+                        elem: "input",
+                        name: "size",
+                        type: "text",
+                        label: "SIZE OF PROPERTY",
+                        value: "1.5 Kanal"
+                    },{
+                        elem: "textarea",
+                        label: "LOCATION DETAILS - REMARKS",
+                        name: "details",
+                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please."
+                    },{
+                        elem: "propertyStatus",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm('.editProperty > form')",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    } 
+                ]
+            }
+
+        }
+
+        return object;
 
     },
 

@@ -45,25 +45,7 @@
 
     <div class="formBox msgBox d-none">
 
-        <p class="box-hdg">MESSAGE BOX</p>
-        <p class="note">Write your message below and choose the option at the bottom to contact us.</p>
-
-        <form action="" class="mt-24">
-
-            <textarea id="" name="" cols="30" rows="10">Sir, are these properties available? What is final demand? Please reply..</textarea>
-
-            <button class="btn blue mt-24">WHATSAPP</button>
-
-            <p class="note">Opens WhatsApp in your Phone with above pre-drafted message</p>
-
-            <button type="button" class="btn blue mt-24" onclick="openLayer('.contactForm')" >EMAIL</button>
-
-            <p class="note">Opens Contact Form where you will enter your Contact No and Name.</p>
-
-            <button type="button" class="btn mt-24" onclick="openLayer('.layerOne')">CLOSE</button>
-
-
-        </form>
+        {{> propertyForm data=data.forms.msgBoxAdmin}}
     
     </div>
 
@@ -87,56 +69,13 @@
             <button class="btn blue mt-24">SEND EMAIL</button>
             <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
 
-
         </form>
 
     </div>
 
-    <div 
-        class="formBox editProperty d-none">
+    <div class="formBox editProperty d-none">
 
-        <p class="box-hdg">ADD NEW PROPERTY</p>
-
-        <p class="note">Delightfully add your properties. Make it breezing fast for your customers to understand you. Wish you Happy Selling!</p>
-        <form 
-            url = "/{{data.brand}}/auth/data/propertyAdminForm/addProperty"
-            action="" >
-
-            <label for="price">PRICE PKR</label>
-            <input type="number" name="price" placeholder="200000">
-
-            <label for="city">CITY</label>
-            <input type="text" name="city" placeholder = "Islamabad">
-
-            <label for="town">TOWN</label>
-            <input type="text" name="town" placeholder="Bahria 8">
-
-            <label for="size">SIZE</label>
-            <input type="text" name="size" placeholder="8 Marla">
-
-            <label for="details">LOCATION · REMARKS</label>
-            <textarea id="" name="details" cols="30" rows="10" placeholder="Near Corner Mosque, held with Brig Sb, ready for sale, excellent value in urgent sale"></textarea>
-
-            <label for="status">STATUS</label>
-            <input class="d-none" type="text" name="status">
-            <div class="absolute-btns">
-
-                <span onclick="highToLow(this)" myName="Sold" class="btn active sold">SOLD</span>
-                <span onclick="highToLow(this)" myName="Selling" class="btn selling">SELLING</span>
-                <span onclick="highToLow(this)" myName="Required" class="btn required">REQUIRED</span>
-                <span onclick="highToLow(this)" myName="Archive" class="btn archive">ARCHIVE</span>
-
-            </div>
-
-            <button 
-                type="button" 
-                class="btn blue mt-24" 
-                onclick="submitForm('.editProperty > form')"
-                >SAVE</button>
-            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
-
-        </form>
-
+        {{> propertyForm data=data.forms.addProperty}}
 
     </div>
 
@@ -178,3 +117,4 @@
 </body>
 
 </html>
+

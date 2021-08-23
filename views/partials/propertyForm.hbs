@@ -1,0 +1,56 @@
+<p class="box-hdg">{{data.heading}}</p>
+
+<p class="note">{{data.note}}</p>
+
+<form action="" class="{{data.class}}">
+
+    {{#each data.elems}}
+
+        {{#if (matchValues this.elem "input")}}
+
+        <label for="{{name}}">{{label}}</label>
+        <input type="{{inputType}}" name="{{name}}" class="{{class}}" value="{{value}}">
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "textarea")}}
+
+        {{#if label}}
+            <label for="{{name}}">{{label}}</label>
+        {{/if}}
+
+        <textarea id="" name="{{name}}" cols="30" rows="10">{{value}}</textarea>
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "propertyStatus")}}
+
+            <label for="status">STATUS</label>
+            <input class="d-none" type="text" name="status">
+            <div class="absolute-btns">
+
+                <span onclick="highToLow(this)" myName="Sold" class="btn active sold">SOLD</span>
+                <span onclick="highToLow(this)" myName="Selling" class="btn selling">SELLING</span>
+                <span onclick="highToLow(this)" myName="Required" class="btn required">REQUIRED</span>
+                <span onclick="highToLow(this)" myName="Archive" class="btn archive">ARCHIVE</span>
+
+            </div>
+
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "button")}}
+
+            <button type="button" class="{{class}}" onclick="{{onclick}}">{{value}}</button>
+
+            {{#if info}}
+
+            <p class="note">{{info}}</p>
+
+            {{/if}}
+
+        {{/if}}
+
+    {{/each}}
+
+</form>

@@ -1,0 +1,155 @@
+$(document).pjax('a[data-pjax]', '#pjax-container');
+
+$(document).ready(() => {
+
+    if ("{{data.input}}" == "n") return console.log('Home loaded');
+
+})
+
+$.pjax.defaults.scrollTo = false;
+$.pjax.defaults.timeout = false;
+
+let toggleClass = function(elem, name) {
+
+    $(elem).toggleClass(name);
+
+}
+
+let cityPress = function(elem, name) {
+
+    let citiesAreActive = $('.filters.cities > span.active').length > 0;
+    let cityName = $(elem).attr("myName");
+
+    if (citiesAreActive == false) {
+
+        $('.filters.towns > span').addClass('d-none');
+        $('.filters.towns').addClass('d-none');
+        return;
+
+    }
+
+    $('.filters.towns').removeClass('d-none');
+
+    let thisCityIsActive = $(elem).hasClass('active');
+
+    if (thisCityIsActive == true) {
+
+        $('.filters.towns').find(`[city=${cityName}]`).removeClass('d-none');
+
+    } else {
+
+        $('.filters.towns').find(`[city=${cityName}]`).addClass('d-none');
+    }
+}
+
+let highToLow = function(elem) {
+    $(elem).addClass('active');
+    $(elem).siblings('.btn').removeClass('active');
+}
+
+let filterPress = function(elem) {
+
+    let object = {
+        cities: $('.filters.cities > span.active').map(function() {
+            return $(this).attr('myName')
+        }).get(),
+        status: $('.filters.status > span.active').map(function() {
+            return $(this).attr('myName')
+        }).get(),
+        sort: $('.filters.prices > span.active').map(function() {
+            return $(this).attr('myName')
+        }).get(),
+    }
+
+    if ($('.filters.cities > span.active').get().length > 0) {
+
+        object.towns = $('.filters.cities > span.active').map(function() {
+            let towns = $(`[city=${$(this).attr('myName')}].active`).map(function() {
+                return $(this).attr('myName');
+            }).get();
+
+            if (towns.length > 0) {
+                return towns;
+            } else {
+                return null;
+            }
+        }).get();
+
+    }
+
+    let url = `/{{data.brand}}/{{data.permit}}/pjax/filterProperties/{{data.module}}?`;
+
+    if (object.cities && object.cities.length > 0) {
+        url += `cities=${object.cities}&`
+    }
+
+    if (object.towns && object.towns.length > 0) {
+        console.table(object.towns);
+        url += `towns=${object.towns}&`
+    }
+
+    if (object.status && object.status.length > 0) {
+        url += `status=${object.status}&`
+    }
+
+    if (object.sort && object.sort.length > 0) {
+        url += `sort=${object.sort}`
+    }
+
+
+    $('.btn.runFilter').attr({
+        href: url
+    }).trigger('click');
+
+}
+
+let toggleFilterBox = function(elem) {
+
+    $(elem).toggleClass('active');
+    $(elem).closest('.firstBox').toggleClass('close');
+
+}
+
+let openLayer = function(elem) {
+
+    $('body > *').addClass('d-none');
+    window.scrollTo(0, 0);
+    $(elem).removeClass('d-none');
+
+}
+
+$('form').on('submit', function(event) {
+    console.log('form is submitting');
+    event.preventDefault();
+});
+
+let submitForm = function(elem) {
+
+    console.log($(elem).attr('url'));
+
+    if (elem.match('.editProperty')) {
+        console.log('submit the edit property box');
+        let status = $('.absolute-btns > span.active').attr('myName');
+        console.log({
+            status
+        });
+        $(elem).find('[name="status"]').val(status);
+    }
+
+    console.log($(elem).serialize());
+
+    $.ajax({
+        url: $(elem).attr('url'),
+        data: $(elem).serialize(),
+        method: "POST",
+        success: val => console.log({
+            val
+        }),
+        error: function(request, status, error) {
+            console.log(request.responseText);
+        }
+    });
+
+};
+
+openLayer('.editProperty');

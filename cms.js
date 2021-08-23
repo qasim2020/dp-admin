@@ -142,6 +142,14 @@ hbs.registerHelper('startWithUpperCase', (val) => {
     return val.charAt(0).toUpperCase() + val.slice(1)
 });
 
+hbs.registerHelper('toUpperCase', (str) => {
+    return str.toUpperCase()
+});
+
+hbs.registerHelper('toLowerCase', (str) => {
+    return str.toLowerCase()
+});
+
 hbs.registerHelper('checkExists', (val) => {
     return val != undefined ? 'true' : '';
 })
@@ -351,7 +359,9 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}`);
+            console.log('LOADING WITHOUT PJAX NOW -----');
+            let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
             break;
           case (req.params.requiredType == 'page'):
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
@@ -424,6 +434,9 @@ var myFuncs = {
         editWeb: 'admin',
         emptyFile: 'admin',
         showAll: 'auth',
+        filterProperties: 'gen',
+        propertyAdminForm: 'auth',
+        propertyGenForm: 'gen'
     },
 
     listenToWebhook: function(req,res) {
@@ -1635,6 +1648,7 @@ var myFuncs = {
                 if (err) {
                   return reject(err);
                 }
+                console.log(process.env.url);
                 let localhost = process.env.url.includes("localhost:3000");
                 if (localhost == true) {
                     resolve('myFile.csv');
@@ -3904,6 +3918,7 @@ var myFuncs = {
 
     },
 
+    // HERE I STARTED WORKING ON PROPERTY WEBSITE
 
     createProject: async function(req,res) {
         console.log( " create project page opening ");
@@ -4056,8 +4071,6 @@ var myFuncs = {
 
         }
 
-
-
         await createUsersCollection({brandName: req.body.brandName});
         await createNotificationsCollection({brandName: req.body.brandName});
         let output = await model.create({brand: req.body.brandName, theme: req.body.projName});
@@ -4125,34 +4138,269 @@ var myFuncs = {
 
     },
 
-    // TODO: Create SHOW ALL PAGE
-
     property: async function(req, res) {
 
-        let model = await this.createModel(`${req.params.brand}-properties`);
-        let output = {
-            properties : await model.find({status:/Selling|Required/gi}).lean(),
-            cities: await model.distinct("city")
-        };
-        console.log(output);
-        return {
-            properties: output.properties,
-            cities: output.cities
-        }
+        let output = await this.fetchPropertiesDataForPage(req,res);
+
+        output.filters.status = output.filters.status.filter( val => {
+            console.log(val);
+            console.log(val.name.match(/archive|sold/gi));
+            return val.name.match(/archive|sold/gi) == null;
+        });
+
+        return output;
+
     },
 
     showAll: async function(req,res) {
 
+        return await this.fetchPropertiesDataForPage(req,res);
+
+    },
+
+    fetchPropertiesDataForPage: async function(req,res) {
+
         let model = await this.createModel(`${req.params.brand}-properties`);
-        let output = {
-            properties : await model.find().lean(),
-            cities: await model.distinct("city")
-        };
-        console.log(output);
-        return {
-            properties: output.properties,
-            cities: output.cities
+
+        if ( req.query && req.query.cities && req.query.cities.length > 1 ) {
+            townStatus = '';
+        } else {
+            townStatus = 'd-none';
         }
+            
+        let filters = {
+            cities: await this.getCities(req,res),
+            townStatus: townStatus,
+            status: await model.distinct("status").lean(),
+            sort: req.query.hasOwnProperty("sort") ? req.query.sort : -1
+        };
+
+        filters = this.getFiltersStatus(filters, req.query);
+
+        return {
+            properties: await this.getProperties(req,res),
+            filters: filters,
+            brand: req.params.brand,
+            input: req.params.input,
+            permit: req.params.permit,
+            module: req.params.module,
+        }
+
+    },
+
+    filterProperties: async function(req,res) {
+
+        return {
+            properties: await this.getProperties(req,res),
+            permit: req.params.permit,
+        }
+
+    },
+
+    getFiltersStatus: function(filters, query) {
+
+        filters.cities = filters.cities.map( val => { 
+
+            query.cities && query.cities.match(val.city) ? val.status = 'active' : '';
+
+            val.towns = val.towns.map( town => {
+                if (val.status == 'active') {
+                    return {
+                        name: town,
+                        status: query.towns && query.towns.split(',').includes(town) ? 'active' : ''
+                    }
+                } else {
+                    return { 
+                        name: town ,
+                        status: 'd-none'
+                    }
+                }
+            });
+
+
+            return val;
+
+        });
+
+
+        filters.status = filters.status.map( val => {
+
+            console.log(val, query.status);
+            if (query.status && query.status.length > 0) {
+                return {
+                    name: val,
+                    status: query.status && query.status.split(',').includes(val) ? val.status = 'active' : ''
+                }
+            } else {
+                return {
+                    name: val,
+                    status: 'active'
+                }
+            }
+
+        });
+
+        return filters;
+
+    },
+
+    getCities: async function(req,res) {
+        let query = {};
+        if (req.params.permit == 'auth' || req.params.permit == 'admin') {
+            query.status = { $in: ["Selling","Required","Sold","Archive"] };
+        } else {
+            query.status = { $in: ["Selling","Required"] };
+        };
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+        let output = await model.aggregate([
+            {
+                $match: query
+            },{
+                $group: {
+                    _id: "$city",
+                    "towns": {
+                        $addToSet: "$town"
+                    }
+                },
+            },{
+                $project: {
+                    "_id" : 0,
+                    "city" : "$_id",
+                    "towns": "$towns"
+                }
+            }
+        ]);
+
+        console.log(output);
+
+        return output;
+    },
+
+    getProperties: async function(req,res) {
+        
+        let query = this.buildMongoQuery(req,res);
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+
+        let output = await model.aggregate([
+            {
+                $match: query
+            },{
+                $addFields: {
+                    priceInNo: {
+                        $toInt : "$price"
+                    }
+                }
+            },{
+                $sort: {
+                    "priceInNo": req.query.hasOwnProperty('sort') ? Number(req.query.sort) : -1
+                }
+            }
+        ]);
+
+        return output;
+
+    },
+
+    buildMongoQuery: function(req,res) {
+
+        let query = {} ; 
+
+        if (req.params.permit == 'auth' || req.params.permit == 'admin') {
+            query.status = { $in: ["Selling","Required","Sold","Archive"] };
+        } else {
+            query.status = { $in: ["Selling","Required"] };
+        };
+
+        if (req.query.hasOwnProperty('status') && req.query.status.length > 1) {
+            query.status = {$in: req.query.status.split(',')};
+        } 
+
+        if ( req.query.hasOwnProperty('cities') && req.query.cities.length > 1) {
+            query.city = {$in: req.query.cities.split(',')};
+        
+            if ( req.query.hasOwnProperty('towns') && req.query.towns.split(',').length > 0) {
+                query.town = {$in: req.query.towns.split(',')};
+            };
+
+        }
+
+        console.log(query);
+
+        return query;
+
+    },
+
+    propertyGenForm: async function(req,res) {
+
+        switch (true) {
+            case (req.params.input == 'contactEmail'):
+                console.log( chalk.bold.blue( "SEND EMAIL to the OWNER EMAIL ADDRESS" ) );
+                console.log( chalk.bold.blue( "STORE THIS MSG AND DETAILS INTO CONTACT COLLECTION" ) );
+                break;
+            case (req.params.input == 'contactWhatsApp'):
+                console.log( chalk.bold.blue( "SENT WHATSAPP MSG FROM THE BROWSER" ) );
+                console.log( chalk.bold.blue( "STORE IN CONTACT COLLECTION" ) );
+                break;
+            default: 
+                break;
+        }
+
+        return {
+            success: true
+        }
+
+    },
+
+
+    propertyAdminForm: async function(req,res){
+
+        let missingValues = Object.values(req.body).some( val => val.length == 0 );
+
+        if (missingValues) {
+            return {
+                status: 404,
+                error: 'Please fill in all the values of the form'
+            }
+        }
+
+        let addProperty = async function() {
+
+            console.log(req.body);
+            let model = await myFuncs.createModel(`${req.params.brand}-properties`);
+
+            let output = await model.create(req.body);
+
+            console.log(output);
+
+            return output;
+
+        }
+            
+
+        let output;
+
+        switch (true) {
+            case (req.params.input == 'editProperty'):
+                console.log( chalk.bold.blue( "EDIT A PROPERTY" ) );
+                output = await editProperty();
+                break;
+            case (req.params.input == 'addProperty'):
+                console.log( chalk.bold.blue( "ADD A PROPERTY" ) );
+                output = await addProperty();
+                break;
+            case (req.params.input == 'websiteContent'):
+                console.log( chalk.bold.blue( "EDIT WEBSITE CONTENT" ) );
+                break;
+            case (req.params.input == 'statusChange'):
+                console.log( chalk.bold.blue( "EDIT THE PROPERTY STATUS" ) );
+                break;
+            default: 
+                break;
+        }
+
+        return output;
 
     },
 

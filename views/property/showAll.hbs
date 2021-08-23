@@ -1,81 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{>propertyCSS title="Chodhry Admin"}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Admin</title>
+    <style>
+    {{>propertyCSS}}
+    </style>
 </head>
 <body>
 
-    <nav>
+    <div class="layerOne">
 
-        <p class="icon">Chodhry Properties</p>
-        <p>Add New</p>
+        {{> propertyNav admin="true"}}
 
-    </nav>
+        {{> propertyfiltersBox cities=data.cities admin="true"}}
 
-    <button class="fixed" onclick="openMsgBox(this)">OPEN MSG BOX</button>
+        <div class="container">
 
-    {{> propertyfiltersBox cities=data.cities admin="true"}}
+            <p class="note">Add New or Change Status of Properties on this page. To draft a message, select the properties and click on OPEN MSG BOX.</p>
 
-    <div class="container">
+            <a class="btn runFilter d-none" href="/{{data.brand}}/auth/pjax/filterProperties/showAll" data-pjax>Run Filters</a>
 
-        <p class="note">Add New or Change Status of Properties on this page. To draft a message, select the properties and click on OPEN MSG BOX.</p>
+            <div class="cards" id="pjax-container"> 
 
-        <div class="cards"> 
-            {{#each data.properties}}
-            <div class="card" onclick="toggleSelect(this)"> 
-                <p>{{this.details}} · {{this.town}} · {{this.city}}</p>
-                <i class="far fa-check-circle"></i>
-            </div> 
-            {{/each}}
-        </div> 
+                {{#if data.properties}}
+
+                {{> propertyCards properties=data.properties admin="auth"}}
+
+                {{else}}
+
+                <p>No Matching Properties Found. Sorry..</p>
+
+                {{/if}}
+
+            </div>
+
+        </div>
 
     </div>
 
-    <div class="msgBox d-none">
+    <div class="formBox msgBox d-none">
 
-        <h1>Message Editor</h1>
-        <textarea id="" name="" cols="30" rows="10">
+        <p class="box-hdg">MESSAGE BOX</p>
+        <p class="note">Write your message below and choose the option at the bottom to contact us.</p>
 
-            Sir, are these properties available? What is final demand? Please reply..
+        <form action="" class="mt-24">
 
-        </textarea>
+            <textarea id="" name="" cols="30" rows="10">Sir, are these properties available? What is final demand? Please reply..</textarea>
 
-        <button class="small">Copy Text and open WhatsApp</button>
-        <button class="close" onclick="openMsgBox(this)">Close Box</button>
+            <button class="btn blue mt-24">WHATSAPP</button>
+
+            <p class="note">Opens WhatsApp in your Phone with above pre-drafted message</p>
+
+            <button type="button" class="btn blue mt-24" onclick="openLayer('.contactForm')" >EMAIL</button>
+
+            <p class="note">Opens Contact Form where you will enter your Contact No and Name.</p>
+
+            <button type="button" class="btn mt-24" onclick="openLayer('.layerOne')">CLOSE</button>
+
+
+        </form>
     
+    </div>
+
+    <div class="formBox contactForm d-none">
+
+        <p class="box-hdg">CONTACT FORM</p>
+
+        <p class="note">Please fill in your contact details. We will get back to you in next few hours. </p>
+
+        <form action="">
+
+            <label for="msg">YOUR MESSAGE</label>
+            <textarea id="" name="msg" cols="30" rows="10"></textarea>
+
+            <label for="name">YOUR NAME</label>
+            <input type="text" name="name">
+
+            <label for="contact">YOUR CONTACT NO / EMAIL</label>
+            <input type="text" name="contact">
+
+            <button class="btn blue mt-24">SEND EMAIL</button>
+            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
+
+
+        </form>
+
+    </div>
+
+    <div 
+        class="formBox editProperty d-none">
+
+        <p class="box-hdg">ADD NEW PROPERTY</p>
+
+        <p class="note">Delightfully add your properties. Make it breezing fast for your customers to understand you. Wish you Happy Selling!</p>
+        <form 
+            url = "/{{data.brand}}/auth/data/propertyAdminForm/addProperty"
+            action="" >
+
+            <label for="price">PRICE PKR</label>
+            <input type="number" name="price" placeholder="200000">
+
+            <label for="city">CITY</label>
+            <input type="text" name="city" placeholder = "Islamabad">
+
+            <label for="town">TOWN</label>
+            <input type="text" name="town" placeholder="Bahria 8">
+
+            <label for="size">SIZE</label>
+            <input type="text" name="size" placeholder="8 Marla">
+
+            <label for="details">LOCATION · REMARKS</label>
+            <textarea id="" name="details" cols="30" rows="10" placeholder="Near Corner Mosque, held with Brig Sb, ready for sale, excellent value in urgent sale"></textarea>
+
+            <label for="status">STATUS</label>
+            <input class="d-none" type="text" name="status">
+            <div class="absolute-btns">
+
+                <span onclick="highToLow(this)" myName="Sold" class="btn active sold">SOLD</span>
+                <span onclick="highToLow(this)" myName="Selling" class="btn selling">SELLING</span>
+                <span onclick="highToLow(this)" myName="Required" class="btn required">REQUIRED</span>
+                <span onclick="highToLow(this)" myName="Archive" class="btn archive">ARCHIVE</span>
+
+            </div>
+
+            <button 
+                type="button" 
+                class="btn blue mt-24" 
+                onclick="submitForm('.editProperty > form')"
+                >SAVE</button>
+            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
+
+        </form>
+
+
+    </div>
+
+    <div class="formBox editWebsite d-none">
+
+        <p class="box-hdg">EDIT WEBSITE CONTENT</p>
+
+        <p class="note" >These are your website contact details; ways people can reach you!</p>
+
+        <form action="">
+
+            <label for="name">YOUR NAME</label>
+            <input type="text" name="name" placeholder="">
+
+            <label for="email">YOUR EMAIL</label>
+            <input type="email" name="email" placeholder="">
+
+            <label for="whatsapp">YOUR WHATSAPP NUMBER</label>
+            <input type="phone" name="whatsapp" placeholder="">
+
+            <label for="address">BUSINESS ADDRESS</label>
+            <textarea id="" name="address" cols="30" rows="10"></textarea>
+
+            <button class="btn blue mt-24">SAVE</button>
+            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
+
+        </form>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
     <script>
 
-        let toggleSelect = function(elem) {
+        {{> propertyJS}}
 
-            $(elem).toggleClass('select');
-
-
-        }
-
-        let openMsgBox = function(elem) {
-
-            $('.msgBox').toggleClass('d-none');
-            if ( $('.msgBox').hasClass('d-none') ) {
-                $('button.fixed').html('OPEN MSG BOX');
-            } else {
-                $('button.fixed').html('CLOSE MSG BOX');
-            }
-
-        }
-
-        let filterPress = function(elem) {
-
-            $(elem).toggleClass('active');
-            let allFilters = $('.filters > span.active');
-
-        }
-
-
-    
     </script>
     
 </body>
+
 </html>

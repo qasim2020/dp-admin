@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{>propertyCSS title="Chodhry Properties"}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Chodhry Properties</title>
+    <style>
+        {{>propertyCSS}} 
+    </style>
 </head>
 <body>
 
-    <nav>
-
-        <p class="icon">Chodhry Properties</p>
-
-    </nav>
-
-    <button class="fixed" onclick="openMsgBox(this)">OPEN MSG BOX</button>
+    {{> propertyNav}}
 
     {{> propertyfiltersBox cities=data.cities}}
 
@@ -19,14 +21,19 @@
 
         <p class="note">Showing all properties we are "Selling" today.. Select a property and click OPEN MSG BOX button in right bottom.</p>
 
-        <div class="cards"> 
-            {{#each data.properties}}
-            <div class="card" onclick="toggleSelect(this)"> 
-                <p>{{this.details}} · {{this.town}} · {{this.city}}</p>
-                <i class="far fa-check-circle"></i>
-            </div> 
-            {{/each}}
-        </div> 
+        <a class="btn runFilter d-none" href="/{{data.brand}}/gen/pjax/filterProperties/landingPage" data-pjax>Run Filters</a>
+
+        <div class="cards" id="pjax-container"> 
+            {{#if data.properties}}
+
+            {{> propertyCards properties=data.properties}}
+
+            {{else}}
+
+            <p>No Matching Properties Found. Sorry..</p>
+
+            {{/if}}
+        </div>
 
     </div>
 
@@ -45,32 +52,11 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
     <script>
 
-        let toggleSelect = function(elem) {
 
-            $(elem).toggleClass('select');
-
-
-        }
-
-        let openMsgBox = function(elem) {
-
-            $('.msgBox').toggleClass('d-none');
-            if ( $('.msgBox').hasClass('d-none') ) {
-                $('button.fixed').html('OPEN MSG BOX');
-            } else {
-                $('button.fixed').html('CLOSE MSG BOX');
-            }
-
-        }
-
-        let filterPress = function(elem) {
-
-            $(elem).toggleClass('active');
-            let allFilters = $('.filters > span.active');
-
-        }
+        {{> propertyJS}}
 
 
     

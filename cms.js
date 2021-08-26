@@ -323,7 +323,7 @@ app.get(  '/', async (req,res) => {
                 url: 'challenge',
             },
             {
-                name: 'portfolio',
+                name: 'life',
                 url: 'life'
             },
             {
@@ -342,7 +342,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
-        // console.log(JSON.stringify(data,'',2));
+        console.log(JSON.stringify(data,'',2));
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             return res.status(data.status).send(data.error);
@@ -410,7 +410,7 @@ var myFuncs = {
         showOrders: 'admin',
         getSizes: 'gen',
         showPage: 'gen',
-        updatePage: 'admin',
+        updatePage: 'auth',
         dashboard: 'admin',
         forgotpw: 'gen',
         challenges: 'auth',
@@ -437,7 +437,10 @@ var myFuncs = {
         showAll: 'auth',
         filterProperties: 'gen',
         propertyAdminForm: 'auth',
-        propertyGenForm: 'gen'
+        propertyGenForm: 'gen',
+        showPages: 'gen',
+        editPage: 'auth',
+        drawForm: "gen", 
     },
 
     listenToWebhook: function(req,res) {
@@ -2397,11 +2400,12 @@ var myFuncs = {
         let output = await model.findOne({slug: req.params.input}).lean();
         model = await this.createModel(`${req.params.brand}-resources`);
         let resources = await model.find({});
-        let countCart = await this.countItemsInCart(req,res);
+    //     let countCart = await this.countItemsInCart(req,res);
         return {
             resources: resources,
-            countCart: countCart,
+            // countCart: countCart,
             brand: req.params.brand,
+            permit: req.params.permit,
             page: output,
             brand: req.params.brand,
         };
@@ -2409,10 +2413,21 @@ var myFuncs = {
 
     editPage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        let page = await model.findOne({_id: req.params.input}).lean();
+        let page = {};
+        if (req.params.input != "n") {
+             page = await model.findOne({_id: req.params.input}).lean();
+        } else {
+            page = {
+                page: '',
+                content: '',
+                slug: '',
+                _id: this.getMongoId(req,res),
+            }
+        };
         return {
             page: page,
             brand: req.params.brand,
+            permit: req.params.permit,
             resources: await this.fetchResources(req,res),
             modelName: `${req.params.brand}-pages`
         };
@@ -2420,7 +2435,18 @@ var myFuncs = {
 
     updatePage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
+        console.log(req.params);
+        console.log(req.body);
+        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: 
+            {
+                content: req.body.output,
+                page: req.body.page,
+                slug: req.body.slug,
+                type: req.body.type
+            }
+            },{new:true}).lean();
+
+        console.log( output );
         return output;
     },
 
@@ -3024,6 +3050,7 @@ var myFuncs = {
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
         var query = processQuery(req.query);
+        console.log({query});
         delete query.filter._pjax;
         let pages = await model.aggregate([
             {
@@ -3051,6 +3078,7 @@ var myFuncs = {
             brand: req.params.brand,
             navRows: navRows,
             filterApplied: Object.values(query.filter).length > 0,
+            permit: req.params.permit,
         }
     },
 
@@ -4149,6 +4177,10 @@ var myFuncs = {
             return val.name.match(/archive|sold/gi) == null;
         });
 
+        output.forms = this.getForms({msgBoxClient: true, contactForm: true});
+
+        console.log(JSON.stringify(output, 0, 2));
+
         return output;
 
     },
@@ -4253,7 +4285,7 @@ var myFuncs = {
 
     getCities: async function(req,res) {
         let query = {};
-        if (req.params.permit == 'auth' || req.params.permit == 'admin') {
+        if (req.params.module == 'showAll') {
             query.status = { $in: ["Selling","Required","Sold","Archive"] };
         } else {
             query.status = { $in: ["Selling","Required"] };
@@ -4314,7 +4346,7 @@ var myFuncs = {
 
         let query = {} ; 
 
-        if (req.params.permit == 'auth' || req.params.permit == 'admin') {
+        if (req.params.permit == 'showAll') {
             query.status = { $in: ["Selling","Required","Sold","Archive"] };
         } else {
             query.status = { $in: ["Selling","Required"] };
@@ -4339,7 +4371,20 @@ var myFuncs = {
 
     },
 
-    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty}) {
+    drawForm: async function(req,res) {
+
+        // open SIGN IN FORM and ADD A PROPERTY FORM AS A TEST
+        // /chodhry/gen/page/drawForm/signin -- THIS DRAWS THE SIGN IN FORM
+
+        return {
+            form: this.getForms({[req.params.input]: true})[req.params.input]
+        }
+        
+
+    },
+
+
+    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }) {
 
         let object = {};
 
@@ -4352,22 +4397,23 @@ var myFuncs = {
                 elems: [
                     {
                         elem: "textarea",
-                        val: "Sir are these properties available? What is your final demand. Please contact back.",
+                        value: "Sir are these properties available? What is your final demand. Please contact back.",
+                        onkeyup: "saveInSession(this)"
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
-                        val: "WHATSAPP",
+                        value: "WHATSAPP",
                         info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
-                        val: "EMAIL",
+                        value: "EMAIL",
                         info: "Opens Contact Form where you will enter your Contact No and Name.",
                         onclick: "openLayer('.contactForm')"
                     },{
                         elem: "button",
                         class: "btn",
-                        val: "CLOSE",
+                        value: "CLOSE MSG BOX",
                         onclick: "openLayer('.layerOne')"
                     } 
                 ]
@@ -4385,10 +4431,12 @@ var myFuncs = {
                     {
                         elem: "textarea",
                         value: "Sir fresh properties for today; contact to inquire more, please.",
+                        onkeyup: "saveInSession(this)"
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
                         value: "WHATSAPP",
+                        onclick: "openWhatsApp(this)",
                         info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
                     },{
                         elem: "button",
@@ -4413,7 +4461,7 @@ var myFuncs = {
                         name: "price",
                         type: "number",
                         label: "PRICE (PKR)",
-                        value: "2000000"
+                        value: "2000000" // THESE VALUES ARE TEMP
                     },{
                         elem: "input",
                         name: "city",
@@ -4436,13 +4484,14 @@ var myFuncs = {
                         elem: "textarea",
                         label: "LOCATION DETAILS - REMARKS",
                         name: "details",
-                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please."
+                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
+                        onkeyup: "saveInSession(this)"
                     },{
                         elem: "propertyStatus",
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
-                        onclick: "submitForm('.editProperty > form')",
+                        onclick: "submitForm(this)",
                         value: "SAVE"
                     },{
                         elem: "button",
@@ -4454,6 +4503,291 @@ var myFuncs = {
             }
 
         }
+
+        if (contactForm == true) {
+
+            object.contactForm = {
+
+                heading: "CONTACT FORM",
+                note: "Please fill in your contact details. We will get back to you in next few hours.",
+                elems: [
+
+                    {
+                        elem: "textarea",
+                        label: "YOUR MESSAGE",
+                        name: "msg",
+                        value: "",
+                        onkeyup: "saveInSession(this)"
+                    },{
+                        elem: "input",
+                        label: "YOUR NAME",
+                        type: "text",
+                        name: "name",
+                    },{
+                        elem: "input",
+                        label: "YOUR CONTACT NO / EMAIL",
+                        name: "contact",
+                        type: "text",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "SEND EMAIL",
+                        onclick: "submitForm(this)"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+
+            }
+
+        }
+
+        if (editProperty == true) {
+
+            object.editProperty = {
+                heading: "EDIT PROPERTY",
+                note: "Delightfully edit your properties. Make it so simple + fast for your visitors that they want to reach you. Good Luck!",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "_id",
+                        type: "text",
+                        attr: "disabled",
+                        value: "here goes my id"
+                    },{
+                        elem: "input",
+                        name: "price",
+                        type: "number",
+                        label: "PRICE (PKR)",
+                        value: "2000000" // THESE VALUES ARE TEMP
+                    },{
+                        elem: "input",
+                        name: "city",
+                        type: "text",
+                        label: "CITY",
+                        value: "Islamabad"
+                    },{
+                        elem: "input",
+                        name: "town",
+                        type: "text",
+                        label: "TOWN",
+                        value: "BAHRIA 9"
+                    },{
+                        elem: "input",
+                        name: "size",
+                        type: "text",
+                        label: "SIZE OF PROPERTY",
+                        value: "1.5 Kanal"
+                    },{
+                        elem: "textarea",
+                        label: "LOCATION DETAILS - REMARKS",
+                        name: "details",
+                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
+                        onkeyup: "saveInSession(this)"
+                    },{
+                        elem: "propertyStatus",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm(this)",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    } 
+                ]
+            }
+                
+
+        }
+
+        if (addBlog == true) {
+
+            object.addBlog = {
+                heading: "BLOG WRITING",
+                elems: [
+                    {
+                        elem: "ck-editor",
+                        name: "content",
+                        label: "CONTENT",
+                        onclick: "saveInSession(this)",
+                        value: "nothing goes here yet",
+                    },{
+                        elem: "input",
+                        name: "name",
+                        label: "BLOG NAME",
+                        value: "Just a Name",
+                    },{
+                        elem: "input",
+                        name: "slug",
+                        label: "SLUG",
+                        value: "just-a-name",
+                        info: "This is the URL to your blog. Heading separated with dashes."
+                    },{
+                        elem: "input",
+                        name: "type",
+                        label: "FEATURED",
+                        value: "featured",
+                        info: "If you want to feature this post, keep the Feature button active"
+                    },{
+                        elem: "button",
+                        value: "SAVE",
+                        onclick: "submitForm(this)",
+                        class: "btn blue"
+                    },{
+                        elem: "button",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')",
+                        class: "btn"
+                    }
+                ] 
+            }
+
+        }
+
+        if (editBlog == true) {
+
+            object.editBlog = {
+                heading: "EDIT YOUR BLOG",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "_id",
+                        type: "text",
+                        value: "myID goes here",
+                        attr: "disabled"
+                    },{
+                        elem: "ck-editor",
+                        name: "content",
+                        label: "CONTENT",
+                        onclick: "saveInSession(this)",
+                        value: "nothing goes here yet",
+                    },{
+                        elem: "input",
+                        name: "name",
+                        label: "BLOG NAME",
+                        value: "Just a Name",
+                    },{
+                        elem: "input",
+                        name: "slug",
+                        label: "SLUG",
+                        value: "just-a-name",
+                        info: "This is the URL to your blog. Heading separated with dashes."
+                    },{
+                        elem: "input",
+                        name: "type",
+                        label: "FEATURED",
+                        value: "featured",
+                        info: "If you want to feature this post, keep the Feature button active"
+                    },{
+                        elem: "button",
+                        value: "SAVE",
+                        onclick: "submitForm(this)",
+                        class: "btn blue"
+                    },{
+                        elem: "button",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')",
+                        class: "btn"
+                    }
+                ] 
+            }
+
+        }
+
+        if (editBusiness == true) {
+
+            
+            object.editBusiness = {
+                heading: "EDIT BUSINESS", 
+                note: "Carefully enter these details. These are same details through which your clients contact you!.",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "name",
+                        type: "text",
+                        label: "BUSINESS NAME",
+                        value: "xyz",
+                    },{
+                        elem: "input",
+                        name: "email",
+                        label: "BUSINESS EMAIL",
+                        info: "You recieve emails by visitors when they don't want to use WhatsApp to contact you.",
+                        value: "xyz@asdf.com"
+                    },{
+                        elem: "input",
+                        name: "whatsapp",
+                        label: "BUSINESS WHATSAPP",
+                        type: "text",
+                        value: "+923235163638"
+                    },{
+                        elem: "textarea",
+                        label: "BUSINESS ADDRESS",
+                        name: "address",
+                        value: "golmal bhai golmal",
+                    },{
+                        elem: "input",
+                        label: "BUSINESS GOOGLE WEBSITE LINK (LOCATION)",
+                        info: "Use google to find out your pin website link. Copy this link. And paste it in this field. When clients click on your Location, they are directed to this URL.",
+                        name: "googleURL",
+                        value: "http://asdfsadf.google.maps.com/123124124", 
+                    },{
+                        elem: "button",
+                        class: "btn blue",
+                        onclick: "submitForm(this)",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                    }
+                ]
+
+            }
+
+        }
+
+
+        if (signin == true) {
+
+
+            object.signin = {
+                heading: "ADMIN LOG IN",
+                note: "This is log in page to the dashboard of this website. Please log in if you are an administrator of this business",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "email",
+                        type: "email",
+                        value: "xys@gasdf.com",
+                        label: "USERNAME"
+                    },{
+                        elem: "input",
+                        name: "password",
+                        type: "password",
+                        value: "asfdas",
+                        label: "PASSWORD"
+                    },{
+                        elem: "button",
+                        value: "ENTER",
+                        class: "btn blue",
+                        onclick: "submitForm",
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                    }
+                ] 
+            }
+
+        }
+
 
         return object;
 

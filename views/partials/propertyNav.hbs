@@ -7,7 +7,6 @@
 
         <button class="btn blue" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>2</span>)</button>
 
-        {{#if admin}}
 
         <div class="close svg" onclick="toggleClass(this, 'close')">
             <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -28,15 +27,30 @@
 
             <div class="content">
 
-                <button class="btn" onclick="openLayer('.editProperty')">ADD NEW PROPERTY</button>
-                <button class="btn" onclick="openLayer('.editWebsite')">EDIT WEBSITE CONTENT</button>
-                <button class="btn">LOG OUT</button>
+            {{#each (split navs)}}
+
+                {{#if (matchValues this "home") }} <a class="btn                       {{#if (matchValues ../active "home")}} active {{/if}} " href="/{{../data.brand}}/gen/page/landingPage/n">HOME</a> {{/if}} 
+                {{#if (matchValues this "about-us") }} <a class="btn                   {{#if (matchValues ../active "about-us")}} active {{/if}} " href="/{{../data.brand}}/gen/page/showPage/about-us">ABOUT US</a> {{/if}}
+                {{#if (matchValues this "our-location") }} <a class="btn               {{#if (matchValues ../active "our-location")}} active {{/if}} " href="/{{../data.brand}}/gen/page/showPage/about-us">OUR LOCATION</a> {{/if}}
+                {{#if (matchValues this "read-blogs") }} <a class="btn                 {{#if (matchValues ../active "read-blogs")}} active {{/if}} " href="/{{../data.brand}}/gen/page/showPages/n">READ BLOGS</a> {{/if}}
+                {{#if (matchValues this "log-in") }} <a class="btn                     {{#if (matchValues ../active "log-in")}} active {{/if}} " href="/{{../data.brand}}/gen/page/signin/n">LOG IN</a> {{/if}}
+                {{#if (matchValues this "home-auth") }} <a class="btn                  {{#if (matchValues ../active "home-auth")}} active {{/if}} " href="/{{../data.brand}}/auth/page/landingPage/n">HOME</a> {{/if}}
+                {{#if (matchValues this "dashboard") }} <a class="btn                  {{#if (matchValues ../active "dashboard")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n">DASHBOARD</a> {{/if}}
+                {{#if (matchValues this "add-property-local") }} <button class="btn    {{#if (matchValues ../active "add-property-local")}} active {{/if}} " onclick="openLayer('.editProperty')">ADD NEW PROPERTY</button> {{/if}}
+                {{#if (matchValues this "add-property") }} <a class="btn               {{#if (matchValues ../active "add-property")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n?clickEvent=addProperty">ADD NEW PROPERTY</a> {{/if}}
+                {{#if (matchValues this "edit-business-local") }} <button class="btn   {{#if (matchValues ../active "edit-business-local")}} active {{/if}} " onclick="openLayer('.editWebsite')">EDIT BUSINESS</button> {{/if}}
+                {{#if (matchValues this "edit-business") }} <a class="btn              {{#if (matchValues ../active "edit-business")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n?clickEvent=editBusiness">EDIT BUSINESS</a> {{/if}}
+                {{#if (matchValues this "write-blog") }} <a class="btn               {{#if (matchValues ../active "write-blog")}} active {{/if}} " href="/{{../data.brand}}/auth/page/editPage/n">WRITE A BLOG</a> {{/if}}
+                {{#if (matchValues this "show-blogs") }} <a class="btn               {{#if (matchValues ../active "show-blogs")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showPages/n">SHOW BLOGS</a> {{/if}}
+                {{#if (matchValues this "log-out") }} <a class="btn                    {{#if (matchValues ../active "log-out")}} active {{/if}} " href="/{{../data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">LOG OUT</a> {{/if}}
+
+
+            {{/each}}
 
             </div>
         </div>
 
 
-        {{/if}}
 
     </div>
 

@@ -22,6 +22,7 @@
 
     .right>.svg {
         margin-left: 4px;
+        z-index: 100;
     }
 
     .svg>svg {
@@ -31,14 +32,15 @@
     .svg>.content {
         position: absolute;
         left: 0;
-        padding: 14px 13px;
+        padding: 14px 10px;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
         width: 100%;
         box-sizing: border-box;
         top: 48px;
-        background: #333333;
+        background: #F2F2F2;
+        border-bottom: 1px dashed black;
     }
 
     .svg>svg:nth-child(1) {
@@ -78,6 +80,16 @@
         margin-bottom: 7px;
     }
 
+    .banner>p {
+        line-height: 1.5;
+        /* color: #ff9800; */
+        font-weight: 500;
+        margin-top: 0px;
+        font-size: 13px;
+        color: black;
+        font-weight: normal;
+    }
+
     .btn {
         display: inline-block;
         padding: 5px 9px 4px 9px;
@@ -88,6 +100,7 @@
         font-size: 14px;
         color: #333333;
         margin: 2px 0px;
+        text-decoration: none;
     }
 
     .btn.blue {
@@ -252,7 +265,15 @@
         color: lightslategrey;
     }
 
-    form > .note {
+    .note.black {
+        font-size: 16px;
+        margin: 0px;
+        padding: 18px;
+        color: white;
+        background: black;
+    }
+
+    form>.note {
         padding: 0 24px;
     }
 
@@ -269,7 +290,7 @@
         padding: 0 27px;
     }
 
-    .formBox > .note {
+    .formBox>.note {
         color: lightslategrey;
     }
 
@@ -320,4 +341,21 @@
     form>.absolute-btns {
         background: #2F80ED;
         padding: 26px;
+    }
+
+    .cards>.page {
+        box-shadow: 0 0px 30px darkgrey;
+        border-radius: 5px;
+        padding: 10px 20px 20px 20px;
+        line-height: 1.5;
+    }
+
+    .page-nav {
+        display: flex;
+        align-items: center;
+    }
+
+    .page-nav>a {
+        display: inline-block;
+        padding-right: 7px;
     }

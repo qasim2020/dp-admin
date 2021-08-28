@@ -154,13 +154,21 @@ hbs.registerHelper('checkExists', (val) => {
     return val != undefined ? 'true' : '';
 })
 
+hbs.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+});
+
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1,val2);
+    // console.log(val1,val2);
     return val1 == val2
 });
 
 hbs.registerHelper('removeSpaces', (val) => {
     return val.replace(/ /gi,'');
+});
+
+hbs.registerHelper('removeStartSpaces', (val) => {
+    return val.replace(/ */g,'')
 });
 
 hbs.registerHelper('match', function(val1,val2) {
@@ -342,6 +350,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
+        // console.log(data);
         console.log(JSON.stringify(data,'',2));
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
@@ -385,7 +394,7 @@ var myFuncs = {
         dropCollection: 'admin',
         createNewCollection: 'admin',
         saveSequence: 'gen',
-        updateSequence: 'admin',
+        updateSequence: 'auth',
         showCollection: 'admin',
         destroySession: 'auth',
         checkAdmin: 'admin',
@@ -441,6 +450,8 @@ var myFuncs = {
         showPages: 'gen',
         editPage: 'auth',
         drawForm: "gen", 
+        saveInSession: "gen",
+        offlineRequired: "gen",
     },
 
     listenToWebhook: function(req,res) {
@@ -4177,9 +4188,13 @@ var myFuncs = {
             return val.name.match(/archive|sold/gi) == null;
         });
 
-        output.forms = this.getForms({msgBoxClient: true, contactForm: true});
+        if (req.params.permit == 'gen') {
+            output.forms = this.getForms({msgBoxClient: true, contactForm: true}, req,res);
+        } else {
+            output.forms = this.getForms({msgBoxAdmin: true}, req,res);
+        };
 
-        console.log(JSON.stringify(output, 0, 2));
+        // console.log(JSON.stringify(output, 0, 2));
 
         return output;
 
@@ -4189,11 +4204,29 @@ var myFuncs = {
 
         let output =  await this.fetchPropertiesDataForPage(req,res);
 
-        output.forms = this.getForms({msgBoxAdmin: true, addProperty: true});
+        output.forms = this.getForms({msgBoxAdmin: true, addProperty: true}, req,res);
 
-        console.log(JSON.stringify(output, 0, 2));
+        // console.log(JSON.stringify(output, 0, 2));
 
         return output;
+
+    },
+
+    offlineRequired: function(req,res) {
+        
+
+        if (req.params.permit == 'gen') {
+            return {
+                allCards: this.getAllCards(req,res),
+                forms: this.getForms({contactForm: true, msgBoxClient: true}, req,res)
+            }
+
+        } else {
+            return {
+                allCards: this.getAllCards(req,res),
+                forms: this.getForms({msgBoxClient: true, msgBoxAdmin: true, contactForm: true}, req,res)
+            }
+        };
 
     },
 
@@ -4223,8 +4256,21 @@ var myFuncs = {
             input: req.params.input,
             permit: req.params.permit,
             module: req.params.module,
+            allCards: this.getAllCards(req,res)
         }
 
+    },
+
+    getAllCards: function(req,res) {
+
+        let allCards = {
+            authCards: req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.length > 0 ? req.session.authCards.myArray : [],
+            authCardsCount: req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.length > 0 ? req.session.authCards.myArray.length : 0,
+            Cards: req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.length > 0 ? req.session.Cards.myArray : [],
+            CardsCount: req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.length > 0 ? req.session.Cards.myArray.length : 0,
+        };
+
+        return allCards;
     },
 
     filterProperties: async function(req,res) {
@@ -4338,6 +4384,19 @@ var myFuncs = {
             }
         ]);
 
+        let matchSelectedProperties = function(properties) {
+
+            properties = properties.map( val => {
+                val.authSelected = req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '';
+                val.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '' ;
+                return val;
+            });
+
+            return properties;
+        };
+
+        output = matchSelectedProperties(output);
+
         return output;
 
     },
@@ -4371,38 +4430,60 @@ var myFuncs = {
 
     },
 
-    drawForm: async function(req,res) {
+    saveInSession: async function(req,res) {
 
-        // open SIGN IN FORM and ADD A PROPERTY FORM AS A TEST
-        // /chodhry/gen/page/drawForm/signin -- THIS DRAWS THE SIGN IN FORM
+        req.session[req.params.input] = req.body;
+
+        console.log(req.body);
+        console.log(req.session);
 
         return {
-            form: this.getForms({[req.params.input]: true})[req.params.input]
+            success: true
+        }
+
+    },
+
+    drawForm: async function(req,res) {
+
+        console.log(req.session);
+
+        return {
+            form: this.getForms({[req.params.input]: true}, req,res)[req.params.input],
+            input: req.params.input,
+            permit: req.params.permit,
+            brand: req.params.brand,
+            allCards: this.getAllCards(req,res)
         }
         
 
     },
 
 
-    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }) {
+    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }, req, res) {
 
         let object = {};
 
         if (msgBoxClient == true) {
 
             object.msgBoxClient = {
+                formName: "msgBoxClient",
                 heading: "MESSAGE BOX",
                 note: "Write your message below and choose the option at the bottom to contact us.",
-                class: "mt-24",
+                class: "msgBoxClient mt-24",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
                 elems: [
                     {
                         elem: "textarea",
-                        value: "Sir are these properties available? What is your final demand. Please contact back.",
-                        onkeyup: "saveInSession(this)"
+                        label: "YOUR MESSAGE",
+                        value: req.session.msgBoxClient && req.session.msgBoxClient.msg || "Sir I am interested in these properties. Kindly when free get in touch..",
+                        default: "Sir I am interested in these properties. Kindly when free get in touch..",
+                        onkeyup: "saveInSession(this)",
+                        name: "msg",
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
                         value: "WHATSAPP",
+                        onclick: "openWhatsApp(this)",
                         info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
                     },{
                         elem: "button",
@@ -4412,7 +4493,7 @@ var myFuncs = {
                         onclick: "openLayer('.contactForm')"
                     },{
                         elem: "button",
-                        class: "btn",
+                        class: "btn close",
                         value: "CLOSE MSG BOX",
                         onclick: "openLayer('.layerOne')"
                     } 
@@ -4424,14 +4505,19 @@ var myFuncs = {
         if (msgBoxAdmin == true) {
 
             object.msgBoxAdmin = {
+                formName: "msgBoxAdmin",
                 heading: "MESSAGE BOX",
                 note: "Draft your message and broadcast using WhatsApp.",
-                class: "mt-24",
+                class: "msgBoxAdmin mt-24",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
                 elems: [
                     {
                         elem: "textarea",
-                        value: "Sir fresh properties for today; contact to inquire more, please.",
-                        onkeyup: "saveInSession(this)"
+                        label: "YOUR MESSAGE",
+                        value: req.session.msgBoxAdmin && req.session.msgBoxAdmin.msg || "Sir fresh properties for today; contact to inquire more, please.",
+                        default: "Sir fresh properties for today; contact to inquire more, please.",
+                        onkeyup: "saveInSession(this)",
+                        name: "msg"
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
@@ -4440,7 +4526,7 @@ var myFuncs = {
                         info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
                     },{
                         elem: "button",
-                        class: "btn",
+                        class: "btn close",
                         value: "CLOSE",
                         onclick: "openLayer('.layerOne')"
                     } 
@@ -4639,7 +4725,7 @@ var myFuncs = {
                         elem: "button",
                         value: "SAVE",
                         onclick: "submitForm(this)",
-                        class: "btn blue"
+                        class: "btn blue mt-24"
                     },{
                         elem: "button",
                         value: "CLOSE",
@@ -4689,7 +4775,7 @@ var myFuncs = {
                         elem: "button",
                         value: "SAVE",
                         onclick: "submitForm(this)",
-                        class: "btn blue"
+                        class: "btn blue mt-24"
                     },{
                         elem: "button",
                         value: "CLOSE",
@@ -4739,13 +4825,14 @@ var myFuncs = {
                         value: "http://asdfsadf.google.maps.com/123124124", 
                     },{
                         elem: "button",
-                        class: "btn blue",
+                        class: "btn blue mt-24",
                         onclick: "submitForm(this)",
                         value: "SAVE"
                     },{
                         elem: "button",
                         class: "btn",
                         onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
                     }
                 ]
 
@@ -4759,7 +4846,7 @@ var myFuncs = {
 
             object.signin = {
                 heading: "ADMIN LOG IN",
-                note: "This is log in page to the dashboard of this website. Please log in if you are an administrator of this business",
+                note: "This is log in page to the dashboard of this website. Please log in if you are an administrator of this business.",
                 elems: [
                     {
                         elem: "input",
@@ -4776,12 +4863,13 @@ var myFuncs = {
                     },{
                         elem: "button",
                         value: "ENTER",
-                        class: "btn blue",
+                        class: "btn blue mt-24",
                         onclick: "submitForm",
                     },{
                         elem: "button",
                         class: "btn",
                         onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
                     }
                 ] 
             }

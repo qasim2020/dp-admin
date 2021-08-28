@@ -2,14 +2,14 @@
 
 <p class="note">{{data.note}}</p>
 
-<form action="" class="{{data.class}}">
+<form action="" class="{{data.class}}" url="{{data.url}}" formName="{{data.formName}}" >
 
     {{#each data.elems}}
 
         {{#if (matchValues this.elem "input")}}
 
         <label for="{{name}}">{{label}}</label>
-        <input type="{{inputType}}" name="{{name}}" class="{{class}}" value="{{value}}">
+        <input type="{{inputType}}" name="{{name}}" class="{{class}}" value="{{{value}}}">
 
         {{/if}}
 
@@ -19,7 +19,7 @@
             <label for="{{name}}">{{label}}</label>
         {{/if}}
 
-        <textarea id="" name="{{name}}" cols="30" rows="10">{{value}}</textarea>
+        <textarea  onkeyup="{{onkeyup}}" name="{{name}}" cols="30" rows="10" myData="{{value}}">{{value}}</textarea>
 
         {{/if}}
 

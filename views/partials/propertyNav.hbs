@@ -5,8 +5,11 @@
 
     <div class="right">
 
-        <button class="btn blue" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>2</span>)</button>
-
+        {{#if (matchValues 'gen' data.permit) }}
+        <button class="btn blue" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.CardsCount}}</span>)</button>
+        {{else}}
+        <button class="btn red" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.authCardsCount}}</span>)</button>
+        {{/if}}
 
         <div class="close svg" onclick="toggleClass(this, 'close')">
             <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,6 +46,7 @@
                 {{#if (matchValues this "write-blog") }} <a class="btn               {{#if (matchValues ../active "write-blog")}} active {{/if}} " href="/{{../data.brand}}/auth/page/editPage/n">WRITE A BLOG</a> {{/if}}
                 {{#if (matchValues this "show-blogs") }} <a class="btn               {{#if (matchValues ../active "show-blogs")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showPages/n">SHOW BLOGS</a> {{/if}}
                 {{#if (matchValues this "log-out") }} <a class="btn                    {{#if (matchValues ../active "log-out")}} active {{/if}} " href="/{{../data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">LOG OUT</a> {{/if}}
+                {{#if (matchValues this "draw-form") }} <a class="btn                    {{#if (matchValues ../active "draw-form")}} active {{/if}} " href="/{{../data.brand}}/auth/page/drawForm/signin">DRAW FORM</a> {{/if}}
 
 
             {{/each}}

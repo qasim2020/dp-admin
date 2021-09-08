@@ -134,6 +134,16 @@ hbs.registerHelper('pickRandomColor', (val) => {
     return array[randomNo];
 })
 
+hbs.registerHelper('inc', (val) => {
+    return Number(val)+1;
+});
+
+hbs.registerHelper('mongoIdToDate', (objectId) => {
+
+    return new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
+
+});
+
 hbs.registerHelper('breaklines', (val) => {
   return val.split(/\n/g).join('<br>');
 })
@@ -246,7 +256,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
                 break;
             // 'Auth' role tries to access 'Admin' Module
             default :
-                return res.send('you are not authorized to make this request');
+                return res.status(400).send('you are not authorized to make this request');
                 break;
         };
     };
@@ -272,7 +282,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
 
     if (checkCollectionExists) {
-        return res.redirect(`/myapp/gen/page/signin/home/`);
+        return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
 
 
@@ -350,8 +360,14 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
-        // console.log(data);
-        console.log(JSON.stringify(data,'',2));
+        Object.assign(data, {
+            permit: req.params.permit,
+            brand: req.params.brand,
+            input: req.params.input
+        });
+         console.log(data);
+        // console.log(JSON.stringify(data,'',2));
+        // console.log(req.session);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             return res.status(data.status).send(data.error);
@@ -386,6 +402,7 @@ var myFuncs = {
         newDocument: 'admin',
         editDocument: 'admin',
         deleteDocument: 'admin',
+        deleteDocumentAuth: "auth",
         checkCollectionExists: 'admin',
         createModel: 'admin',
         airtablePull: 'admin',
@@ -393,7 +410,7 @@ var myFuncs = {
         save: 'admin',
         dropCollection: 'admin',
         createNewCollection: 'admin',
-        saveSequence: 'gen',
+        saveSequence: 'auth',
         updateSequence: 'auth',
         showCollection: 'admin',
         destroySession: 'auth',
@@ -449,9 +466,17 @@ var myFuncs = {
         propertyGenForm: 'gen',
         showPages: 'gen',
         editPage: 'auth',
-        drawForm: "gen", 
+        drawForm: "auth", 
         saveInSession: "gen",
         offlineRequired: "gen",
+        ticketAndMail: 'gen',
+        showTicket: 'gen',
+        showTickets: 'auth',
+        changeTicketStatus: 'gen',
+        showSlides: 'auth',
+        saveSlide: 'auth',
+        changeSlideSequence: 'auth',
+        uploadCloudinary: "auth",
     },
 
     listenToWebhook: function(req,res) {
@@ -1465,6 +1490,7 @@ var myFuncs = {
     },
 
     saveSequence: async function(req,res) {
+        console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
         return output;
@@ -1559,6 +1585,15 @@ var myFuncs = {
         };
     },
 
+    deleteDocumentAuth: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
+        let result = await model.deleteOne({_id: req.query._id});
+        return {
+            status: 200,
+            success: result 
+        };
+    },
+
     forgotpw: async function(req,res) {
         console.log('Send a 4 digit code here');
         return {success: true}
@@ -1606,7 +1641,6 @@ var myFuncs = {
     },
 
     runAndRedirect: async function(req,res) {
-        // /root/admin/data/runAndRedirect/deleteDocument?_id=123123&&redirect=showCollection&redirectInput=root-users
         let output = await this[req.params.input][req.query.input]; 
         return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
     },
@@ -3559,7 +3593,13 @@ var myFuncs = {
 
         url = process.env.url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
-        let mailResponse = await this.sendMail({template: 'verifyEmail', context: {url : url}, toEmail: req.body.email, subject: 'Verify Email'});
+        let mailResponse = await this.sendMail({
+            from: `Qasim Ali<${process.env.zoho}>`,
+            template: 'verifyEmail', 
+            context: {url : url}, 
+            toEmail: req.body.email, 
+            subject: 'Verify Email'
+        });
 
         return {
             output
@@ -3567,7 +3607,7 @@ var myFuncs = {
 
     },
 
-    sendMail : async function({template, context, toEmail, subject, brand}) {
+    sendMail : async function({template, context, toEmail, subject, brand, from, msg}) { // FROM , toEMAIL, subject, msg required for Simple MAil
 
         let testAccount = await nodemailer.createTestAccount();
 
@@ -3581,20 +3621,27 @@ var myFuncs = {
           },
         });
 
-        let file = await new Promise( (resolve, reject) => {
+        if (template != undefined) {
 
-            fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
-                if (err) reject(err)
-                resolve(data);
+            let hbstemplate, html;
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
+                    if (err) reject(err)
+                    resolve(data);
+                });
+
             });
 
-        });
-
-        let  hbstemplate = hbs.compile(file);
-        let  html = hbstemplate({data: context});
+            hbstemplate = hbs.compilet(file);
+            html = hbstemplate({data: context});
+        } else {
+            html = msg; // this is now a simple MSG
+        }
 
         var mail = {
-           from: `Qasim Ali<${process.env.zoho}>`,
+           from: from,
            to: toEmail,
            subject: subject,
            html: html
@@ -3606,6 +3653,66 @@ var myFuncs = {
 
     },
 
+    ticketAndMail: async function(req,res) {
+
+        console.log( req.body.msg );
+        console.log( req.body.msg.replace(/\r\n{1,}/g,'<br>') );
+
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = (await model.find().lean())[0];
+        console.log(resources);
+        let output = await this.sendMail({
+            from: `Qasim Ali<${process.env.zoho}>`,
+            // from: req.body.name, 
+            toEmail: resources.email, 
+            subject: `New Ticket - ${req.body.name} - ${req.body.contact}`, 
+            msg: req.body.msg.replace(/\r\n{1,}/g,'<br>') + "<br>From;<br>" + req.body.name + "<br>" + req.body.contact
+        });
+
+        let model2 = await this.createModel(`${req.params.brand}-tickets`);
+        let storeTicket = await model2.create({
+            name: req.body.name,
+            contact: req.body.contact,
+            msg: req.body.msg,
+            helper: resources.name + ' ' + resources.email,
+            no: await model2.countDocuments()+1,
+            status: 'pending',
+            rating: 'pending'
+        });
+
+        return storeTicket;
+
+    },
+
+    showTickets : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.find().lean();
+        return output;
+
+    },
+
+    showTicket: async function(req,res) {
+
+        let query = processQuery(req.query);
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.findOne({_id: req.params.input}).lean();
+        output.msg = output.msg.replace(/\r\n{1,}/g,'<br>') ;
+        output.allCards = this.getAllCards(req,res) ;
+
+        return output;
+
+    },
+
+    changeTicketStatus: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.findOneAndUpdate({_id: req.params.input}, { $set: { status: req.query.status } }).lean();
+        return output;
+
+    },
+            
     verifyEmail: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-subscribers`);
@@ -3727,6 +3834,7 @@ var myFuncs = {
         let arrayOfPromises = subscribers.map( val => {
 
             return this.sendMail({
+                from: `Qasim Ali<${process.env.zoho}>`,
                 template: 'lifeNewsletter',
                 context: {
                     body: this.convertStringToArticle(letter.body),
@@ -3756,6 +3864,7 @@ var myFuncs = {
 
         let sentMails = await this.sendMail(
             {
+               from: `Qasim Ali<${process.env.zoho}>`,
                 template: 'lifeNewsletter', 
                 context: {
                     body: this.convertStringToArticle(output.body),
@@ -4189,11 +4298,12 @@ var myFuncs = {
         });
 
         if (req.params.permit == 'gen') {
-            output.forms = this.getForms({msgBoxClient: true, contactForm: true}, req,res);
+            output.forms = await this.getForms({msgBoxClient: true, contactForm: true}, req,res);
         } else {
-            output.forms = this.getForms({msgBoxAdmin: true}, req,res);
+            output.forms = await this.getForms({msgBoxAdmin: true}, req,res);
         };
 
+        output.openLayer = req.query.openLayer ? req.query.openLayer : "";
         // console.log(JSON.stringify(output, 0, 2));
 
         return output;
@@ -4204,27 +4314,27 @@ var myFuncs = {
 
         let output =  await this.fetchPropertiesDataForPage(req,res);
 
-        output.forms = this.getForms({msgBoxAdmin: true, addProperty: true}, req,res);
-
-        // console.log(JSON.stringify(output, 0, 2));
+        output.forms = await this.getForms({msgBoxAdmin: true, addProperty: true, editBusiness: true}, req,res);
 
         return output;
 
     },
 
-    offlineRequired: function(req,res) {
+    offlineRequired: async function(req,res) {
         
 
         if (req.params.permit == 'gen') {
             return {
                 allCards: this.getAllCards(req,res),
-                forms: this.getForms({contactForm: true, msgBoxClient: true}, req,res)
+                forms: await this.getForms({contactForm: true, msgBoxClient: true}, req,res),
+                salutation: '',
             }
 
         } else {
             return {
                 allCards: this.getAllCards(req,res),
-                forms: this.getForms({msgBoxClient: true, msgBoxAdmin: true, contactForm: true}, req,res)
+                forms: await this.getForms({msgBoxClient: true, msgBoxAdmin: true, contactForm: true}, req,res),
+                salutation: (await this.fetchResources(req,res))[0].salutation
             }
         };
 
@@ -4251,6 +4361,7 @@ var myFuncs = {
 
         return {
             properties: await this.getProperties(req,res),
+            resources: (await this.fetchResources(req,res))[0],
             filters: filters,
             brand: req.params.brand,
             input: req.params.input,
@@ -4447,19 +4558,21 @@ var myFuncs = {
 
         console.log(req.session);
 
+        let form = (await this.getForms({[req.params.input]: true}, req,res))[req.params.input];
+
         return {
-            form: this.getForms({[req.params.input]: true}, req,res)[req.params.input],
+            form: form,
             input: req.params.input,
             permit: req.params.permit,
             brand: req.params.brand,
             allCards: this.getAllCards(req,res)
-        }
+        };
         
 
     },
 
 
-    getForms: function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }, req, res) {
+    getForms: async function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }, req, res) {
 
         let object = {};
 
@@ -4475,9 +4588,10 @@ var myFuncs = {
                     {
                         elem: "textarea",
                         label: "YOUR MESSAGE",
+                        rows: 10,
                         value: req.session.msgBoxClient && req.session.msgBoxClient.msg || "Sir I am interested in these properties. Kindly when free get in touch..",
                         default: "Sir I am interested in these properties. Kindly when free get in touch..",
-                        onkeyup: "saveInSession(this)",
+                        onkeyup: "saveInSession(this, 'msgBoxClient'); changeConnected(this, 'contactForm')",
                         name: "msg",
                     },{
                         elem: "button",
@@ -4514,9 +4628,10 @@ var myFuncs = {
                     {
                         elem: "textarea",
                         label: "YOUR MESSAGE",
+                        rows: 10,
                         value: req.session.msgBoxAdmin && req.session.msgBoxAdmin.msg || "Sir fresh properties for today; contact to inquire more, please.",
                         default: "Sir fresh properties for today; contact to inquire more, please.",
-                        onkeyup: "saveInSession(this)",
+                        onkeyup: "saveInSession(this, 'msgBoxAdmin')",
                         name: "msg"
                     },{
                         elem: "button",
@@ -4571,7 +4686,7 @@ var myFuncs = {
                         label: "LOCATION DETAILS - REMARKS",
                         name: "details",
                         value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
-                        onkeyup: "saveInSession(this)"
+                        onkeyup: "saveInSession(this, 'addProperty')"
                     },{
                         elem: "propertyStatus",
                     },{
@@ -4594,7 +4709,8 @@ var myFuncs = {
 
             object.contactForm = {
 
-                heading: "CONTACT FORM",
+                formName: "contactForm",
+                heading: "<span>MSGBOX /</span> CONTACT FORM",
                 note: "Please fill in your contact details. We will get back to you in next few hours.",
                 elems: [
 
@@ -4602,26 +4718,36 @@ var myFuncs = {
                         elem: "textarea",
                         label: "YOUR MESSAGE",
                         name: "msg",
-                        value: "",
-                        onkeyup: "saveInSession(this)"
+                        rows: 10,
+                        value: req.session.msgBoxClient && req.session.msgBoxClient.msg || "Sir fresh properties for today; contact to inquire more, please.",
+                        onkeyup: "saveInSession(this, 'msgBoxClient'); changeConnected(this, 'msgBoxClient')"
                     },{
                         elem: "input",
                         label: "YOUR NAME",
+                        value: req.session.contactForm && req.session.contactForm.name || "",
+                        onkeyup: "saveInSession(this, 'contactForm')",
                         type: "text",
                         name: "name",
                     },{
                         elem: "input",
                         label: "YOUR CONTACT NO / EMAIL",
+                        onkeyup: "saveInSession(this, 'contactForm')",
+                        value: req.session.contactForm && req.session.contactForm.contact || "",
                         name: "contact",
                         type: "text",
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
                         value: "SEND EMAIL",
-                        onclick: "submitForm(this)"
+                        onclick: "createTicket(this)"
                     },{
                         elem: "button",
-                        class: "btn",
+                        class: "btn close",
+                        value: "BACK",
+                        onclick: "openLayer('.msgBox')"
+                    },{
+                        elem: "button",
+                        class: "btn close",
                         value: "CLOSE",
                         onclick: "openLayer('.layerOne')"
                     } 
@@ -4673,7 +4799,7 @@ var myFuncs = {
                         label: "LOCATION DETAILS - REMARKS",
                         name: "details",
                         value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
-                        onkeyup: "saveInSession(this)"
+                        onkeyup: "saveInSession(this, 'editProperty' )"
                     },{
                         elem: "propertyStatus",
                     },{
@@ -4702,7 +4828,7 @@ var myFuncs = {
                         elem: "ck-editor",
                         name: "content",
                         label: "CONTENT",
-                        onclick: "saveInSession(this)",
+                        onclick: "saveInSession(this, 'editBlog')",
                         value: "nothing goes here yet",
                     },{
                         elem: "input",
@@ -4752,7 +4878,7 @@ var myFuncs = {
                         elem: "ck-editor",
                         name: "content",
                         label: "CONTENT",
-                        onclick: "saveInSession(this)",
+                        onclick: "saveInSession(this, 'editBlog')",
                         value: "nothing goes here yet",
                     },{
                         elem: "input",
@@ -4787,42 +4913,81 @@ var myFuncs = {
 
         }
 
+        let model, output = {};
+
         if (editBusiness == true) {
 
+            model = await this.createModel(`${req.params.brand}-resources`);
+            output = (await model.find().lean())[0];
+
+            console.log( chalk.bold(" EDIT BUSINESS MODEL ") );
+            console.log(output);
             
             object.editBusiness = {
                 heading: "EDIT BUSINESS", 
                 note: "Carefully enter these details. These are same details through which your clients contact you!.",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
                 elems: [
                     {
+                        elem: "input",
+                        class: "d-none",
+                        name: "_id",
+                        value: output == undefined ? this.getMongoId() : output._id,
+                    },{
+                        elem: "input",
+                        class: "d-none",
+                        name: "modelName",
+                        value: `${req.params.brand}-resources`,
+                    },{
                         elem: "input",
                         name: "name",
                         type: "text",
                         label: "BUSINESS NAME",
-                        value: "xyz",
-                    },{
-                        elem: "input",
-                        name: "email",
-                        label: "BUSINESS EMAIL",
-                        info: "You recieve emails by visitors when they don't want to use WhatsApp to contact you.",
-                        value: "xyz@asdf.com"
+                        value: output == undefined ? "xyz" : output.name,
                     },{
                         elem: "input",
                         name: "whatsapp",
                         label: "BUSINESS WHATSAPP",
                         type: "text",
-                        value: "+923235163638"
-                    },{
-                        elem: "textarea",
-                        label: "BUSINESS ADDRESS",
-                        name: "address",
-                        value: "golmal bhai golmal",
+                        value: output == undefined ? "+923235163638" : output.whatsapp,
                     },{
                         elem: "input",
-                        label: "BUSINESS GOOGLE WEBSITE LINK (LOCATION)",
+                        name: "email",
+                        label: "BUSINESS EMAIL",
+                        info: "You recieve emails by visitors when they don't want to use WhatsApp to contact you.",
+                        value: output == undefined ? "xyz@asdf.com" : output.email,
+                    },{
+                        elem: "input",
+                        label: "BUSINESS GOOGLE PIN (LOCATION)",
                         info: "Use google to find out your pin website link. Copy this link. And paste it in this field. When clients click on your Location, they are directed to this URL.",
-                        name: "googleURL",
-                        value: "http://asdfsadf.google.maps.com/123124124", 
+                        name: "googlepin",
+                        value: output == undefined ? "google.com/123123" : output.googlepin,
+                    },{
+                        elem: "textarea",
+                        label: "BUSINESS MAILING ADDRESS",
+                        rows: 5,
+                        name: "address",
+                        info: "If your clients want to send something to your mailing address, this is the address.",
+                        value: output == undefined ? "this is my temp address" : output.address,
+                    },{
+                        elem: "textarea",
+                        label: "SALUTATION MSG",
+                        name: "salutation",
+                        info: "End of your emails / whatsapp messages, includes your salutation.",
+                        value: output == undefined ? "Regards,\r\nMaj (R)\r\nAwais Chodhry\r\n+923235165558\r\nchodhryproperties.com" : output.salutation,
+                        rows: 5,
+                    },{
+                        elem: "input",
+                        label: "FACEBOOK PAGE LINK",
+                        name: "facebook",
+                        value: output == undefined ? "facebook.com/asdfasfd" : output.facebook,
+                        placeholder: "https://facebook.com/yourpagename"
+                    },{
+                        elem: "input",
+                        label: "TWITTER PAGE LINK",
+                        name: "twitter",
+                        value: output == undefined ? "twitter.com/asdfasfd" : output.twitter,
+                        placeholder: "https://twitter.com/yourpagename"
                     },{
                         elem: "button",
                         class: "btn blue mt-24",
@@ -4835,9 +5000,7 @@ var myFuncs = {
                         value: "CLOSE"
                     }
                 ]
-
-            }
-
+            } 
         }
 
 
@@ -4953,6 +5116,52 @@ var myFuncs = {
 
     },
 
+    showSlides : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        return {
+            forms: await this.getForms({msgBoxAdmin: true}, req,res),
+            slides: await model.find({style: { $ne : "slide-footer" } }).sort({sequence: 1}).lean(),
+            footer: await model.findOne({style: "slide-footer"}).lean(),
+            templates: [ 1, 2, 3],
+            allCards: this.getAllCards(req,res),
+        };
+
+    },
+
+    saveSlide : async function(req,res) {
+
+        console.log(req.body);
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        console.log( { input: req.params.input, myId: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input } );
+
+        let output = await model.findOneAndUpdate(
+            {
+                _id: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input
+            },{ 
+                $set: { 
+                        style: req.body.style, 
+                        content: req.body.content, 
+                        sequence: req.body.sequence 
+                } 
+            },{ upsert: true, new: true }).lean();
+
+        return output;
+
+    },
+
+    changeSlideSequence : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        let output = await Promise.all( req.body.slides.map( val => model.findOneAndUpdate({_id: val.id}, {$set : { sequence: val.sequence } }, {new: true} ) ) );
+
+        return output;
+
+    },
 
 };
 

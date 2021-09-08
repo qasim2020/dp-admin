@@ -1,6 +1,7 @@
     body {
         font-family: "Roboto", sans-serif;
         padding: 0;
+        padding-top: 40px;
         margin: 0;
     }
 
@@ -11,8 +12,15 @@
 
     nav {
         padding: 0 14px;
+
         display: flex;
         justify-content: space-between;
+        position: fixed;
+        width: 100vw;
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+        background: white;
     }
 
     nav>.right {
@@ -25,13 +33,23 @@
         z-index: 100;
     }
 
-    .drawForm > .layerOne > nav > .right > .svg {
+    .drawForm>.layerOne>nav>.right>.svg {
         margin-top: -4px;
     }
-    
-    .drawForm > .formBox > form > .btn.close {
+
+    .drawForm>.formBox>form>.btn.close {
         display: none;
-        }
+    }
+
+    .sliders {
+        margin-top: -40px;
+        height: 100vh;
+        box-sizing: border-box;
+        border: 7px solid red;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
     .svg>svg {
         margin-top: 4px;
@@ -74,8 +92,6 @@
         box-sizing: border-box;
     }
 
-
-
     .locations {
         line-height: 1.5;
         color: darkslategrey;
@@ -88,9 +104,12 @@
         margin-bottom: 7px;
     }
 
+    .box-hdg>span {
+        color: slategrey;
+    }
+
     .banner>p {
         line-height: 1.5;
-        /* color: #ff9800; */
         font-weight: 500;
         margin-top: 0px;
         font-size: 13px;
@@ -116,6 +135,11 @@
         color: white;
     }
 
+    .btn.red {
+        background: #e85f55;
+        color: white;
+    }
+
     button.fixed {
         position: fixed;
         right: 4px;
@@ -129,11 +153,32 @@
         color: black;
     }
 
+    .thumbnail {
+        height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: lightcoral;
+        color: white;
+        font-weight: bold;
+        font-size: 25px;
+    }
+
+    .px-10 {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
     .cards {
         margin-top: 15px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 10px;
+    }
+
+    .temporary {
+        padding: 0 10px 10px 10px;
     }
 
     .cards>p {
@@ -165,16 +210,6 @@
         border: 3px solid #333333;
     }
 
-    .msgBox {
-        position: fixed;
-        z-index: 100;
-        background: white;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-    }
-
     .msgBox>textarea {
         width: 90%;
         font-size: 16px;
@@ -195,7 +230,7 @@
     }
 
     .d-none {
-        display: none;
+        display: none !important;
     }
 
     .btn.small {
@@ -229,6 +264,13 @@
         color: white;
         border-color: black;
         font-weight: normal;
+    }
+
+    .btn.thumbnail {
+        font-size: 12px;
+        background: white;
+        color: lightcoral;
+        border: lightcoral 2px solid;
     }
 
     .firstBox {
@@ -281,25 +323,30 @@
         background: black;
     }
 
-    form>.note {
-        padding: 0 24px;
-    }
-
-
     .formBox {
+        position: fixed;
+        z-index: 100;
+        background: white;
+        top: 0;
+        left: 0;
         width: 100vw;
         box-sizing: border-box;
         padding: 0px 0px;
         margin-bottom: 40px;
+        overflow: scroll;
+        height: 100vh;
+        padding-bottom: 40px;
     }
 
-    .formBox>p {
-        margin-top: 29px;
-        padding: 0 27px;
+    .box-top {
+        z-index: 10;
+        background: black;
+        padding: 21px 27px 27px 27px;
+        color: white;
     }
 
-    .formBox>.note {
-        color: lightslategrey;
+    .box-top>* {
+        padding: 0px;
     }
 
     form {
@@ -320,6 +367,7 @@
 
     form>input,
     form>textarea {
+        outline: 0px;
         border: 0px;
         background: #2F80ED;
         padding: 28px 27px;
@@ -328,6 +376,24 @@
         font-family: inherit;
         line-height: 1.5;
         font-weight: 300;
+    }
+
+    form>.note {
+        background: #2f80ec;
+        margin-top: -17px;
+        border: 0px solid #2f80ec;
+        color: #ffffffab;
+        padding: 11px 27px 24px 27px;
+        z-index: 10;
+        line-height: 1.5;
+    }
+
+    form>.btn-note {
+        color: lightslategrey;
+        padding: 0 26px;
+        z-index: 10;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     form>input::placeholder,
@@ -366,4 +432,167 @@
     .page-nav>a {
         display: inline-block;
         padding-right: 7px;
+    }
+
+    .ticket {
+        background: whitesmoke;
+        padding: 27px;
+        line-height: 1.5;
+        max-width: 500px;
+        margin: auto;
+        border: 4px dashed lightgray;
+    }
+
+    .ticket>.timestamp {
+        font-size: 13px;
+        padding-bottom: 14px;
+        max-width: 220px;
+        border-bottom: 2px solid black;
+    }
+
+    .ticket>.ticketNo {
+        display: inline-block;
+        background: darkcyan;
+        color: white;
+        padding: 0 27px;
+    }
+
+    .ticket>.info {
+        font-weight: bold;
+        font-size: 13px;
+        color: darkcyan;
+        margin-bottom: 0px;
+    }
+
+    .slides {
+        padding: 10px;
+    }
+
+    .slides>div {
+        height: 200px;
+        background: whitesmoke;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slide-editor,
+    .slide-new {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .slide {
+        display: flex;
+        flex-grow: 1;
+        border: 6px solid lightcoral;
+        margin-bottom: -40px;
+    }
+
+    .slide>div {
+        width: 100%;
+    }
+
+    .placeholder {
+        width: 100%;
+        background: lightcoral;
+        border-top: 2px solid lightcoral;
+        border-bottom: 2px solid lightcoral;
+        color: white;
+        box-sizing: border-box;
+        margin-top: 10px;
+    }
+
+    .placeholder>p {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 0px;
+        margin: 0px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .placeholder>p>span {
+        font-weight: bold;
+        font-size: 12px;
+        padding: 3px 11px;
+    }
+
+    .placeholder>p>input {
+        font-weight: bold;
+        width: 100%;
+        padding: 13px 10px;
+        font-size: 15px;
+        border: 1px solid transparent;
+    }
+
+    .slide-footer>div>img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .btn.white {
+        border: 1px solid transparent;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+
+    .btn#mode {
+        position: fixed;
+        bottom: -2px;
+        right: 0px;
+        background: lightcoral;
+        color: white;
+        border: 0px;
+        padding: 0px 7px 6px 7px;
+    }
+
+    .advanced-editor {
+        flex-grow: 1;
+        display: flex;
+        margin-bottom: -40px;
+    }
+
+    .advanced-editor>textarea {
+        width: 100%;
+        border: 4px solid lightcoral;
+        padding: 10px;
+        background: darkcyan;
+        color: white;
+        font-size: 12px;
+        font-family: system-ui;
+    }
+
+    .slide-footer>div {
+        background: black;
+        color: white;
+        padding: 20px;
+    }
+
+    .slide-footer>div>p>a,
+    .slide-footer>div>p {
+        text-decoration: none;
+        color: lightslategray;
+        line-height: 1.5;
+        display: block;
+        margin: 8px 0;
+    }
+
+    .slide-footer>div>h1 {
+        font-size: 19px;
+        margin-top: 31px;
+        margin-bottom: 20px;
+        color: whitesmoke;
+    }
+
+    .CodeMirror {
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        border: 4px solid lightcoral;
+        box-sizing: border-box;
     }

@@ -5,7 +5,8 @@
 
         fixtextareas();
         console.log('document is loaded');
-        if ("{{data.input}}" == "n") return console.log('Home loaded');
+        if ("{{data.input}}" == "n") console.log('Home loaded');
+        if ("{{data.openLayer}}".length > 0 ) openLayer("{{data.openLayer}}");
 
     })
 
@@ -113,11 +114,24 @@
 
     }
 
-    let openLayer = function(elem) {
+    let openLayer = function(elem, me) {
 
-        $('body > *').addClass('d-none');
-        window.scrollTo(0, 0);
-        $(elem).removeClass('d-none');
+        if ( $(me).attr('refreshwindow') == "true" ) {
+            window.location.reload();
+        };
+
+        if ( $(elem).length > 0 ) {
+
+            $('body > *').addClass('d-none');
+            window.scrollTo(0, 0);
+            $(elem).removeClass('d-none');
+
+        } else {
+
+            console.log(  `/{{data.brand}}/{{data.permit}}/page/landingPage/n?openLayer=${elem}` );
+            window.location.assign( `/{{data.brand}}/{{data.permit}}/page/landingPage/n?openLayer=${elem}` );
+
+        }
 
     }
 
@@ -128,40 +142,32 @@
 
     let submitForm = function(elem) {
 
-        console.log($(elem).attr('url'));
+        console.log($(elem).closest('form').attr('url'));
 
-        if (elem.match('.editProperty')) {
-            console.log('submit the edit property box');
-            let status = $('.absolute-btns > span.active').attr('myName');
-            console.log({
-                status
-            });
-            $(elem).find('[name="status"]').val(status);
-        }
-
-        console.log($(elem).serialize());
+        console.log($(elem).closest('form').serialize());
 
         $.ajax({
-            url: $(elem).attr('url'),
-            data: $(elem).serialize(),
+            url: $(elem).closest('form').attr('url'),
+            data: $(elem).closest('form').serialize(),
             method: "POST",
-            success: val => console.log({
-                val
-            }),
-            error: function(request, status, error) {
-                console.log(request.responseText);
-            }
+            success: val => $(elem).closest('form').find('.btn.blue').html('SAVED SUCCESFULLY'),
+            error: (request, status, error) => $(elem).closest('form').find('.btn.blue').html('FAILED. TRY AGAIN!') ,
         });
 
     };
 
-    let saveInSession = function(elem) {
+    let changeConnected = function(elem, formName) {
+
+        let currentVal = $(elem).val();
+        let myName = $(elem).attr('name');
+        $(`[formName=${formName}`).find(`[name=${myName}`).val(currentVal);
+
+    };
+
+    let saveInSession = function(elem, formName) {
 
         let data = $(elem).closest('form').serialize();
 
-        let formName = $(elem).closest('form').attr('formName');
-
-            console.log(data, formName);
         $.ajax({
             url: `/{{data.brand}}/gen/data/saveInSession/${formName}`,
             data: data,
@@ -173,7 +179,6 @@
     };
 
     let fixtextareas = function() {
-            return;
 
         if ( $('textarea').length == 0 ) return console.log('no textarea present');
 
@@ -187,6 +192,12 @@
             let currentVal = $(this).attr('myData');
             if ( currentVal == undefined) return;
             $(this).val(replaceValue(currentVal));
+        });
+
+        $('textarea').map( function() {
+            let currentVal = $(this).attr('myPlaceholder');
+            if ( currentVal == undefined) return;
+            $(this).attr({ placeholder: replaceValue(currentVal) });
         });
 
     };
@@ -203,7 +214,6 @@
 
     };
 
-
     let allCards = {};
 
     $.get( "/{{data.brand}}/{{data.permit}}/data/offlineRequired/n", function( data ) {
@@ -211,7 +221,8 @@
         allCards = {
             authCards: data.allCards.authCards,
             Cards: data.allCards.Cards,
-            forms: data.forms
+            forms: data.forms,
+            endSalutation: data.salutation
         }
     });
 
@@ -226,7 +237,7 @@
 
             let createMsg = function( cardType, formName) {
 
-                    console.log(allCards.forms);
+                console.log(allCards.forms);
 
                 let object = {};
                 object.sellingCards = allCards[cardType].filter( val => val.status == "Selling" );
@@ -234,6 +245,7 @@
                 object.salutation = allCards.forms[formName].elems.find( val => val.elem == "textarea" ).default;
                 object.selling = "";
                 object.required= "";
+                object.endSalutation = "";
                 
                 if (object.sellingCards.length > 0) {
 
@@ -249,13 +261,17 @@
 
                     object.required = "\r\n\r\n*Required*"
                         + object.requiredCards.reduce( (total, val, index) => {
-                                total += `\r\n\r\nPKR ${val.price}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details}`;
-                                return total;
-                            }, "" );
+                            total += `\r\n\r\nPKR ${val.price}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details} \r\n`;
+                            return total;
+                        }, "" );
 
                 };
 
-                return object.salutation + object.selling + object.required;
+                if (cardType == "authCards") {
+                    object.endSalutation = "\r\n\r\n"+allCards.endSalutation;
+                }
+
+                return object.salutation + object.selling + object.required + object.endSalutation;
 
             };
 
@@ -263,12 +279,13 @@
             if (cardType == "authCards") {
 
                     $(".msgBoxAdmin > textarea").val( createMsg( cardType, "msgBoxAdmin") );
-                    saveInSession(".msgBoxAdmin > textarea");
+                    saveInSession(".msgBoxAdmin > textarea", "msgBoxAdmin");
 
             } else {
 
                     $(".msgBoxClient > textarea").val( createMsg( cardType, "msgBoxClient" ) );
-                    saveInSession(".msgBoxClient > textarea");
+                    changeConnected( ".msgBoxClient > textarea", "contactForm" );
+                    saveInSession( ".msgBoxClient > textarea", "msgBoxClient" );
 
             }
 
@@ -321,5 +338,137 @@
 
     };
 
+    let createTicket = function(elem) {
+
+            $(elem).closest('form').find('.btn.blue').html('CREATING TICKET...');
+
+            let ticketCreated = function(val) {
+                console.log(val);
+                $(elem).closest('form').find('.btn.blue').html('TICKET CREATED');
+                console.log('redirect to the showticket page');
+                window.open( `/{{data.brand}}/gen/page/showTicket/${val._id}` );
+            };
+
+            $.ajax({
+                url: `/{{data.brand}}/gen/data/ticketAndMail/n`,
+                data: $(elem).closest('form').serialize(),
+                method: "POST",
+                success: val => ticketCreated(val),
+                error: (request, status, error) => $(elem).closest('form').find('.btn.blue').html('FAILED. TRY AGAIN!') ,
+            });
+
+        };
+
+    let openSlideEditor = function(elem, slide){
+
+            let style = `[style=${ $(elem).attr('style') }]`;
+
+            if (slide == "new") {
+
+                    let updateElemId = function(val) {
+
+                        $(".slide-editor > .slide").remove();
+                        $(".slide-new").find(style).clone().appendTo(".slide-editor").removeClass('d-none')
+                            .attr({ 
+                                id : val,
+                                sequence: $("#sortable > .sortable").length + 1
+                                });
+                    };
+
+                $.ajax({
+                        url: "/{{data.brand}}/{{data.permit}}/data/getMongoId/n",
+                        method: "GET",
+                        success: val => updateElemId(val),
+                        error: (err, status, response) => console.log(err)
+                    });
+            } else {
+                let content = $(elem).attr('content');
+                $(".slide-editor").find(".slide").remove();
+                $(".slide-new").find(style).clone().appendTo(".slide-editor").html(content).removeClass('d-none')
+                    .attr({ 
+                            id : $(elem).attr('id'),
+                            sequence: $(elem).attr('sequence')
+                        });
+            }
+
+            $(".slide-editor > .slide > div .e").attr({onclick: "editable(this)" });
+
+    };
+
+    let saveSlide = function(elem, content) {
+
+            if ( $(elem).attr("id").match(/temp/g) ) {
+                $(".saved-templates > .box-top > button").attr({refreshwindow: true});
+            }
+
+            if ( $(elem).closest(".formBox").hasClass("slide-editor") ) {
+                $(".slide-editor > .box-top > button").attr({refreshwindow: true});
+            }
+
+            content = content || $(elem).clone().find(".placeholder").remove().prevObject.html(); // TODO : LOAD THE CONTENT FROM TEXTAREA OF SLIDE 
+
+            $.ajax({
+                url: `/{{data.brand}}/{{data.permit}}/data/saveSlide/${ $(elem).attr('id') }`,
+                data: {
+                    style: $(elem).attr('style'),
+                    sequence: $(elem).attr('sequence'),
+                    content: content
+                    },
+                method: "POST",
+                success: val => {
+                    $(elem).attr({id: val._id});
+                },
+                error: (req,status,err) => console.log(err.responseText)
+            });
+
+        };
+
+    let deleteMe = function(elem, collection) {
+
+            let id = $(elem).attr('id');
+
+            $.ajax({
+                    url: `/{{data.brand}}/{{data.permit}}/data/deleteDocumentAuth/${collection}?_id=${id}`,
+                    method: "POST",
+                    success: val => $(elem).html('DELETED').closest('div').remove(),
+                    error: (req,status, err) => $(elem).html('ERROR'),
+                })
+
+        };
+
+    let editable = function(elem) {
+
+            let type = $(elem).prop("tagName");
+
+            console.log( $(elem).next() );
+
+            if ( $(elem).next().hasClass("placeholder") ) { 
+                    $(elem).next().remove();
+                    return console.log( "Placeholder is already placed next to this element" );
+                };
+
+            $(elem).attr({contenteditable: true});
+
+            switch (true) {
+                    case ( type == "IMG" ) :
+                        console.log("Upload an Image or ADD the source of img below");
+                        $(".placeholders > .img").clone().insertAfter( elem ).find("input:eq(0)").val( $(elem).attr("src") )
+                            .closest("p").next().find(".btn.white")
+                            .html( $(".btn.white").html() + ` ( ${ $(elem).css("width").match(/\d+/g) } x ${ $(elem).css("height").match(/\d+/g) } RATIO )` );
+                        break;
+                    case ( type == "A" ) :
+                        console.log("Add the SRC inpute below this button");
+                        $(".placeholders > .href").clone().insertAfter( elem ).find("input").val( $(elem).attr("href") );
+                        break;
+                    default: 
+                        console.log("don't do anything");
+                        break;
+                }
+        };
+
+    let inputChanged = function(elem) {
+            console.log("input value has been changed");
+            $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
+        };
 
 </script>

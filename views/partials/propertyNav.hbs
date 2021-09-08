@@ -8,7 +8,7 @@
         {{#if (matchValues 'gen' data.permit) }}
         <button class="btn blue" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.CardsCount}}</span>)</button>
         {{else}}
-        <button class="btn red" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.authCardsCount}}</span>)</button>
+        <button class="btn " onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.authCardsCount}}</span>)</button>
         {{/if}}
 
         <div class="close svg" onclick="toggleClass(this, 'close')">
@@ -41,12 +41,15 @@
                 {{#if (matchValues this "dashboard") }} <a class="btn                  {{#if (matchValues ../active "dashboard")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n">DASHBOARD</a> {{/if}}
                 {{#if (matchValues this "add-property-local") }} <button class="btn    {{#if (matchValues ../active "add-property-local")}} active {{/if}} " onclick="openLayer('.editProperty')">ADD NEW PROPERTY</button> {{/if}}
                 {{#if (matchValues this "add-property") }} <a class="btn               {{#if (matchValues ../active "add-property")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n?clickEvent=addProperty">ADD NEW PROPERTY</a> {{/if}}
-                {{#if (matchValues this "edit-business-local") }} <button class="btn   {{#if (matchValues ../active "edit-business-local")}} active {{/if}} " onclick="openLayer('.editWebsite')">EDIT BUSINESS</button> {{/if}}
+                {{#if (matchValues this "edit-business-local") }} <button class="btn   {{#if (matchValues ../active "edit-business-local")}} active {{/if}} " onclick="openLayer('.editBusiness')">EDIT BUSINESS</button> {{/if}}
                 {{#if (matchValues this "edit-business") }} <a class="btn              {{#if (matchValues ../active "edit-business")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showAll/n?clickEvent=editBusiness">EDIT BUSINESS</a> {{/if}}
-                {{#if (matchValues this "write-blog") }} <a class="btn               {{#if (matchValues ../active "write-blog")}} active {{/if}} " href="/{{../data.brand}}/auth/page/editPage/n">WRITE A BLOG</a> {{/if}}
-                {{#if (matchValues this "show-blogs") }} <a class="btn               {{#if (matchValues ../active "show-blogs")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showPages/n">SHOW BLOGS</a> {{/if}}
+                {{#if (matchValues this "write-blog") }} <a class="btn                 {{#if (matchValues ../active "write-blog")}} active {{/if}} " href="/{{../data.brand}}/auth/page/editPage/n">WRITE A BLOG</a> {{/if}}
+                {{#if (matchValues this "show-blogs") }} <a class="btn                 {{#if (matchValues ../active "show-blogs")}} active {{/if}} " href="/{{../data.brand}}/auth/page/showPages/n">SHOW BLOGS</a> {{/if}}
                 {{#if (matchValues this "log-out") }} <a class="btn                    {{#if (matchValues ../active "log-out")}} active {{/if}} " href="/{{../data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">LOG OUT</a> {{/if}}
-                {{#if (matchValues this "draw-form") }} <a class="btn                    {{#if (matchValues ../active "draw-form")}} active {{/if}} " href="/{{../data.brand}}/auth/page/drawForm/signin">DRAW FORM</a> {{/if}}
+                {{#if (matchValues this "draw-form") }} <a class="btn                  {{#if (matchValues ../active "draw-form")}} active {{/if}} " href="/{{../data.brand}}/auth/page/drawForm/signin">DRAW FORM</a> {{/if}}
+                {{#if (matchValues this "show-slides") }} 
+                <a class="btn {{#if (matchValues ../active "show-slides")}} active {{/if}}" 
+                    href="/{{../data.brand}}/auth/page/showSlides/n">SHOW SLIDES</a> {{/if}}
 
 
             {{/each}}

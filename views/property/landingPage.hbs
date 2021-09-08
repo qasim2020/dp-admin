@@ -21,6 +21,20 @@
             {{> propertyNav navs="home about-us our-location read-blogs log-in" active="home"}} 
         {{/if}}
 
+        <div class="sliders">
+
+            <div class="slider slide-1">
+
+               <h1 contenteditable="true" >Defence Properties</h1>
+                <p contenteditable="true" class="info">A project by Akhtar Chodhry & Sons private limited.</p>
+                <p contenteditable="true" >Maj (Retd) Gul Awaiz has been running the Defence Properties for last 10 years. He is from 78 PMA Long Course. A proud Signaller, who takes pride in a high quality and 100% trusted  customer support.</p>
+                <img src="" alt="">
+
+                <!-- h1 - p - p - img -->
+
+            </div>
+
+        </div>
         <p class="note black">Last Updated on 12 Aug 2021. Plots are updated daily. Select a plot below and contact us for inquiries. </p>
 
         {{> propertyfiltersBox cities=data.cities}}
@@ -41,7 +55,7 @@
 
     </div>
 
-    <div class="msgBox d-none">
+    <div class="formBox msgBox d-none">
 
         {{> propertyForm data=data.forms.msgBoxClient}}
 
@@ -49,25 +63,7 @@
 
     <div class="formBox contactForm d-none">
 
-        <p class="box-hdg">CONTACT FORM</p>
-
-        <p class="note">Please fill in your contact details. We will get back to you in next few hours. </p>
-
-        <form action="">
-
-            <label for="msg">YOUR MESSAGE</label>
-            <textarea id="" name="msg" cols="30" rows="10"></textarea>
-
-            <label for="name">YOUR NAME</label>
-            <input type="text" name="name">
-
-            <label for="contact">YOUR CONTACT NO / EMAIL</label>
-            <input type="text" name="contact">
-
-            <button class="btn blue mt-24">SEND EMAIL</button>
-            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
-
-        </form>
+        {{> propertyForm data=data.forms.contactForm}}
 
     </div>
 

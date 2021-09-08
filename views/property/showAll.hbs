@@ -15,7 +15,7 @@
 
     <div class="layerOne">
 
-        {{> propertyNav navs="home-auth dashboard draw-form add-property-local edit-business-local write-blog show-blogs log-out" active="dashboard"}}
+        {{> propertyNav navs="home-auth dashboard draw-form show-slides add-property-local edit-business-local write-blog show-blogs log-out" active="dashboard"}}
 
         {{> propertyfiltersBox cities=data.cities admin="true"}}
 
@@ -56,31 +56,10 @@
 
     </div>
 
-    <div class="formBox editWebsite d-none">
+    <div class="formBox editBusiness  d-none">
 
-        <p class="box-hdg">EDIT WEBSITE CONTENT</p>
-
-        <p class="note" >These are your website contact details; ways people can reach you!</p>
-
-        <form action="">
-
-            <label for="name">YOUR NAME</label>
-            <input type="text" name="name" placeholder="">
-
-            <label for="email">YOUR EMAIL</label>
-            <input type="email" name="email" placeholder="">
-
-            <label for="whatsapp">YOUR WHATSAPP NUMBER</label>
-            <input type="phone" name="whatsapp" placeholder="">
-
-            <label for="address">BUSINESS ADDRESS</label>
-            <textarea id="" name="address" cols="30" rows="10"></textarea>
-
-            <button class="btn blue mt-24">SAVE</button>
-            <button type="button" class="btn" onclick="openLayer('.layerOne')">CLOSE</button>
-
-        </form>
-
+        {{> propertyForm data=data.forms.editBusiness}}
+    
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

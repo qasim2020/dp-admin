@@ -361,19 +361,27 @@
 
     let openSlideEditor = function(elem, slide){
 
+            let setEditable = function() {
+
+                console.log(" alloting the attributes ");
+                $(".slide-editor > .slide > div .e").attr({ onclick: "editable(this)" });
+
+            };
+
             let style = `[style=${ $(elem).attr('style') }]`;
 
             if (slide == "new") {
 
-                    let updateElemId = function(val) {
+                let updateElemId = function(val) {
 
-                        $(".slide-editor > .slide").remove();
-                        $(".slide-new").find(style).clone().appendTo(".slide-editor").removeClass('d-none')
-                            .attr({ 
-                                id : val,
-                                sequence: $("#sortable > .sortable").length + 1
-                                });
-                    };
+                    $(".slide-editor > .slide").remove();
+                    $(".slide-new").find(style).clone().appendTo(".slide-editor").removeClass('d-none')
+                        .attr({ 
+                            id : val,
+                            sequence: $("#sortable > .sortable").length + 1
+                            });
+                    setEditable();
+                };
 
                 $.ajax({
                         url: "/{{data.brand}}/{{data.permit}}/data/getMongoId/n",
@@ -381,6 +389,7 @@
                         success: val => updateElemId(val),
                         error: (err, status, response) => console.log(err)
                     });
+
             } else {
                 let content = $(elem).attr('content');
                 $(".slide-editor").find(".slide").remove();
@@ -389,9 +398,9 @@
                             id : $(elem).attr('id'),
                             sequence: $(elem).attr('sequence')
                         });
+                setEditable();
             }
 
-            $(".slide-editor > .slide > div .e").attr({onclick: "editable(this)" });
 
     };
 
@@ -449,16 +458,29 @@
 
             $(elem).attr({contenteditable: true});
 
+            let absoluteOrRelative = function() {
+
+                    if ( $(elem).css("position") == "absolute" ) {
+
+                            console.log( "making placeholder absolute" );
+                            $(elem).next().css({position: "absolute"});
+
+                        }
+
+                };
+
             switch (true) {
                     case ( type == "IMG" ) :
                         console.log("Upload an Image or ADD the source of img below");
                         $(".placeholders > .img").clone().insertAfter( elem ).find("input:eq(0)").val( $(elem).attr("src") )
                             .closest("p").next().find(".btn.white")
                             .html( $(".btn.white").html() + ` ( ${ $(elem).css("width").match(/\d+/g) } x ${ $(elem).css("height").match(/\d+/g) } RATIO )` );
+                        absoluteOrRelative();
                         break;
                     case ( type == "A" ) :
                         console.log("Add the SRC inpute below this button");
                         $(".placeholders > .href").clone().insertAfter( elem ).find("input").val( $(elem).attr("href") );
+                        absoluteOrRelative();
                         break;
                     default: 
                         console.log("don't do anything");
@@ -468,7 +490,14 @@
 
     let inputChanged = function(elem) {
             console.log("input value has been changed");
-            $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
+            let type = $(elem).closest(".placeholder").prev().prop("tagName");
+
+            if (type == "IMG") {
+                console.log( $(elem).closest(".placeholder").prev() );
+                $(elem).closest(".placeholder").prev().attr({ src : $(elem).val() });
+            } else if (type == "A") {
+                $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
+            }
         };
 
 </script>

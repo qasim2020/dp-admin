@@ -88,7 +88,7 @@
 
             {{#each data.slides}}
 
-            <div class="thumbnail sortable {{{this.style}}}" draggable=true>
+            <div class="thumbnail sortable" draggable=true>
                 <p class="small">{{this.style}}</p>
                 <button 
                     sequence="{{this.sequence}}"
@@ -143,9 +143,12 @@
         </div>
 
         <div class="cards px-10">
-            <div class="thumbnail" style="slide-1" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">Slide 1</div>
-            <div class="thumbnail" style="slide-2" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">Slide 2</div>
-            <div class="thumbnail" style="slide-3" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">Slide 3</div>
+            <div class="thumbnail" style="slide-intro" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">INTRO</div>
+            <div class="thumbnail" style="slide-photo" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">PHOTO</div>
+            <div class="thumbnail" style="slide-location" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">LOCATION</div>
+            <div class="thumbnail" style="slide-review" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">REVIEW</div>
+            <div class="thumbnail" style="slide-featured" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">FEATURED</div>
+            <div class="thumbnail" style="slide-contact" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">CONTACT</div>
         </div>
 
     </div>
@@ -158,24 +161,108 @@
             <button class="black" onclick="openLayer('.saved-templates')">GO BACK</button>
         </div>
 
-        {{#each data.templates}}
-        <div 
-            sequence="{{inc @index}}"
-            class="slide-{{this}} slide d-none" 
-            id="temp-{{this}}" 
-            style="slide-{{this}}"
-            onkeyup="saveSlide(this)" 
-            contenteditable=true>
-            this is slide {{this}} 
+        <div sequence="0" class="slide d-none slide-footer" id="temp-0" style="slide-footer" onkeyup="saveSlide(this)" ></div>
+
+        <div class="slide d-none slide-intro" id="temp-intro" style="slide-intro" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <section class="left">
+
+                    <h1 class="e"><b>Defence</b> Properties</h1>
+                    <p class="e">Mr Robert has been running Defence Properties for last 10 years. He hails from a town in West London, MiddleSex. A proud war veteran, who takes pride in high quality and 100% trusted customer support.  </p>
+                    <p class="note e">A project of Gold Smiths (R) trademark, private limited.</p>
+
+                </section>
+
+
+                <section class="right">
+
+                    <img class="e" src="" alt="">
+
+                </section>
+
+
+            </div>
+
         </div>
-        {{/each}}
-        <div 
-            sequence="0"
-            class="slide d-none slide-footer" 
-            id="temp-0" 
-            style="slide-footer"
-            onkeyup="saveSlide(this)" 
-        >
+
+        <div class="slide-photo slide d-none" id="temp-photo" style="slide-photo" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="img"> <img class="e" src="" alt=""> </div>
+                <div class="banner"> <p class="e">Business should be something we all love.</p> </div>
+                <div class="link"><a class="e" href="">view our office ➝</a></div>
+
+            </div>
+
+        </div>
+
+        <div class="slide-location slide d-none" id="temp-location" style="slide-location" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="img"><img src="" alt="" class="e"></div>
+                <div class="banner"><p class="e">operating from Rawalpindi.</p></div>
+                <div class="address">
+                    <img class="e" src="" alt="">
+                    <p class="e">Office # 8 · Bolan Heights · 7th Avenue · Phase 7 · Bahria <br> Rawalpindi <br> Pakistan </p>
+                    <p class="e">+92 331 5584889 </p>
+                    <p class="e">gul7878@gmail.com </p>
+                    <a class="e" href="">Get Directions ⇢</a>
+                </div>
+
+
+            </div>
+
+        </div>
+        <div class="slide-featured slide d-none" id="temp-featured" style="slide-featured" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="banner"><p class="e">Today's Featured Properties.</p></div>
+                <div class="properties">
+                    <div class="property"></div>
+                    <div class="property"></div>
+                    <div class="property"></div>
+                </div>
+                <div class="link"><a class="e" href="">Explore more ➝</a></div>
+
+            </div>
+
+        </div>
+        <div class="slide-review slide d-none" id="temp-review" style="slide-review" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="banner"><p class="e">Sarah Manchister UK</p></div>
+                <div class="quote">
+
+                    <img class="e" src="" alt="">
+
+                    <div>
+                        <p class="e">I was curious if I can ever find a trustworthy space to buy my dream property back home. Found Gul Awaiz, and I have always recommended him to my colleagues and friends.  </p>
+                        <p class="e">— Sarah, UK</p>
+                        <a class="e" href="">Read reviews on google ➝</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="slide-contact slide d-none" id="temp-contact" style="slide-contact" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="banner"><p class="e">Talk to us.</p></div>
+                <img class="e" src="" alt="">
+                <button class="e">open Contact Form ➝</button>
+
+
+            </div>
+
         </div>
     
     </div>

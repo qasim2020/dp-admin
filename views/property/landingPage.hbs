@@ -23,16 +23,11 @@
 
         <div class="sliders">
 
-            <div class="slider slide-1">
+            {{#each data.slides.sliders}}
 
-               <h1 contenteditable="true" >Defence Properties</h1>
-                <p contenteditable="true" class="info">A project by Akhtar Chodhry & Sons private limited.</p>
-                <p contenteditable="true" >Maj (Retd) Gul Awaiz has been running the Defence Properties for last 10 years. He is from 78 PMA Long Course. A proud Signaller, who takes pride in a high quality and 100% trusted  customer support.</p>
-                <img src="" alt="">
+            <div class="{{{this.style}}}">{{{this.content}}}</div>
 
-                <!-- h1 - p - p - img -->
-
-            </div>
+            {{/each}}
 
         </div>
         <p class="note black">Last Updated on 12 Aug 2021. Plots are updated daily. Select a plot below and contact us for inquiries. </p>
@@ -53,6 +48,12 @@
 
         </div>
 
+    </div>
+
+    <div class="{{{data.slides.footer.style}}}">
+
+        {{{data.slides.footer.content}}}
+    
     </div>
 
     <div class="formBox msgBox d-none">

@@ -414,7 +414,16 @@
                 $(".slide-editor > .box-top > button").attr({refreshwindow: true});
             }
 
-            content = content || $(elem).clone().find(".placeholder").remove().prevObject.html(); // TODO : LOAD THE CONTENT FROM TEXTAREA OF SLIDE 
+            if ( content == undefined ) {
+                let temp;
+                temp = $(elem).closest(".slide-editor").clone();
+                temp.find("*").removeAttr("contenteditable");
+                console.log( temp.find(".e").attr("onclick").replace(/editable\(this\)/g,"") );
+                temp.find(".e").attr({onclick: temp.find(".e").attr("onclick").replace(/editable\(this\)/g, "") });
+                temp.find(".placeholder").remove();
+                // console.log( temp.find(".slide").html() );
+                content = temp.find(".slide").html();
+            }
 
             $.ajax({
                 url: `/{{data.brand}}/{{data.permit}}/data/saveSlide/${ $(elem).attr('id') }`,

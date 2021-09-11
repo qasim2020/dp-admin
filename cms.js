@@ -4292,7 +4292,6 @@ var myFuncs = {
         let output = await this.fetchPropertiesDataForPage(req,res);
 
         output.filters.status = output.filters.status.filter( val => {
-            console.log(val);
             console.log(val.name.match(/archive|sold/gi));
             return val.name.match(/archive|sold/gi) == null;
         });
@@ -4303,8 +4302,8 @@ var myFuncs = {
             output.forms = await this.getForms({msgBoxAdmin: true}, req,res);
         };
 
-        output.openLayer = req.query.openLayer ? req.query.openLayer : "";
-        // console.log(JSON.stringify(output, 0, 2));
+        output.openLayer = req.query.openLayer ? req.query.openLayer : "" ;
+        output.slides = await this.getSlides(req,res);
 
         return output;
 
@@ -5116,14 +5115,25 @@ var myFuncs = {
 
     },
 
+    getSlides: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+        let output = {
+            sliders: await model.find({style: { $ne : "slide-footer" } }).sort({sequence: 1}).lean(),
+            footer: await model.findOne({style: "slide-footer"}).lean(),
+        }
+
+        return output;
+
+    },
+
     showSlides : async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-slides`);
 
         return {
             forms: await this.getForms({msgBoxAdmin: true}, req,res),
-            slides: await model.find({style: { $ne : "slide-footer" } }).sort({sequence: 1}).lean(),
-            footer: await model.findOne({style: "slide-footer"}).lean(),
+            slides: await this.getSlides(req,res),
             templates: [ 1, 2, 3],
             allCards: this.getAllCards(req,res),
         };

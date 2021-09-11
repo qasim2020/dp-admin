@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Chodhry Properties</title>
+    <style>
+        {{>propertyCSS}} 
+    </style>
+</head>
+<body>
+
+    <div class="layerOne">
+    
+        {{#if (matchValues data.permit 'auth') }}
+            {{> propertyNav navs="home dashboard add-property-local edit-business-local write-blog show-blogs log-out" active="home"}}
+        {{else}}
+            {{> propertyNav navs="home about-us our-location read-blogs log-in" active="home"}} 
+
+            <div class="box-top">
+
+                <p class="box-hdg"> 
+                    <span onclick="openLayer('.msgBox')"> MSG BOX </span> <span onclick="openLayer('.contactForm')">  / CONTACT FORM / </span> 
+                    TICKET NO · {{data.no}}
+                </p>
+                <p class="note">If you feel like your ticket is not yet resolved, keep the "Pending" status active. We will get to you soon. Thanks.</p>
+            
+            </div>
+        {{/if}}
+
+
+
+        <div class="ticket">
+
+            <p class="info">Your ticket is created. Please note down your ticket No for future consultations.</p> 
+            <p class="ticketNo box-hdg">TICKET NO · {{data.no}}</p>
+            <p class="timestamp">{{mongoIdToDate data._id}} <br> {{data.name}} · {{data.contact}}</p>
+            <p>{{{data.msg}}}</p>
+            <a 
+               class="btn {{#if (matchValues data.status 'pending')}} active required{{/if }}" 
+               href="/{{data.brand}}/gen/page/changeTicketStatus/{{data._id}}?status=pending&redirect=showTicket&redirectInput={{data._id}}">PENDING</a>
+            <a 
+               class="btn {{#if (matchValues data.status 'resolved')}} active selling{{/if }}" 
+               href="/{{data.brand}}/gen/page/changeTicketStatus/{{data._id}}?status=resolved&redirect=showTicket&redirectInput={{data._id}}">RESOLVED</a>
+        
+        </div>
+        
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
+
+    {{> propertyJS}}
+    
+</body>
+</html>
+

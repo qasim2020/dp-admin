@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <p>{{data.msg}}</p>
+    {{#if data.theme}}
+    <p><bold>Collections has row "{{data.brand}}-users":—</bold>{{data.inCollectionUsers}}</p>
+    <p><bold>Collections has row "{{data.brand}}-notifications":—</bold>{{data.inCollectionNotifications}}</p>
+    <p><bold>Theme (Directory):— </bold>{{data.theme}}</p>
+    <p><bold>Brand:— </bold>{{data.brand}}</p>
+    {{/if}}
+    <p><bold>Name :—  </bold>{{data.name}}</p>
+    <p><bold>Email:— </bold>{{data.email}}</p>
+    <p><bold>Password:— </bold>{{data.password}}</p>
+    <p><bold>Project Public Page:—</bold> 
+        <a href="/{{data.brand}}/gen/page/landingPage/n">/{{data.brand}}/gen/page/landingPage/n</a> 
+    </p>
+    <p><bold>Project Dashboard:—</bold>
+        <a href="/{{data.brand}}/gen/page/signin/n">Sign In</a>
+    </p>
+    <p>To delete the project, Delete Collections from Root URL and Finder Manually</p>
+</body>
+</html>

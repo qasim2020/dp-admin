@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div class="tickets container">
+
+        {{#each data.tickets}}
+
+        <div class="ticket">
+
+            <p>{{mongoIdToDate _id}}</p>
+            <p>{{name}} · {{contact}}</p>
+            <p>{{msg}}</p>
+            <a class="btn" href="/{{../data.brand}}/auth/page/updateTicket/{{_id}}?status=pending">PENDING</a>
+            <a class="btn" href="/{{../data.brand}}/auth/page/updateTicket/{{_id}}?status=resolved">RESOLVED</a>
+        
+        </div>
+    
+        {{/each}}
+    
+    </div>
+</body>
+</html>

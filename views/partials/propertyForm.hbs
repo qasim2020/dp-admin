@@ -1,0 +1,77 @@
+<div class="box-top">
+    <p class="box-hdg">{{{data.heading}}}</p>
+
+    <p class="note">{{data.note}}</p>
+</div>
+
+<form action="" class="{{data.class}}" url="{{data.url}}" formName="{{data.formName}}" >
+
+    {{#each data.elems}}
+
+        {{#if (matchValues this.elem "input")}}
+
+        {{#if label}}
+            <label for="{{name}}">{{label}}</label>
+        {{/if}}
+
+        <input onkeyup="{{onkeyup}}" type="{{inputType}}" name="{{name}}" class="{{class}}" value="{{{value}}}">
+
+        {{#if info}}
+            <p class="note">{{info}}</p>
+        {{/if}}
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "textarea")}}
+
+        {{#if label}}
+            <label for="{{name}}">{{label}}</label>
+        {{/if}}
+
+        <textarea  
+            onkeyup="{{onkeyup}}"  
+            name="{{name}}" 
+            cols="30" 
+            rows="{{rows}}" 
+            myData="{{value}}" 
+            myPlaceholder="{{placeholder}}" 
+            placeholder="">
+        </textarea>
+
+        {{#if info}}
+            <p class="note">{{info}}</p>
+        {{/if}}
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "propertyStatus")}}
+
+            <label for="status">STATUS</label>
+            <input class="d-none" type="text" name="status">
+            <div class="absolute-btns">
+
+                <span onclick="highToLow(this)" myName="Sold" class="btn active sold">SOLD</span>
+                <span onclick="highToLow(this)" myName="Selling" class="btn selling">SELLING</span>
+                <span onclick="highToLow(this)" myName="Required" class="btn required">REQUIRED</span>
+                <span onclick="highToLow(this)" myName="Archive" class="btn archive">ARCHIVE</span>
+
+            </div>
+
+
+        {{/if}}
+
+        {{#if (matchValues this.elem "button")}}
+
+            <button type="button" class="{{class}}" onclick="{{onclick}}">{{value}}</button>
+
+            {{#if info}}
+
+            <p class="btn-note">{{info}}</p>
+
+            {{/if}}
+
+        {{/if}}
+
+    {{/each}}
+
+</form>

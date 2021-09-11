@@ -1,0 +1,61 @@
+
+<html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Chodhry Properties</title>
+    <style>
+        {{>propertyCSS}} 
+    </style>
+</head>
+<body class="drawForm">
+
+    <div class="layerOne">
+    
+        {{#if (matchValues data.permit 'auth') }}
+            {{> propertyNav navs="home-auth dashboard draw-form add-property-local edit-business-local write-blog show-blogs log-out" active="draw-form"}}
+        {{else}}
+            {{> propertyNav navs="home draw-form about-us our-location read-blogs log-in" active="draw-form"}} 
+        {{/if}}
+
+    </div>
+
+    <div class="temporary">
+
+        <p class="box-hdg">ADMIN SIDE</p>
+        <a class="btn {{#if (matchValues data.input 'msgBoxAdmin')}} active {{/if}} "   href="/{{data.brand}}/auth/page/drawForm/msgBoxAdmin">MSGBOX ADMIN</a>
+        <a class="btn {{#if (matchValues data.input 'editBusiness')}} active {{/if}} "  href="/{{data.brand}}/auth/page/drawForm/editBusiness">EDIT BUSINESS</a>
+        <a class="btn {{#if (matchValues data.input 'addProperty')}} active {{/if}} "   href="/{{data.brand}}/auth/page/drawForm/addProperty">ADD PROPERTY</a>
+        <a class="btn {{#if (matchValues data.input 'editProperty')}} active {{/if}} "       href="/{{data.brand}}/auth/page/drawForm/editProperty">EDIT PROPERTY</a>
+        <a class="btn {{#if (matchValues data.input 'addBlog')}} active {{/if}} "      href="/{{data.brand}}/auth/page/drawForm/addBlog">ADD BLOG</a>
+        <a class="btn {{#if (matchValues data.input 'editBlog')}} active {{/if}} "  href="/{{data.brand}}/auth/page/drawForm/editBlog">EDIT BLOG</a>
+    
+        <p class="box-hdg">CLIENT SIDE</p>
+        <a class="btn {{#if (matchValues data.input 'msgBoxClient')}} active {{/if}} "  href="/{{data.brand}}/gen/page/drawForm/msgBoxClient">MSGBOX CLIENT</a>
+        <a class="btn {{#if (matchValues data.input 'contactForm')}} active {{/if}} "   href="/{{data.brand}}/gen/page/drawForm/contactForm">CONTACT FORM</a>
+        <a class="btn {{#if (matchValues data.input 'signin')}} active {{/if}} "        href="/{{data.brand}}/gen/page/drawForm/signin">LOG IN</a>
+
+        <!--
+           msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin
+        -->
+
+    </div>
+
+    <div class="formBox">
+        {{> propertyForm data=data.form}}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
+
+        {{> propertyJS}}
+
+    
+</body>
+</html>

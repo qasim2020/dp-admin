@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Admin</title>
+    <style>
+    {{>propertyCSS}}
+    </style>
+</head>
+<body>
+
+    <div class="layerOne">
+
+        {{> propertyNav navs="home-auth dashboard add-property edit-business write-blog show-blogs log-out" active="write-blog"}}
+
+        <div class="container">
+            <div id="editor">{{{data.page.content}}}</div>
+            <button class="btn blue" onclick="readData()">Save</button>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/24.0.0/classic/ckeditor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
+    <script>
+
+    {{> propertyJS}}
+
+    ClassicEditor
+            .create( document.querySelector( '#editor' ) )
+            .then( editor => {
+                    console.log( editor );
+            } )
+            .catch( error => {
+                    console.error( error );
+            } );
+    
+    
+    let readData = function() {
+        let data = {
+            content: $('.ck-content').html(),
+            page, // get from the input field abvoe
+            slug, // convert the page name to slug and validate if this page does not already exists in database
+            ser,// auto incremented ser number of the page
+            type // toggle button that says weather this page is featured or not
+        };
+
+        $.ajax({
+            url: '/{{data.brand}}/admin/data/updatePage/{{data.page._id}}',
+            method: 'post',
+            data: data,
+            success: data => $('.container > button').html('Saved Successfully'),
+            fail: fail => console.log(fail),
+        });
+    };
+    </script>
+    
+</body>
+</html>

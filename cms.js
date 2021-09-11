@@ -134,6 +134,16 @@ hbs.registerHelper('pickRandomColor', (val) => {
     return array[randomNo];
 })
 
+hbs.registerHelper('inc', (val) => {
+    return Number(val)+1;
+});
+
+hbs.registerHelper('mongoIdToDate', (objectId) => {
+
+    return new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
+
+});
+
 hbs.registerHelper('breaklines', (val) => {
   return val.split(/\n/g).join('<br>');
 })
@@ -142,16 +152,33 @@ hbs.registerHelper('startWithUpperCase', (val) => {
     return val.charAt(0).toUpperCase() + val.slice(1)
 });
 
+hbs.registerHelper('toUpperCase', (str) => {
+    return str.toUpperCase()
+});
+
+hbs.registerHelper('toLowerCase', (str) => {
+    return str.toLowerCase()
+});
+
 hbs.registerHelper('checkExists', (val) => {
     return val != undefined ? 'true' : '';
 })
 
+hbs.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+});
+
 hbs.registerHelper('matchValues', (val1,val2) => {
+    // console.log(val1,val2);
     return val1 == val2
 });
 
 hbs.registerHelper('removeSpaces', (val) => {
     return val.replace(/ /gi,'');
+});
+
+hbs.registerHelper('removeStartSpaces', (val) => {
+    return val.replace(/ */g,'')
 });
 
 hbs.registerHelper('match', function(val1,val2) {
@@ -229,7 +256,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
                 break;
             // 'Auth' role tries to access 'Admin' Module
             default :
-                return res.send('you are not authorized to make this request');
+                return res.status(400).send('you are not authorized to make this request');
                 break;
         };
     };
@@ -255,7 +282,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
 
     if (checkCollectionExists) {
-        return res.redirect(`/myapp/gen/page/signin/home/`);
+        return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
 
 
@@ -314,8 +341,16 @@ app.get(  '/', async (req,res) => {
                 url: 'challenge',
             },
             {
-                name: 'portfolio',
+                name: 'life',
                 url: 'life'
+            },
+            {
+                name: 'richpakistan',
+                url: 'richpakistan'
+            },
+            {
+                name: 'chodhry',
+                url: 'chodhry'
             }
         ]
     });
@@ -325,7 +360,14 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
+        Object.assign(data, {
+            permit: req.params.permit,
+            brand: req.params.brand,
+            input: req.params.input
+        });
+         console.log(data);
         // console.log(JSON.stringify(data,'',2));
+        // console.log(req.session);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             return res.status(data.status).send(data.error);
@@ -343,7 +385,9 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}`);
+            console.log('LOADING WITHOUT PJAX NOW -----');
+            let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
+            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
             break;
           case (req.params.requiredType == 'page'):
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
@@ -358,6 +402,7 @@ var myFuncs = {
         newDocument: 'admin',
         editDocument: 'admin',
         deleteDocument: 'admin',
+        deleteDocumentAuth: "auth",
         checkCollectionExists: 'admin',
         createModel: 'admin',
         airtablePull: 'admin',
@@ -365,8 +410,8 @@ var myFuncs = {
         save: 'admin',
         dropCollection: 'admin',
         createNewCollection: 'admin',
-        saveSequence: 'gen',
-        updateSequence: 'admin',
+        saveSequence: 'auth',
+        updateSequence: 'auth',
         showCollection: 'admin',
         destroySession: 'auth',
         checkAdmin: 'admin',
@@ -391,7 +436,7 @@ var myFuncs = {
         showOrders: 'admin',
         getSizes: 'gen',
         showPage: 'gen',
-        updatePage: 'admin',
+        updatePage: 'auth',
         dashboard: 'admin',
         forgotpw: 'gen',
         challenges: 'auth',
@@ -413,6 +458,25 @@ var myFuncs = {
         roadMap: 'gen',
         newsletters: 'gen',
 	listenToWebhook: 'gen',
+        editWeb: 'admin',
+        emptyFile: 'admin',
+        showAll: 'auth',
+        filterProperties: 'gen',
+        propertyAdminForm: 'auth',
+        propertyGenForm: 'gen',
+        showPages: 'gen',
+        editPage: 'auth',
+        drawForm: "auth", 
+        saveInSession: "gen",
+        offlineRequired: "gen",
+        ticketAndMail: 'gen',
+        showTicket: 'gen',
+        showTickets: 'auth',
+        changeTicketStatus: 'gen',
+        showSlides: 'auth',
+        saveSlide: 'auth',
+        changeSlideSequence: 'auth',
+        uploadCloudinary: "auth",
     },
 
     listenToWebhook: function(req,res) {
@@ -1426,6 +1490,7 @@ var myFuncs = {
     },
 
     saveSequence: async function(req,res) {
+        console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
         return output;
@@ -1520,6 +1585,15 @@ var myFuncs = {
         };
     },
 
+    deleteDocumentAuth: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
+        let result = await model.deleteOne({_id: req.query._id});
+        return {
+            status: 200,
+            success: result 
+        };
+    },
+
     forgotpw: async function(req,res) {
         console.log('Send a 4 digit code here');
         return {success: true}
@@ -1545,6 +1619,7 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
+        console.log('checking signin');
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         // if 7am does not have this user look into myapp. it can be an brand. 
@@ -1566,7 +1641,6 @@ var myFuncs = {
     },
 
     runAndRedirect: async function(req,res) {
-        // /root/admin/data/runAndRedirect/deleteDocument?_id=123123&&redirect=showCollection&redirectInput=root-users
         let output = await this[req.params.input][req.query.input]; 
         return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`);
     },
@@ -1617,12 +1691,19 @@ var myFuncs = {
         newRows.unshift(collectionHeadings);
         csv = this.array2CSV(newRows);
 
+
         return new Promise ((resolve,reject) => {
             fs.writeFile('./static/myFile.csv', csv, (err) => {
                 if (err) {
                   return reject(err);
                 }
-                resolve('static/myFile.csv');
+                console.log(process.env.url);
+                let localhost = process.env.url.includes("localhost:3000");
+                if (localhost == true) {
+                    resolve('myFile.csv');
+                } else {
+                    resolve('static/myFile.csv');
+                }
             });
         });
     },
@@ -1739,6 +1820,12 @@ var myFuncs = {
         }
     },
 
+    vlogs: async function(req,res) {
+        return {
+            msg: "vlogs show up here"
+        }
+    },
+
     blogStreak: async function(req,res) {
 
         let model = await this.createModel(`life-blogs`);
@@ -1788,6 +1875,14 @@ var myFuncs = {
             sessionExists: req.session.hasOwnProperty('person') 
         };
     },
+
+    richpakistan: async function(req,res) {
+        console.log('opening rich pakistan');
+        return {
+            success: true
+        }
+    },
+
 
     landingPage: async function(req,res) {
         console.log({theme: req.params.theme});
@@ -2350,11 +2445,12 @@ var myFuncs = {
         let output = await model.findOne({slug: req.params.input}).lean();
         model = await this.createModel(`${req.params.brand}-resources`);
         let resources = await model.find({});
-        let countCart = await this.countItemsInCart(req,res);
+    //     let countCart = await this.countItemsInCart(req,res);
         return {
             resources: resources,
-            countCart: countCart,
+            // countCart: countCart,
             brand: req.params.brand,
+            permit: req.params.permit,
             page: output,
             brand: req.params.brand,
         };
@@ -2362,10 +2458,21 @@ var myFuncs = {
 
     editPage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        let page = await model.findOne({_id: req.params.input}).lean();
+        let page = {};
+        if (req.params.input != "n") {
+             page = await model.findOne({_id: req.params.input}).lean();
+        } else {
+            page = {
+                page: '',
+                content: '',
+                slug: '',
+                _id: this.getMongoId(req,res),
+            }
+        };
         return {
             page: page,
             brand: req.params.brand,
+            permit: req.params.permit,
             resources: await this.fetchResources(req,res),
             modelName: `${req.params.brand}-pages`
         };
@@ -2373,7 +2480,18 @@ var myFuncs = {
 
     updatePage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: {content: req.body.output}},{new:true}).lean();
+        console.log(req.params);
+        console.log(req.body);
+        let output = await model.findOneAndUpdate({_id:req.params.input},{$set: 
+            {
+                content: req.body.output,
+                page: req.body.page,
+                slug: req.body.slug,
+                type: req.body.type
+            }
+            },{new:true}).lean();
+
+        console.log( output );
         return output;
     },
 
@@ -2977,6 +3095,7 @@ var myFuncs = {
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
         var query = processQuery(req.query);
+        console.log({query});
         delete query.filter._pjax;
         let pages = await model.aggregate([
             {
@@ -3004,6 +3123,7 @@ var myFuncs = {
             brand: req.params.brand,
             navRows: navRows,
             filterApplied: Object.values(query.filter).length > 0,
+            permit: req.params.permit,
         }
     },
 
@@ -3473,7 +3593,13 @@ var myFuncs = {
 
         url = process.env.url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
-        let mailResponse = await this.sendMail({template: 'verifyEmail', context: {url : url}, toEmail: req.body.email, subject: 'Verify Email'});
+        let mailResponse = await this.sendMail({
+            from: `Qasim Ali<${process.env.zoho}>`,
+            template: 'verifyEmail', 
+            context: {url : url}, 
+            toEmail: req.body.email, 
+            subject: 'Verify Email'
+        });
 
         return {
             output
@@ -3481,7 +3607,7 @@ var myFuncs = {
 
     },
 
-    sendMail : async function({template, context, toEmail, subject, brand}) {
+    sendMail : async function({template, context, toEmail, subject, brand, from, msg}) { // FROM , toEMAIL, subject, msg required for Simple MAil
 
         let testAccount = await nodemailer.createTestAccount();
 
@@ -3495,20 +3621,27 @@ var myFuncs = {
           },
         });
 
-        let file = await new Promise( (resolve, reject) => {
+        if (template != undefined) {
 
-            fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
-                if (err) reject(err)
-                resolve(data);
+            let hbstemplate, html;
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
+                    if (err) reject(err)
+                    resolve(data);
+                });
+
             });
 
-        });
-
-        let  hbstemplate = hbs.compile(file);
-        let  html = hbstemplate({data: context});
+            hbstemplate = hbs.compilet(file);
+            html = hbstemplate({data: context});
+        } else {
+            html = msg; // this is now a simple MSG
+        }
 
         var mail = {
-           from: `Qasim Ali<${process.env.zoho}>`,
+           from: from,
            to: toEmail,
            subject: subject,
            html: html
@@ -3520,6 +3653,66 @@ var myFuncs = {
 
     },
 
+    ticketAndMail: async function(req,res) {
+
+        console.log( req.body.msg );
+        console.log( req.body.msg.replace(/\r\n{1,}/g,'<br>') );
+
+        let model = await this.createModel(`${req.params.brand}-resources`);
+        let resources = (await model.find().lean())[0];
+        console.log(resources);
+        let output = await this.sendMail({
+            from: `Qasim Ali<${process.env.zoho}>`,
+            // from: req.body.name, 
+            toEmail: resources.email, 
+            subject: `New Ticket - ${req.body.name} - ${req.body.contact}`, 
+            msg: req.body.msg.replace(/\r\n{1,}/g,'<br>') + "<br>From;<br>" + req.body.name + "<br>" + req.body.contact
+        });
+
+        let model2 = await this.createModel(`${req.params.brand}-tickets`);
+        let storeTicket = await model2.create({
+            name: req.body.name,
+            contact: req.body.contact,
+            msg: req.body.msg,
+            helper: resources.name + ' ' + resources.email,
+            no: await model2.countDocuments()+1,
+            status: 'pending',
+            rating: 'pending'
+        });
+
+        return storeTicket;
+
+    },
+
+    showTickets : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.find().lean();
+        return output;
+
+    },
+
+    showTicket: async function(req,res) {
+
+        let query = processQuery(req.query);
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.findOne({_id: req.params.input}).lean();
+        output.msg = output.msg.replace(/\r\n{1,}/g,'<br>') ;
+        output.allCards = this.getAllCards(req,res) ;
+
+        return output;
+
+    },
+
+    changeTicketStatus: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-tickets`);
+        let output = await model.findOneAndUpdate({_id: req.params.input}, { $set: { status: req.query.status } }).lean();
+        return output;
+
+    },
+            
     verifyEmail: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-subscribers`);
@@ -3641,6 +3834,7 @@ var myFuncs = {
         let arrayOfPromises = subscribers.map( val => {
 
             return this.sendMail({
+                from: `Qasim Ali<${process.env.zoho}>`,
                 template: 'lifeNewsletter',
                 context: {
                     body: this.convertStringToArticle(letter.body),
@@ -3670,6 +3864,7 @@ var myFuncs = {
 
         let sentMails = await this.sendMail(
             {
+               from: `Qasim Ali<${process.env.zoho}>`,
                 template: 'lifeNewsletter', 
                 context: {
                     body: this.convertStringToArticle(output.body),
@@ -3704,7 +3899,7 @@ var myFuncs = {
             }
         } else {
             return {
-                msg: 'Sorry something bad happened. Please leave an email to Qasim at <a href="mailto:qasimali24@gmail.com>qasimali24@gmail.com</a> and he will manually unsubscribe you.',
+                msg: 'Sorry something bad happened. Please leave an email to Qasim at <!-- <a href="mailto:qasimali24@gmail.com>qasimali24@gmail.com</a> --> and he will manually unsubscribe you.',
                 brand: req.params.brand
             }
         };
@@ -3793,13 +3988,1190 @@ var myFuncs = {
         }
     },
 
-    editWeb: async function(req,res) {
-        let output = 'something';
+    emptyFile: async function(req,res) {
+
         return {
-            msg: output
+            success: "true"
         }
+
     },
 
+    editWeb: async function(req,res) {
+
+        let theme = req.params.theme;
+        console.log( { theme } );
+        req.params.theme = 'root';
+
+        let file;
+        let readHBSFile = async function(path) {
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(path, 'utf8', (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return file;
+
+        };
+
+        if (req.params.input == 'n') {
+            file = false;
+        } else {
+            file = await readHBSFile(`./views/${theme}/${req.params.input}.hbs`);
+        }
+
+        return {
+            msg: 'hello world',
+            file: file,
+            brand: req.params.brand,
+            manualInput: req.query.hasOwnProperty("manualInput") ? req.query.manualInput : "n",
+            pageName: req.params.input,
+        }
+
+    },
+
+    saveWeb: async function(req,res) {
+
+        console.log(req.body)
+
+        let writeFile = async function(path,data) {
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.writeFile(path, data, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return file;
+
+        };
+
+        let file = await writeFile(`./views/${req.params.theme}/${req.params.input}.hbs`, req.body.html);
+
+        return {
+            msg: 'file has been saved in desired directory'
+        }
+
+    },
+
+    // HERE I STARTED WORKING ON PROPERTY WEBSITE
+
+    createProject: async function(req,res) {
+        console.log( " create project page opening ");
+        return {
+            success: true
+        }
+
+    },
+
+    createdProj: async function(req,res) {
+
+        console.log(req.body); 
+
+        let missingValues = Object.values(req.body).some( val => val.length == 0 );
+        console.log( missingValues );
+
+        let redirect = function(msg) { 
+            req.params.module = "createProject";
+            return {
+                errorMsg: msg ,
+                alreadyExists: req.body.brandName
+            } 
+        }
+
+        if (missingValues == true) {
+            return redirect("Some values are missing. Please fill out complete form.");
+        };
+
+        // create a new directory with this project Name — DONE 
+        // create all the listed files inside this directory — DONE
+        // create brand-users
+        // add this user / email / password to myapp-users
+        // send all the credentials to the createdProj folder
+
+        var dir = `./views/${req.body.projName}`;
+
+        let createFile = function(dir, name) {
+            return new Promise ((resolve,reject) => {
+                fs.writeFile(`${dir}/${name}.hbs`, '', (err) => {
+                    if (err) {
+                      return reject(err);
+                    }
+                    resolve();
+                });
+            });
+        };
+
+        if (!fs.existsSync(dir)){
+            console.log(dir);
+            fs.mkdirSync(dir);
+            let files = req.body.files.includes(",") ? req.body.files.split(',') : ['landingPage', req.body.files];
+            console.log({files});
+            await Promise.all( files.map( val => createFile(dir, val) ) );
+        }
+
+        let createUsersCollection = async function({brandName}) {
+
+            let data = {
+                name: brandName+'-users',
+                brand: brandName,
+                properties: {
+                    "name" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "email" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "password" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "role" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    }
+                },
+                redirect: ''
+            };
+
+            await Collections.findOneAndUpdate({name: brandName-"users"},data,{upsert: true});
+            console.log('created a new User row inside the Collections'); 
+
+        }
+        
+        let createNotificationsCollection = async function({brandName}) {
+
+            let data = {
+                "brand" : brandName,
+                "name" : brandName+"-notifications",
+                "properties" : {
+                    "text" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "status" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "type" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    },
+                    "data" : {
+                        "type" : "String",
+                        "required" : "true",
+                        "html" : "input"
+                    }
+                },
+                "redirect" : ""
+            }
+
+            await Collections.findOneAndUpdate({name: brandName-"notifications"},data,{upsert: true});
+            console.log('created a new Notifications row inside the Collections'); 
+
+        }
+
+        let model =  await this.createModel('myapp-themes');
+        let model2 =  await this.createModel('myapp-users');
+
+        let checkEarlierExists = async function({brandName}){
+
+            let count = {
+                inCollectionUsers : await Collections.find({name: brandName+"-users"}).count(),
+                inCollectionNotifications: await Collections.find({name: brandName+"-notifications"}).count(),
+                inThemes: await model.find({brand: brandName}).count(),
+                inUsers: await model2.find({brand: brandName}).count()
+            };
+
+            console.log(count);
+
+            return count;
+
+
+        };
+
+        let checkPrvs = await checkEarlierExists({brandName: req.body.brandName});
+
+        if (Object.values(checkPrvs).some(val => val != 0)) {
+
+            return redirect("Already exists in the collection = " + JSON.stringify(checkPrvs) );
+
+        }
+
+        await createUsersCollection({brandName: req.body.brandName});
+        await createNotificationsCollection({brandName: req.body.brandName});
+        let output = await model.create({brand: req.body.brandName, theme: req.body.projName});
+        console.log(output); 
+        let output2 = await model2.create({
+            email: req.body.ownerEmail, 
+            name: req.body.ownerName, 
+            password: req.body.ownerPassword,
+            brand: req.body.brandName,
+            role: 'admin'
+        });
+
+        console.log(output2); 
+        
+        console.log("new project created successfully");
+        req.params.module = "createdProj"
+
+        return {
+            msg: "new project created successfully",
+            name: req.body.ownerName,
+            email: req.body.ownerEmail,
+            password: req.body.ownerPassword,
+            brand: req.body.brandName,
+            projName: req.body.projName
+        }
+
+    },
+
+    showProj: async function(req,res) {
+
+        let model =  await this.createModel('myapp-themes');
+        let model2 =  await this.createModel('myapp-users');
+
+        let getData = async function({brandName}){
+
+            let data = {
+                inCollectionUsers : await Collections.find({name: brandName+"-users"}).count(),
+                inCollectionNotifications: await Collections.findOne({name: brandName+"-notifications"}).count(),
+                inThemes: await model.findOne({brand: brandName}),
+                inUsers: await model2.findOne({brand: brandName})
+            };
+
+            console.log(data);
+            return {
+                inCollectionUsers: data.inCollectionUsers,
+                inCollectionNotifications: data.inCollectionNotifications,
+                theme: data.inThemes.theme,
+                brand: data.inThemes.brand,
+                name: data.inUsers.name,
+                email: data.inUsers.email,
+                password: data.inUsers.password,
+                showDetails: true,
+            }
+
+        };
+
+        let allData = await getData({brandName: req.params.input});
+
+        console.log(allData);
+
+        req.params.module = "createdProj";
+        req.params.theme = "root";
+
+        return allData;
+
+    },
+
+    property: async function(req, res) {
+
+        let output = await this.fetchPropertiesDataForPage(req,res);
+
+        output.filters.status = output.filters.status.filter( val => {
+            console.log(val.name.match(/archive|sold/gi));
+            return val.name.match(/archive|sold/gi) == null;
+        });
+
+        if (req.params.permit == 'gen') {
+            output.forms = await this.getForms({msgBoxClient: true, contactForm: true}, req,res);
+        } else {
+            output.forms = await this.getForms({msgBoxAdmin: true}, req,res);
+        };
+
+        output.openLayer = req.query.openLayer ? req.query.openLayer : "" ;
+        output.slides = await this.getSlides(req,res);
+
+        return output;
+
+    },
+
+    showAll: async function(req,res) {
+
+        let output =  await this.fetchPropertiesDataForPage(req,res);
+
+        output.forms = await this.getForms({msgBoxAdmin: true, addProperty: true, editBusiness: true}, req,res);
+
+        return output;
+
+    },
+
+    offlineRequired: async function(req,res) {
+        
+
+        if (req.params.permit == 'gen') {
+            return {
+                allCards: this.getAllCards(req,res),
+                forms: await this.getForms({contactForm: true, msgBoxClient: true}, req,res),
+                salutation: '',
+            }
+
+        } else {
+            return {
+                allCards: this.getAllCards(req,res),
+                forms: await this.getForms({msgBoxClient: true, msgBoxAdmin: true, contactForm: true}, req,res),
+                salutation: (await this.fetchResources(req,res))[0].salutation
+            }
+        };
+
+    },
+
+    fetchPropertiesDataForPage: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+
+        if ( req.query && req.query.cities && req.query.cities.length > 1 ) {
+            townStatus = '';
+        } else {
+            townStatus = 'd-none';
+        }
+            
+        let filters = {
+            cities: await this.getCities(req,res),
+            townStatus: townStatus,
+            status: await model.distinct("status").lean(),
+            sort: req.query.hasOwnProperty("sort") ? req.query.sort : -1
+        };
+
+        filters = this.getFiltersStatus(filters, req.query);
+
+        return {
+            properties: await this.getProperties(req,res),
+            resources: (await this.fetchResources(req,res))[0],
+            filters: filters,
+            brand: req.params.brand,
+            input: req.params.input,
+            permit: req.params.permit,
+            module: req.params.module,
+            allCards: this.getAllCards(req,res)
+        }
+
+    },
+
+    getAllCards: function(req,res) {
+
+        let allCards = {
+            authCards: req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.length > 0 ? req.session.authCards.myArray : [],
+            authCardsCount: req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.length > 0 ? req.session.authCards.myArray.length : 0,
+            Cards: req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.length > 0 ? req.session.Cards.myArray : [],
+            CardsCount: req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.length > 0 ? req.session.Cards.myArray.length : 0,
+        };
+
+        return allCards;
+    },
+
+    filterProperties: async function(req,res) {
+
+        return {
+            properties: await this.getProperties(req,res),
+            permit: req.params.permit,
+        }
+
+    },
+
+    getFiltersStatus: function(filters, query) {
+
+        filters.cities = filters.cities.map( val => { 
+
+            query.cities && query.cities.match(val.city) ? val.status = 'active' : '';
+
+            val.towns = val.towns.map( town => {
+                if (val.status == 'active') {
+                    return {
+                        name: town,
+                        status: query.towns && query.towns.split(',').includes(town) ? 'active' : ''
+                    }
+                } else {
+                    return { 
+                        name: town ,
+                        status: 'd-none'
+                    }
+                }
+            });
+
+
+            return val;
+
+        });
+
+
+        filters.status = filters.status.map( val => {
+
+            console.log(val, query.status);
+            if (query.status && query.status.length > 0) {
+                return {
+                    name: val,
+                    status: query.status && query.status.split(',').includes(val) ? val.status = 'active' : ''
+                }
+            } else {
+                return {
+                    name: val,
+                    status: 'active'
+                }
+            }
+
+        });
+
+        return filters;
+
+    },
+
+    getCities: async function(req,res) {
+        let query = {};
+        if (req.params.module == 'showAll') {
+            query.status = { $in: ["Selling","Required","Sold","Archive"] };
+        } else {
+            query.status = { $in: ["Selling","Required"] };
+        };
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+        let output = await model.aggregate([
+            {
+                $match: query
+            },{
+                $group: {
+                    _id: "$city",
+                    "towns": {
+                        $addToSet: "$town"
+                    }
+                },
+            },{
+                $project: {
+                    "_id" : 0,
+                    "city" : "$_id",
+                    "towns": "$towns"
+                }
+            }
+        ]);
+
+        console.log(output);
+
+        return output;
+    },
+
+    getProperties: async function(req,res) {
+        
+        let query = this.buildMongoQuery(req,res);
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+
+        let output = await model.aggregate([
+            {
+                $match: query
+            },{
+                $addFields: {
+                    priceInNo: {
+                        $toInt : "$price"
+                    }
+                }
+            },{
+                $sort: {
+                    "priceInNo": req.query.hasOwnProperty('sort') ? Number(req.query.sort) : -1
+                }
+            }
+        ]);
+
+        let matchSelectedProperties = function(properties) {
+
+            properties = properties.map( val => {
+                val.authSelected = req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '';
+                val.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '' ;
+                return val;
+            });
+
+            return properties;
+        };
+
+        output = matchSelectedProperties(output);
+
+        return output;
+
+    },
+
+    buildMongoQuery: function(req,res) {
+
+        let query = {} ; 
+
+        if (req.params.permit == 'showAll') {
+            query.status = { $in: ["Selling","Required","Sold","Archive"] };
+        } else {
+            query.status = { $in: ["Selling","Required"] };
+        };
+
+        if (req.query.hasOwnProperty('status') && req.query.status.length > 1) {
+            query.status = {$in: req.query.status.split(',')};
+        } 
+
+        if ( req.query.hasOwnProperty('cities') && req.query.cities.length > 1) {
+            query.city = {$in: req.query.cities.split(',')};
+        
+            if ( req.query.hasOwnProperty('towns') && req.query.towns.split(',').length > 0) {
+                query.town = {$in: req.query.towns.split(',')};
+            };
+
+        }
+
+        console.log(query);
+
+        return query;
+
+    },
+
+    saveInSession: async function(req,res) {
+
+        req.session[req.params.input] = req.body;
+
+        console.log(req.body);
+        console.log(req.session);
+
+        return {
+            success: true
+        }
+
+    },
+
+    drawForm: async function(req,res) {
+
+        console.log(req.session);
+
+        let form = (await this.getForms({[req.params.input]: true}, req,res))[req.params.input];
+
+        return {
+            form: form,
+            input: req.params.input,
+            permit: req.params.permit,
+            brand: req.params.brand,
+            allCards: this.getAllCards(req,res)
+        };
+        
+
+    },
+
+
+    getForms: async function({msgBoxClient, msgBoxAdmin, contactForm, editProperty, addProperty, addBlog, editBlog, editBusiness, signin }, req, res) {
+
+        let object = {};
+
+        if (msgBoxClient == true) {
+
+            object.msgBoxClient = {
+                formName: "msgBoxClient",
+                heading: "MESSAGE BOX",
+                note: "Write your message below and choose the option at the bottom to contact us.",
+                class: "msgBoxClient mt-24",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
+                elems: [
+                    {
+                        elem: "textarea",
+                        label: "YOUR MESSAGE",
+                        rows: 10,
+                        value: req.session.msgBoxClient && req.session.msgBoxClient.msg || "Sir I am interested in these properties. Kindly when free get in touch..",
+                        default: "Sir I am interested in these properties. Kindly when free get in touch..",
+                        onkeyup: "saveInSession(this, 'msgBoxClient'); changeConnected(this, 'contactForm')",
+                        name: "msg",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "WHATSAPP",
+                        onclick: "openWhatsApp(this)",
+                        info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "EMAIL",
+                        info: "Opens Contact Form where you will enter your Contact No and Name.",
+                        onclick: "openLayer('.contactForm')"
+                    },{
+                        elem: "button",
+                        class: "btn close",
+                        value: "CLOSE MSG BOX",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+            }
+
+        }
+
+        if (msgBoxAdmin == true) {
+
+            object.msgBoxAdmin = {
+                formName: "msgBoxAdmin",
+                heading: "MESSAGE BOX",
+                note: "Draft your message and broadcast using WhatsApp.",
+                class: "msgBoxAdmin mt-24",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
+                elems: [
+                    {
+                        elem: "textarea",
+                        label: "YOUR MESSAGE",
+                        rows: 10,
+                        value: req.session.msgBoxAdmin && req.session.msgBoxAdmin.msg || "Sir fresh properties for today; contact to inquire more, please.",
+                        default: "Sir fresh properties for today; contact to inquire more, please.",
+                        onkeyup: "saveInSession(this, 'msgBoxAdmin')",
+                        name: "msg"
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "WHATSAPP",
+                        onclick: "openWhatsApp(this)",
+                        info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
+                    },{
+                        elem: "button",
+                        class: "btn close",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+            }
+
+        }
+
+        if (addProperty == true) {
+
+            object.addProperty = {
+                heading: "ADD NEW PROPERTY",
+                note: "Delightfully add your properties. Make it breezing fast for your customers to understand you.",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "price",
+                        type: "number",
+                        label: "PRICE (PKR)",
+                        value: "2000000" // THESE VALUES ARE TEMP
+                    },{
+                        elem: "input",
+                        name: "city",
+                        type: "text",
+                        label: "CITY",
+                        value: "Islamabad"
+                    },{
+                        elem: "input",
+                        name: "town",
+                        type: "text",
+                        label: "TOWN",
+                        value: "BAHRIA 9"
+                    },{
+                        elem: "input",
+                        name: "size",
+                        type: "text",
+                        label: "SIZE OF PROPERTY",
+                        value: "1.5 Kanal"
+                    },{
+                        elem: "textarea",
+                        label: "LOCATION DETAILS - REMARKS",
+                        name: "details",
+                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
+                        onkeyup: "saveInSession(this, 'addProperty')"
+                    },{
+                        elem: "propertyStatus",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm(this)",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    } 
+                ]
+            }
+
+        }
+
+        if (contactForm == true) {
+
+            object.contactForm = {
+
+                formName: "contactForm",
+                heading: "<span>MSGBOX /</span> CONTACT FORM",
+                note: "Please fill in your contact details. We will get back to you in next few hours.",
+                elems: [
+
+                    {
+                        elem: "textarea",
+                        label: "YOUR MESSAGE",
+                        name: "msg",
+                        rows: 10,
+                        value: req.session.msgBoxClient && req.session.msgBoxClient.msg || "Sir fresh properties for today; contact to inquire more, please.",
+                        onkeyup: "saveInSession(this, 'msgBoxClient'); changeConnected(this, 'msgBoxClient')"
+                    },{
+                        elem: "input",
+                        label: "YOUR NAME",
+                        value: req.session.contactForm && req.session.contactForm.name || "",
+                        onkeyup: "saveInSession(this, 'contactForm')",
+                        type: "text",
+                        name: "name",
+                    },{
+                        elem: "input",
+                        label: "YOUR CONTACT NO / EMAIL",
+                        onkeyup: "saveInSession(this, 'contactForm')",
+                        value: req.session.contactForm && req.session.contactForm.contact || "",
+                        name: "contact",
+                        type: "text",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        value: "SEND EMAIL",
+                        onclick: "createTicket(this)"
+                    },{
+                        elem: "button",
+                        class: "btn close",
+                        value: "BACK",
+                        onclick: "openLayer('.msgBox')"
+                    },{
+                        elem: "button",
+                        class: "btn close",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')"
+                    } 
+                ]
+
+            }
+
+        }
+
+        if (editProperty == true) {
+
+            object.editProperty = {
+                heading: "EDIT PROPERTY",
+                note: "Delightfully edit your properties. Make it so simple + fast for your visitors that they want to reach you. Good Luck!",
+                class: "mt-24",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "_id",
+                        type: "text",
+                        attr: "disabled",
+                        value: "here goes my id"
+                    },{
+                        elem: "input",
+                        name: "price",
+                        type: "number",
+                        label: "PRICE (PKR)",
+                        value: "2000000" // THESE VALUES ARE TEMP
+                    },{
+                        elem: "input",
+                        name: "city",
+                        type: "text",
+                        label: "CITY",
+                        value: "Islamabad"
+                    },{
+                        elem: "input",
+                        name: "town",
+                        type: "text",
+                        label: "TOWN",
+                        value: "BAHRIA 9"
+                    },{
+                        elem: "input",
+                        name: "size",
+                        type: "text",
+                        label: "SIZE OF PROPERTY",
+                        value: "1.5 Kanal"
+                    },{
+                        elem: "textarea",
+                        label: "LOCATION DETAILS - REMARKS",
+                        name: "details",
+                        value: "Near Corner Mosque, held with Brig (Retd), ready for Sale in upfront cash / cheque payment, excellent value for the money. Urgent Sale please.",
+                        onkeyup: "saveInSession(this, 'editProperty' )"
+                    },{
+                        elem: "propertyStatus",
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm(this)",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    } 
+                ]
+            }
+                
+
+        }
+
+        if (addBlog == true) {
+
+            object.addBlog = {
+                heading: "BLOG WRITING",
+                elems: [
+                    {
+                        elem: "ck-editor",
+                        name: "content",
+                        label: "CONTENT",
+                        onclick: "saveInSession(this, 'editBlog')",
+                        value: "nothing goes here yet",
+                    },{
+                        elem: "input",
+                        name: "name",
+                        label: "BLOG NAME",
+                        value: "Just a Name",
+                    },{
+                        elem: "input",
+                        name: "slug",
+                        label: "SLUG",
+                        value: "just-a-name",
+                        info: "This is the URL to your blog. Heading separated with dashes."
+                    },{
+                        elem: "input",
+                        name: "type",
+                        label: "FEATURED",
+                        value: "featured",
+                        info: "If you want to feature this post, keep the Feature button active"
+                    },{
+                        elem: "button",
+                        value: "SAVE",
+                        onclick: "submitForm(this)",
+                        class: "btn blue mt-24"
+                    },{
+                        elem: "button",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')",
+                        class: "btn"
+                    }
+                ] 
+            }
+
+        }
+
+        if (editBlog == true) {
+
+            object.editBlog = {
+                heading: "EDIT YOUR BLOG",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "_id",
+                        type: "text",
+                        value: "myID goes here",
+                        attr: "disabled"
+                    },{
+                        elem: "ck-editor",
+                        name: "content",
+                        label: "CONTENT",
+                        onclick: "saveInSession(this, 'editBlog')",
+                        value: "nothing goes here yet",
+                    },{
+                        elem: "input",
+                        name: "name",
+                        label: "BLOG NAME",
+                        value: "Just a Name",
+                    },{
+                        elem: "input",
+                        name: "slug",
+                        label: "SLUG",
+                        value: "just-a-name",
+                        info: "This is the URL to your blog. Heading separated with dashes."
+                    },{
+                        elem: "input",
+                        name: "type",
+                        label: "FEATURED",
+                        value: "featured",
+                        info: "If you want to feature this post, keep the Feature button active"
+                    },{
+                        elem: "button",
+                        value: "SAVE",
+                        onclick: "submitForm(this)",
+                        class: "btn blue mt-24"
+                    },{
+                        elem: "button",
+                        value: "CLOSE",
+                        onclick: "openLayer('.layerOne')",
+                        class: "btn"
+                    }
+                ] 
+            }
+
+        }
+
+        let model, output = {};
+
+        if (editBusiness == true) {
+
+            model = await this.createModel(`${req.params.brand}-resources`);
+            output = (await model.find().lean())[0];
+
+            console.log( chalk.bold(" EDIT BUSINESS MODEL ") );
+            console.log(output);
+            
+            object.editBusiness = {
+                heading: "EDIT BUSINESS", 
+                note: "Carefully enter these details. These are same details through which your clients contact you!.",
+                url: `/${req.params.brand}/auth/data/updateSequence/n`,
+                elems: [
+                    {
+                        elem: "input",
+                        class: "d-none",
+                        name: "_id",
+                        value: output == undefined ? this.getMongoId() : output._id,
+                    },{
+                        elem: "input",
+                        class: "d-none",
+                        name: "modelName",
+                        value: `${req.params.brand}-resources`,
+                    },{
+                        elem: "input",
+                        name: "name",
+                        type: "text",
+                        label: "BUSINESS NAME",
+                        value: output == undefined ? "xyz" : output.name,
+                    },{
+                        elem: "input",
+                        name: "whatsapp",
+                        label: "BUSINESS WHATSAPP",
+                        type: "text",
+                        value: output == undefined ? "+923235163638" : output.whatsapp,
+                    },{
+                        elem: "input",
+                        name: "email",
+                        label: "BUSINESS EMAIL",
+                        info: "You recieve emails by visitors when they don't want to use WhatsApp to contact you.",
+                        value: output == undefined ? "xyz@asdf.com" : output.email,
+                    },{
+                        elem: "input",
+                        label: "BUSINESS GOOGLE PIN (LOCATION)",
+                        info: "Use google to find out your pin website link. Copy this link. And paste it in this field. When clients click on your Location, they are directed to this URL.",
+                        name: "googlepin",
+                        value: output == undefined ? "google.com/123123" : output.googlepin,
+                    },{
+                        elem: "textarea",
+                        label: "BUSINESS MAILING ADDRESS",
+                        rows: 5,
+                        name: "address",
+                        info: "If your clients want to send something to your mailing address, this is the address.",
+                        value: output == undefined ? "this is my temp address" : output.address,
+                    },{
+                        elem: "textarea",
+                        label: "SALUTATION MSG",
+                        name: "salutation",
+                        info: "End of your emails / whatsapp messages, includes your salutation.",
+                        value: output == undefined ? "Regards,\r\nMaj (R)\r\nAwais Chodhry\r\n+923235165558\r\nchodhryproperties.com" : output.salutation,
+                        rows: 5,
+                    },{
+                        elem: "input",
+                        label: "FACEBOOK PAGE LINK",
+                        name: "facebook",
+                        value: output == undefined ? "facebook.com/asdfasfd" : output.facebook,
+                        placeholder: "https://facebook.com/yourpagename"
+                    },{
+                        elem: "input",
+                        label: "TWITTER PAGE LINK",
+                        name: "twitter",
+                        value: output == undefined ? "twitter.com/asdfasfd" : output.twitter,
+                        placeholder: "https://twitter.com/yourpagename"
+                    },{
+                        elem: "button",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm(this)",
+                        value: "SAVE"
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    }
+                ]
+            } 
+        }
+
+
+        if (signin == true) {
+
+
+            object.signin = {
+                heading: "ADMIN LOG IN",
+                note: "This is log in page to the dashboard of this website. Please log in if you are an administrator of this business.",
+                elems: [
+                    {
+                        elem: "input",
+                        name: "email",
+                        type: "email",
+                        value: "xys@gasdf.com",
+                        label: "USERNAME"
+                    },{
+                        elem: "input",
+                        name: "password",
+                        type: "password",
+                        value: "asfdas",
+                        label: "PASSWORD"
+                    },{
+                        elem: "button",
+                        value: "ENTER",
+                        class: "btn blue mt-24",
+                        onclick: "submitForm",
+                    },{
+                        elem: "button",
+                        class: "btn",
+                        onclick: "openLayer('.layerOne')",
+                        value: "CLOSE"
+                    }
+                ] 
+            }
+
+        }
+
+
+        return object;
+
+    },
+
+    propertyGenForm: async function(req,res) {
+
+        switch (true) {
+            case (req.params.input == 'contactEmail'):
+                console.log( chalk.bold.blue( "SEND EMAIL to the OWNER EMAIL ADDRESS" ) );
+                console.log( chalk.bold.blue( "STORE THIS MSG AND DETAILS INTO CONTACT COLLECTION" ) );
+                break;
+            case (req.params.input == 'contactWhatsApp'):
+                console.log( chalk.bold.blue( "SENT WHATSAPP MSG FROM THE BROWSER" ) );
+                console.log( chalk.bold.blue( "STORE IN CONTACT COLLECTION" ) );
+                break;
+            default: 
+                break;
+        }
+
+        return {
+            success: true
+        }
+
+    },
+
+
+    propertyAdminForm: async function(req,res){
+
+        let missingValues = Object.values(req.body).some( val => val.length == 0 );
+
+        if (missingValues) {
+            return {
+                status: 404,
+                error: 'Please fill in all the values of the form'
+            }
+        }
+
+        let addProperty = async function() {
+
+            console.log(req.body);
+            let model = await myFuncs.createModel(`${req.params.brand}-properties`);
+
+            let output = await model.create(req.body);
+
+            console.log(output);
+
+            return output;
+
+        }
+            
+
+        let output;
+
+        switch (true) {
+            case (req.params.input == 'editProperty'):
+                console.log( chalk.bold.blue( "EDIT A PROPERTY" ) );
+                output = await editProperty();
+                break;
+            case (req.params.input == 'addProperty'):
+                console.log( chalk.bold.blue( "ADD A PROPERTY" ) );
+                output = await addProperty();
+                break;
+            case (req.params.input == 'websiteContent'):
+                console.log( chalk.bold.blue( "EDIT WEBSITE CONTENT" ) );
+                break;
+            case (req.params.input == 'statusChange'):
+                console.log( chalk.bold.blue( "EDIT THE PROPERTY STATUS" ) );
+                break;
+            default: 
+                break;
+        }
+
+        return output;
+
+    },
+
+    getSlides: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+        let output = {
+            sliders: await model.find({style: { $ne : "slide-footer" } }).sort({sequence: 1}).lean(),
+            footer: await model.findOne({style: "slide-footer"}).lean(),
+        }
+
+        return output;
+
+    },
+
+    showSlides : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        return {
+            forms: await this.getForms({msgBoxAdmin: true}, req,res),
+            slides: await this.getSlides(req,res),
+            templates: [ 1, 2, 3],
+            allCards: this.getAllCards(req,res),
+        };
+
+    },
+
+    saveSlide : async function(req,res) {
+
+        console.log(req.body);
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        console.log( { input: req.params.input, myId: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input } );
+
+        let output = await model.findOneAndUpdate(
+            {
+                _id: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input
+            },{ 
+                $set: { 
+                        style: req.body.style, 
+                        content: req.body.content, 
+                        sequence: req.body.sequence 
+                } 
+            },{ upsert: true, new: true }).lean();
+
+        return output;
+
+    },
+
+    changeSlideSequence : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-slides`);
+
+        let output = await Promise.all( req.body.slides.map( val => model.findOneAndUpdate({_id: val.id}, {$set : { sequence: val.sequence } }, {new: true} ) ) );
+
+        return output;
+
+    },
 
 };
 

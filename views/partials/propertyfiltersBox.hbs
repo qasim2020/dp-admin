@@ -1,0 +1,54 @@
+
+    <div class="firstBox close">
+
+
+        <button class="btn filter " onclick="toggleFilterBox(this)">
+
+            <span>SHOW FILTERS</span>
+            <span>HIDE FILTERS</span>
+        
+        </button>
+        <div class="filters cities">
+
+            <p class="box-hdg">CITIES</p>
+
+            {{#each data.filters.cities}}
+
+                <span 
+                   class="btn {{this.status}}" 
+                    onclick="toggleClass(this,'active'); filterPress(this); cityPress(this)"
+                    myTowns="{{this.towns}}"
+                    myName="{{this.city}}"
+                >{{toUpperCase this.city}}</span> 
+
+            {{/each}}
+        
+        </div>
+    
+        <div class="filters towns {{data.filters.townStatus}}">
+
+            <p class="box-hdg">TOWNS</p>
+
+            {{#each data.filters.cities}}
+            {{#each this.towns}}
+            <span myName="{{this.name}}" class="btn {{this.status}}" onclick="toggleClass(this,'active'); filterPress(this)" city="{{../this.city}}">{{toUpperCase this.name}}</span>
+            {{/each}}
+            {{/each}}
+        
+        </div>
+
+        <div class="filters status">
+            <p class="box-hdg">SHOW PROPERTIES</p>
+            {{#each data.filters.status}}
+            <span myName="{{this.name}}" class="btn {{this.status}} {{toLowerCase this.name}}" onclick="toggleClass(this,'active'); filterPress(this)" >{{toUpperCase this.name}}</span>
+            {{/each}}
+        </div>
+
+        <div class="filters prices">
+            <p class="box-hdg">PRICES</p>
+            <span myName="-1" class="btn {{#if (matchValues data.filters.sort '-1')}} active {{/if}} " onclick="highToLow(this); filterPress(this)">LOW to HIGH</span>
+            <span myName="1" class="btn {{#if (matchValues data.filters.sort '1')}} active {{/if}} "   onclick="highToLow(this); filterPress(this)">HIGH to LOW</span>
+        
+        </div>
+
+    </div>

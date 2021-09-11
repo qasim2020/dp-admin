@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>Admin</title>
+    <style>
+    {{>propertyCSS}}
+    </style>
+</head>
+<body>
+
+    <div class="layerOne">
+
+        {{> propertyNav navs="home-auth dashboard draw-form show-slides add-property-local edit-business-local write-blog show-blogs log-out" active="dashboard"}}
+
+        {{> propertyfiltersBox cities=data.cities admin="true"}}
+
+        <div class="container" authCards="{{json data.authcards.myArray}}" cards="{{json data.cards.myArray}}">
+
+            <p class="note">Add New or Change Status of Properties on this page. To draft a message, select the properties and click on OPEN MSG BOX.</p>
+
+            <a class="btn runFilter d-none" href="/{{data.brand}}/auth/pjax/filterProperties/showAll" data-pjax>Run Filters</a>
+
+            <div class="cards" id="pjax-container"> 
+
+                {{#if data.properties}}
+
+                {{> propertyCards properties=data.properties admin="auth"}}
+
+                {{else}}
+
+                <p>No Matching Properties Found. Sorry..</p>
+
+                {{/if}}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="formBox msgBox d-none">
+
+        {{> propertyForm data=data.forms.msgBoxAdmin}}
+    
+    </div>
+
+
+    <div class="formBox editProperty d-none">
+
+        {{> propertyForm data=data.forms.addProperty}}
+
+    </div>
+
+    <div class="formBox editBusiness  d-none">
+
+        {{> propertyForm data=data.forms.editBusiness}}
+    
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/root/pjax.js"></script>
+
+    {{> propertyJS}}
+
+</body>
+
+</html>
+

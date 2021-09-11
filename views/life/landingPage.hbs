@@ -298,24 +298,6 @@
       background: green;
     }
 
-    /**
-    .left-part > a {
-      font-family: Roboto;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 12px;
-      line-height: 157.9%;
-      display: flex;
-      align-items: center;
-      max-width: 171px;
-      color: #219653;
-      margin: auto;
-      border: 1px solid #219653;
-      padding: 10px;
-      margin-top: 15px;
-    }
-    **/
-
     .left-part > a:hover {
       background: #f2f2f2;
     }
@@ -439,7 +421,6 @@
         </p>
         
         <a class="selector {{#if (match "n" data.pjaxId)}}active{{/if}}" id="showBlogs"  href="/{{data.brand}}/gen/pjax/blogs/landingPage" data-pjax>Blogs</a>
-        <a class="selector" id="blogStreak" href="/{{data.brand}}/gen/pjax/blogStreak/landingPage" data-pjax>Streak</a>
         <a class="selector" id="newsletters" href="/{{data.brand}}/gen/pjax/newsletters/landingPage" data-pjax>Newsletters</a>
         <button class="selector" onclick="showModel()">Subscribe</button>
 
@@ -518,7 +499,6 @@
             let string = '';
             console.log(value);
             if (value == '') {
-                // string = "/{{data.brand}}/gen/pjax/blogs/landingPage?input=showBlogs"+"&keyWord="+value; 
                 string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
                 $('#showBlogs').attr({href: string}).trigger('click');
                 return console.log('Value is null');  

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/root/codemirror/css/codemirror.css">
+    <link rel="stylesheet" href="/root/codemirror/css/neo.css">
+    <title>Chodhry Properties</title>
+    <style>
+        {{>propertyCSS}} 
+    </style>
+</head>
+<body>
+
+    <div class="layerOne">
+    
+        {{#if (matchValues data.permit 'auth') }}
+            {{> propertyNav navs="home dashboard show-slides add-property-local edit-business-local write-blog show-blogs log-out" active="show-slides"}}
+        {{else}}
+            {{> propertyNav navs="home about-us show-slides our-location read-blogs log-in" active="show-slides"}} 
+        {{/if}}
+
+        <div class="box-top">
+
+            <p class="box-hdg">SLIDES</p>
+            <p class="note">Drag / Drop / Add new slides. These appear to your users when they land on your website.</p>
+        
+        </div>
+
+        <div id="sortable" class="cards existing-templates" >
+
+            <button class="btn thumbnail"  onclick="openLayer('.saved-templates')">ADD NEW SLIDE</button>
+
+            <div class="thumbnail">
+                <p class="small">slide-footer</p>
+                <button
+                    sequence="0"
+                    class="btn edit"
+                    style="slide-footer"
+                    {{#if data.footer}}
+
+                    id="{{data.slides.footer._id}}" 
+                    content="{{data.footer.content}}"
+
+                    {{else}}
+
+                    id="temp-footer" 
+                    content='
+<div>
+<img class="e" src="http://res.cloudinary.com/miscellaneous/image/upload/v1631070109/chodhry/6138279a94bd05288ea35edd.png" alt="" public_id="6138279a94bd05288ea35edd">
+
+<h1 class="e">EXPLORE</h1>
+<p><a href="1" class="e">Properties in DHA, Islamabad</a></p>
+<p><a href="2" class="e">Properties in Bahria, Islamabad</a></p>
+<p><a href="3" class="e">Properties in Phase 8, Islamabad</a></p>
+<p><a href="4" class="e">Properties in DHA, Gujranwala</a></p>
+
+<h1 class="e">VISIT</h1>
+<p class="e">Shop No # 8, Bahria Town Phase 7, Near gulberg, Phase 7, Islamabad, Pakistan</p>
+
+	<h1 class="e">CONTACT US</h1>
+	<p class="e">gul7878@gmail.com</p>
+	<p class="e">+92 331 5586889</p>
+
+	<h1 class="e">FOLLOW</h1>
+<p><a href="2" class="e">Twitter</a></p>
+<p><a href="2" class="e">Facebook</a></p>
+
+</div>
+                    '
+
+                    {{/if}}
+                    onclick="openLayer('.slide-editor'); openSlideEditor(this, 'old' )"
+                    >
+                    EDIT
+                </button>
+                {{#if data.slides.footer}}
+
+                <a class="btn red" href="/{{data.brand}}/{{data.permit}}/page/deleteDocumentAuth/slides?_id={{data.footer._id}}&redirect=showSlides&redirectInput=n">RESET</a>
+
+
+                {{/if}}
+
+            </div>
+
+            {{#each data.slides.sliders}}
+
+            <div class="thumbnail sortable" draggable=true>
+                <p class="small">{{this.style}}</p>
+                <button 
+                    sequence="{{this.sequence}}"
+                    class="btn edit" 
+                    id="{{this._id}}" 
+                    style="{{this.style}}" 
+                    content= "{{this.content}}"
+                    onclick="openLayer('.slide-editor'); openSlideEditor(this, 'old' )">
+                    EDIT
+                </button>
+                <button class="btn red" id="{{this._id}}" onclick="deleteMe(this, 'slides')">DELETE</button>
+            </div>
+
+            {{/each}}
+        
+            
+        </div>
+
+    </div>
+
+    <div class="placeholders d-none">
+
+        <div class="href placeholder">
+            <p>
+                <span>LINK</span>
+                <input type="text" placeholder="https://...." onkeyup="inputChanged(this)">
+            </p>
+        </div>
+
+        <div class="img placeholder">
+
+            <p>
+                <span>SRC</span>
+                <input type="text" placeholder="https://...." onkeyup="inputChanged(this)">
+            </p>
+
+            <p>
+                <input class="d-none" type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+                <button class="btn white w-100" onclick="$(this).prev().click();">UPLOAD IMAGE</button>
+            </p>
+        
+        </div>
+
+    </div>
+
+    <div class="formBox saved-templates d-none">
+
+        <div class="box-top">
+            <p class="box-hdg"> <span>SLIDES / </span> TEMPLATES </p>
+            <p class="note">Choose a template from below and edit it according to your needs. Contact us if you need a specific template, we can build one for you!</p>
+            <button class="black" onclick="openLayer('.layerOne', this)">GO BACK</button>
+        </div>
+
+        <div class="cards px-10">
+            <div class="thumbnail" style="slide-intro" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">INTRO</div>
+            <div class="thumbnail" style="slide-photo" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">PHOTO</div>
+            <div class="thumbnail" style="slide-location" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">LOCATION</div>
+            <div class="thumbnail" style="slide-review" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">REVIEW</div>
+            <div class="thumbnail" style="slide-featured" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">FEATURED</div>
+            <div class="thumbnail" style="slide-contact" onclick="openLayer('.slide-editor'); openSlideEditor(this, 'new')">CONTACT</div>
+        </div>
+
+    </div>
+
+    <div class="formBox d-none slide-new">
+
+        <div class="box-top">
+            <p class="box-hdg"> <span>SLIDES / TEMPLATES /</span> EDITOR</p>
+            <p class="note">Click on the text below to edit these. The data is saved as you edit it.</p>
+            <button class="black" onclick="openLayer('.saved-templates')">GO BACK</button>
+        </div>
+
+        <div sequence="0" class="slide d-none slide-footer" id="temp-0" style="slide-footer" onkeyup="saveSlide(this)" ></div>
+
+        <div class="slide d-none slide-intro" id="temp-intro" style="slide-intro" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <section class="left">
+
+                    <h1 class="e"><b>Defence</b> Properties</h1>
+                    <p class="e">Mr Robert has been running Defence Properties for last 10 years. He hails from a town in West London, MiddleSex. A proud war veteran, who takes pride in high quality and 100% trusted customer support.  </p>
+                    <p class="note e">A project of Gold Smiths (R) trademark, private limited.</p>
+
+                </section>
+
+
+                <section class="right">
+
+                    <img class="e" src="" alt="">
+
+                </section>
+
+
+            </div>
+
+        </div>
+
+        <div class="slide-photo slide d-none" id="temp-photo" style="slide-photo" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="img"> <img class="e" src="" alt=""> </div>
+                <div class="banner"> <p class="e">Business should be something we all love.</p> </div>
+                <div class="link"><a class="e" href="">view our office ➝</a></div>
+
+            </div>
+
+        </div>
+
+        <div class="slide-location slide d-none" id="temp-location" style="slide-location" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="img"><img src="" alt="" class="e"></div>
+                <div class="banner"><p class="e">operating from Rawalpindi.</p></div>
+                <div class="address">
+                    <img class="e" src="" alt="">
+                    <p class="e">Office # 8 · Bolan Heights · 7th Avenue · Phase 7 · Bahria <br> Rawalpindi <br> Pakistan </p>
+                    <p class="e">+92 331 5584889 </p>
+                    <p class="e">gul7878@gmail.com </p>
+                    <a class="e" href="">Get Directions ⇢</a>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div class="slide-featured slide d-none" id="temp-featured" style="slide-featured" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="banner"><p class="e">Today's Featured Properties.</p></div>
+                <div class="properties">
+                    <div class="property"></div>
+                    <div class="property"></div>
+                    <div class="property"></div>
+                </div>
+                <div class="link"><a class="e" href="">Explore more ➝</a></div>
+
+            </div>
+
+        </div>
+
+        <div class="slide-review slide d-none" id="temp-review" style="slide-review" onkeyup="saveSlide(this)" >
+
+
+            <div>
+
+                <div class="banner">
+                    <p class="e">our Happy&nbsp; Customers.</p>
+                </div>
+
+                <div class="quote">
+
+                    <img class="e" src="https://res.cloudinary.com/miscellaneous/image/upload/v1631242317/chodhry/commas.png" alt="">
+
+                    <div>
+
+                        <p class="e">I was curious if I can ever find a trustworthy space to buy my dream property back home. Found Hashim Ali, and I have always recommended him to my colleagues and friends.  </p>
+                        <p class="e">Sarah, Manchester, UK</p>
+                        <a class="e" href="">Find more on google ➝</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="slide-contact slide d-none" id="temp-contact" style="slide-contact" onkeyup="saveSlide(this)" >
+
+            <div>
+
+                <div class="banner"><p class="e">Talk to us.</p></div>
+                <div class="img">
+                    <img class="e" src="https://res.cloudinary.com/miscellaneous/image/upload/v1631243698/chodhry/contactform.png" alt="">
+                </div>
+                <button class="e">open Contact Form ➝</button>
+
+            </div>
+
+        </div>
+    
+    </div>
+
+    <div class="formBox d-none slide-editor">
+
+        <div class="box-top">
+            <p class="box-hdg"> <span>SLIDES /</span> EDITOR</p>
+            <p class="note">Click on text places to edit them. Data is stored live.</p>
+            <button class="black" onclick="openLayer('.layerOne', this)">GO BACK</button>
+            <button class="btn" id="mode" onclick="toggleMode(this)">...</button>
+        </div>
+
+        <div id="editor"  class="advanced-editor d-none" onkeyup="saveSlide( '.slide-editor > .slide', editor.getValue() ) " ) > </div>
+
+    </div>
+
+    <div class="formBox msgBox d-none">
+
+        {{> propertyForm data=data.forms.msgBoxAdmin}}
+    
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/root/codemirror/js/codemirror.js"></script>
+    <script src="/root/codemirror/js/xml.js"></script>
+    <script src="/root/pjax.js"></script>
+
+    <script>
+
+
+        $( "#sortable" ).sortable({
+                    items: "> .sortable",
+                    stop: val => {
+                                let data = {
+                                            slides: []
+                                        };
+                                $("#sortable > .sortable").each( function(index) {
+                                    $(this).find('button.edit').attr({sequence: Number(index) + 1});
+                                    data.slides.push({
+                                        sequence: index + 1,
+                                        id: $(this).find('button.edit').attr('id')
+                                    });
+                                });
+
+                                $.ajax({
+                                        url: `/{{data.brand}}/{{data.permit}}/data/changeSlideSequence/n`,
+                                        method: "POST",
+                                        data: data,
+                                        success: val => console.log(val),
+                                        error: (err, status, responst) => console.log(err)
+                                    });
+                            }
+                });
+
+        $( "#sortable" ).disableSelection();
+
+        let readURL = function (elem) {
+            
+            let afterCloudinary = function(val) {
+
+                        
+                        console.log(val);
+
+                        $(elem).closest('p').prev().find('input').val(val.url);
+                        $(elem).closest('.placeholder').prev().attr({ src: val.url, public_id: val.public_id.split('/')[ val.public_id.split('/').length - 1 ] }).keyup();
+                        $(elem).next().html("IMAGE UPLOADED");
+
+                    };
+
+
+            let uploadCloudinary = function(img) {
+
+                        let data = {
+                            public_id: $(elem).closest('.placeholder').prev().attr("public_id"),
+                            img: img,
+                            width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
+                            height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
+                            };
+
+                        $(elem).closest(".placeholder").prev().attr({ src : img });
+                        $(elem).next().html("UPLOADING IMAGE ...");
+                        console.log(data);
+                        
+                        $.ajax({
+                                    url: "/{{data.brand}}/{{data.permit}}/data/uploadCloudinary/n",
+                                    method: "POST",
+                                    data: data,
+                                    success: val => afterCloudinary(val),
+                                    error: (err, status, response) => console.log(err.responseText)
+                                });
+                    };
+            
+            if (elem.files && elem.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                        console.log("UPLOAD IMAGE TO CLOUDINARY");
+                        return uploadCloudinary(e.target.result);
+                };
+                reader.readAsDataURL(elem.files[0]);
+            }
+        }
+
+        var editor = CodeMirror(document.getElementById("editor"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+        });
+
+
+        let toggleMode = function(elem) {
+
+                    $(elem).closest(".slide-editor").find(".placeholder").remove();
+                    $(elem).closest(".slide-editor").find(".slide").toggleClass("d-none").prev(".advanced-editor").toggleClass("d-none");
+
+                    if ( $(elem).closest(".slide-editor").find(".advanced-editor").hasClass("d-none") ) {
+                            $(elem).closest(".slide-editor").find(".slide").html( editor.getValue() );
+                            $(".slide-editor > .slide > div .e").attr({ onclick: "editable(this)" });
+                        } else {
+                            $(".slide-editor > .slide *").removeAttr("onclick contenteditable");
+                            let html = $(elem).closest(".slide-editor").find(".slide").html().replace(/^ +/gm, "");
+                            editor.setValue( html );
+                        }
+
+                };
+    
+    </script>
+
+    {{> propertyJS}}
+
+</body>
+</html>

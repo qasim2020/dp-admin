@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<style>
+
+form > *{
+    display: block;
+    min-width: 500px;
+    margin: 10px 0;
+    box-sizing: border-box;
+}
+
+</style>
+</head>
+<body>
+    <p>{{data.errorMsg}}</p>
+    {{#if data.alreadyExists}}
+    <p><a href="/myapp/admin/page/showProj/{{data.alreadyExists}}">Open Existing Details</a></p>
+    {{/if}}
+    <form action="/myapp/admin/page/createdProj/n" method="post">
+
+        <label for="projName">Project Name</label>
+        <input type="text" id="projName" name="projName" placeholder="">
+    
+        <label for="listFiles">List of Files</label>
+        <input type="text" id="" name="files" placeholder="landingPage, signin, signup, showAll">
+
+        <label for="brandName">Brand Name</label>
+        <input type="text" id="" name="brandName" placeholder="">
+
+        <label for="ownerName">Owner Name</label>
+        <input type="text" id="" name="ownerName" placeholder="">
+
+        <label for="ownerPassword">Owner Password</label>
+        <input type="text" id="" name="ownerPassword" placeholder="">
+
+        <label for="ownerEmail">Owner Email</label>
+        <input type="text" id="" name="ownerEmail" placeholder="">
+
+        <button type="Submit">Submit</button>
+    </form>
+</body>
+</html>

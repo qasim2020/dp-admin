@@ -1,7 +1,7 @@
     body {
         font-family: "Roboto", sans-serif;
         padding: 0;
-        padding-top: 40px;
+        padding-top: 51px;
         margin: 0;
     }
 
@@ -46,39 +46,71 @@
     }
 
     .sliders {
-        box-sizing: border-box;
-        padding: 0px;
+        padding: 34px 7px;
+        background: black;
         display: flex;
         overflow: hidden;
         position: relative;
+        box-sizing: border-box;
     }
 
     .sliders>div {
-        min-width: 100vw;
-        height: calc(100vh - 40px);
-        box-sizing: border-box;
-        left: -300%;
-        animation: mymove 20s infinite;
+        min-width: 100%;
+        min-height: 250px;
         position: relative;
+        box-sizing: border-box;
+        border: 1px dashed lightslategray;
+        color: white;
+        display: none;
+        font-weight: bold;
+    }
+
+    .sliders>div.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .sliders>div>p:nth-child(1) {
+        font-size: 13vh;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+    }
+
+    .sliders>div>p:nth-child(2) {
+        position: absolute;
+        bottom: 10px;
+        color: lightslategray;
+        font-weight: 300;
     }
 
     .sliders>div>div {
         height: 100%;
     }
 
-    @keyframes mymove {
-        0%   { left: 0% }
-        15%  { left: 0% }
-        20%  { left: -100% }
-        35%  { left: -100% }
-        40%  { left: -200% }
-        55%  { left: -200% }
-        60%  { left: -300% }
-        75%  { left: -300% }
-        80%  { left: -400% }
-        95%  { left: -400% }
-        100% { left: 0% }
+    .movers {
+        background: black;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        padding: 0px 0 20px 0;
     }
+
+    .movers button {
+        padding: 8px 11px;
+        background: #272727;
+        border: #272727;
+        color: dimgrey;
+    }
+
+    .movers button.active {
+        background: white;
+        color: black;
+    }
+
+    .movers button.active {}
 
     .svg>svg {
         margin-top: 4px;

@@ -509,4 +509,31 @@
             }
         };
 
+    let navigateSlide = function(instr) {
+
+        switch (true) {
+
+            case ( instr == "left" ): 
+                if ( $(".sliders>div.active").prev().length > 0 ) {
+                    return navigateSlide( Number( $(".movers>div>button.active").html() ) - 2  );
+                } else {
+                    return navigateSlide( Number( $(".movers>div>button").last().html() ) - 1 );
+                }
+                break; 
+            case ( instr == "right" ):
+                if ( $(".sliders>div.active").next().length > 0 ) {
+                    return navigateSlide( $(".movers>div>button.active").html() );
+                } else {
+                    return navigateSlide(0);
+                }
+                break; 
+            default:
+                $(".sliders > div").eq(instr).addClass("active").siblings().removeClass("active");
+                $(".movers > div > *").eq(instr).addClass("active").siblings().removeClass("active");
+                break;
+
+        };
+
+    };
+
 </script>

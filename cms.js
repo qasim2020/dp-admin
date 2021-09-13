@@ -5123,6 +5123,12 @@ var myFuncs = {
             footer: await model.findOne({style: "slide-footer"}).lean(),
         }
 
+        if (output.sliders && output.sliders.length > 0) {
+
+            output.sliders[0].status = "active";
+
+        }
+
         return output;
 
     },

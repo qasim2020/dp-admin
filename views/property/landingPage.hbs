@@ -23,13 +23,33 @@
 
         <div class="sliders">
 
+            <!-- <div class="{{status}}">{{{inc @index}}}</div> -->
+            <!-- <div class="{{{this.style}}}">{{{this.content}}}</div> -->
+
             {{#each data.slides.sliders}}
 
-            <div class="{{{this.style}}}">{{{this.content}}}</div>
+            <div class="{{status}}">
+                <p>{{{inc @index}}}</p>
+                <p class="info">Website is Under Construction...</p>
+            </div>
 
             {{/each}}
 
         </div>
+
+        <div class="movers">
+
+            <button class="arrow left" onclick="navigateSlide('left')">←</button>
+            <div> 
+                {{#each data.slides.sliders}}
+                <button class="{{status}}" onclick="navigateSlide('{{{@index}}}')">{{{inc @index}}}</button>
+                {{/each}} 
+            </div>
+            <button class="arrow right" onclick="navigateSlide('right')">→</button>
+        
+        </div>
+
+
         <p class="note black">Last Updated on 12 Aug 2021. Plots are updated daily. Select a plot below and contact us for inquiries. </p>
 
         {{> propertyfiltersBox cities=data.cities}}

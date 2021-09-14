@@ -83,7 +83,7 @@ app.use(
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useUnifiedTopology: false,
   useCreateIndex: true,
   useFindAndModify: false
 }, function(err) {

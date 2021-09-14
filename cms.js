@@ -905,7 +905,6 @@ var myFuncs = {
             let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
             if (modelExistsAlready) { mongoose.models[modelName] = ''; };
             let schema = await Collections.findOne({name: modelName}).lean();
-            // console.log({modelName});
             return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         } catch(e) {
             console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );

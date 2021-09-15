@@ -516,7 +516,7 @@ var myFuncs = {
         //     }
         // ];
 
-        brand = 'life';
+        // brand = 'life';
 
         // ------------------------------
         let create_models = async (data, brand) => {

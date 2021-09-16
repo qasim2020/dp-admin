@@ -1,5 +1,6 @@
 [
   {
+<<<<<<< Updated upstream
     "id": "recRZhz9UhtM6548P",
     "fields": {
       "details": "Qta file are avalble plz contact for sale purchase",
@@ -204,5 +205,341 @@
       "size": "2 Kanal"
     },
     "createdTime": "2021-09-14T02:46:24.000Z"
+=======
+    "id": "rec3HtXRl8StDSP81",
+    "fields": {
+      "_id": "61302fd75685144861f9aede",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 3,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "recyhasM3W5O93qnF",
+    "fields": {
+      "_id": "61302fafcd01f448340919bc",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 2,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "recbalke1WzL2B75G",
+    "fields": {
+      "_id": "61302f55cd01f448340919bb",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties chodhry@properties.com",
+      "no": 1,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "rec3mZWIeF8D866S1",
+    "fields": {
+      "_id": "6130309cc7bf0648887fc69f",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 6,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "recIr83LiyWlTusET",
+    "fields": {
+      "_id": "613030180189bb487199738c",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 4,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "recxWnDPBsO1eesjn",
+    "fields": {
+      "_id": "61303060a62056487feb1046",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 5,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:42.000Z"
+  },
+  {
+    "id": "recAFLPOA7xuGx4xm",
+    "fields": {
+      "_id": "6130329a5690bf490cd7b5e1",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 9,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:43.000Z"
+  },
+  {
+    "id": "recrjdV3CKoF57PTz",
+    "fields": {
+      "_id": "613030e83ff1b748b179027b",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 7,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:43.000Z"
+  },
+  {
+    "id": "recmKiCEs8Kp5uvgU",
+    "fields": {
+      "_id": "613031421db1f848c0af2d64",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 8,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:43.000Z"
+  },
+  {
+    "id": "rec0urf8pjd4Iiwyu",
+    "fields": {
+      "_id": "6130338e80fe6d4946c8e65d",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 10,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:43.000Z"
+  },
+  {
+    "id": "rec5WNRDYir86zK1c",
+    "fields": {
+      "_id": "6130345a1c875049541cb227",
+      "name": "Sarfraz Gujjer",
+      "contact": "gujjar23@hotmail.com / 0323 9897862",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 12,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:43.000Z"
+  },
+  {
+    "id": "recY4aIOZp4P9WjaN",
+    "fields": {
+      "_id": "613034131c875049541cb226",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 11,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "recHYxUxn16mfXVbn",
+    "fields": {
+      "_id": "613039ad226e154ad51545c8",
+      "name": "Sadaf",
+      "contact": "03238978978 - sadafismail@yahoo.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\n*Required*\r\n\r\nPKR 32500000\r\nPeshawar, Askari \r\n1 Kanal \r\nplz contact for sale purchase of plots/ askari appartments. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 14,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "rechcUTfee0sZB1ih",
+    "fields": {
+      "_id": "6130397e1e5d024ac0c360ea",
+      "name": "Sadaf",
+      "contact": "03238978978 - sadafismail@yahoo.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\n*Required*\r\n\r\nPKR 32500000\r\nPeshawar, Askari \r\n1 Kanal \r\nplz contact for sale purchase of plots/ askari appartments. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 13,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "recFrcOsV42Am3AC7",
+    "fields": {
+      "_id": "613039ea7094b04ae5bee89a",
+      "name": "Sadaf",
+      "contact": "03238978978 - sadafismail@yahoo.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\n*Required*\r\n\r\nPKR 32500000\r\nPeshawar, Askari \r\n1 Kanal \r\nplz contact for sale purchase of plots/ askari appartments. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 15,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "recWukI1jMdAMK4MU",
+    "fields": {
+      "_id": "61303aa86607ba4b0eecd864",
+      "name": "Sadaf",
+      "contact": "03238978978 - sadafismail@yahoo.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\n*Required*\r\n\r\nPKR 32500000\r\nPeshawar, Askari \r\n1 Kanal \r\nplz contact for sale purchase of plots/ askari appartments. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 16,
+      "status": "pending",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "recyY9oDJu2Eo0D7P",
+    "fields": {
+      "_id": "61303b8ff606ca4b67f912d6",
+      "name": "Sadaf",
+      "contact": "03238978978 - sadafismail@yahoo.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\n*Required*\r\n\r\nPKR 32500000\r\nPeshawar, Askari \r\n1 Kanal \r\nplz contact for sale purchase of plots/ askari appartments. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 17,
+      "status": "resolved",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:44.000Z"
+  },
+  {
+    "id": "recbX8W2AKDAbVKh0",
+    "fields": {
+      "_id": "61303f805cd7a74c4ea21504",
+      "name": "Test Contact",
+      "contact": "0909090909 / testcontact@email.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Selling*\r\n\r\nPKR 42500000\r\nMultan, DHA \r\n2 Kanal \r\nplot no xyz.. cornor plot...one kanal...R sec...offer required \r\n\r\n\r\nPKR 32500000\r\nMultan, DHA \r\n1 Kanal \r\nbrig villa (cornor)is avable demand 30 lacs ..negotiation possible \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 18,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:45.000Z"
+  },
+  {
+    "id": "recnXJ21Q3sgoBS19",
+    "fields": {
+      "_id": "613172893a0db45457df027f",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 20,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:45.000Z"
+  },
+  {
+    "id": "recnsFRhfH7Qq0d9o",
+    "fields": {
+      "_id": "613172548bb4015434dbbe48",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 19,
+      "status": "open",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:45.000Z"
+  },
+  {
+    "id": "recSx3TzT0MowaSRs",
+    "fields": {
+      "_id": "613173e480965f54dfec2b15",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 21,
+      "status": "resolved",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:45.000Z"
+  },
+  {
+    "id": "recj28shngvnSQYYb",
+    "fields": {
+      "_id": "61317c2d412a005696ca8892",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir fresh properties for today; contact to inquire more, please.",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 22,
+      "status": "pending",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:46.000Z"
+  },
+  {
+    "id": "recd3gJI9ka1IEjzG",
+    "fields": {
+      "_id": "61317fb9206cad574b4bd47a",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Required*\r\n\r\nPKR 22500000\r\nIslamabad, DHA 5 \r\n15 Marla \r\nplot no ..xyz...size 5 marla ..sec F... dha 5.....demand 89 lacs \r\n\r\n\r\nPKR 10000000\r\nIslamabad, Bahria \r\n4 Marla \r\nTwo bed rooms appt available. \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 23,
+      "status": "pending",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:46.000Z"
+  },
+  {
+    "id": "recVGfheuUqnX6p5I",
+    "fields": {
+      "_id": "6131800a206cad574b4bd47b",
+      "name": "Qasim Ali",
+      "contact": "qasimali24@gmail.com",
+      "msg": "Sir I am interested in these properties. Kindly when free get in touch..\r\n\r\n*Required*\r\n\r\nPKR 22500000\r\nIslamabad, DHA 5 \r\n15 Marla \r\nplot no ..xyz...size 5 marla ..sec F... dha 5.....demand 89 lacs \r\n\r\n\r\nPKR 10000000\r\nIslamabad, Bahria \r\n4 Marla \r\nTwo bed rooms appt available. \r\n\r\n\r\nPKR 1500000\r\nIslamabad, Bahria \r\n10 Marla \r\nOne 3 bed rooms appt is available \r\n",
+      "helper": "Chodhry Properties qasimali24@gmail.com",
+      "no": 24,
+      "status": "pending",
+      "rating": "pending"
+    },
+    "createdTime": "2021-09-14T02:57:46.000Z"
+>>>>>>> Stashed changes
   }
 ]

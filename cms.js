@@ -366,11 +366,13 @@ var myFuncs = {
             input: req.params.input
         });
          // console.log(data);
-        // console.log(JSON.stringify(data,'',2));
+        console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
-            return res.status(data.status).send(data.error);
+            delete data.permit;
+            delete data.brand;
+            return res.sendStatus(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
@@ -454,6 +456,7 @@ var myFuncs = {
         blogStreak: 'gen',
         blogs: 'gen',
         fetchAirtable: 'gen',
+        updateManyByKey: "admin",
         roadMap: 'gen',
         newsletters: 'gen',
 	listenToWebhook: 'gen',
@@ -485,7 +488,29 @@ var myFuncs = {
 
         // if (req.body[0].hasOwnProperty('text')) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
         // if (req.body[0] && req.body[0].text) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
-        if (req.body && req.body.event) this.syncFromAirtableToLocal({ data: req.body.event , brand: req.params.brand });
+        if (req.body && req.body.event) {
+            if (req.body.event.hasOwnProperty("attachments") == false) return {
+                status: 300,
+                msg: "This is not related to Airtable",
+            };
+
+            const titleRegex = /https:\/\/airtable\.com\/(?<tableId>.*)\/(?<recordId>.*)/;
+
+            let data = req.body.event.attachments.map( val => {
+                return {
+                    text: req.body.event.text,
+                    recordId: val.title_link.match(titleRegex).groups.recordId
+                }
+            });
+
+            this.syncFromAirtableToLocal({ data: data , brand: req.params.brand });
+
+            return {
+                status: 200,
+                msg: "Successfully executed this request"
+            };
+
+        }
 
         return {
                 status: 200,
@@ -496,6 +521,8 @@ var myFuncs = {
     },
 
     syncFromAirtableToLocal: async function({ data, brand }){
+
+        console.log(data, brand);
 
         // ONLY OPEN BELOW WHEN TESTING IN DEV MODE
 
@@ -560,6 +587,7 @@ var myFuncs = {
         let pipe_airtable_upload = async (record) => {
 
             let collectionName = brand + '-' + record.text.split('*')[1];
+            console.log({collectionName});
             let airtableURLs = ( await Collections.findOne({name: collectionName}).lean() ).airtable;
 
             if (airtableURLs == undefined) {
@@ -580,13 +608,13 @@ var myFuncs = {
 
             let remoteData = airtableRecord.data.fields;
 
-            // console.log( remoteData );
+            console.log( remoteData );
 
             // let storeNow = await record.model.findOne({ [airtableURLs.key]: remoteData[airtableURLs.key] }).lean();
 
             let storeNow = await record.model.findOneAndUpdate({ [airtableURLs.key]: remoteData[airtableURLs.key] }, remoteData, { new: true });
 
-            // console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
+            console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
 
             return { msg: remoteData[airtableURLs.key] + ' — Updated locally' }
 
@@ -1365,22 +1393,49 @@ var myFuncs = {
     },
 
     airtablePull: async function(req,res) {
-        // console.log('show airtable pull page here');
         req.params.theme = 'root';
         return {
             brand: req.params.brand,
-            collection: req.params.input
+            collection: req.params.input,
+            airtablePullUrl: ( await this.getAirtableUrls(req,res) ).get
         };
     },
 
+    getAirtableUrls: async function(req,res) {
+
+        let airtableUrls = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
+
+        if (airtableUrls == undefined) return false;
+
+        return airtableUrls;
+
+    },
+
     mergeDataIntoCollection : async function(req,res) {
-        // console.log(' merge data into collection here ');
 
-        let model = await this.createModel(req.params.input);
-        let output = await model.insertMany(req.body.results);
-        // console.log(output);
+        try {
 
-        return {success: true, output: output}
+            let model = await this.createModel(req.params.input);
+            let commonKey = ( await this.getAirtableUrls(req,res) ).key; 
+            console.log(commonKey);
+            let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
+
+            return {
+                success: true, 
+                output: output
+            }
+
+        } catch(e) {
+
+            console.log(e);
+
+            return {
+                status: 300,
+                error: e.errmsg
+            }
+
+        }
+
     },
 
     save : async function(model,data) {

@@ -179,7 +179,7 @@
 
         $.ajax({
             contentType: "application/json",
-            url: "/life/admin/data/updateManyByKey/{{data.modelName}}",
+            url: "/{{data.brand}}/admin/data/updateManyByKey/{{data.modelName}}",
             method: "POST",
             data: JSON.stringify({data: output}),
         }).done( val => {
@@ -267,7 +267,7 @@
         output.airtableSync = false;
 
         $.ajax({
-            url: "/life/admin/data/updateSequence/n",
+            url: "/{{data.brand}}/admin/data/updateSequence/n",
             method: "POST",
             data: output,
         }).done( val => cardDone(elem, 'success' , "Done" , "disable") )

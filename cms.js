@@ -365,7 +365,7 @@ var myFuncs = {
             brand: req.params.brand,
             input: req.params.input
         });
-         console.log(data);
+         // console.log(data);
         // console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
@@ -385,7 +385,6 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-            console.log('LOADING WITHOUT PJAX NOW -----');
             let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
             return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
             break;
@@ -482,8 +481,11 @@ var myFuncs = {
     listenToWebhook: function(req,res) {
 
         console.log(req.query);
+        console.log(JSON.stringify(req.body, 0, 2));
 
-        if (req.body[0].hasOwnProperty('text')) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
+        // if (req.body[0].hasOwnProperty('text')) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
+        // if (req.body[0] && req.body[0].text) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
+        if (req.body && req.body.event) this.syncFromAirtableToLocal({ data: req.body.event , brand: req.params.brand });
 
         return {
                 status: 200,
@@ -516,7 +518,7 @@ var myFuncs = {
         //     }
         // ];
 
-        brand = 'life';
+        // brand = 'life';
 
         // ------------------------------
         let create_models = async (data, brand) => {
@@ -525,13 +527,10 @@ var myFuncs = {
 
             uniq = [...new Set(onlyTexts)];
 
-            console.log( uniq );
-
             let models = await Promise.all( uniq.map( val => {
 
                 let name = brand + '-' + val.split('*')[1];
                 
-                console.log(name);
                 return myFuncs.createModel(name);
 
             }) );
@@ -565,7 +564,7 @@ var myFuncs = {
 
             if (airtableURLs == undefined) {
 
-                console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+                // console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
                 return { msg: "Data not connected to Airtable" };
 
@@ -587,7 +586,7 @@ var myFuncs = {
 
             let storeNow = await record.model.findOneAndUpdate({ [airtableURLs.key]: remoteData[airtableURLs.key] }, remoteData, { new: true });
 
-            console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
+            // console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
 
             return { msg: remoteData[airtableURLs.key] + ' — Updated locally' }
 
@@ -603,7 +602,7 @@ var myFuncs = {
 
             data = Object.assign( data, 
                 records.reduce( (total, val, index) => {
-                    console.log( val, index );
+                    // console.log( val, index );
                     Object.assign( total, {
                         [index+1] : val.msg
                     });
@@ -633,7 +632,7 @@ var myFuncs = {
 
         if (airtableURLs == undefined) {
 
-            console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+            // console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
             return {msg: "not linked with Airtable"};
 
@@ -671,23 +670,23 @@ var myFuncs = {
 
         let saveNewKeyInLocalDB = async function ( dataToStore ) {
 
-                console.log( chalk.bold.bgYellow.black( "DATA IS PUSHED - SAVING ITS ID INTO LOCAL DB - "  + dataToStore.id) );
+                // console.log( chalk.bold.bgYellow.black( "DATA IS PUSHED - SAVING ITS ID INTO LOCAL DB - "  + dataToStore.id) );
 
                 let deleteOldKeys = await Collections.findOneAndUpdate( { name: collection } , { $pull : { "airtable.connectingKeys" : { fields : { [airtableURLs.key] : data[airtableURLs.key] } } } } ) ;
 
                 let newStore = await Collections.findOneAndUpdate( { name: collection } , { $push : { "airtable.connectingKeys" : dataToStore } } , { new : true } ).lean();
 
-                console.log( "DATA IS STORED LOCALLY" );
+                // console.log( "DATA IS STORED LOCALLY" );
 
         };
 
         let pushNewToAirtable = async function( matchingID, data ) {
 
-                console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND IN AIRTABLE - PUSHING DATA AS NEW" ) );
+                // console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND IN AIRTABLE - PUSHING DATA AS NEW" ) );
 
                 let newUpload = await myFuncs.axiosRequest({ method: "POST", data: formatData(matchingID, data), URL: airtableURLs.post});
                 
-		console.log(newUpload);
+		// console.log(newUpload);
 
 		if ( newUpload.error == 1 ) return { msg: newUpload.info } ;
 
@@ -711,13 +710,13 @@ var myFuncs = {
 
             if (connectingKey == undefined) return await pushNewToAirtable(undefined, data);
 
-            console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
+            // console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
 
             let updateToAirtable = await myFuncs.axiosRequest({ method: "PUT", data: formatData(connectingKey , data), URL: airtableURLs.put});
 
             if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
                 
-                console.log( updateToAirtable.response );
+                // console.log( updateToAirtable.response );
                 
                 return {
                     msg: "Airtable > " + updateToAirtable.response.data.info
@@ -737,7 +736,7 @@ var myFuncs = {
 
         };
 
-        console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE AGAINST UNIQUE KEY - " + airtableURLs.key ) );
+        // console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE AGAINST UNIQUE KEY - " + airtableURLs.key ) );
 
         let matchingID = airtableURLs.connectingKeys.find( val => val && val.fields && val.fields[airtableURLs.key] == data[airtableURLs.key] );
 
@@ -791,7 +790,7 @@ var myFuncs = {
         return new Promise ((resolve,reject) => {
             fs.readdir(directoryPath + '/views/' + directoryName, function (err, files) {
                 if (err) {
-                    console.log('Unable to scan directory: ' + err);
+                    // console.log('Unable to scan directory: ' + err);
                     return reject('Unable to scan directory: ' + err);
                 }
                 return resolve(files);
@@ -804,7 +803,7 @@ var myFuncs = {
         let properties = collection.properties;
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
-        console.log(values);
+        // console.log(values);
         let output = keys.map(val => {
             if (properties[val]['html'] == 'imgURL' && req.values && req.values[val] != undefined) {
                 req.values[val] = req.values && req.values[val].split(' ');
@@ -875,7 +874,7 @@ var myFuncs = {
 
         let airtableSync = {};
 
-        console.log( req.body );
+        // console.log( req.body );
 
         if (req.body.airtableSync != "false" ) {
             airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body})
@@ -883,7 +882,7 @@ var myFuncs = {
             airtableSync.msg = "Sync manually kept off";
         }
 
-        console.log(airtableSync);
+        // console.log(airtableSync);
 
         return {
             success: "Stored & " + airtableSync.msg, 
@@ -907,18 +906,18 @@ var myFuncs = {
             let schema = await Collections.findOne({name: modelName}).lean();
             return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
         } catch(e) {
-            console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
+            // console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
             return e;
         }
         
     },
 
     airtableSync: async function(req,res) {
-        console.log('show Airtable Sync page here');
+        // console.log('show Airtable Sync page here');
         req.params.theme = 'root';
         let output = await Collections.findOne({name: req.params.input}).lean();
-        console.log(output.airtable);
-        console.log(req.query.msg);
+        // console.log(output.airtable);
+         // console.log(req.query.msg);
         return {
             modelName: req.params.input,
             brand: req.params.brand,
@@ -940,7 +939,7 @@ var myFuncs = {
 
             let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
 
-            console.log( airtableAdded );
+            // console.log( airtableAdded );
 
             req.params.theme = 'root';
 
@@ -950,7 +949,7 @@ var myFuncs = {
             }
 
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             req.params.theme = 'root';
             return {
                 output: '',
@@ -962,12 +961,12 @@ var myFuncs = {
 
     updateManyByKey: async function(req,res) {
 
-        console.log(req.body.data);
+        // console.log(req.body.data);
 
         let model = await this.createModel(`${req.params.input}`);
         let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({ [val.key] : val.data[val.key] }, val.data , { new: true, upsert:true }) ));
 
-        console.log(output);
+        // console.log(output);
         return {
             output
         };
@@ -976,7 +975,7 @@ var myFuncs = {
 
     fetchAirtableData: async function(req,res) {
 
-        console.log('Fetching airtable data now');
+        // console.log('Fetching airtable data now');
 
         let airtableURLs = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
 
@@ -1366,7 +1365,7 @@ var myFuncs = {
     },
 
     airtablePull: async function(req,res) {
-        console.log('show airtable pull page here');
+        // console.log('show airtable pull page here');
         req.params.theme = 'root';
         return {
             brand: req.params.brand,
@@ -1375,11 +1374,11 @@ var myFuncs = {
     },
 
     mergeDataIntoCollection : async function(req,res) {
-        console.log(' merge data into collection here ');
+        // console.log(' merge data into collection here ');
 
         let model = await this.createModel(req.params.input);
         let output = await model.insertMany(req.body.results);
-        console.log(output);
+        // console.log(output);
 
         return {success: true, output: output}
     },
@@ -1390,7 +1389,7 @@ var myFuncs = {
             let output = await doc.save();
             return {success: 'Done'};
         } catch(e) {
-            console.log(e);
+            // console.log(e);
             return {status: 404, error: 'Failed'}
         };
     },
@@ -1489,7 +1488,7 @@ var myFuncs = {
     },
 
     saveSequence: async function(req,res) {
-        console.log(req.body);
+        // console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
         return output;
@@ -1594,7 +1593,7 @@ var myFuncs = {
     },
 
     forgotpw: async function(req,res) {
-        console.log('Send a 4 digit code here');
+        // console.log('Send a 4 digit code here');
         return {success: true}
     },
 
@@ -1618,7 +1617,7 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
-        console.log('checking signin');
+        // console.log('checking signin');
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         // if 7am does not have this user look into myapp. it can be an brand. 
@@ -1696,7 +1695,7 @@ var myFuncs = {
                 if (err) {
                   return reject(err);
                 }
-                console.log(process.env.url);
+                // console.log(process.env.url);
                 let localhost = process.env.url.includes("localhost:3000");
                 if (localhost == true) {
                     resolve('myFile.csv');
@@ -1813,7 +1812,7 @@ var myFuncs = {
     blogs: async function(req,res) {
 
         let output = await this.getBlogs(req,res);
-        console.log(output);
+        // console.log(output);
         return {
             blogs: output,
         }
@@ -1876,7 +1875,7 @@ var myFuncs = {
     },
 
     richpakistan: async function(req,res) {
-        console.log('opening rich pakistan');
+        // console.log('opening rich pakistan');
         return {
             success: true
         }
@@ -1884,7 +1883,7 @@ var myFuncs = {
 
 
     landingPage: async function(req,res) {
-        console.log({theme: req.params.theme});
+        // console.log({theme: req.params.theme});
         let output = this[req.params.theme](req,res);
         return output;
     },
@@ -2120,7 +2119,7 @@ var myFuncs = {
             });
             return result;
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             return e
         }
     },
@@ -2165,7 +2164,7 @@ var myFuncs = {
     },
 
     findOrderInQuery: async function(req,res) {
-        // console.log(chalk.bold.red('finding order by query') );
+        // // console.log(chalk.bold.red('finding order by query') );
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({
             orderNo: req.query.orderNo,
@@ -2479,8 +2478,8 @@ var myFuncs = {
 
     updatePage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        console.log(req.params);
-        console.log(req.body);
+        // console.log(req.params);
+        // console.log(req.body);
         let output = await model.findOneAndUpdate({_id:req.params.input},{$set: 
             {
                 content: req.body.output,
@@ -2490,7 +2489,7 @@ var myFuncs = {
             }
             },{new:true}).lean();
 
-        console.log( output );
+        // console.log( output );
         return output;
     },
 
@@ -2750,7 +2749,7 @@ var myFuncs = {
     },
 
     outOfStock: async function(req,res) {
-        console.log( chalk.bold.blue('Items out of stock') );
+        // console.log( chalk.bold.blue('Items out of stock') );
 
         var query = processQuery(req.query);
         delete query.filter._pjax;
@@ -3062,7 +3061,7 @@ var myFuncs = {
 
     updateResources: async function(req,res) {
 
-        console.log({body: req.body});
+        // console.log({body: req.body});
         let model = await this.createModel(`${req.params.brand}-resources`);
         let output = await model.findOneAndUpdate(
             {
@@ -3087,14 +3086,14 @@ var myFuncs = {
             }
         );
 
-        console.log({output});
+        // console.log({output});
         return output;
     },
 
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
         var query = processQuery(req.query);
-        console.log({query});
+        // console.log({query});
         delete query.filter._pjax;
         let pages = await model.aggregate([
             {
@@ -3333,7 +3332,7 @@ var myFuncs = {
 
         // first load collections from the file
 
-        console.log(file);
+        // console.log(file);
 
         let collectionFile = file.filter( val => val.name === 'collections' )[0];
 
@@ -3350,8 +3349,8 @@ var myFuncs = {
 
         file = file.filter( val => val.name !== 'collections' );
 
-        console.log( 'FILE SHOWING' );
-        console.log( file );
+        // console.log( 'FILE SHOWING' );
+        // console.log( file );
 
         // let collectionSave = await Collections.insertMany( collectionFile.data );
         
@@ -3469,7 +3468,7 @@ var myFuncs = {
         req.isLocal = true;
         let output = await this.showCollection(req,res);
         req.params.theme = 'life';
-        console.log(output);
+        // console.log(output);
         return output;
     },
 
@@ -3483,11 +3482,11 @@ var myFuncs = {
 
     editThisBlog: async function(req,res) {
         req.params.module = "addNewBlog";
-        console.log(req.query);
+        // console.log(req.query);
         let model = await this.createModel(req.params.input);
         let output = await model.findOne({_id: req.query._id}).lean();
         output.date = this.getFormattedDate(output.date);
-        console.log(output);
+        // console.log(output);
         return {
             blog: output
         };
@@ -3495,7 +3494,7 @@ var myFuncs = {
 
     saveBlog: async function(req,res) {
         let model = await this.createModel('life-blogs');
-        console.log(req.body);
+        // console.log(req.body);
         let myId = req.body._id;
         delete req.body._id;
         let output = await model.findOneAndUpdate({
@@ -3509,7 +3508,7 @@ var myFuncs = {
     },
 
     publishBlog: async function(req,res) {
-        console.log(req.body);
+        // console.log(req.body);
         let model = await this.createModel('life-blogs');
         let output = await model.findOneAndUpdate({
             _id: req.body._id
@@ -3654,12 +3653,12 @@ var myFuncs = {
 
     ticketAndMail: async function(req,res) {
 
-        console.log( req.body.msg );
-        console.log( req.body.msg.replace(/\r\n{1,}/g,'<br>') );
+        // console.log( req.body.msg );
+        // console.log( req.body.msg.replace(/\r\n{1,}/g,'<br>') );
 
         let model = await this.createModel(`${req.params.brand}-resources`);
         let resources = (await model.find().lean())[0];
-        console.log(resources);
+        // console.log(resources);
         let output = await this.sendMail({
             from: `Qasim Ali<${process.env.zoho}>`,
             // from: req.body.name, 
@@ -3762,7 +3761,7 @@ var myFuncs = {
 
         let output = pendingLetters.map( val => this.setTimerToPublish(val) );
 
-        console.log({output});
+        // console.log({output});
 
         return {
             success: 'Timer for website Life is now running',
@@ -3776,16 +3775,16 @@ var myFuncs = {
         var now = new Date();
         var publishTime = letter.publishTime;
 
-        console.log('Time Now: ' + now);
-        console.log('Publish Time: ' + publishTime);
+        // console.log('Time Now: ' + now);
+        // console.log('Publish Time: ' + publishTime);
 
         var millisTillPublish = new Date(letter.publishTime) - now;
 
-        console.log({minutesToPublish: ( millisTillPublish / 1000 / 60 ) });
+        // console.log({minutesToPublish: ( millisTillPublish / 1000 / 60 ) });
 
         setTimeout( async () => {
             
-            console.log( chalk.bold.red( 'PUBLISHING THE NEWSLETTER NOW : ' + letter.slug ) );
+            // console.log( chalk.bold.red( 'PUBLISHING THE NEWSLETTER NOW : ' + letter.slug ) );
 
             // let body = this.convertStringToArticle(letter.body);
 
@@ -3801,7 +3800,7 @@ var myFuncs = {
 
             let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
 
-	   console.log(mailSent);
+	   // console.log(mailSent);
 
             let url = process.env.url;
             // let url = env == 'test' || env == 'development' ? process.env. : 'https://qasimali.xyz'
@@ -3857,7 +3856,7 @@ var myFuncs = {
 
         let model = await this.createModel(`${brand}-newsletters`);
         let output = await model.findOne({slug: templateSlug}).lean();
-	console.log(output);
+	// console.log(output);
         if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
 
@@ -3889,7 +3888,7 @@ var myFuncs = {
             new: true
         }).lean();
 
-        console.log(output);
+        // console.log(output);
 
         if (output != null) {
             return {
@@ -3913,7 +3912,7 @@ var myFuncs = {
 
             output = await axios.post(URL, data)
                       .then(res => {
-                          // console.log(res);
+                          // // console.log(res);
                           return res;
                       })
                       .catch(error => {
@@ -3945,7 +3944,7 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-newsletters`);
         let output = await model.findOne({slug: req.params.input}).lean();
 
-        console.log(output);
+        // console.log(output);
 
         return {
             output: output,
@@ -3981,7 +3980,7 @@ var myFuncs = {
 
     roadMap: async function(req,res) {
         let output = await this.fetchAirtable('todos');
-        console.log( output.data.records );
+        // console.log( output.data.records );
         return {
             list: output.data.records.map( val => val.fields )
         }
@@ -3998,7 +3997,7 @@ var myFuncs = {
     editWeb: async function(req,res) {
 
         let theme = req.params.theme;
-        console.log( { theme } );
+        // console.log( { theme } );
         req.params.theme = 'root';
 
         let file;
@@ -4038,7 +4037,7 @@ var myFuncs = {
 
     saveWeb: async function(req,res) {
 
-        console.log(req.body)
+        // console.log(req.body)
 
         let writeFile = async function(path,data) {
 
@@ -4069,7 +4068,7 @@ var myFuncs = {
     // HERE I STARTED WORKING ON PROPERTY WEBSITE
 
     createProject: async function(req,res) {
-        console.log( " create project page opening ");
+        // console.log( " create project page opening ");
         return {
             success: true
         }
@@ -4078,10 +4077,10 @@ var myFuncs = {
 
     createdProj: async function(req,res) {
 
-        console.log(req.body); 
+        // console.log(req.body); 
 
         let missingValues = Object.values(req.body).some( val => val.length == 0 );
-        console.log( missingValues );
+        // console.log( missingValues );
 
         let redirect = function(msg) { 
             req.params.module = "createProject";
@@ -4115,10 +4114,10 @@ var myFuncs = {
         };
 
         if (!fs.existsSync(dir)){
-            console.log(dir);
+            // console.log(dir);
             fs.mkdirSync(dir);
             let files = req.body.files.includes(",") ? req.body.files.split(',') : ['landingPage', req.body.files];
-            console.log({files});
+            // console.log({files});
             await Promise.all( files.map( val => createFile(dir, val) ) );
         }
 
@@ -4153,7 +4152,7 @@ var myFuncs = {
             };
 
             await Collections.findOneAndUpdate({name: brandName-"users"},data,{upsert: true});
-            console.log('created a new User row inside the Collections'); 
+            // console.log('created a new User row inside the Collections'); 
 
         }
         
@@ -4188,7 +4187,7 @@ var myFuncs = {
             }
 
             await Collections.findOneAndUpdate({name: brandName-"notifications"},data,{upsert: true});
-            console.log('created a new Notifications row inside the Collections'); 
+            // console.log('created a new Notifications row inside the Collections'); 
 
         }
 
@@ -4204,7 +4203,7 @@ var myFuncs = {
                 inUsers: await model2.find({brand: brandName}).count()
             };
 
-            console.log(count);
+            // console.log(count);
 
             return count;
 
@@ -4222,7 +4221,7 @@ var myFuncs = {
         await createUsersCollection({brandName: req.body.brandName});
         await createNotificationsCollection({brandName: req.body.brandName});
         let output = await model.create({brand: req.body.brandName, theme: req.body.projName});
-        console.log(output); 
+        // console.log(output); 
         let output2 = await model2.create({
             email: req.body.ownerEmail, 
             name: req.body.ownerName, 
@@ -4231,9 +4230,9 @@ var myFuncs = {
             role: 'admin'
         });
 
-        console.log(output2); 
+        // console.log(output2); 
         
-        console.log("new project created successfully");
+        // console.log("new project created successfully");
         req.params.module = "createdProj"
 
         return {
@@ -4261,7 +4260,7 @@ var myFuncs = {
                 inUsers: await model2.findOne({brand: brandName})
             };
 
-            console.log(data);
+            // console.log(data);
             return {
                 inCollectionUsers: data.inCollectionUsers,
                 inCollectionNotifications: data.inCollectionNotifications,
@@ -4277,7 +4276,7 @@ var myFuncs = {
 
         let allData = await getData({brandName: req.params.input});
 
-        console.log(allData);
+        // console.log(allData);
 
         req.params.module = "createdProj";
         req.params.theme = "root";
@@ -4291,7 +4290,7 @@ var myFuncs = {
         let output = await this.fetchPropertiesDataForPage(req,res);
 
         output.filters.status = output.filters.status.filter( val => {
-            console.log(val.name.match(/archive|sold/gi));
+            // console.log(val.name.match(/archive|sold/gi));
             return val.name.match(/archive|sold/gi) == null;
         });
 
@@ -4419,7 +4418,7 @@ var myFuncs = {
 
         filters.status = filters.status.map( val => {
 
-            console.log(val, query.status);
+            // console.log(val, query.status);
             if (query.status && query.status.length > 0) {
                 return {
                     name: val,
@@ -4466,7 +4465,7 @@ var myFuncs = {
             }
         ]);
 
-        console.log(output);
+        // console.log(output);
 
         return output;
     },
@@ -4533,7 +4532,7 @@ var myFuncs = {
 
         }
 
-        console.log(query);
+        // console.log(query);
 
         return query;
 
@@ -4543,8 +4542,8 @@ var myFuncs = {
 
         req.session[req.params.input] = req.body;
 
-        console.log(req.body);
-        console.log(req.session);
+        // console.log(req.body);
+        // console.log(req.session);
 
         return {
             success: true
@@ -4554,7 +4553,7 @@ var myFuncs = {
 
     drawForm: async function(req,res) {
 
-        console.log(req.session);
+        // console.log(req.session);
 
         let form = (await this.getForms({[req.params.input]: true}, req,res))[req.params.input];
 
@@ -4918,8 +4917,8 @@ var myFuncs = {
             model = await this.createModel(`${req.params.brand}-resources`);
             output = (await model.find().lean())[0];
 
-            console.log( chalk.bold(" EDIT BUSINESS MODEL ") );
-            console.log(output);
+            // console.log( chalk.bold(" EDIT BUSINESS MODEL ") );
+            // console.log(output);
             
             object.editBusiness = {
                 heading: "EDIT BUSINESS", 
@@ -5077,12 +5076,12 @@ var myFuncs = {
 
         let addProperty = async function() {
 
-            console.log(req.body);
+            // console.log(req.body);
             let model = await myFuncs.createModel(`${req.params.brand}-properties`);
 
             let output = await model.create(req.body);
 
-            console.log(output);
+            // console.log(output);
 
             return output;
 
@@ -5147,11 +5146,11 @@ var myFuncs = {
 
     saveSlide : async function(req,res) {
 
-        console.log(req.body);
+        // console.log(req.body);
 
         let model = await this.createModel(`${req.params.brand}-slides`);
 
-        console.log( { input: req.params.input, myId: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input } );
+        // console.log( { input: req.params.input, myId: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input } );
 
         let output = await model.findOneAndUpdate(
             {

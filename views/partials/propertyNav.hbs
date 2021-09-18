@@ -6,9 +6,9 @@
     <div class="right">
 
         {{#if (matchValues 'gen' data.permit) }}
-        <button class="btn blue" onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.CardsCount}}</span>)</button>
+        <button class="btn blue" onclick="openLayer('.msgBox')" >MSG BOX (<span>{{data.allCards.CardsCount}}</span>)</button>
         {{else}}
-        <button class="btn " onclick="openLayer('.msgBox')" >OPEN MSG BOX (<span>{{data.allCards.authCardsCount}}</span>)</button>
+        <button class="btn " onclick="openLayer('.msgBox')" >MSG BOX (<span>{{data.allCards.authCardsCount}}</span>)</button>
         {{/if}}
 
         <div class="close svg" onclick="toggleClass(this, 'close')">

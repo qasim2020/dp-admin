@@ -56,11 +56,11 @@
     "fields": {
       "details": "plot no ..xyz...size 5 marla ..sec F... dha 5.....demand 89 lacs",
       "_id": "611c26c02caa2228098ba538",
+      "demand": 9000000,
       "status": "Required",
       "town": "DHA 5",
       "city": "Islamabad",
-      "size": "15 Marla",
-      "demand": 9000000
+      "size": "15 Marla"
     },
     "createdTime": "2021-09-14T02:46:23.000Z"
   },
@@ -69,11 +69,11 @@
     "fields": {
       "details": "Two bed rooms appt available.",
       "_id": "611c26c02caa2228098ba541",
+      "demand": 9000000,
       "status": "Required",
       "town": "Bahria",
       "city": "Islamabad",
-      "size": "4 Marla",
-      "demand": 9000000
+      "size": "4 Marla"
     },
     "createdTime": "2021-09-14T02:46:25.000Z"
   },
@@ -82,11 +82,11 @@
     "fields": {
       "details": "One 3 bed rooms appt is available",
       "_id": "611c26c02caa2228098ba540",
+      "demand": 9000000,
       "status": "Required",
       "town": "Bahria",
       "city": "Islamabad",
-      "size": "10 Marla",
-      "demand": 9000000
+      "size": "35 Marla"
     },
     "createdTime": "2021-09-14T02:46:25.000Z"
   },
@@ -130,41 +130,15 @@
     "createdTime": "2021-09-14T02:46:24.000Z"
   },
   {
-    "id": "recIdJxYeefXpdxLe",
-    "fields": {
-      "details": "Near the Qasim Market and Parade Lane, If willing to visit let me know please in advance..",
-      "_id": "6121ee2cba6c6be5882cbe93",
-      "demand": 1000000,
-      "status": "Selling",
-      "town": "DHA 9",
-      "city": "Peshawar",
-      "size": "1 Kanal"
-    },
-    "createdTime": "2021-09-14T02:45:58.000Z"
-  },
-  {
-    "id": "recjPoXWFQPsCaMG7",
-    "fields": {
-      "details": "Near the Qasim Market and Parade Lane, If willing to visit let me know please in advance..",
-      "_id": "6121ee40ba6c6be5882cbe94",
-      "status": "Required",
-      "town": "DHA 9",
-      "city": "Peshawar",
-      "size": "1 Kanal",
-      "demand": 9000000
-    },
-    "createdTime": "2021-09-14T02:45:58.000Z"
-  },
-  {
     "id": "recSC38zxYyTYHDcj",
     "fields": {
       "details": "plz contact for sale purchase of plots/ askari appartments.",
       "_id": "611c26c02caa2228098ba53e",
+      "demand": 9000000,
       "status": "Required",
       "town": "Askari",
       "city": "Peshawar",
-      "size": "1 Kanal",
-      "demand": 9000000
+      "size": "1 Kanal"
     },
     "createdTime": "2021-09-14T02:46:25.000Z"
   },

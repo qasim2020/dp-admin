@@ -1,3 +1,4 @@
+const Airtable = require('airtable');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
@@ -668,8 +669,6 @@ var myFuncs = {
 
         let formatData = function( matchingID, data ) {
 
-            delete data._id;
-
             let dateProperty = Object.keys(properties).find( val => properties[val]["type"] == 'Date' );
 
             if (dateProperty != undefined) {
@@ -740,7 +739,8 @@ var myFuncs = {
 
             // console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
 
-            let updateToAirtable = await myFuncs.axiosRequest({ method: "PUT", data: formatData(connectingKey , data), URL: airtableURLs.put});
+            // let updateToAirtable = await myFuncs.axiosRequest({ method: "PUT", data: formatData(connectingKey , data), URL: airtableURLs.put});
+            let updateToAirtable = await myFuncs.airtableAPI({ method: "update", data: formatData(matchingID, data), baseId: airtableURLs.baseId, baseName: airtableURLs.baseName });
 
             if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
                 
@@ -759,7 +759,7 @@ var myFuncs = {
             return {
                 success: true,
                 airtableReply: updateToAirtable.data,
-                msg: updateToAirtable.data.message + " existing (found) in Airtable"
+                msg: updateToAirtable.message 
             }
 
         };
@@ -774,8 +774,10 @@ var myFuncs = {
 
         }
 
-        let updateToAirtable = await this.axiosRequest({ method: "PUT", data: formatData(matchingID, data), URL: airtableURLs.put});
+        // let updateToAirtable = await this.airtableAPI({ method: "update", data: formatData(matchingID, data), baseId: airtableURLs.baseId, baseName: airtableURLs.baseName });
+        let updateToAirtable = await this.axiosRequest({ method: "PUT", data: formatData(matchingID, data), URL: airtableURLs.put}); 
 
+        console.log( JSON.stringify(updateToAirtable, 0, 2) );
 
         if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
 
@@ -910,7 +912,7 @@ var myFuncs = {
             airtableSync.msg = "Sync manually kept off";
         }
 
-        // console.log(airtableSync);
+        console.log(airtableSync);
 
         return {
             success: "Stored & " + airtableSync.msg, 
@@ -953,6 +955,59 @@ var myFuncs = {
             values: output.airtable,
             msg: req.query.msg
         };
+    },
+
+    airtableAPI: async function({baseId, baseName, method, data}) {
+
+        try {
+
+        // console.log(JSON.stringify({baseId, baseName, method, data}, 0, 2));
+
+        var base = new Airtable({apiKey: process.env.Airtable}).base(baseId);
+
+        switch (true) {
+
+            case (method == "list") :
+                console.log("fetch all records");
+                break;
+            
+            case (method == "find") : 
+                console.log("find a record by this Id");
+                break;
+
+            case (method == "create") :
+                console.log("create multiple records here");
+                break;
+
+            case (method == "update") :
+                console.log("update multiple records here");
+                output = await base(baseName).update(data, {typecast: true});
+                break;
+
+            case (method == "delete") :
+                console.log("delete a record here");
+                break; 
+
+        };
+
+        console.log(output);
+
+            return {
+                data: output,
+                message: `Updated ${output.length} records in Airtable`
+            }
+
+        } catch(e) {
+
+            console.log(e);
+            console.log(e.get("error"));
+
+            return {
+                message: "Airtable API error, check console"
+            }
+
+        }
+
     },
 
     saveAirtableURLs: async function(req,res) {

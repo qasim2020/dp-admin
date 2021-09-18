@@ -25,12 +25,15 @@
 
             <!-- <div class="{{status}}">{{{inc @index}}}</div> -->
             <!-- <div class="{{{this.style}}}">{{{this.content}}}</div> -->
+            <!-- 
+                <p>{{{inc @index}}}</p>
+                <p class="info">Website is Under Construction...</p>
+            -->
 
             {{#each data.slides.sliders}}
 
             <div class="{{status}}">
-                <p>{{{inc @index}}}</p>
-                <p class="info">Website is Under Construction...</p>
+                <div class="{{{this.style}}}">{{{this.content}}}</div>
             </div>
 
             {{/each}}
@@ -68,13 +71,14 @@
 
         </div>
 
+        <div class="{{{data.slides.footer.style}}}">
+
+            {{{data.slides.footer.content}}}
+        
+        </div>
+
     </div>
 
-    <div class="{{{data.slides.footer.style}}}">
-
-        {{{data.slides.footer.content}}}
-    
-    </div>
 
     <div class="formBox msgBox d-none">
 

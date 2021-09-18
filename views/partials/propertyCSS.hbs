@@ -5,6 +5,11 @@
         margin: 0;
     }
 
+    body > *:not(.slide-footer), .slide-footer > * {
+        max-width: 900px;
+        margin: auto;
+    }
+
     .layerOne {
         padding-bottom: 20px;
     }
@@ -15,16 +20,17 @@
 
 
     nav {
-        padding: 0 14px;
         z-index: 100;
         display: flex;
         justify-content: space-between;
         position: fixed;
-        width: 100vw;
         top: 0;
-        left: 0;
         box-sizing: border-box;
         background: white;
+        width: 100%;
+        max-width: 900px;
+        left: 50%;
+        transform: translate(-50%);
     }
 
     nav>.right {
@@ -56,10 +62,9 @@
 
     .sliders>div {
         min-width: 100%;
-        min-height: 250px;
+        height: 500px;
         position: relative;
         box-sizing: border-box;
-        border: 1px dashed lightslategray;
         color: white;
         display: none;
         font-weight: bold;
@@ -632,9 +637,12 @@
         font-family: system-ui;
     }
 
-    .slide-footer>div {
+    .slide-footer {
         background: black;
         color: white;
+    }
+
+    .slide-footer>div {
         padding: 20px;
     }
 
@@ -671,6 +679,7 @@
     .slide-intro>div {
         display: flex;
         flex-direction: column-reverse;
+        height: 100%;
     }
 
     .slide-intro>div>.left>h1 {
@@ -691,19 +700,21 @@
         flex-grow: 1;
         overflow: hidden;
         position: relative;
-        border: 4px solid white;
         box-sizing: border-box;
     }
 
     .slide-intro>div>.right>img {
         position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
+        border: 4px solid white;
+        box-sizing: border-box;
     }
 
     .slide {
         position: relative
+    }
+
+    .slide-photo {
+        width: 100%;
     }
 
     .slide-photo>div>.img {
@@ -718,7 +729,8 @@
         height: 100%;
         min-width: 100%;
         left: 50%;
-        transform: translate(-50%);
+        top: 50%;
+        transform: translate(-50%,-50%);
     }
 
     .slide-photo>div>.banner,
@@ -744,7 +756,7 @@
 
     .slide-photo>div>.link {
         position: absolute;
-        bottom: 20vh;
+        bottom: 40px;
         right: 40px;
         background: #D62D34;
         padding: 10px;
@@ -758,15 +770,21 @@
         font-style: italic;
     }
 
+    .slide-location {
+        width: 100%;
+    }
+
     .slide-location>div {
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
 
     .slide-location>div>.img {
         flex-grow: 1;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .slide-location>div>.img>img {
@@ -774,6 +792,8 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        width: 100%;
+        height: auto;
     }
 
     .slide-location>div>.banner {
@@ -781,6 +801,7 @@
         padding: 20px;
         border: 0px;
         box-sizing: border-box;
+        padding-bottom: 0px;
     }
 
     .slide-location>div>.banner>p {
@@ -810,7 +831,6 @@
     }
 
     .slide-contact>div>button {
-        margin-top: 38px;
     }
 
     .slide-location>div>.address>a,
@@ -827,6 +847,7 @@
     .slide-review {
         background: black;
         padding: 20px;
+        height: auto !important;
     }
 
     .slide-review>div {
@@ -864,13 +885,10 @@
     }
 
     .slide-contact>div {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        height: 100%;
     }
 
     .slide-contact>div>.banner {
-        padding-bottom: 20px;
     }
 
     .slide-contact>div>.banner>p {
@@ -881,13 +899,18 @@
     }
 
     .slide-contact>div>.img {
-        flex-grow: 1;
-        max-height: 53vh;
+        height: 85%;
+        width: 100%;
+        position: relative;
         display: flex;
         align-items: center;
-        justify-content: center;
     }
 
     .slide-contact>div>.img>img {
-        height: 100%;
+        height: 90%;
+        position: absolute;
+        border: 4px solid white;
+        left: 50%;
+        transform: translate(-50%);
+        margin-top: -17px;
     }

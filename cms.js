@@ -129,6 +129,16 @@ let Collections = mongoose.model('collections', new mongoose.Schema(schema));
 
 hbs.registerPartials(__dirname + '/views/partials');
 
+hbs.registerHelper('desiPrice', (val) => {
+	var val = Math.abs(val)
+  if (val >= 10000000) {
+    val = (val / 10000000).toFixed(2) + ' Cr';
+  } else if (val >= 100000) {
+    val = (val / 100000).toFixed(2) + ' Lac';
+  }
+  return val;
+});
+
 hbs.registerHelper('pickRandomColor', (val) => {
     let array = [ "lightblue", "pink" , "lavender" , "lightskyblue", "lightgoldenrodyellow" , "lightgreen", "beige" , "#f0dbeb" , "#c9eeeb" , "#f0d0a0" ];
     let randomNo = Math.floor(Math.random() * 4); 

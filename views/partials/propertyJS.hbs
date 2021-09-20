@@ -205,7 +205,7 @@
     let openWhatsApp = function(elem) {
 
         let msg = $(elem).closest('form').find('textarea').val();
-        let url = `https://api.whatsapp.com/send/?phone&text=${encodeURIComponent(msg)}`;
+        let url = `https://api.whatsapp.com/send/?phone={{data.owner.mobile}}&text=${encodeURIComponent(msg)}`;
 
         window.open(
           url,
@@ -246,12 +246,23 @@
                 object.selling = "";
                 object.required= "";
                 object.endSalutation = "";
+
+                let desiPrice = function(val) {
+                    var val = Math.abs(val)
+                    if (val >= 10000000) {
+                        val = (val / 10000000).toFixed(2) + ' Cr';
+                    } else if (val >= 100000) {
+                        val = (val / 100000).toFixed(2) + ' Lac';
+                    }
+                    return val; 
+                };
+
                 
                 if (object.sellingCards.length > 0) {
 
                     object.selling = "\r\n\r\n*Selling*"
                             + object.sellingCards.reduce( (total, val, index) => {
-                        total += `\r\n\r\nPKR ${val.price}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details} \r\n`;
+                        total += `\r\n\r\nPKR ${desiPrice(val.demand)}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details} \r\n`;
                         return total;
                     }, "" )
 
@@ -261,7 +272,7 @@
 
                     object.required = "\r\n\r\n*Required*"
                         + object.requiredCards.reduce( (total, val, index) => {
-                            total += `\r\n\r\nPKR ${val.price}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details} \r\n`;
+                            total += `\r\n\r\nPKR ${desiPrice(val.demand)}\r\n${val.city}, ${val.town} \r\n${val.size} \r\n${val.details} \r\n`;
                             return total;
                         }, "" );
 

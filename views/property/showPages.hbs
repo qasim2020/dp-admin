@@ -21,10 +21,10 @@
             {{> propertyNav navs="home about-us our-location read-blogs log-in" active="read-blogs"}}
         {{/if}}
 
-        <div class="banner">
+        <div class="box-top">
 
             <p class="box-hdg">READ BLOGS</p>
-            <p>Our comprehensive blog posts about market awareness. This is an attempt to make masses aware how to avoid the fraud blanket that has hit hard over our real-estate business.</p>
+            <p class="note">Our comprehensive blog posts about market awareness. This is an attempt to make masses aware how to avoid the fraud blanket that has hit hard over our real-estate business.</p>
         
         </div>
 
@@ -37,12 +37,11 @@
 
                 <div class="page">
 
-                    <p><bold>{{this.page}}</bold></p>
-                    <p>{{this.slug}}</p>
+                    <h1><bold>{{this.page}}</bold></h1>
                     {{#if (matchValues ../data.permit 'auth') }}
                         <a href="/{{../data.brand}}/admin/page/editPage/{{this._id}}">Edit Page</a>
                     {{else}}
-                        <a href="/{{../data.brand}}/gen/page/showPage/{{this.slug}}">View Page</a>
+                        <a href="/{{../data.brand}}/gen/page/showPage/{{this.slug}}">Read →</a>
                     {{/if}}
                 
                 </div>
@@ -64,12 +63,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/root/pjax.js"></script>
-    <script>
 
-
-        {{> propertyJS}}
-
-    </script>
+{{> propertyJS}}
     
 </body>
 </html>

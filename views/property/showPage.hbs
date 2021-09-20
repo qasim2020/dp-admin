@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {{> propertyHello}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-    <title>Chodhry — Blog Post</title>
+    <title>Defence — Blog Post</title>
     <style>
         {{>propertyCSS}} 
+
+        .container {
+            font-size: 17px;
+    line-height: 1.5;
+    font-weight: 300;
+        padding: 20px;
+        }
+
+        .box-top a {
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -21,12 +33,10 @@
         {{> propertyNav navs="home about-us our-location read-blogs log-in" active=""}}
         {{/if}}
 
-        <div class="banner">
+        <div class="box-top">
         
-            <p class="box-hdg"> 
-                <a  href="/{{data.brand}}/{{data.permit}}/page/showPages/n">BLOGS</a> 
-                <span>/ {{data.page.slug}}</span>
-            </p>
+            <p class="box-hdg"> <a  href="/{{data.brand}}/{{data.permit}}/page/showPages/n">BLOGS</a> <span>/ {{data.page.slug}}</span> </p>
+            <p class="note">Written by Qasim Ali (find more about him at <a href="https://qasimali.xyz">qasimali.xyz</a>)</p>
             
         </div>
 
@@ -47,12 +57,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/root/pjax.js"></script>
-    <script>
 
-
-        {{> propertyJS}}
-
-    </script>
+    {{> propertyJS}}
     
 </body>
 </html>

@@ -130,13 +130,13 @@ let Collections = mongoose.model('collections', new mongoose.Schema(schema));
 hbs.registerPartials(__dirname + '/views/partials');
 
 hbs.registerHelper('desiPrice', (val) => {
-	var val = Math.abs(val)
-  if (val >= 10000000) {
-    val = (val / 10000000).toFixed(2) + ' Cr';
-  } else if (val >= 100000) {
-    val = (val / 100000).toFixed(2) + ' Lac';
-  }
-  return val;
+      var val = Math.abs(val)
+      if (val >= 10000000) {
+        val = (val / 10000000).toFixed(2) + ' Cr';
+      } else if (val >= 100000) {
+        val = (val / 100000).toFixed(2) + ' Lac';
+      }
+      return val;
 });
 
 hbs.registerHelper('pickRandomColor', (val) => {
@@ -371,12 +371,32 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
+
+        let getOwnerContactDetails = async function(req,res) {
+
+            let model = await myFuncs.createModel("myapp-users");
+            let output = await model.findOne({brand: req.params.brand});
+
+            return {
+                name: output.name,
+                email: output.email,
+                mobile: output.mobile,
+                loc: output.googleMaps,
+                brandWebsite: output.brandWebsite,
+                brandName: output.brandName,
+                brandDesc: output.brandDesc,
+                metaImg: output.metaImg
+            };
+
+        };
+
         Object.assign(data, {
             permit: req.params.permit,
             brand: req.params.brand,
-            input: req.params.input
+            input: req.params.input,
+            owner: await getOwnerContactDetails(req,res),
         });
-         // console.log(data);
+        // console.log(data);
         console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
@@ -2567,6 +2587,8 @@ var myFuncs = {
         return {
             resources: resources,
             // countCart: countCart,
+            forms: await this.getForms({msgBoxClient: true, contactForm: true}, req,res),
+            allCards: await this.getAllCards(req,res),
             brand: req.params.brand,
             permit: req.params.permit,
             page: output,
@@ -3242,6 +3264,8 @@ var myFuncs = {
             navRows: navRows,
             filterApplied: Object.values(query.filter).length > 0,
             permit: req.params.permit,
+            forms: await this.getForms({msgBoxClient: true, contactForm: true}, req,res),
+            allCards: await this.getAllCards(req,res),
         }
     },
 
@@ -4411,7 +4435,6 @@ var myFuncs = {
         let output = await this.fetchPropertiesDataForPage(req,res);
 
         output.filters.status = output.filters.status.filter( val => {
-            // console.log(val.name.match(/archive|sold/gi));
             return val.name.match(/archive|sold/gi) == null;
         });
 
@@ -4717,12 +4740,12 @@ var myFuncs = {
                         value: "WHATSAPP",
                         onclick: "openWhatsApp(this)",
                         info: "Opens WhatsApp in your Phone / Computer with above pre-drafted message."
-                    },{
-                        elem: "button",
-                        class: "btn blue mt-24",
-                        value: "EMAIL",
-                        info: "Opens Contact Form where you will enter your Contact No and Name.",
-                        onclick: "openLayer('.contactForm')"
+                    // },{
+                    //     elem: "button",
+                    //     class: "btn blue mt-24",
+                    //     value: "EMAIL",
+                    //     info: "Opens Contact Form where you will enter your Contact No and Name.",
+                    //     onclick: "openLayer('.contactForm')"
                     },{
                         elem: "button",
                         class: "btn close",

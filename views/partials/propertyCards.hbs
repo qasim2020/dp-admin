@@ -5,22 +5,27 @@
 <div class="card {{this.authSelected}}" onclick="toggleClass(this, 'select'); cardSelect(this, 'authCards', '{{json this}}') "> 
 {{/if}}
 
-    <p>PKR {{this.price}} · {{this.details}} · {{this.town}} · {{this.city}}</p>
+	<div>
+	    {{#if (matchValues ../admin 'auth')}}
 
-    {{#if (matchValues ../admin 'auth')}}
+	    <div class="selectors">
+		<button class=" {{#if (matchValues this.status 'Selling')}} active {{/if}} btn small selling">SELLING</button>
+		<button class=" {{#if (matchValues this.status 'Required')}} active {{/if}} btn small required">REQUIRED</button>
+		<button class=" {{#if (matchValues this.status 'Sold')}} active {{/if}} btn small sold">SOLD</button>
+		<button class=" {{#if (matchValues this.status 'Archive')}} active {{/if}} btn small archive">ARCHIVE</button>
+	    </div>
 
-    <div class="selectors">
-        <button class=" {{#if (matchValues this.status 'Selling')}} active {{/if}} btn small selling">SELLING</button>
-        <button class=" {{#if (matchValues this.status 'Required')}} active {{/if}} btn small required">REQUIRED</button>
-        <button class=" {{#if (matchValues this.status 'Sold')}} active {{/if}} btn small sold">SOLD</button>
-        <button class=" {{#if (matchValues this.status 'Archive')}} active {{/if}} btn small archive">ARCHIVE</button>
-    </div>
+	    {{else}}
 
-    {{else}}
+		<button class="btn small active {{toLowerCase this.status}}">{{toUpperCase this.status}}</button>
 
-        <button class="btn small active {{toLowerCase this.status}}">{{toUpperCase this.status}}</button>
+	    {{/if}}
+		<p class="heavy"> {{this.town}}, <br>{{this.city}}</p>
+		<p> {{this.size}} <br>Rs {{desiPrice this.demand}} </p>
+	</div>
 
-    {{/if}}
+	<p> {{this.details}} </p> 
 
 </div> 
+
 {{/each}}

@@ -240,6 +240,20 @@ hbs.registerHelper('split', (val) => {
     return output;
 });
 
+hbs.registerHelper('collectionToWord', (string) => {
+
+    string = string.match(/-/g) ? string.split('-')[1] : string;
+    return string.charAt(0).toUpperCase() + string.slice(1); 
+
+});
+
+hbs.registerHelper('camelToWord', (string) => {
+
+    string = string.charAt(0).toUpperCase() + string.slice(1);
+    return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+
+});
+
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
     console.log('');
     console.log(chalk.bold.red('new Request starts here'));
@@ -390,13 +404,19 @@ var myFuncs = {
 
         };
 
-        Object.assign(data, {
-            permit: req.params.permit,
-            brand: req.params.brand,
-            input: req.params.input,
-            owner: await getOwnerContactDetails(req,res),
-        });
-        // console.log(data);
+        try {
+
+            Object.assign(data, {
+                permit: req.params.permit,
+                brand: req.params.brand,
+                input: req.params.input,
+                owner: await getOwnerContactDetails(req,res),
+            });
+            // console.log(data); 
+        } catch(e) {
+            console.log(e)
+        }
+
         console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
@@ -444,6 +464,7 @@ var myFuncs = {
         createNewCollection: 'admin',
         saveSequence: 'auth',
         updateSequence: 'auth',
+        newDashboard: 'admin',
         showCollection: 'admin',
         destroySession: 'auth',
         checkAdmin: 'admin',
@@ -510,6 +531,7 @@ var myFuncs = {
         saveSlide: 'auth',
         changeSlideSequence: 'auth',
         uploadCloudinary: "auth",
+        updateDocument: "admin"
     },
 
     listenToWebhook: function(req,res) {
@@ -1634,6 +1656,76 @@ var myFuncs = {
         return output;
     },        
 
+    newDashboard: async function(req,res) {
+
+        let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+
+        if (collectionsTable.length == 0) return {
+            status:200, 
+            success: 'no Collection exists yet. Try starting the app with basic configurations.',
+            brand: req.params.brand
+        };
+
+        req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
+
+        let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
+
+        console.log({collectionHeadings});
+
+        collectionHeadings.unshift('_id');
+
+        let model = await this.createModel(req.params.input);
+        let dataRows = await model.find().lean();
+        let newRows = dataRows.map(val => {
+            let total = [];
+            for (i=0; i<collectionHeadings.length; i++) {
+                switch (true) {
+                    case (collectionHeadings[i] == 'properties'):
+                        total.push(JSON.stringify(val[collectionHeadings[i]]));
+                        break;
+                    default:
+                        total.push(val[collectionHeadings[i]]);
+                        console.log( val[collectionHeadings[i]] );
+                }
+            }
+
+            console.log(total);
+            return {
+                array: total,
+                object: val
+            };
+        });
+
+
+        // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
+        req.params.theme = 'root';
+
+        model = await this.createModel(`${req.params.brand}-notifications`);
+
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.find({status: 'unread'})
+        };
+
+        let output = await this.showCollection(req,res);
+        model = await this.createModel("myapp-themes");
+
+        let brandSettings = await model.findOne({brand: req.params.brand}).lean();
+
+        console.log( {brandSettings }) ;
+        return {
+            modules: brandSettings.modules,
+            collections: brandSettings.collections,
+            schema: collectionsTable.find(val => val.name == req.params.input).properties,
+            notifications: notifications,
+            modelName: req.params.input,
+            th: collectionHeadings,
+            dataRows: newRows,
+        };
+
+
+    },
+
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
 
@@ -1679,9 +1771,15 @@ var myFuncs = {
                         break;
                     default:
                         total.push(val[collectionHeadings[i]]);
+                        console.log( val[collectionHeadings[i]] );
                 }
             }
-            return total;
+
+            console.log(total);
+            return {
+                array: total,
+                object: val
+            };
         });
 
 
@@ -5316,6 +5414,17 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-slides`);
 
         let output = await Promise.all( req.body.slides.map( val => model.findOneAndUpdate({_id: val.id}, {$set : { sequence: val.sequence } }, {new: true} ) ) );
+
+        return output;
+
+    },
+
+    updateDocument : async function(req,res) {
+
+        console.log( req.query, req.body );
+
+        let model = await this.createModel(req.params.input);
+        let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});
 
         return output;
 

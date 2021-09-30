@@ -1,0 +1,180 @@
+<script>
+
+let hideMe = function(elem) {
+
+    let col  = {
+        no: $("th").index(elem),
+        name: $(elem).html(),
+        index: $(elem).attr("index")
+    };
+
+    console.log({col});
+
+    $(elem).addClass("d-none");
+    $(`.${col.index}`).addClass("d-none");
+
+    let span = `<span index=${col.index} onclick=showMe(this)>${col.name}</span>`;
+    $("#hiddenFields").html( $("#hiddenFields").html() + span );
+
+};
+
+let showMe = function(elem) {
+
+    let index = $(elem).attr("index");
+
+    $(elem).remove();
+    $(`tr > [index=${index}]`).removeClass("d-none");
+    $(`.${index}`).removeClass("d-none");
+
+}
+
+let createForm = function(elem) {
+
+    let constructData = function(row) {
+
+        let headings = $(".headings").get().map( val => {
+            return {
+                heading: $(val).attr("formname") ,
+                index: $(val).attr("index")
+            };
+
+        });
+
+        let mydata = headings.reduce( (total, val) => {
+
+            Object.assign( total, {
+                [val.heading] : $(`#${row} > .${val.index}`).html()
+            });
+
+            return total;
+
+        },{});
+
+        console.log( mydata );
+
+        return mydata;
+
+    };
+
+    let data = constructData( $(elem).closest("tr").attr("id") );
+
+    let schema = JSON.parse( $(elem).closest("table").attr("schema") );
+
+    let elems = $(".headings").map( (key,val) => {
+        switch (true) {
+            case $(val).attr("formname") == "_id" :
+                return {
+                    label: "ID",
+                    name: "_id",
+                    type: "String",
+                    html: "input",
+                    addOn: "disabled",
+                    value: data[ $(val).attr("formname") ]
+                };
+                break;
+            default : 
+                return {
+                    label: $(val).html().toUpperCase(),
+                    name: $(val).attr("formname"),
+                    type: schema[ $(val).attr("formname") ].type,
+                    html: schema[ $(val).attr("formname") ].html,
+                    value: data[ $(val).attr("formname") ] || "",
+                    addOn: `onkeyup=saveInput(this,'${data._id}','form')`
+                }
+        };
+    }).get();
+
+    let formString = elems.reduce( (total,val, key) => { 
+        total = total +  `
+            <label for="${val.name}">${val.label}</label>
+            <input type="${val.type}" name="${val.name}" ${val.addOn} value="${val.value}">
+            `;
+        return total;
+    },"");
+
+    let form = `
+        <form action="" row=${ $(elem).closest("tr").attr("id") }> 
+            ${formString} 
+            <button type="button" class="close" onclick="openLayer('.formBox', '.layerOne')">CLOSE</button> 
+        </form>
+        `;
+
+    $(".layerOne").addClass("d-none");
+    $(".formBox").html(form).removeClass("d-none");
+};
+
+    let openLayer = function(elem, target) {
+
+        $(elem).addClass("d-none");
+        $(target).removeClass("d-none");
+
+    };
+
+    let saveInput = function(elem, _id, type) {
+
+        let changeConnectedData = function(row) {
+
+            console.log( $(elem).attr("name") );
+
+            let col = $(`[formname=${ $(elem).attr("name") }`).attr("index");
+
+            console.log({ col, row });
+
+            $(`#${row} > .${col}`).html( $(elem).val() );
+
+            return console.log("data changed");
+
+        };
+
+        let data = {};
+        switch (true) { 
+            case (type == "form") : 
+                changeConnectedData( $(elem).closest("form").attr("row") );
+                data[$(elem).attr("name")] =  $(elem).val() ;
+                break;
+            case (type == "td" ) :
+                let name = $(`[index=${ $(elem).attr("class") }`).attr("formname");
+                if ( name == "_id" ) return; 
+                data[name] = $(elem).html(); 
+                break; 
+        }
+
+        console.log( {data, _id} );
+
+        $.ajax({
+            url: `/{{data.brand}}/admin/data/updateDocument/{{data.modelName}}?_id=${_id}`,
+            method: "POST",
+            data: data,
+            success: val => console.log(val),
+        }).fail( val => console.log(val) ); 
+
+    };
+
+    let addNewRow = function() {
+        
+        $.get("/{{data.brand}}/admin/data/getMongoId/n", function( data, status ){
+            console.log(data, status);
+            if (status != "success") return alert("could not get the id");
+            $("tr:eq(-1)").clone().attr({id: "row" + ( $("tr").get().length - 1 )}).appendTo("tbody").removeClass("d-none")
+                .find("td:not(:first-child)").html("").attr({onkeyup: `saveInput(this,'${data}','td')`})
+                .closest("tr").find(".col0").html(data);
+        });
+
+    }
+
+    let deleteMe = function(elem) {
+
+        let _id = $(elem).closest("tr").find(".col0").html();
+
+        $.get(`/{{data.brand}}/admin/data/deleteDocument/{{data.modelName}}?_id=${_id}`, function( data, status ) {
+
+            console.log(data, status);
+            if (status != "success") return alert("could not get the id"); 
+            $(elem).closest("tr").remove();
+
+        });
+
+
+    };
+
+</script>

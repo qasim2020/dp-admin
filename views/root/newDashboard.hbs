@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <title></title>
+    <style>
+
+    body {
+        font-family: "Roboto";
+        max-width: 900px;
+        margin: auto;
+        padding: 0px;
+    }
+
+    .btn {
+        padding: 7px 8px;
+        border: 2px solid lightslategrey;
+        display: inline-block;
+        margin-bottom: 4px;
+        text-decoration: none;
+        color: black;
+        font-size: 15px;
+        background: #f2f2f2;
+        height: 36px;
+        box-sizing: border-box;
+    }
+
+    nav {
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    table {
+            overflow: scroll;
+    max-width: 100vw;
+    box-sizing: border-box;
+    display: block;
+    background: lightslategrey;
+    margin: 10px 0;
+        padding-left: 86px;
+    }
+
+    th, td {
+        max-width: 400px;
+        padding: 7px 10px;
+        overflow: scroll;
+        white-space: nowrap;
+        border: 4px solid whitesmoke;
+        background: whitesmoke;
+    }
+
+    td:focus-visible {
+        outline: none;
+    }
+
+    table::-webkit-scrollbar, 
+    th::-webkit-scrollbar, 
+    td::-webkit-scrollbar {
+        display: none;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    
+    .layerOne > div {
+        padding: 20px 10px;
+        background: whitesmoke;
+        margin: 10px 0;
+    }
+
+    i.fas {
+        text-decoration: none;
+        color: #F2F2F2;
+    }
+
+    tr > *:nth-child(1) {
+        position: absolute;
+        z-index: 10;
+        margin-left: -88px;
+        background: lightslategrey;
+        border: 4px solid lightslategrey;
+    }
+
+    tr > td:nth-child(2) {
+        font-size: 9px;
+    }
+
+    .icon {
+        width: 25px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    #hiddenFields {
+        margin: 17px 0 5px 0;
+    }
+
+    #hiddenFields > span {
+        background: lightslategrey;
+        color: white;
+        padding: 3px 6px;
+        margin-right: 2px;
+        margin-bottom: 2px;
+        font-weight: bold;
+        font-size: 14px;
+        display: inline-block;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        max-width: 90vw;
+        margin: auto;
+        width: 900px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    form > label {
+        font-size: 12px;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: lightslategray;
+    }
+
+    form > input {
+        font-size: 15px;
+        padding: 10px;
+        border: 2px solid lightslategray;
+        margin-bottom: 10px;
+    }
+
+    form > button {
+        font-size: 15px;
+        padding: 10px;
+        color: white;
+        background: lightslategray;
+        font-weight: bold;
+        margin-bottom: 10px;
+        width: fit-content;
+        border: 2px solid lightslategray;
+    }
+
+    form > button.close {
+        background: indianred;
+        border: indianred;
+    }
+
+    td {
+        color: darkgrey;
+    }
+
+    [contenteditable = true] {
+        color: black;
+    }
+    </style>
+</head>
+<body>
+
+    <div class="layerOne">
+
+        <nav>
+            <p>{{data.owner.brandName}}</p>
+            <p> <a class="btn" href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a> </p>
+        </nav>
+
+        <div>
+            {{#each ( split data.modules ) }} 
+            <a class="btn" href="/{{../data.brand}}/admin/page/newDashboard/{{this}}">{{camelToWord this}}</a>
+            {{/each}}
+        </div>
+
+        <div class="collections">
+            {{#each ( split data.collections )}} 
+            <a class="btn" href="/{{../data.brand}}/admin/page/newDashboard/{{../data.brand}}-{{this}}">{{camelToWord this}}</a>
+            {{/each}}
+        </div>
+
+        <div class="container" id="pjax-container">
+            <button class="btn">Airtable Pull</button>
+            <button class="btn" onclick="addNewRow()">Add New Row</button>
+            <button class="btn">Edit Columns</button>
+            <div id="hiddenFields"> </div>
+            <table schema="{{json data.schema}}">
+                <tbody>
+                
+                    <tr>
+                        <th>
+                            <i class="icon fas fa-square"></i>
+                            <span class="icon"></span>
+                        </th>
+                        {{#each data.th}}
+                            <th class="headings" formname="{{this}}"  index="col{{@index}}" onclick="hideMe(this)">{{camelToWord this}}</th>
+                        {{/each}}
+                    </tr> 
+
+                    {{#each data.dataRows}}
+                    <tr id="row{{@index}}">
+                        <td>
+                            <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
+                            <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
+                        </td>
+                        {{#each this.array}}
+                        <td class="col{{@index}}" onkeyup="saveInput(this,'{{../array.[0]}}','td')" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}>{{this}}</td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    <tr class="d-none">
+                        <td>
+                            <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
+                            <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
+                        </td>
+                        {{#each data.th}}
+                        <td class="col{{@index}}" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}></td>
+                        {{/each}}
+                    </tr>
+
+                </tbody>
+            </table>
+        
+        </div>
+    
+    </div>
+
+    <div class="formBox d-none">
+    
+    </div>
+
+    <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="/root/pjax.js"></script>
+
+    {{> rootJS}}
+
+</body>
+</html>

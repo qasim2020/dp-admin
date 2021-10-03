@@ -411,6 +411,7 @@ var myFuncs = {
                 brand: req.params.brand,
                 input: req.params.input,
                 owner: await getOwnerContactDetails(req,res),
+                requiredType: req.params.requiredType
             });
             // console.log(data); 
         } catch(e) {
@@ -437,14 +438,14 @@ var myFuncs = {
           case (req.headers['x-pjax'] == 'true'):
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
-          case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-            let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
-            break;
-          case (req.params.requiredType == 'page'):
+          // case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
+          //   let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
+          //   return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
+          //   break;
+          // case (req.params.requiredType == 'page'):
+          default:
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
-          default:
         }
     },
 

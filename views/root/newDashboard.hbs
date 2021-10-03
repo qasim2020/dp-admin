@@ -177,58 +177,18 @@
 
         <div>
             {{#each ( split data.modules ) }} 
-            <a class="btn" href="/{{../data.brand}}/admin/page/newDashboard/{{this}}">{{camelToWord this}}</a>
+            <a class="btn" href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" data-pjax>{{camelToWord this}}</a>
             {{/each}}
         </div>
 
         <div class="collections">
             {{#each ( split data.collections )}} 
-            <a class="btn" href="/{{../data.brand}}/admin/page/newDashboard/{{../data.brand}}-{{this}}">{{camelToWord this}}</a>
+            <a class="btn" href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" data-pjax>{{camelToWord this}}</a>
             {{/each}}
         </div>
 
         <div class="container" id="pjax-container">
-            <button class="btn">Airtable Pull</button>
-            <button class="btn" onclick="addNewRow()">Add New Row</button>
-            <button class="btn">Edit Columns</button>
-            <div id="hiddenFields"> </div>
-            <table schema="{{json data.schema}}">
-                <tbody>
-                
-                    <tr>
-                        <th>
-                            <i class="icon fas fa-square"></i>
-                            <span class="icon"></span>
-                        </th>
-                        {{#each data.th}}
-                            <th class="headings" formname="{{this}}"  index="col{{@index}}" onclick="hideMe(this)">{{camelToWord this}}</th>
-                        {{/each}}
-                    </tr> 
-
-                    {{#each data.dataRows}}
-                    <tr id="row{{@index}}">
-                        <td>
-                            <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
-                            <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
-                        </td>
-                        {{#each this.array}}
-                        <td class="col{{@index}}" onkeyup="saveInput(this,'{{../array.[0]}}','td')" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}>{{this}}</td>
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    <tr class="d-none">
-                        <td>
-                            <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
-                            <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
-                        </td>
-                        {{#each data.th}}
-                        <td class="col{{@index}}" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}></td>
-                        {{/each}}
-                    </tr>
-
-                </tbody>
-            </table>
-        
+            {{> rootTable schema=data.schema dataRows=data.dataRows}} 
         </div>
     
     </div>

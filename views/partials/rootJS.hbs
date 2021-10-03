@@ -1,5 +1,10 @@
 <script>
 
+$(document).pjax('a[data-pjax]', '#pjax-container');
+
+$.pjax.defaults.scrollTo = false;
+$.pjax.defaults.timeout = false;
+
 let hideMe = function(elem) {
 
     let col  = {

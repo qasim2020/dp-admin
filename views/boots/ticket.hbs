@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<style>
+
+{{> bootsCSS}}
+
+</style>
+</head>
+<body>
+
+    <div class="layerOne">
+
+        <nav>
+            {{> bootsNAV}}
+        </nav>
+
+        <div class="ticket">
+
+            <p class="hero">TICKET <span>001010</span></p>
+            <p class="status">OPEN</p>
+            <p class="description">We are working on your request. Contacting you shortly!</p>
+        
+            <button class="btn">Ask Refund</button>
+            <button  class="btn" onclick="openFeedback(this)">Mark as Resolved !</button>
+        </div>
+    
+    </div>
+
+
+    <div class="feedbackForm d-none">
+
+        <p class="hero">THANK YOU!</p>
+        <p class="note">Thank you for using our platform. Help us improve by leaving your feedback below.</p>
+
+        <form action="">
+
+            <label for="">RATING</label>
+            <input type="text">
+
+            <label for="">COMMENT</label>
+            <textarea id="" name="" cols="30" rows="10"></textarea>
+
+            <button class="btn" onclick="submitFeedback()">Submit</button>
+        
+        </form>
+    
+    </div>
+
+    <div class="feedbackDone d-none">
+
+        <p class="hero">DONE!</p>
+        <p class="note">Your feedback has been submitted. Thank you for visiting us. :)</p>
+
+        <a class="btn" href="/{{data.brand}}/gen/page/landingPage/n">Go Back →</a>
+    
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+</body>
+</html>

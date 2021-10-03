@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<style>
+
+{{> bootsCSS}}
+
+</style>
+</head>
+<body>
+
+    <div class="layerOne">
+
+        <nav>
+            {{> bootsNAV}}
+        </nav>
+    
+        <div class="sliders">
+
+            <div class="movers">
+
+
+                <button class="arrow left" onclick="navigateSlide('left')">←</button>
+                <div> 
+                    <button onclick="navigateSlide(0)" class="active">1</button>
+                    <button onclick="navigateSlide(1)" class="">2</button>
+                    <button onclick="navigateSlide(2)" class="">3</button>
+                    <button onclick="navigateSlide(3)" class="">4</button>
+                    <button onclick="navigateSlide(4)" class="">5</button>
+                    <button onclick="navigateSlide(5)" class="">6</button>
+                </div>
+                <button class="arrow right" onclick="navigateSlide('right')">→</button>
+            
+            </div>
+
+            <div class="slide active">
+
+                <p class="hero">SHOPPING</p>
+                <p>Buy Khaadi dress and deliver to my sister leaving for UK tonight.</p> 
+                <button class="btn">Book Now</button>
+            
+            </div>
+
+            <div class="slide ">
+
+                <p class="hero">TUTOR</p>
+                <p>Need a personal tutor to teach my kids to learn to Code. Someone I can trust.</p>
+                <button class="btn">Book Now</button>
+            
+            </div>
+
+
+            <div class="slide ">
+
+                <p class="hero">TUOR GUIDE</p>
+                <p>Landing tomorrow at Islamabad Airport, need a tour guide. </p> 
+                <button class="btn">Book Now</button>
+
+            </div>
+
+            <div class="slide ">
+
+                <p class="hero">ELECTRICIAN</p>
+                <p>I want to fix all the wires at my home before moving in. Hide wires behind TV. Install UPS. Fix Water pump. And I don't know what else. Just send someone over.</p>
+                <button class="btn">Book Now</button>
+            
+            </div>
+
+            <div class="slide ">
+
+                <p class="hero">REAL ESTATE</p>
+                <p>Tired of scam. Need someone who can help me buy a property and complete documentation. I am abroad. So need someone trustworthy + transparent.</p>
+                <button class="btn">Book Now</button>
+            
+            </div>
+
+            <div class="slide ">
+
+                <p class="hero">MOST THINGS</p>
+                <p>Find people who can do most things for you with out worrying about scam or theft or discredit. You get your money back - if not satisfied. </p>
+                <button class="btn" >Explore →</button>
+            
+            </div>
+        
+        </div>
+        
+        <div class="subjects">
+
+            {{#each data.subjects}}
+
+                <div class="card" onclick="collectCard(this, '{{this._id}}')">
+
+                    <h2>{{this.subject}}</h2> 
+                    <p>{{this.description}}</p>
+                
+                </div>
+        
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="formBox credit d-none">
+
+        <button onclick="openLayer('.formBox', '.layerOne')">X</button>
+        
+        <p class="hero">Pay Booking Fee (10 USD)</p>
+        <p class="note">This is fully refundable. If your query is not resolved, just contact us, and we will make you full refund.</p>
+
+        <form action="">
+
+            <label for="">Card No</label>
+            <input type="text">
+
+            <label for="">Expiry</label>
+            <input type="text">
+
+            <label for="">CVC</label>
+            <input type="text">
+        
+        
+        </form>
+
+        <button class="btn" onclick="submitCreditCard()">SUBMIT</button> 
+    
+    </div>
+
+    <div class="redirectBox d-none">
+
+        <p class="hero">Paymnet Successful</p>
+        <p class="note">Redirecting you to the Ticket Page...</p>
+    
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    {{> bootsJS}}
+</body>
+</html>

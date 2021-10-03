@@ -1,0 +1,79 @@
+<script>
+
+    let toggleClass = function(elem, name) {
+
+        $(elem).toggleClass(name);
+
+    }
+
+    let openLayer = function(close, open) {
+
+        $(close).addClass("d-none");
+        $(open).removeClass("d-none");
+
+    };
+
+
+    let collectCard = function(elem, id) {
+
+        console.log(elem, id); 
+
+        $(".layerOne").addClass("d-none");
+        $(".formBox.credit").removeClass("d-none");
+
+    };
+
+    let submitCreditCard  = function() {
+
+        $(".formBox.credit").addClass("d-none");
+        $(".redirectBox").removeClass("d-none");
+
+    };
+    
+
+    let openFeedback = function() {
+
+        $(".layerOne").addClass("d-none");
+        $(".feedbackForm").removeClass("d-none");
+
+    };
+
+    let submitFeedback = function() {
+
+        console.log("here submit feedback to the server");
+
+        openLayer(".layerOne", "feedbackDone");
+
+    };
+
+
+    let navigateSlide = function(instr) {
+
+        switch (true) {
+
+            case ( instr == "left" ): 
+                if ( $(".sliders>.slide.active").prev().length > 0 ) {
+                    return navigateSlide( Number( $(".movers>div>button.active").html() ) - 2  );
+                } else {
+                    return navigateSlide( Number( $(".movers>div>button").last().html() ) - 1 );
+                }
+                break; 
+            case ( instr == "right" ):
+                if ( $(".sliders>.slide.active").next().length > 0 ) {
+                    return navigateSlide( $(".movers>div>button.active").html() );
+                } else {
+                    return navigateSlide(0);
+                }
+                break; 
+            default:
+                console.log(instr);
+                $(".sliders > .slide").eq(instr).addClass("active").siblings().removeClass("active");
+                $(".movers > div > *").eq(instr).addClass("active").siblings().removeClass("active");
+                break;
+
+        };
+
+    };
+
+</script>
+

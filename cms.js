@@ -1523,6 +1523,7 @@ var myFuncs = {
 
         try {
 
+            console.log(JSON.stringify( req.body, 0, 2 ));
             let model = await this.createModel(req.params.input);
             let commonKey = ( await this.getAirtableUrls(req,res) ).key; 
             console.log(commonKey);
@@ -5430,6 +5431,16 @@ var myFuncs = {
         return output;
 
     },
+
+    boots: async function(req,res) {
+
+
+        let model = await this.createModel(`${req.params.brand}-subjects`);
+        let output = await model.find({status: "open"}).lean();
+        return {
+            subjects: output
+        }
+    }
 
 };
 

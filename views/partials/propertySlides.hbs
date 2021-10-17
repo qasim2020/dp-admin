@@ -1,0 +1,35 @@
+<style>
+
+.slides {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+}
+
+.sortable {
+    padding: 10px;
+    border: 2px solid white;
+}
+
+</style>
+<div class="slides">
+
+{{#each slides.sliders}}
+
+    <div class="thumbnail sortable" draggable=true>
+        <p class="small">{{collectionToWord this.style}}</p>
+        <button 
+            sequence="{{this.sequence}}"
+            class="btn edit" 
+            id="{{this._id}}" 
+            style="{{this.style}}" 
+            content= "{{this.content}}"
+            onclick="openLayer('.slide-editor'); openSlideEditor(this, 'old' )">
+            EDIT
+        </button>
+        <button class="btn red" id="{{this._id}}" onclick="deleteMe(this, 'slides')">DELETE</button>
+    </div>
+
+{{/each}}
+
+</div>

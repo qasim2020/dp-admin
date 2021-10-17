@@ -150,9 +150,7 @@ hbs.registerHelper('inc', (val) => {
 });
 
 hbs.registerHelper('mongoIdToDate', (objectId) => {
-
     return new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
-
 });
 
 hbs.registerHelper('breaklines', (val) => {
@@ -252,6 +250,10 @@ hbs.registerHelper('camelToWord', (string) => {
     string = string.charAt(0).toUpperCase() + string.slice(1);
     return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
 
+});
+
+hbs.registerHelper('matchToCollection', function(val1,val2,val3) {
+    return val1 == `${val2}-${val3}`;
 });
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
@@ -418,12 +420,16 @@ var myFuncs = {
             console.log(e)
         }
 
-        console.log(JSON.stringify(data,'',2));
+        console.log(data);
+        // console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
           case ( data.hasOwnProperty('error') ): 
             delete data.permit;
             delete data.brand;
+            delete data.owner;
+            delete data.requiredType;
+                console.log("SENDING ERROR");
             return res.sendStatus(data.status).send(data.error);
             break;
           case (req.query.hasOwnProperty('redirect')):
@@ -436,6 +442,7 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
+            console.log({theme: req.params.theme, module: req.params.module});
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           // case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
@@ -977,51 +984,68 @@ var myFuncs = {
 
     checkCollectionExists: async function(collectionName) {
         let result = await mongoose.connection.db.listCollections().toArray();
-        return result.some(val => val.name == `${collectionName}`);
-    },
+            return result.some(val => val.name == `${collectionName}`);
+        },
 
-    createModel : async function(modelName) {
+        createModel : async function(modelName) {
 
-        try {
-            let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
-            let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-            if (modelExistsAlready) { mongoose.models[modelName] = ''; };
-            let schema = await Collections.findOne({name: modelName}).lean();
-            return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
-        } catch(e) {
-            // console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
-            return e;
-        }
-        
-    },
+            try {
+                let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
+                let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
+                if (modelExistsAlready) { mongoose.models[modelName] = ''; };
+                let schema = await Collections.findOne({name: modelName}).lean();
+                return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
+            } catch(e) {
+                // console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
+                return e;
+            }
+            
+        },
 
-    airtableSync: async function(req,res) {
-        // console.log('show Airtable Sync page here');
-        req.params.theme = 'root';
-        let output = await Collections.findOne({name: req.params.input}).lean();
-        // console.log(output.airtable);
-         // console.log(req.query.msg);
-        return {
-            modelName: req.params.input,
-            brand: req.params.brand,
-            collection: req.params.input,
-            values: output.airtable,
-            msg: req.query.msg
-        };
-    },
+        airtableSync: async function(req,res) {
+                req.params.theme = 'root';
+            let output = await Collections.findOne({name: req.params.input}).lean();
+            return {
+                modelName: req.params.input,
+                brand: req.params.brand,
+                collection: req.params.input,
+                values: output.airtable,
+                msg: req.query.msg
+            };
+        },
 
-    airtableAPI: async function({baseId, baseName, method, data}) {
+        airtableAPI: async function({baseId, baseName, method, data}) {
 
-        try {
+            try {
 
-        // console.log(JSON.stringify({baseId, baseName, method, data}, 0, 2));
+            var base = new Airtable({apiKey: process.env.Airtable}).base(baseId);
 
-        var base = new Airtable({apiKey: process.env.Airtable}).base(baseId);
+                let fetchAllRecords = async function() {
+                    new Promise( (resolve, reject) => {
+                                base(baseName).select({
+                                    maxRecords: 100,
+                                    view: "Grid view"
+                                }).eachPage(function page(records, fetchNextPage) {
+                                    records.forEach(function(record) {
+                                        console.log('Retrieved', record.get('_id'));
+                                        resolve( record );
+                                    });
+                                    fetchNextPage();
+
+                                }, function done(err) {
+                                    reject( err );
+                                    if (err) { console.error(err); return; }
+                                });
+                    })
+
+                };
+
 
         switch (true) {
 
             case (method == "list") :
                 console.log("fetch all records");
+                output = await fetchAllRecords();
                 break;
             
             case (method == "find") : 
@@ -1067,15 +1091,15 @@ var myFuncs = {
 
         try {
 
+            let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.baseName, method: "list" }) ).data.records;
+
             let connectingKeys = ( await this.axiosRequest({ method: "GET", URL: req.body.get + "&fields=" + req.body.key }) ).data.records;
 
-            if (connectingKeys == undefined) throw "Could not find matching data in airtable";
+            if (connectingKeys == undefined) throw "Could not find matching data in airtable"; 
 
             req.body.connectingKeys = connectingKeys;
 
             let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
-
-            // console.log( airtableAdded );
 
             req.params.theme = 'root';
 
@@ -1085,11 +1109,12 @@ var myFuncs = {
             }
 
         } catch (e) {
-            // console.log(e);
+            console.log(e);
             req.params.theme = 'root';
             return {
                 output: '',
-                msg: "Could not find matching data in airtable"
+                error: "Could not find matching data in airtable",
+                status: 404,
             }
         }
 
@@ -1097,12 +1122,8 @@ var myFuncs = {
 
     updateManyByKey: async function(req,res) {
 
-        // console.log(req.body.data);
-
         let model = await this.createModel(`${req.params.input}`);
         let output = await Promise.all(req.body.data.map((val,index) => model.findOneAndUpdate({ [val.key] : val.data[val.key] }, val.data , { new: true, upsert:true }) ));
-
-        // console.log(output);
         return {
             output
         };
@@ -1110,8 +1131,6 @@ var myFuncs = {
     },
 
     fetchAirtableData: async function(req,res) {
-
-        // console.log('Fetching airtable data now');
 
         let airtableURLs = ( await Collections.findOne({name: req.params.input}).lean() ).airtable;
 
@@ -1660,71 +1679,106 @@ var myFuncs = {
 
     newDashboard: async function(req,res) {
 
-        let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+        req.params.theme = "root";
+        req.params.module = req.headers['x-pjax']  == 'true' ? req.params.input : "newDashboard";
+        console.log({module: req.params.module, pjax: req.headers['x-pjax']});
+        
+        let output = {};
+        let model ;
 
-        if (collectionsTable.length == 0) return {
-            status:200, 
-            success: 'no Collection exists yet. Try starting the app with basic configurations.',
-            brand: req.params.brand
+        console.log(req.params.input, req.params.input.match(/-/g));
+
+        if (req.params.input.match(/-/g) == null) {
+
+            let showSlides = async function() {
+
+                let model = await myFuncs.createModel(`${req.params.brand}-slides`);
+
+                return {
+                    slides: await myFuncs.getSlides(req,res),
+                    templates: [ 1, 2, 3],
+                };
+
+            };
+
+            switch (true) {
+                case (req.params.input == "slides"):
+                    output = await showSlides();
+                    break;
+                case (req.params.input == "tickets"):
+                    output = {tickets: [1,2,3]};
+                    break;
+                case (req.params.input == "printContract"):
+                    output = {contracts: true};
+                    break;
+            };
+
+        } else {
+
+            let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+
+            if (collectionsTable.length == 0) return {
+                status:200, 
+                success: 'no Collection exists yet. Try starting the app with basic configurations.',
+                brand: req.params.brand
+            };
+
+            req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
+
+            let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
+
+            collectionHeadings.unshift('_id');
+
+            model = await this.createModel(req.params.input);
+            let dataRows = await model.find().lean();
+            let newRows = dataRows.map(val => {
+                let total = [];
+                for (i=0; i<collectionHeadings.length; i++) {
+                    switch (true) {
+                        case (collectionHeadings[i] == 'properties'):
+                            total.push(JSON.stringify(val[collectionHeadings[i]]));
+                            break;
+                        default:
+                            total.push(val[collectionHeadings[i]]);
+                    }
+                }
+
+                return {
+                    array: total,
+                    object: val
+                };
+            });
+
+            req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
+
+            output = {
+                schema: collectionsTable.find(val => val.name == req.params.input).properties,
+                th: collectionHeadings,
+                dataRows: newRows,
+                modelName: req.params.input,
+            };
+                
+
         };
 
-        req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
-
-        let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
-
-        console.log({collectionHeadings});
-
-        collectionHeadings.unshift('_id');
-
-        let model = await this.createModel(req.params.input);
-        let dataRows = await model.find().lean();
-        let newRows = dataRows.map(val => {
-            let total = [];
-            for (i=0; i<collectionHeadings.length; i++) {
-                switch (true) {
-                    case (collectionHeadings[i] == 'properties'):
-                        total.push(JSON.stringify(val[collectionHeadings[i]]));
-                        break;
-                    default:
-                        total.push(val[collectionHeadings[i]]);
-                        console.log( val[collectionHeadings[i]] );
-                }
-            }
-
-            console.log(total);
-            return {
-                array: total,
-                object: val
-            };
-        });
-
-
-        // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
-        req.params.theme = 'root';
-
         model = await this.createModel(`${req.params.brand}-notifications`);
-
         let notifications = {
             count: await model.countDocuments({status: 'unread'}),
             texts: await model.find({status: 'unread'})
         };
 
-        let output = await this.showCollection(req,res);
         model = await this.createModel("myapp-themes");
+        let myTheme = await model.findOne({brand: req.params.brand}).lean();
 
-        let brandSettings = await model.findOne({brand: req.params.brand}).lean();
+        Object.assign(output, {
+                modules: myTheme.modules,
+                collections: myTheme.collections,
+                notifications: notifications,
+                input: req.params.input
+        });
 
-        console.log( {brandSettings }) ;
-        return {
-            modules: brandSettings.modules,
-            collections: brandSettings.collections,
-            schema: collectionsTable.find(val => val.name == req.params.input).properties,
-            notifications: notifications,
-            modelName: req.params.input,
-            th: collectionHeadings,
-            dataRows: newRows,
-        };
-
+        // console.log(JSON.stringify(output,'',2));
+        return output;
 
     },
 

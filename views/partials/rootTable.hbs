@@ -1,32 +1,110 @@
-<button class="btn">Airtable Pull</button>
-<button class="btn" onclick="addNewRow()">Add New Row</button>
-<button class="btn">Edit Columns</button>
-<div id="hiddenFields"> </div>
-<table schema="{{json schema}}">
-    <tbody>
+<style>
+    table {
+        overflow: scroll;
+        box-sizing: border-box;
+        max-width: fit-content;
+        width: 100%;
+        display: block;
+        background: black;
+        margin: 10px 0;
+        padding-left: 78px;
+    }
 
-        <tr>
-            <th>
-                <i class="icon fas fa-square"></i>
-                <span class="icon"></span>
-            </th>
-            {{#each data.th}}
-                <th class="headings" formname="{{this}}"  index="col{{@index}}" onclick="hideMe(this)">{{camelToWord this}}</th>
-            {{/each}}
-        </tr>
+    th, td {
+        max-width: 400px;
+        padding: 7px 10px;
+        overflow: scroll;
+        white-space: nowrap;
+        border: 4px solid whitesmoke;
+        background: whitesmoke;
+    }
 
-        {{#each dataRows}}
-        <tr id="row{{@index}}">
-            <td>
-                <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
-                <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
-            </td>
-            {{#each this.array}}
-            <td class="col{{@index}}" onkeyup="saveInput(this,'{{../array.[0]}}','td')" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}>{{this}}</td>
+    td:focus-visible {
+        outline: none;
+    }
+
+    table::-webkit-scrollbar, 
+    th::-webkit-scrollbar, 
+    td::-webkit-scrollbar {
+        display: none;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    i.fas {
+        text-decoration: none;
+        color: #F2F2F2;
+    }
+
+    tr > *:nth-child(1) {
+        position: absolute;
+        z-index: 10;
+        background: black;
+        border: 4px solid black;
+        margin-left: -80px;
+    }
+
+    tr > td:nth-child(2) {
+        font-size: 9px;
+    }
+
+    .icon {
+        width: 25px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    td {
+        color: darkgrey;
+    }
+
+    [contenteditable = true] {
+        color: black;
+    }
+
+    .mt-20 {
+        margin-top: 20px;
+    }
+
+    .block > p {
+        display: block;
+    padding: 5px 12px;
+    background: white;
+    font-weight: bold;
+    color: cornflowerblue;
+    }
+</style>
+
+<div class="table">
+    <button class="btn" onclick="openContainerLayer('.table','.airtableKeys')">Airtable Pull</button>
+    <button class="btn" onclick="addNewRow()">Add New Row</button>
+    <button class="btn">Edit Columns</button>
+    <div id="hiddenFields"> </div>
+    <table schema="{{json schema}}">
+        <tbody>
+
+            <tr>
+                <th>
+                    <span class="icon"></span>
+                    <span class="icon"></span>
+                </th>
+                {{#each data.th}}
+                    <th class="headings" formname="{{this}}"  index="col{{@index}}" onclick="hideMe(this)">{{camelToWord this}}</th>
+                {{/each}}
+            </tr>
+
+            {{#each dataRows}}
+            <tr id="row{{@index}}">
+                <td>
+                    <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
+                    <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
+                </td>
+                {{#each this.array}}
+                <td class="col{{@index}}" onkeyup="saveInput(this,'{{../array.[0]}}','td')" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}>{{this}}</td>
+                {{/each}}
+            </tr>
             {{/each}}
-        </tr>
-        {{/each}}
-        <tr class="d-none">
+            <tr class="d-none">
             <td>
                 <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
                 <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
@@ -36,7 +114,52 @@
             {{/each}}
         </tr>
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
+</div>
+
+<div class="airtableKeys d-none">
+
+    <p class="heading">BASE PIN</p>
+    <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
+    <input name="baseId" type="text">
+
+    <p class="heading">API KEY</p>
+    <p class="note"><a href="https://airtable.com/account" target="_blank">https://airtable.com/account</a></p>
+    <input name="baseName" type="text">
+
+    <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
+    <button class="btn mt-20" onclick="saveAirtableUrls(this)">Next →</button>
+    
+</div>
+
+<div class="airtablePull d-none">
+
+    <p class="heading">BASE FORMAT</p>
+    <p class="note">Your airtable base needs following mendatory columns.</p>
+    <div class="block">
+
+        <p>_id</p>
+        <p>name</p>
+        <p>phone</p>
+        <p>address</p>
+        <p>email</p>
+
+    </div>
+
+    <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
+    <button class="btn mt-20" onclick="openContainerLayer('.airtablePull','.airtableKeys')">Back</button>
+    <button class="btn mt-20" onclick="openContainerLayer('.airtablePull','.airtableDone')">Import & Merge Data →</button>
+
+</div>
+
+<div class="airtableDone d-none">
+
+    <p class="heading">COMPLETED</p>
+    <p class="note">Airtable data has been imported.</p>
+    <button class="btn mt-20" onclick="openContainerLayer('.airtableDone','.airtablePull')">Back</button>
+    <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
+
+</div>
 

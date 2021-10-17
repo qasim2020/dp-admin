@@ -11,14 +11,18 @@
 
     body {
         font-family: "Roboto";
-        max-width: 900px;
-        margin: auto;
         padding: 0px;
+    }
+
+    .btn.active {
+        background: black;
+        color: white;
+        border-color: black;
     }
 
     .btn {
         padding: 7px 8px;
-        border: 2px solid lightslategrey;
+        border: 2px solid black;
         display: inline-block;
         margin-bottom: 4px;
         text-decoration: none;
@@ -38,37 +42,6 @@
         padding: 0 10px;
     }
 
-    table {
-            overflow: scroll;
-    max-width: 100vw;
-    box-sizing: border-box;
-    display: block;
-    background: lightslategrey;
-    margin: 10px 0;
-        padding-left: 86px;
-    }
-
-    th, td {
-        max-width: 400px;
-        padding: 7px 10px;
-        overflow: scroll;
-        white-space: nowrap;
-        border: 4px solid whitesmoke;
-        background: whitesmoke;
-    }
-
-    td:focus-visible {
-        outline: none;
-    }
-
-    table::-webkit-scrollbar, 
-    th::-webkit-scrollbar, 
-    td::-webkit-scrollbar {
-        display: none;
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-    
     .layerOne > div {
         padding: 20px 10px;
         background: whitesmoke;
@@ -83,9 +56,9 @@
     tr > *:nth-child(1) {
         position: absolute;
         z-index: 10;
-        margin-left: -88px;
-        background: lightslategrey;
-        border: 4px solid lightslategrey;
+        background: black;
+        border: 4px solid black;
+        margin-left: -80px;
     }
 
     tr > td:nth-child(2) {
@@ -107,7 +80,7 @@
     }
 
     #hiddenFields > span {
-        background: lightslategrey;
+        background: black;
         color: white;
         padding: 3px 6px;
         margin-right: 2px;
@@ -131,13 +104,13 @@
         font-size: 12px;
         margin-bottom: 5px;
         font-weight: bold;
-        color: lightslategray;
+        color: black;
     }
 
     form > input {
         font-size: 15px;
         padding: 10px;
-        border: 2px solid lightslategray;
+        border: 2px solid black;
         margin-bottom: 10px;
     }
 
@@ -145,25 +118,35 @@
         font-size: 15px;
         padding: 10px;
         color: white;
-        background: lightslategray;
+        background: black;
         font-weight: bold;
         margin-bottom: 10px;
         width: fit-content;
-        border: 2px solid lightslategray;
+        border: 2px solid black;
     }
 
-    form > button.close {
+    .btn.close {
         background: indianred;
-        border: indianred;
+        border: 2px solid black;
+        color: white;
     }
 
-    td {
-        color: darkgrey;
+    p.heading {
+        font-weight: bold;
     }
 
-    [contenteditable = true] {
-        color: black;
+    p.note > a {
+        text-decoration: none;
+        color: cornflowerblue;
     }
+
+    input {
+        padding: 10px;
+        border: 2px solid black;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     </style>
 </head>
 <body>
@@ -172,23 +155,34 @@
 
         <nav>
             <p>{{data.owner.brandName}}</p>
-            <p> <a class="btn" href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a> </p>
+            <p> <a class="btn" href="/{{data.brand}}/admin/page/destroySession/n?redirect=landingPage&redirectInput=n">Log Out</a> </p>
         </nav>
 
         <div>
-            {{#each ( split data.modules ) }} 
-            <a class="btn" href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" data-pjax>{{camelToWord this}}</a>
-            {{/each}}
-        </div>
-
-        <div class="collections">
             {{#each ( split data.collections )}} 
-            <a class="btn" href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" data-pjax>{{camelToWord this}}</a>
+                <a class="btn {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}" href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" data-pjax onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
+            {{/each}}
+            {{#each ( split data.modules ) }} 
+                <a class="btn {{#if (matchValues ../data.input this)}} active {{/if}}" href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" data-pjax onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
         </div>
 
         <div class="container" id="pjax-container">
+            {{#if data.dataRows}}
             {{> rootTable schema=data.schema dataRows=data.dataRows}} 
+            {{/if}}
+            
+            {{#if data.slides}}
+            {{> propertySlides slides=data.slides}}
+            {{/if}}
+
+            {{#if data.tickets}}
+            {{> propertyTickets}}
+            {{/if}}
+
+            {{#if data.contracts}}
+            {{> propertyPrintContract}}
+            {{/if}}
         </div>
     
     </div>

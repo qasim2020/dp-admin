@@ -100,7 +100,7 @@ let createForm = function(elem) {
     let form = `
         <form action="" row=${ $(elem).closest("tr").attr("id") }> 
             ${formString} 
-            <button type="button" class="close" onclick="openLayer('.formBox', '.layerOne')">CLOSE</button> 
+            <button type="button" class="btn close" onclick="openLayer('.formBox', '.layerOne')">CLOSE</button> 
         </form>
         `;
 
@@ -178,6 +178,44 @@ let createForm = function(elem) {
             $(elem).closest("tr").remove();
 
         });
+
+
+    };
+
+    let toggleClass = function(elem, name) {
+            $(elem).closest("div").find("*").removeClass("active");
+            $(elem).toggleClass(name);
+    };
+
+    let openContainerLayer = function( close, open ) {
+
+            $(".container > *").addClass("d-none");
+            $(open).removeClass("d-none");
+
+    };
+
+    let saveAirtableUrls = function(elem) {
+
+            let data = $(".airtableKeys").find("input").get().map( val => {
+                return {
+                        [$(val).attr("name")] : $(val).val()
+                    }
+            });
+
+            let test = $(".airtableKeys").find("input").get().some( val => $(val).val() == "" );
+
+            console.log(test);
+
+            if (test == true) return $(elem).html("Missing fields! Try Again →");
+
+            console.log(data);
+
+            $.ajax({
+                    url: `/{{data.brand}}/{{data.permit}}/data/saveAirtableURLs/{{data.input}}`,
+                    method: "POST",
+                    data: data,
+                    success: val => openContainerLayer(".airtableKeys", ".airtablePull")
+                }).fail( val => $(elem).html("Error in Database") );
 
 
     };

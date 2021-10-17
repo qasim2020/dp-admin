@@ -12,11 +12,17 @@
         align-items: center;
     }
 
+    nav .btn {
+        text-decoration: none;
+    }
+
+
     nav a , nav input, nav button {
         text-decoration: none;
         padding: 4px;
         border: 1px solid lightgrey;
         color: black;
+        display: inline-block;
     }
 
     .container {
@@ -91,22 +97,22 @@
         </form>
 
         <p>
-            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
-            <a href="/{{data.brand}}/admin/page/airtablePull/{{data.modelName}}">Airtable Pull</a>
-            <a href="/{{data.brand}}/admin/page/airtableSync/{{data.modelName}}">Airtable Sync</a>
-            <a href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
-            <!-- <a href="/{{data.brand}}/admin/page/deleteFromCollection/{{data.modelName}}?redirect=showCollection&redirectInput={{data.brand}}-users">Delete this Collection</a> -->
-            <a href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
-            <a href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add Document</a>
-            <a href="/{{data.brand}}/admin/page/createProject/{{data.modelName}}">Create Project</a>
-            <button class="{{#if data.notifications.count}}active{{/if}}" my-data="
+            <a class="btn"  href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/airtablePull/{{data.modelName}}">Airtable Pull</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/airtableSync/{{data.modelName}}">Airtable Sync</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/editCollection/{{data.modelName}}">Edit this Collection</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/bulkUpload/{{data.modelName}}">Bulk Upload</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/newDocument/{{data.modelName}}">Add Document</a>
+            <a class="btn"  href="/{{data.brand}}/admin/page/createProject/{{data.modelName}}">Create Project</a>
+            <button class=" btn {{#if data.notifications.count}}active{{/if}}" my-data="
                 {{#each data.notifications.texts}}
                 <p>{{this.text}}</p>
                 {{/each}}
             " onclick="showData(this)">Notifications {{data.notifications.count}}</button>
-            <button onclick="createAppBackup(this)">Create App Backup</button>
-            <button onclick="loadBackUp(this)">Load Backup</button>
-            <a href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a>
+            <button class="btn"  onclick="createAppBackup(this)">Create App Backup</button>
+            <button class="btn"  onclick="loadBackUp(this)">Load Backup</button>
+            <a  class="btn" href="/{{data.brand}}/admin/page/newDashboard/n?">New Dashboard</a>
+            <a  class="btn" href="/{{data.brand}}/admin/page/destroySession/n?redirect=signin&redirectInput=n">Log Out</a>
         </p>
     
     </nav>
@@ -140,10 +146,10 @@
                             <td>{{this}}</td>
                         {{/each}}
                         <td>
-                            <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.[0]}}">Edit</a>
+                            <a href="/{{../data.brand}}/admin/page/editDocument/{{../data.modelName}}?_id={{this.array.[0]}}">Edit</a>
                         </td>
                         <td>
-                            <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.[0]}}&redirect=showCollection&redirectInput={{../data.modelName}}">Delete</a>
+                            <a href="/{{../data.brand}}/admin/page/deleteDocument/{{../data.modelName}}?_id={{this.array.[0]}}&redirect=showCollection&redirectInput={{../data.modelName}}">Delete</a>
                         </td>
                     </tr>
                     {{/each}}

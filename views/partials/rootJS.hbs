@@ -90,10 +90,18 @@ let createForm = function(elem) {
     }).get();
 
     let formString = elems.reduce( (total,val, key) => { 
-        total = total +  `
-            <label for="${val.name}">${val.label}</label>
-            <input type="${val.type}" name="${val.name}" ${val.addOn} value="${val.value}">
+        console.log(val,key);
+            if (val.html == 'ckEditor') {
+                total = total + `
+                   <label for="${val.name}">${val.label}</label>
+                   <div id="editor" name="${val.name}" ${val.addOn}>${val.value}</div>
+                `;
+            } else {
+                total = total +  `
+                    <label for="${val.name}">${val.label}</label>
+                    <input type="${val.type}" name="${val.name}" ${val.addOn} value="${val.value}">
             `;
+        }
         return total;
     },"");
 
@@ -106,6 +114,13 @@ let createForm = function(elem) {
 
     $(".layerOne").addClass("d-none");
     $(".formBox").html(form).removeClass("d-none");
+
+
+    ClassicEditor
+            .create( document.querySelector( '#editor' ) )
+            .catch( error => {
+                console.error( error );
+    } );
 };
 
     let openLayer = function(elem, target) {
@@ -196,28 +211,58 @@ let createForm = function(elem) {
 
     let saveAirtableUrls = function(elem) {
 
-            let data = $(".airtableKeys").find("input").get().map( val => {
-                return {
+            let data = $(".airtableKeys").find("input").get().reduce( (total, val) => {
+                    total = Object.assign( total, { 
                         [$(val).attr("name")] : $(val).val()
-                    }
-            });
+                    });
+                    return total;
+                }, {});
 
             let test = $(".airtableKeys").find("input").get().some( val => $(val).val() == "" );
 
-            console.log(test);
-
             if (test == true) return $(elem).html("Missing fields! Try Again →");
 
-            console.log(data);
+            $(elem).html("Testing Values...");
 
             $.ajax({
                     url: `/{{data.brand}}/{{data.permit}}/data/saveAirtableURLs/{{data.input}}`,
                     method: "POST",
                     data: data,
-                    success: val => openContainerLayer(".airtableKeys", ".airtablePull")
-                }).fail( val => $(elem).html("Error in Database") );
+                    success: val => {
+                            $(elem).html(val.success);
+                            openContainerLayer(".airtableKeys", ".airtablePull");
+                        }
+                }).fail( val => {
+                        $(elem).html(val.responseText) 
+                        console.log(val);
+                    });
 
 
     };
+
+    let importAndMerge = function(elem) {
+
+            $.ajax({
+                    url: `/{{data.brand}}/{{data.permit}}/data/importAndMerge/{{data.input}}`,
+                    method: "GET",
+                    success: val => {
+                            console.log(val);
+                            $(elem).html(val.success);
+                            openContainerLayer('.airtablePull','.airtableDone');
+                        }
+                }).fail( val => {
+                        $(elem).html(val.responseText);
+                        console.log(val);
+                    });
+
+        };
+
+    let reloadPjax = function() {
+
+            let windowUrl = window.location.href; 
+            $(".btn.pjaxTrigger.active").trigger("click");
+
+        };
+
 
 </script>

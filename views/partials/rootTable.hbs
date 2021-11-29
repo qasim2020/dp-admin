@@ -68,17 +68,24 @@
 
     .block > p {
         display: block;
-    padding: 5px 12px;
-    background: white;
-    font-weight: bold;
-    color: cornflowerblue;
+        padding: 5px 12px;
+        background: white;
+        font-weight: bold;
+        color: cornflowerblue;
+    }
+
+    .note {
+        line-height: 1.5;
+    }
+
+    .ht-auto {
+        height: auto;
     }
 </style>
 
 <div class="table">
     <button class="btn" onclick="openContainerLayer('.table','.airtableKeys')">Airtable Pull</button>
     <button class="btn" onclick="addNewRow()">Add New Row</button>
-    <button class="btn">Edit Columns</button>
     <div id="hiddenFields"> </div>
     <table schema="{{json schema}}">
         <tbody>
@@ -121,36 +128,38 @@
 
 <div class="airtableKeys d-none">
 
-    <p class="heading">BASE PIN</p>
-    <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
-    <input name="baseId" type="text">
+    <p class="heading">TABLE NAME</p>
+    <p class="note">Exact name of your Table</p>
+    <input name="tableName" type="text" value="{{data.airtable.tableName}}">
 
-    <p class="heading">API KEY</p>
+    <p class="heading">BASE ID</p>
+    <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
+    <input name="baseId" type="text" value="{{data.airtable.basePin}}">
+
+    <p class="heading">BASE API KEY</p>
     <p class="note"><a href="https://airtable.com/account" target="_blank">https://airtable.com/account</a></p>
-    <input name="baseName" type="text">
+    <input name="baseAPIKey" type="text" value="{{data.airtable.baseAPIKey}}">
 
     <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
-    <button class="btn mt-20" onclick="saveAirtableUrls(this)">Next →</button>
+    <button class="btn mt-20 ht-auto" onclick="saveAirtableUrls(this)">Next →</button>
     
 </div>
 
 <div class="airtablePull d-none">
 
     <p class="heading">BASE FORMAT</p>
-    <p class="note">Your airtable base needs following mendatory columns.</p>
+    <p class="note">Your table `{{data.airtable.tableName}}` needs following mendatory columns.</p>
     <div class="block">
 
-        <p>_id</p>
-        <p>name</p>
-        <p>phone</p>
-        <p>address</p>
-        <p>email</p>
+        {{#each data.th}}
+            <p>{{this}}</p>
+        {{/each}}
 
     </div>
 
     <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
     <button class="btn mt-20" onclick="openContainerLayer('.airtablePull','.airtableKeys')">Back</button>
-    <button class="btn mt-20" onclick="openContainerLayer('.airtablePull','.airtableDone')">Import & Merge Data →</button>
+    <button class="btn mt-20" onclick="importAndMerge(this);">Import & Merge Data →</button>
 
 </div>
 
@@ -159,7 +168,7 @@
     <p class="heading">COMPLETED</p>
     <p class="note">Airtable data has been imported.</p>
     <button class="btn mt-20" onclick="openContainerLayer('.airtableDone','.airtablePull')">Back</button>
-    <button class="btn close mt-20" onclick="openContainerLayer('.airtableDone','.table')">Close</button>
+    <button class="btn close mt-20" onclick="reloadPjax();">Close</button>
 
 </div>
 

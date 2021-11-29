@@ -388,6 +388,13 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
 
+        if( data.hasOwnProperty("error")) {
+
+            console.log(data);
+            return res.status(data.status).send(data.error);
+
+        };
+
         let getOwnerContactDetails = async function(req,res) {
 
             let model = await myFuncs.createModel("myapp-users");
@@ -424,14 +431,6 @@ var myFuncs = {
         // console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
-          case ( data.hasOwnProperty('error') ): 
-            delete data.permit;
-            delete data.brand;
-            delete data.owner;
-            delete data.requiredType;
-                console.log("SENDING ERROR");
-            return res.sendStatus(data.status).send(data.error);
-            break;
           case (req.query.hasOwnProperty('redirect')):
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
             break;
@@ -539,7 +538,8 @@ var myFuncs = {
         saveSlide: 'auth',
         changeSlideSequence: 'auth',
         uploadCloudinary: "auth",
-        updateDocument: "admin"
+        updateDocument: "admin",
+        importAndMerge: "auth",
     },
 
     listenToWebhook: function(req,res) {
@@ -1014,73 +1014,85 @@ var myFuncs = {
             };
         },
 
-        airtableAPI: async function({baseId, baseName, method, data}) {
+        airtableAPI: async function({baseId, baseName, baseAPIKey, method, data}) {
 
             try {
 
-            var base = new Airtable({apiKey: process.env.Airtable}).base(baseId);
+                var base = new Airtable({apiKey: baseAPIKey}).base(baseId);
 
-                let fetchAllRecords = async function() {
-                    new Promise( (resolve, reject) => {
-                                base(baseName).select({
-                                    maxRecords: 100,
-                                    view: "Grid view"
-                                }).eachPage(function page(records, fetchNextPage) {
-                                    records.forEach(function(record) {
-                                        console.log('Retrieved', record.get('_id'));
-                                        resolve( record );
-                                    });
-                                    fetchNextPage();
+                let fetchAllRecords = async function(maxRecords) {
 
-                                }, function done(err) {
-                                    reject( err );
-                                    if (err) { console.error(err); return; }
-                                });
-                    })
+                    return await new Promise((resolve, reject) => {
+
+                        let allRecords = [];
+
+                        base(baseName).select({
+                            maxRecords: maxRecords,
+                            view: "Grid view"
+                        }).eachPage(function page(records, fetchNextPage) {
+
+                            records.forEach(function(record) {
+                                console.log('Retrieved', record.get('_id'));
+                                allRecords.push(record.fields);
+                            });
+
+                            try { 
+                                fetchNextPage();
+                            } catch(e) { 
+                                console.log("next page does not exist"); 
+                            };
+
+                        }, function done(err) {
+                            console.log(allRecords);
+                            if (err) { reject( err ) }
+                            resolve( allRecords );
+                        });
+
+                    });
 
                 };
 
+                switch (true) {
 
-        switch (true) {
+                    case (method == "test") :
+                        console.log("test if this input is valid or not");
+                        output = await fetchAllRecords(1);
+                        break;
+                    case (method == "list") :
+                        console.log("fetch all records");
+                        output = await fetchAllRecords(100);
+                        console.log(output);
+                        break;
+                    
+                    case (method == "find") : 
+                        console.log("find a record by this Id");
+                        break;
 
-            case (method == "list") :
-                console.log("fetch all records");
-                output = await fetchAllRecords();
-                break;
-            
-            case (method == "find") : 
-                console.log("find a record by this Id");
-                break;
+                    case (method == "create") :
+                        console.log("create multiple records here");
+                        break;
 
-            case (method == "create") :
-                console.log("create multiple records here");
-                break;
+                    case (method == "update") :
+                        console.log("update multiple records here");
+                        output = await base(baseName).update(data, {typecast: true});
+                        break;
 
-            case (method == "update") :
-                console.log("update multiple records here");
-                output = await base(baseName).update(data, {typecast: true});
-                break;
+                    case (method == "delete") :
+                        console.log("delete a record here");
+                        break; 
 
-            case (method == "delete") :
-                console.log("delete a record here");
-                break; 
+                };
 
-        };
-
-        console.log(output);
-
-            return {
-                data: output,
-                message: `Updated ${output.length} records in Airtable`
-            }
+                return output;
 
         } catch(e) {
 
             console.log(e);
-            console.log(e.get("error"));
+            console.log(e.error);
 
             return {
-                message: "Airtable API error, check console"
+                status: 404,
+                error: e.message
             }
 
         }
@@ -1089,7 +1101,26 @@ var myFuncs = {
 
     saveAirtableURLs: async function(req,res) {
 
+        console.log(req.body);
+
+        // TODO: Check if there is a way to test the airtableAPI is ok or not!
+        let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.tableName, baseAPIKey: req.body.baseAPIKey, method: "test" }) );
+
+        console.log( chalk.bold.red("listing all Keys from airtable API fetch method") );
+
+        if (keysAll.hasOwnProperty("error")) return keysAll;
+
+        await Collections.findOneAndUpdate({ name: req.params.input}, { $set: {
+            'airtable.tableName': req.body.tableName, 
+            'airtable.baseId': req.body.baseId,
+            'airtable.baseAPIKey': req.body.baseAPIKey
+        }
+        },{new: true});
+
+        return {success: "Keys are Saved!"};
+
         try {
+
 
             let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.baseName, method: "list" }) ).data.records;
 
@@ -1117,6 +1148,42 @@ var myFuncs = {
                 status: 404,
             }
         }
+
+    },
+
+    importAndMerge: async function(req,res) {
+
+        try {
+
+        let myProperties = await Collections.findOne({name: req.params.input}).lean();
+        console.log(myProperties);
+        let keysAll  = await this.airtableAPI({ 
+            baseId: myProperties.airtable.baseId , 
+            baseName: myProperties.airtable.tableName, 
+            baseAPIKey: myProperties.airtable.baseAPIKey, 
+            method: "list" 
+        });
+
+        keysAll = keysAll.map( val => {
+            val._id = val.hasOwnProperty("_id") == false ? new mongoose.mongo.ObjectID() : val._id;
+            return val;
+        });
+
+        let model = await this.createModel(req.params.input);
+        let output = await Promise.all( keysAll.map( val => model.findOneAndUpdate( {_id: val._id}, val, {upsert: true, new: true}).lean() ) );;
+        // let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
+        console.log( output );
+
+        return { success: "Data is Merged" };
+
+        } catch(e) {
+
+            return {
+                status: 400,
+                error: "something went wrong"
+            }
+
+        };
 
     },
 
@@ -1545,7 +1612,6 @@ var myFuncs = {
             console.log(JSON.stringify( req.body, 0, 2 ));
             let model = await this.createModel(req.params.input);
             let commonKey = ( await this.getAirtableUrls(req,res) ).key; 
-            console.log(commonKey);
             let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
 
             return {
@@ -1566,7 +1632,7 @@ var myFuncs = {
 
     },
 
-    save : async function(model,data) {
+    save: async function(model,data) {
         try {
             const doc = new model(data);
             let output = await doc.save();
@@ -1623,6 +1689,9 @@ var myFuncs = {
             },{
                 name: 'Object',
                 html: 'JSON'
+            },{
+                name: 'String',
+                html: 'ckEditor'
             }
         ];
     },
@@ -1742,7 +1811,6 @@ var myFuncs = {
                             total.push(val[collectionHeadings[i]]);
                     }
                 }
-
                 return {
                     array: total,
                     object: val
@@ -1751,11 +1819,19 @@ var myFuncs = {
 
             req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
 
+            let thisCollection = await Collections.findOne({name: req.params.input}).lean();
+            console.log(JSON.stringify({thisCollection: thisCollection}, 0, 2));
+
             output = {
                 schema: collectionsTable.find(val => val.name == req.params.input).properties,
                 th: collectionHeadings,
                 dataRows: newRows,
                 modelName: req.params.input,
+                airtable: {
+                    basePin: thisCollection.airtable.baseId,
+                    baseAPIKey: thisCollection.airtable.baseAPIKey,
+                    tableName: thisCollection.airtable.tableName
+                }
             };
                 
 

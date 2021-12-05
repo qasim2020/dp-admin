@@ -90,11 +90,11 @@ let createForm = function(elem) {
     }).get();
 
     let formString = elems.reduce( (total,val, key) => { 
-        console.log(val,key);
+        // console.log(val,key);
             if (val.html == 'ckEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
-                   <div id="editor" name="${val.name}" ${val.addOn}>${val.value}</div>
+                   <div id="editor" name="${val.name}">${val.value}</div>
                 `;
             } else {
                 total = total +  `
@@ -116,12 +116,48 @@ let createForm = function(elem) {
     $(".formBox").html(form).removeClass("d-none");
 
 
+
     ClassicEditor
-            .create( document.querySelector( '#editor' ) )
+        .create( document.querySelector( "#editor" ), {
+           plugins: [ "ImageInsert" ],
+           toolbar: [
+                "selectAll",
+                "heading",
+                   "|",
+                "bold",
+                "italic",
+                "blockQuote",
+                "link",
+                   "|",
+                "numberedList",
+                "bulletedList",
+                "indent",
+                "outdent",
+                   "|",
+               "insertImage",
+                "mediaEmbed",
+                   "|",
+                "insertTable",
+                "tableColumn",
+                "tableRow",
+                "mergeTableCells",
+                   "|",
+                "undo",
+                "redo",
+               ],
+            } )
+            .then( editor => {
+                console.log( Array.from( editor.ui.componentFactory.names() ) );
+                editor.model.document.on( "change:data", () => {
+                    let editorData = editor.getData();
+                    return saveInput("#editor",data._id,"ckEditor", editorData);
+                } );
+            } )
             .catch( error => {
                 console.error( error );
-    } );
-};
+        } );
+
+    };
 
     let openLayer = function(elem, target) {
 
@@ -130,9 +166,9 @@ let createForm = function(elem) {
 
     };
 
-    let saveInput = function(elem, _id, type) {
+    let saveInput = function(elem, _id, type, optData) {
 
-        let changeConnectedData = function(row) {
+        let changeConnectedData = function(row, value) {
 
             console.log( $(elem).attr("name") );
 
@@ -140,16 +176,21 @@ let createForm = function(elem) {
 
             console.log({ col, row });
 
-            $(`#${row} > .${col}`).html( $(elem).val() );
+            $(`#${row} > .${col}`).html(value);
 
-            return console.log("data changed");
+            return console.log("data changed in table also");
 
         };
 
         let data = {};
         switch (true) { 
+            case (type == "ckEditor") :
+                console.log(optData);
+                changeConnectedData( $(elem).closest("form").attr("row"), `<div>${optData}</div>` );
+                data[$(elem).attr("name")] = optData ;
+                break;
             case (type == "form") : 
-                changeConnectedData( $(elem).closest("form").attr("row") );
+                changeConnectedData( $(elem).closest("form").attr("row"), $(elem).val() );
                 data[$(elem).attr("name")] =  $(elem).val() ;
                 break;
             case (type == "td" ) :
@@ -240,10 +281,10 @@ let createForm = function(elem) {
 
     };
 
-    let importAndMerge = function(elem) {
+    let importAndMerge = function(elem, input) {
 
             $.ajax({
-                    url: `/{{data.brand}}/{{data.permit}}/data/importAndMerge/{{data.input}}`,
+                    url: `/{{data.brand}}/{{data.permit}}/data/importAndMerge/${input}`,
                     method: "GET",
                     success: val => {
                             console.log(val);

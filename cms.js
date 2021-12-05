@@ -178,7 +178,7 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    // console.log(val1,val2);
+    console.log(val1,val2);
     return val1 == val2
 });
 
@@ -254,6 +254,12 @@ hbs.registerHelper('camelToWord', (string) => {
 
 hbs.registerHelper('matchToCollection', function(val1,val2,val3) {
     return val1 == `${val2}-${val3}`;
+});
+
+hbs.registerHelper('checkHtmlString', function(val) {
+    console.log(/<\/?[a-z][\s\S]*>/i.test(val));
+    console.log(val, /<\/?[a-z][\s\S]*>/i.test(val));
+    return /<\/?[a-z][\s\S]*>/i.test(val);
 });
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
@@ -427,8 +433,8 @@ var myFuncs = {
             console.log(e)
         }
 
-        console.log(data);
-        // console.log(JSON.stringify(data,'',2));
+        // console.log(data);
+        console.log(JSON.stringify(data,'',2));
         // console.log(req.session);
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):

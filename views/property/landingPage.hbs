@@ -63,7 +63,9 @@
 
             <div class="cards" id="pjax-container"> 
                 {{#if data.properties}}
-                {{> propertyCards properties=data.properties}}
+                    {{#each data.properties}}
+                        {{> propertyCards property=this data=../data viewMore=true}}
+                    {{/each}}
                 {{else}}
                 <p>No Matching Properties Found. Sorry..</p>
                 {{/if}}

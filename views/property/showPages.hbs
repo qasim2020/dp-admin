@@ -23,8 +23,11 @@
 
         <div class="box-top">
 
-            <p class="box-hdg">READ BLOGS</p>
-            <p class="note">Our comprehensive blog posts about market awareness. This is an attempt to make masses aware how to avoid the fraud blanket that has hit hard over our real-estate business.</p>
+            <h1>
+                <b>Read</b>
+                Blogs
+            </h1>
+            <p class="box note"> It is hard to find sane honest upright people in real estate, real hard. Harder in Pakistan. We hope to bring awareness to our brothers and sisters. And we hope to bring transparency, that we might someday completely remove this blanket of fraud.</p>
         
         </div>
 
@@ -35,14 +38,10 @@
 
                 {{#each data.pages}}
 
-                <div class="page">
+                <div class="page" onclick="window.location.href=`/{{../data.brand}}/gen/page/showPage/{{this.slug}}`">
 
+                    <p>#{{this.ser}} | {{this.updatedAt}}</p>
                     <h1><bold>{{this.page}}</bold></h1>
-                    {{#if (matchValues ../data.permit 'auth') }}
-                        <a href="/{{../data.brand}}/admin/page/editPage/{{this._id}}">Edit Page</a>
-                    {{else}}
-                        <a href="/{{../data.brand}}/gen/page/showPage/{{this.slug}}">Read →</a>
-                    {{/if}}
                 
                 </div>
 

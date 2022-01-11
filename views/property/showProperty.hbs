@@ -17,9 +17,12 @@
     
         {{> propertyNav navs="home about-us our-location read-blogs log-in"}} 
 
+        <div>
+            {{> propertyCards property=data.property}}
+        </div>
+
         <div class="ck-content">
-            <h2>{{{data.page.page}}}</h2>
-            {{{data.page.content}}}
+            {{{data.property.page}}}
         </div>
 
     </div>

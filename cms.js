@@ -1,3 +1,6 @@
+const DatauriParser=require("datauri/parser");
+const parser = new DatauriParser();
+const fileUpload = require('express-fileupload');
 const Airtable = require('airtable');
 const chalk = require('chalk');
 const path = require('path');
@@ -50,6 +53,9 @@ if (env === 'development' || env === 'test') {
 const web = new WebClient();
 
 app.use(
+  fileUpload({
+    createParentPath: true
+  }),
   session({
     secret: process.env.sessionSecret,
     resave: false,
@@ -416,11 +422,9 @@ var myFuncs = {
                 brandDesc: output.brandDesc,
                 metaImg: output.metaImg
             };
-
         };
 
         try {
-
             Object.assign(data, {
                 permit: req.params.permit,
                 brand: req.params.brand,
@@ -428,14 +432,13 @@ var myFuncs = {
                 owner: await getOwnerContactDetails(req,res),
                 requiredType: req.params.requiredType
             });
-            // console.log(data); 
         } catch(e) {
             console.log(e)
         }
 
-        // console.log(data);
+        console.log(data);
         console.log(JSON.stringify(data,'',2));
-        // console.log(req.session);
+
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
@@ -450,11 +453,6 @@ var myFuncs = {
             console.log({theme: req.params.theme, module: req.params.module});
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
-          // case (req.headers['x-pjax'] != 'true' && req.params.requiredType == 'pjax'): 
-          //   let queryURL = req.url.includes('?') ? req.url.split('?')[1] : '';
-          //   return res.redirect(`/${req.params.brand}/${req.params.permit}/page/${req.params.input}/${req.query.input || 'n'}?${queryURL}`);
-          //   break;
-          // case (req.params.requiredType == 'page'):
           default:
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
@@ -501,6 +499,7 @@ var myFuncs = {
         mongoQueries: 'gen',
         showOrders: 'admin',
         getSizes: 'gen',
+        showProperty: "gen",
         showPage: 'gen',
         updatePage: 'auth',
         dashboard: 'admin',
@@ -552,9 +551,6 @@ var myFuncs = {
 
         console.log(req.query);
         console.log(JSON.stringify(req.body, 0, 2));
-
-        // if (req.body[0].hasOwnProperty('text')) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
-        // if (req.body[0] && req.body[0].text) this.syncFromAirtableToLocal({ data: req.body, brand: req.params.brand });
         if (req.body && req.body.event) {
             if (req.body.event.hasOwnProperty("attachments") == false) return {
                 status: 300,
@@ -1859,6 +1855,9 @@ var myFuncs = {
                 input: req.params.input
         });
 
+        console.log( chalk.bold.red ("session") );
+        console.log(req.session);
+
         // console.log(JSON.stringify(output,'',2));
         return output;
 
@@ -2310,6 +2309,35 @@ var myFuncs = {
         });
         req.params.pageName =  req.params.input;
         return output;
+    },
+
+    uploadImage: async function(req,res) {
+
+        console.log(req.files);
+        const extName = path.extname(req.files.upload.name).toString();
+        const file64 = parser.format(extName, req.files.upload.data);
+        // console.log({extName, file64});
+
+        console.log( req.session );
+        // go to cloudinary and upload image using simple upload URL
+
+        req = {
+            body : {
+                img: file64.content,
+            },
+            params : {
+                brand: req.session && req.session.person && req.session.person.name || "temporaryFolder"
+            }
+        };
+            
+        let output = await this.uploadCloudinary(req);
+
+        return output;
+
+        // return {
+        //     "url": "https://res.cloudinary.com/demo/image/upload/w_150,h_300,c_fill/boulder.jpg"
+        // };
+
     },
 
     uploadCloudinary: async function(req,res) {
@@ -2812,6 +2840,20 @@ var myFuncs = {
             return size;
         })
         return output;
+    },
+
+    showProperty: async function(req, res) {
+
+        let model = await this.createModel(`${req.params.brand}-properties`);
+        let property =  await model.findOne({slug: req.params.input}).lean();
+        property.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == property._id.toString() ) ? 'select' : '' ;
+        let output = {
+            property: property,
+            forms : await this.getForms({msgBoxClient: true, contactForm: true}, req,res),
+            allCards : await this.getAllCards(req,res)
+        };
+        return output;
+
     },
 
     showPage: async function(req,res) {
@@ -4798,7 +4840,6 @@ var myFuncs = {
 
         filters.status = filters.status.map( val => {
 
-            // console.log(val, query.status);
             if (query.status && query.status.length > 0) {
                 return {
                     name: val,

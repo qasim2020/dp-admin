@@ -1,31 +1,15 @@
-{{#each properties}}
-{{#if (matchValues 'gen' ../data.permit) }}
-<div class="card {{this.genSelected}}" onclick="toggleClass(this, 'select'); cardSelect(this, 'Cards', '{{json this}}') "> 
-{{else}}
-<div class="card {{this.authSelected}}" onclick="toggleClass(this, 'select'); cardSelect(this, 'authCards', '{{json this}}') "> 
-{{/if}}
+<div class="card {{property.genSelected}}" myData="{{json property}}">
 
 	<div>
-	    {{#if (matchValues ../admin 'auth')}}
+		<button class="btn small active {{toLowerCase property.status}}">{{toUpperCase property.status}}</button>
 
-	    <div class="selectors">
-		<button class=" {{#if (matchValues this.status 'Selling')}} active {{/if}} btn small selling">SELLING</button>
-		<button class=" {{#if (matchValues this.status 'Required')}} active {{/if}} btn small required">REQUIRED</button>
-		<button class=" {{#if (matchValues this.status 'Sold')}} active {{/if}} btn small sold">SOLD</button>
-		<button class=" {{#if (matchValues this.status 'Archive')}} active {{/if}} btn small archive">ARCHIVE</button>
-	    </div>
-
-	    {{else}}
-
-		<button class="btn small active {{toLowerCase this.status}}">{{toUpperCase this.status}}</button>
-
-	    {{/if}}
-		<p class="heavy"> {{this.town}}, <br>{{this.city}}</p>
-		<p> {{this.size}} <br>Rs {{desiPrice this.demand}} </p>
+		<p class="heavy"> {{property.town}}, <br>{{property.city}}</p>
+		<p> {{property.size}} <br>Rs {{desiPrice property.demand}} </p>
 	</div>
 
-	<p> {{this.details}} </p> 
+	<p> {{property.details}} </p> 
+        {{#if viewMore}}
+        <a href="/{{data.brand}}/gen/page/showProperty/{{property.slug}}" class="viewMore">View More →</a>
+    {{/if}}
 
 </div> 
-
-{{/each}}

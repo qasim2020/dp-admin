@@ -47,9 +47,16 @@ let createForm = function(elem) {
 
         let mydata = headings.reduce( (total, val) => {
 
-            Object.assign( total, {
-                [val.heading] : $(`#${row} > .${val.index}`).html()
-            });
+            // TODO: SAVE IN THE HTML
+            if ($(`#${row} > .${val.index}`).hasClass("page")) {
+                Object.assign( total, {
+                    [val.heading] : $(`#${row} > .${val.index}`).attr("mydata")
+                });
+            } else {
+                Object.assign( total, {
+                    [val.heading] : $(`#${row} > .${val.index}`).html()
+                });
+            }
 
             return total;
 
@@ -109,6 +116,7 @@ let createForm = function(elem) {
         <form action="" row=${ $(elem).closest("tr").attr("id") }> 
             ${formString} 
             <button type="button" class="btn close" onclick="openLayer('.formBox', '.layerOne')">CLOSE</button> 
+            <button type="button" class="btn saving d-none" disabled>SAVING...</button>
         </form>
         `;
 
@@ -118,34 +126,21 @@ let createForm = function(elem) {
 
 
     ClassicEditor
-        .create( document.querySelector( "#editor" ), {
-           plugins: [ "ImageInsert" ],
-           toolbar: [
-                "selectAll",
-                "heading",
-                   "|",
-                "bold",
-                "italic",
-                "blockQuote",
-                "link",
-                   "|",
-                "numberedList",
-                "bulletedList",
-                "indent",
-                "outdent",
-                   "|",
-               "insertImage",
-                "mediaEmbed",
-                   "|",
-                "insertTable",
-                "tableColumn",
-                "tableRow",
-                "mergeTableCells",
-                   "|",
-                "undo",
-                "redo",
-               ],
-            } )
+            .create( document.querySelector( "#editor" ) ,{
+                simpleUpload: {
+                    // The URL that the images are uploaded to.
+                    uploadUrl: '/{{data.brand}}/admin/data/uploadImage/n',
+
+                    // Enable the XMLHttpRequest.withCredentials property.
+                    withCredentials: true,
+
+                    // Headers sent along with the XMLHttpRequest to the upload server.
+                    headers: {
+                        'X-CSRF-TOKEN': 'CSRF-Token',
+                        Authorization: 'Bearer <JSON Web Token>'
+                    }
+                },
+            })
             .then( editor => {
                 console.log( Array.from( editor.ui.componentFactory.names() ) );
                 editor.model.document.on( "change:data", () => {
@@ -176,7 +171,15 @@ let createForm = function(elem) {
 
             console.log({ col, row });
 
-            $(`#${row} > .${col}`).html(value);
+            if ( type == "ckEditor" ) {
+                $(`#${row} > .${col}`).addClass("page").attr({mydata: value}); 
+                $(`#${row} > .${col}`).html(`<a class="icon" onclick="createForm(this)">
+                            <i class="fas fa-expand-alt black"></i>
+                        </a>
+                    `);
+            } else {
+                $(`#${row} > .${col}`).html(value); 
+            }
 
             return console.log("data changed in table also");
 
@@ -202,12 +205,24 @@ let createForm = function(elem) {
 
         console.log( {data, _id} );
 
+        if ( _id == "" ) {
+            _id = $(elem).closest("tr").find(".col0").html();
+        }
+
+        $(".btn.saving").html("SAVING...").removeClass("d-none");
+
         $.ajax({
             url: `/{{data.brand}}/admin/data/updateDocument/{{data.modelName}}?_id=${_id}`,
             method: "POST",
             data: data,
-            success: val => console.log(val),
-        }).fail( val => console.log(val) ); 
+            success: val => {
+                console.log(val);
+                $(".btn.saving").addClass("d-none");
+            },
+            }).fail( val => {
+                console.log(val);
+                $(".btn.saving").html("Error while Saving");
+            }); 
 
     };
 

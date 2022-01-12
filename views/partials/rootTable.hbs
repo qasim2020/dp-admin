@@ -34,6 +34,11 @@
     i.fas {
         text-decoration: none;
         color: #F2F2F2;
+        cursor: pointer;
+    }
+
+    i.fas.black {
+        color: black;
     }
 
     tr > *:nth-child(1) {
@@ -95,11 +100,15 @@
         border: 2px solid black;
         margin-bottom: 10px;
     }
+    .page {
+        text-align: center;
+    }
 </style>
 
 <div class="table">
     <button class="btn" onclick="openContainerLayer('.table','.airtableKeys')">Airtable Pull</button>
     <button class="btn" onclick="addNewRow()">Add New Row</button>
+    <button class="btn saving d-none">SAVING...</button>
     <div id="hiddenFields"> </div>
     <table schema="{{json schema}}">
         <tbody>
@@ -120,14 +129,13 @@
                     <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
                     <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
                 </td>
-                    <!-- if this has html than put div else put simple td tag-->
                 {{#each this.array}}
                     {{#if (checkHtmlString this)}}
 
-                    <td class="col{{@index}}">
-                        <div {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} onkeyup="saveInput(this,'{{../array.[0]}}','td')" >
-                            {{{this}}}
-                        </div>
+                    <td class="col{{@index}} page" mydata="{{this}}">
+                        <a class="icon" onclick="createForm(this)" >
+                            <i class="fas fa-expand-alt black"></i>
+                        </a>
                     </td>
 
                     {{else}}

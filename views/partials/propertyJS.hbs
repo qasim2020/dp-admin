@@ -228,6 +228,15 @@
 
 
 
+    $(document).on("click", ".card", function(e) {
+
+            if ( $(e.target).hasClass("viewMore") ) {
+                return console.log("dont do anything please");
+            };
+
+            toggleClass( $(this), "select");
+            cardSelect( $(this), "Cards", $(this).attr("myData") );
+        });
 
     let cardSelect = function(elem, auth, data) {
 

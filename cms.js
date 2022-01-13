@@ -172,6 +172,7 @@ hbs.registerHelper('toUpperCase', (str) => {
 });
 
 hbs.registerHelper('toLowerCase', (str) => {
+    console.log(str);
     return str.toLowerCase()
 });
 
@@ -437,7 +438,7 @@ var myFuncs = {
         }
 
         console.log(data);
-        console.log(JSON.stringify(data,'',2));
+        // console.log(JSON.stringify(data,'',2));
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -2847,8 +2848,19 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-properties`);
         let property =  await model.findOne({slug: req.params.input}).lean();
         property.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == property._id.toString() ) ? 'select' : '' ;
+        let suggestedProperties = await model.find({
+            $and: [
+                { city: "Rawalpindi" },
+                { _id:  {
+                    $ne : property._id
+                }}
+                ]
+            }).limit(4).lean();
+        suggestedProperties = this.matchSelectedProperties(req,res,suggestedProperties);
         let output = {
+            slides : await this.getSlides(req,res),
             property: property,
+            suggestedProperties: suggestedProperties,
             forms : await this.getForms({msgBoxClient: true, contactForm: true}, req,res),
             allCards : await this.getAllCards(req,res)
         };
@@ -4895,6 +4907,9 @@ var myFuncs = {
         
         let query = this.buildMongoQuery(req,res);
 
+        console.log(query);
+        console.log( req.query.hasOwnProperty('sort') ? Number(req.query.sort) : -1 );
+
         let model = await this.createModel(`${req.params.brand}-properties`);
 
         let output = await model.aggregate([
@@ -4903,7 +4918,7 @@ var myFuncs = {
             },{
                 $addFields: {
                     priceInNo: {
-                        $toInt : "$price"
+                        $toInt : "$demand"
                     }
                 }
             },{
@@ -4913,21 +4928,23 @@ var myFuncs = {
             }
         ]);
 
-        let matchSelectedProperties = function(properties) {
+        console.log(output);
 
-            properties = properties.map( val => {
-                val.authSelected = req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '';
-                val.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '' ;
-                return val;
-            });
-
-            return properties;
-        };
-
-        output = matchSelectedProperties(output);
+        output = this.matchSelectedProperties(req,res,output);
 
         return output;
 
+    },
+
+    matchSelectedProperties : function(req,res,properties) {
+
+        properties = properties.map( val => {
+            val.authSelected = req.session.authCards && req.session.authCards.myArray && req.session.authCards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '';
+            val.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == val._id.toString() ) ? 'select' : '' ;
+            return val;
+        });
+
+        return properties;
     },
 
     buildMongoQuery: function(req,res) {

@@ -1,5 +1,7 @@
 {{#if data.properties}}
-{{>propertyCards properties=data.properties admin=data.permit}}
+    {{#each data.properties}}
+        {{>propertyCards property=this viewMore=true}}
+    {{/each}}
 {{else}}
     <p>No Matching Properties Found. Sorry..</p>
 {{/if}}

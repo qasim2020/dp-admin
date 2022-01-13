@@ -25,6 +25,23 @@
             {{{data.property.page}}}
         </div>
 
+        <hr>
+        <h4>SIMILAR PROPERTIES</h4>
+
+        <div class="cards">
+            {{#each data.suggestedProperties}}
+            {{> propertyCards property=this data=../data viewMore=true}}
+            {{/each}}
+        </div>
+
+        <p></p>
+
+        <div class="{{{data.slides.footer.style}}}">
+
+            {{{data.slides.footer.content}}}
+        
+        </div>
+
     </div>
 
     <div class="formBox msgBox d-none">

@@ -2835,7 +2835,7 @@ var myFuncs = {
         property.genSelected = req.session.Cards && req.session.Cards.myArray && req.session.Cards.myArray.some( card => card._id == property._id.toString() ) ? 'select' : '' ;
         let suggestedProperties = await model.find({
             $and: [
-                { city: "Rawalpindi" },
+                { city: property.city },
                 { _id:  {
                     $ne : property._id
                 }}

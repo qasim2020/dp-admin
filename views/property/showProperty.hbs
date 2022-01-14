@@ -26,13 +26,15 @@
         </div>
 
         <hr>
-        <h4>SIMILAR PROPERTIES</h4>
 
+	{{#if data.suggestedProperties}}
+        <h4>SIMILAR PROPERTIES</h4>
         <div class="cards">
             {{#each data.suggestedProperties}}
             {{> propertyCards property=this data=../data viewMore=true}}
             {{/each}}
         </div>
+	{{/if}}
 
         <p></p>
 

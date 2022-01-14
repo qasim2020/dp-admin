@@ -172,7 +172,6 @@ hbs.registerHelper('toUpperCase', (str) => {
 });
 
 hbs.registerHelper('toLowerCase', (str) => {
-    console.log(str);
     return str.toLowerCase()
 });
 
@@ -185,7 +184,6 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1,val2);
     return val1 == val2
 });
 
@@ -264,8 +262,6 @@ hbs.registerHelper('matchToCollection', function(val1,val2,val3) {
 });
 
 hbs.registerHelper('checkHtmlString', function(val) {
-    console.log(/<\/?[a-z][\s\S]*>/i.test(val));
-    console.log(val, /<\/?[a-z][\s\S]*>/i.test(val));
     return /<\/?[a-z][\s\S]*>/i.test(val);
 });
 
@@ -277,12 +273,6 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
     
     if ( req.session && req.session.hasOwnProperty('person') ) {
-        console.log({
-            personRole: req.session.person.role,
-            pagePermit: req.params.permit,
-            personOwner: req.session.person.brand,
-            pageOwner: req.params.brand
-        });
         switch (true) {
             // Logged In User can watch all auth modules
             case (myFuncs.moduleRole[req.params.module] == 'auth'):
@@ -403,7 +393,6 @@ var myFuncs = {
 
         if( data.hasOwnProperty("error")) {
 
-            console.log(data);
             return res.status(data.status).send(data.error);
 
         };
@@ -437,7 +426,7 @@ var myFuncs = {
             console.log(e)
         }
 
-        console.log(data);
+        // console.log(data);
         // console.log(JSON.stringify(data,'',2));
 
         switch(true) {
@@ -985,21 +974,26 @@ var myFuncs = {
     },
 
 
-    checkCollectionExists: async function(collectionName) {
-        let result = await mongoose.connection.db.listCollections().toArray();
-            return result.some(val => val.name == `${collectionName}`);
+        checkCollectionExists: async function(collectionName) {
+           	let result = await mongoose.connection.db.listCollections().toArray();
+	    return result.some(val => val.name == `${collectionName}`);
         },
 
-        createModel : async function(modelName) {
+        createModel: async function(modelName) {
 
             try {
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-                if (modelExistsAlready) { mongoose.models[modelName] = ''; };
+		    console.log({modelExistsAlready, schemaExistsAlready});
+                if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
+                if (modelExistsAlready) { delete mongoose.models[modelName] };
+                if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
                 let schema = await Collections.findOne({name: modelName}).lean();
                 return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
             } catch(e) {
-                // console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
+
+                console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
+	        console.log(e);
                 return e;
             }
             
@@ -2188,7 +2182,6 @@ var myFuncs = {
     blogs: async function(req,res) {
 
         let output = await this.getBlogs(req,res);
-        // console.log(output);
         return {
             blogs: output,
         }
@@ -2251,7 +2244,6 @@ var myFuncs = {
     },
 
     richpakistan: async function(req,res) {
-        // console.log('opening rich pakistan');
         return {
             success: true
         }
@@ -2259,7 +2251,6 @@ var myFuncs = {
 
 
     landingPage: async function(req,res) {
-        // console.log({theme: req.params.theme});
         let output = this[req.params.theme](req,res);
         return output;
     },
@@ -2314,13 +2305,9 @@ var myFuncs = {
 
     uploadImage: async function(req,res) {
 
-        console.log(req.files);
         const extName = path.extname(req.files.upload.name).toString();
         const file64 = parser.format(extName, req.files.upload.data);
-        // console.log({extName, file64});
 
-        console.log( req.session );
-        // go to cloudinary and upload image using simple upload URL
 
         req = {
             body : {
@@ -2524,7 +2511,6 @@ var myFuncs = {
             });
             return result;
         } catch (e) {
-            // console.log(e);
             return e
         }
     },
@@ -2569,7 +2555,6 @@ var myFuncs = {
     },
 
     findOrderInQuery: async function(req,res) {
-        // // console.log(chalk.bold.red('finding order by query') );
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({
             orderNo: req.query.orderNo,
@@ -2910,8 +2895,6 @@ var myFuncs = {
 
     updatePage: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
-        // console.log(req.params);
-        // console.log(req.body);
         let output = await model.findOneAndUpdate({_id:req.params.input},{$set: 
             {
                 content: req.body.output,
@@ -2921,7 +2904,6 @@ var myFuncs = {
             }
             },{new:true}).lean();
 
-        // console.log( output );
         return output;
     },
 
@@ -3181,7 +3163,6 @@ var myFuncs = {
     },
 
     outOfStock: async function(req,res) {
-        // console.log( chalk.bold.blue('Items out of stock') );
 
         var query = processQuery(req.query);
         delete query.filter._pjax;
@@ -3493,7 +3474,6 @@ var myFuncs = {
 
     updateResources: async function(req,res) {
 
-        // console.log({body: req.body});
         let model = await this.createModel(`${req.params.brand}-resources`);
         let output = await model.findOneAndUpdate(
             {
@@ -3518,14 +3498,12 @@ var myFuncs = {
             }
         );
 
-        // console.log({output});
         return output;
     },
 
     showPages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-pages`);
         var query = processQuery(req.query);
-        // console.log({query});
         delete query.filter._pjax;
         let pages = await model.aggregate([
             {
@@ -3766,25 +3744,17 @@ var myFuncs = {
 
         // first load collections from the file
 
-        // console.log(file);
-
         let collectionFile = file.filter( val => val.name === 'collections' )[0];
 
         try { let collectionDrop = await mongoose.connection.db.dropCollection('collections'); } 
 
         catch (e) { console.log(e) }
 
-        // console.log( Collections.schema );
-        // console.log(collectionFile); 
-
         let collectionSave = await Promise.all( collectionFile.data.map( val => Collections.findOneAndUpdate({_id: val._id}, val, {upsert: true}) ) );
 
         // remove collections from file now
 
         file = file.filter( val => val.name !== 'collections' );
-
-        // console.log( 'FILE SHOWING' );
-        // console.log( file );
 
         // let collectionSave = await Collections.insertMany( collectionFile.data );
         
@@ -3800,8 +3770,6 @@ var myFuncs = {
                 })
             })
         });
-
-        // console.log(funcs);
 
         let emptyAllCollections = await Promise.all( funcs.map( val => val.model.deleteMany({}) ) );
         let outputs = await Promise.all( funcs.map( val => val.model.findOneAndUpdate({_id: val.data._id}, val.data, {upsert: true}) ) );
@@ -3902,7 +3870,6 @@ var myFuncs = {
         req.isLocal = true;
         let output = await this.showCollection(req,res);
         req.params.theme = 'life';
-        // console.log(output);
         return output;
     },
 
@@ -3916,11 +3883,9 @@ var myFuncs = {
 
     editThisBlog: async function(req,res) {
         req.params.module = "addNewBlog";
-        // console.log(req.query);
         let model = await this.createModel(req.params.input);
         let output = await model.findOne({_id: req.query._id}).lean();
         output.date = this.getFormattedDate(output.date);
-        // console.log(output);
         return {
             blog: output
         };
@@ -3928,7 +3893,6 @@ var myFuncs = {
 
     saveBlog: async function(req,res) {
         let model = await this.createModel('life-blogs');
-        // console.log(req.body);
         let myId = req.body._id;
         delete req.body._id;
         let output = await model.findOneAndUpdate({
@@ -3942,7 +3906,6 @@ var myFuncs = {
     },
 
     publishBlog: async function(req,res) {
-        // console.log(req.body);
         let model = await this.createModel('life-blogs');
         let output = await model.findOneAndUpdate({
             _id: req.body._id
@@ -3970,7 +3933,6 @@ var myFuncs = {
 
     convertStringToArticle: function( string ) {
         let body = string.split('\n').map(val => {
-            console.log(val);
             if (val == '') return undefined;
             return {
               type: val.split(': ')[0].indexOf('.') != -1 ? val.split(': ')[0].split('.')[0] : val.split(': ')[0],
@@ -4088,12 +4050,8 @@ var myFuncs = {
 
     ticketAndMail: async function(req,res) {
 
-        // console.log( req.body.msg );
-        // console.log( req.body.msg.replace(/\r\n{1,}/g,'<br>') );
-
         let model = await this.createModel(`${req.params.brand}-resources`);
         let resources = (await model.find().lean())[0];
-        // console.log(resources);
         let output = await this.sendMail({
             from: `Qasim Ali<${process.env.zoho}>`,
             // from: req.body.name, 
@@ -4196,8 +4154,6 @@ var myFuncs = {
 
         let output = pendingLetters.map( val => this.setTimerToPublish(val) );
 
-        // console.log({output});
-
         return {
             success: 'Timer for website Life is now running',
             status: output,
@@ -4210,17 +4166,10 @@ var myFuncs = {
         var now = new Date();
         var publishTime = letter.publishTime;
 
-        // console.log('Time Now: ' + now);
-        // console.log('Publish Time: ' + publishTime);
-
         var millisTillPublish = new Date(letter.publishTime) - now;
-
-        // console.log({minutesToPublish: ( millisTillPublish / 1000 / 60 ) });
 
         setTimeout( async () => {
             
-            // console.log( chalk.bold.red( 'PUBLISHING THE NEWSLETTER NOW : ' + letter.slug ) );
-
             // let body = this.convertStringToArticle(letter.body);
 
             let output;
@@ -4234,8 +4183,6 @@ var myFuncs = {
             }).lean();
 
             let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
-
-	   // console.log(mailSent);
 
             let url = process.env.url;
             // let url = env == 'test' || env == 'development' ? process.env. : 'https://qasimali.xyz'
@@ -4291,7 +4238,6 @@ var myFuncs = {
 
         let model = await this.createModel(`${brand}-newsletters`);
         let output = await model.findOne({slug: templateSlug}).lean();
-	// console.log(output);
         if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
 
@@ -4432,7 +4378,6 @@ var myFuncs = {
     editWeb: async function(req,res) {
 
         let theme = req.params.theme;
-        // console.log( { theme } );
         req.params.theme = 'root';
 
         let file;
@@ -4472,8 +4417,6 @@ var myFuncs = {
 
     saveWeb: async function(req,res) {
 
-        // console.log(req.body)
-
         let writeFile = async function(path,data) {
 
             let file = await new Promise( (resolve, reject) => {
@@ -4503,7 +4446,6 @@ var myFuncs = {
     // HERE I STARTED WORKING ON PROPERTY WEBSITE
 
     createProject: async function(req,res) {
-        // console.log( " create project page opening ");
         return {
             success: true
         }
@@ -4512,10 +4454,7 @@ var myFuncs = {
 
     createdProj: async function(req,res) {
 
-        // console.log(req.body); 
-
         let missingValues = Object.values(req.body).some( val => val.length == 0 );
-        // console.log( missingValues );
 
         let redirect = function(msg) { 
             req.params.module = "createProject";
@@ -4549,10 +4488,8 @@ var myFuncs = {
         };
 
         if (!fs.existsSync(dir)){
-            // console.log(dir);
             fs.mkdirSync(dir);
             let files = req.body.files.includes(",") ? req.body.files.split(',') : ['landingPage', req.body.files];
-            // console.log({files});
             await Promise.all( files.map( val => createFile(dir, val) ) );
         }
 
@@ -4587,7 +4524,6 @@ var myFuncs = {
             };
 
             await Collections.findOneAndUpdate({name: brandName-"users"},data,{upsert: true});
-            // console.log('created a new User row inside the Collections'); 
 
         }
         
@@ -4622,7 +4558,6 @@ var myFuncs = {
             }
 
             await Collections.findOneAndUpdate({name: brandName-"notifications"},data,{upsert: true});
-            // console.log('created a new Notifications row inside the Collections'); 
 
         }
 
@@ -4637,8 +4572,6 @@ var myFuncs = {
                 inThemes: await model.find({brand: brandName}).count(),
                 inUsers: await model2.find({brand: brandName}).count()
             };
-
-            // console.log(count);
 
             return count;
 
@@ -4656,7 +4589,6 @@ var myFuncs = {
         await createUsersCollection({brandName: req.body.brandName});
         await createNotificationsCollection({brandName: req.body.brandName});
         let output = await model.create({brand: req.body.brandName, theme: req.body.projName});
-        // console.log(output); 
         let output2 = await model2.create({
             email: req.body.ownerEmail, 
             name: req.body.ownerName, 
@@ -4665,9 +4597,6 @@ var myFuncs = {
             role: 'admin'
         });
 
-        // console.log(output2); 
-        
-        // console.log("new project created successfully");
         req.params.module = "createdProj"
 
         return {
@@ -4695,7 +4624,6 @@ var myFuncs = {
                 inUsers: await model2.findOne({brand: brandName})
             };
 
-            // console.log(data);
             return {
                 inCollectionUsers: data.inCollectionUsers,
                 inCollectionNotifications: data.inCollectionNotifications,
@@ -4710,8 +4638,6 @@ var myFuncs = {
         };
 
         let allData = await getData({brandName: req.params.input});
-
-        // console.log(allData);
 
         req.params.module = "createdProj";
         req.params.theme = "root";
@@ -4780,6 +4706,8 @@ var myFuncs = {
         } else {
             townStatus = 'd-none';
         }
+
+	    console.log(model);
             
         let filters = {
             cities: await this.getCities(req,res),
@@ -4898,8 +4826,6 @@ var myFuncs = {
             }
         ]);
 
-        // console.log(output);
-
         return output;
     },
 
@@ -4907,10 +4833,9 @@ var myFuncs = {
         
         let query = this.buildMongoQuery(req,res);
 
-        console.log(query);
-        console.log( req.query.hasOwnProperty('sort') ? Number(req.query.sort) : -1 );
-
         let model = await this.createModel(`${req.params.brand}-properties`);
+
+	console.log(model);
 
         let output = await model.aggregate([
             {
@@ -4927,8 +4852,6 @@ var myFuncs = {
                 }
             }
         ]);
-
-        console.log(output);
 
         output = this.matchSelectedProperties(req,res,output);
 
@@ -4970,8 +4893,6 @@ var myFuncs = {
 
         }
 
-        // console.log(query);
-
         return query;
 
     },
@@ -4980,9 +4901,6 @@ var myFuncs = {
 
         req.session[req.params.input] = req.body;
 
-        // console.log(req.body);
-        // console.log(req.session);
-
         return {
             success: true
         }
@@ -4990,8 +4908,6 @@ var myFuncs = {
     },
 
     drawForm: async function(req,res) {
-
-        // console.log(req.session);
 
         let form = (await this.getForms({[req.params.input]: true}, req,res))[req.params.input];
 
@@ -5355,9 +5271,6 @@ var myFuncs = {
             model = await this.createModel(`${req.params.brand}-resources`);
             output = (await model.find().lean())[0];
 
-            // console.log( chalk.bold(" EDIT BUSINESS MODEL ") );
-            // console.log(output);
-            
             object.editBusiness = {
                 heading: "EDIT BUSINESS", 
                 note: "Carefully enter these details. These are same details through which your clients contact you!.",
@@ -5514,12 +5427,9 @@ var myFuncs = {
 
         let addProperty = async function() {
 
-            // console.log(req.body);
             let model = await myFuncs.createModel(`${req.params.brand}-properties`);
 
             let output = await model.create(req.body);
-
-            // console.log(output);
 
             return output;
 
@@ -5584,11 +5494,7 @@ var myFuncs = {
 
     saveSlide : async function(req,res) {
 
-        // console.log(req.body);
-
         let model = await this.createModel(`${req.params.brand}-slides`);
-
-        // console.log( { input: req.params.input, myId: req.params.input.match(/temp/g) ? this.getMongoId() : req.params.input } );
 
         let output = await model.findOneAndUpdate(
             {
@@ -5616,8 +5522,6 @@ var myFuncs = {
     },
 
     updateDocument : async function(req,res) {
-
-        console.log( req.query, req.body );
 
         let model = await this.createModel(req.params.input);
         let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});

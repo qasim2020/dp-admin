@@ -391,6 +391,7 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
 
+
         if( data.hasOwnProperty("error")) {
 
             return res.status(data.status).send(data.error);
@@ -1825,9 +1826,9 @@ var myFuncs = {
                 dataRows: newRows,
                 modelName: req.params.input,
                 airtable: {
-                    basePin: thisCollection.airtable.baseId,
-                    baseAPIKey: thisCollection.airtable.baseAPIKey,
-                    tableName: thisCollection.airtable.tableName
+                    basePin: thisCollection.airtable && thisCollection.airtable.baseId,
+                    baseAPIKey: thisCollection.airtable && thisCollection.airtable.baseAPIKey,
+                    tableName: thisCollection.airtable && thisCollection.airtable.tableName
                 }
             };
                 

@@ -23,17 +23,10 @@
 
         <div class="sliders">
 
-            <!-- <div class="{{status}}">{{{inc @index}}}</div> -->
-            <!-- <div class="{{{this.style}}}">{{{this.content}}}</div> -->
-            <!-- 
-                <p>{{{inc @index}}}</p>
-                <p class="info">Website is Under Construction...</p>
-            -->
-
             {{#each data.slides.sliders}}
 
             <div class="{{status}}">
-                <div class="{{{this.style}}}">{{{this.content}}}</div>
+                <div class="webEditor">{{{this.content}}}</div>
             </div>
 
             {{/each}}
@@ -73,7 +66,7 @@
 
         </div>
 
-        <div class="{{{data.slides.footer.style}}}">
+        <div class="webEditor">
 
             {{{data.slides.footer.content}}}
         

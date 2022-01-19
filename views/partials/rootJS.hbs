@@ -97,12 +97,16 @@ let createForm = function(elem) {
     }).get();
 
     let formString = elems.reduce( (total,val, key) => { 
-        // console.log(val,key);
             if (val.html == 'ckEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
                    <div id="editor" name="${val.name}">${val.value}</div>
                 `;
+            } else if (val.html == 'webEditor') {
+                total = total + `
+                   <label for="${val.name}">${val.label}</label>
+                   <div class="webEditor" name="${val.name}" onclick="openSlideEditor(this, 'old' )">${val.value}</div> `;
+                // TODO: SLIDE-INTRO SHOULD BE PART OF THE DIV WHICH IS STORED IN DB; KEEP IT DRY.... ok bro...
             } else {
                 total = total +  `
                     <label for="${val.name}">${val.label}</label>
@@ -124,33 +128,35 @@ let createForm = function(elem) {
     $(".formBox").html(form).removeClass("d-none");
 
 
+    if ( document.querySelector( "#editor" ) ) {
+        ClassicEditor
+                .create( document.querySelector( "#editor" ) ,{
+                    simpleUpload: {
+                        // The URL that the images are uploaded to.
+                        uploadUrl: '/{{data.brand}}/admin/data/uploadImage/n',
 
-    ClassicEditor
-            .create( document.querySelector( "#editor" ) ,{
-                simpleUpload: {
-                    // The URL that the images are uploaded to.
-                    uploadUrl: '/{{data.brand}}/admin/data/uploadImage/n',
+                        // Enable the XMLHttpRequest.withCredentials property.
+                        withCredentials: true,
 
-                    // Enable the XMLHttpRequest.withCredentials property.
-                    withCredentials: true,
+                        // Headers sent along with the XMLHttpRequest to the upload server.
+                        headers: {
+                            'X-CSRF-TOKEN': 'CSRF-Token',
+                            Authorization: 'Bearer <JSON Web Token>'
+                        }
+                    },
+                })
+                .then( editor => {
+                    console.log( Array.from( editor.ui.componentFactory.names() ) );
+                    editor.model.document.on( "change:data", () => {
+                        let editorData = editor.getData();
+                        return saveInput("#editor",data._id,"ckEditor", editorData);
+                    } );
+                } )
+                .catch( error => {
+                    console.error( error );
+            } );
 
-                    // Headers sent along with the XMLHttpRequest to the upload server.
-                    headers: {
-                        'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
-                    }
-                },
-            })
-            .then( editor => {
-                console.log( Array.from( editor.ui.componentFactory.names() ) );
-                editor.model.document.on( "change:data", () => {
-                    let editorData = editor.getData();
-                    return saveInput("#editor",data._id,"ckEditor", editorData);
-                } );
-            } )
-            .catch( error => {
-                console.error( error );
-        } );
+        };
 
     };
 

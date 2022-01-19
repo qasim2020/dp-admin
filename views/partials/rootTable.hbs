@@ -126,7 +126,11 @@
             {{#each dataRows}}
             <tr id="row{{@index}}">
                 <td>
+                    {{#if (matchValues this.fixed "true")}}
+                    <a class="icon"></a>
+                    {{else}}
                     <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
+                    {{/if}}
                     <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
                 </td>
                 {{#each this.array}}

@@ -1,0 +1,208 @@
+<script>
+console.log("hello world");
+
+let readURL = function (elem) {
+
+    let afterCloudinary = function(val) {
+
+        console.log(val);
+        $(elem).closest('p').prev().find('input').val(val.url);
+        $(elem).closest('.placeholder').prev().attr({ src: val.url, public_id: val.public_id.split('/')[ val.public_id.split('/').length - 1 ] }).keyup();
+        $(elem).next().html("IMAGE UPLOADED");
+
+    };
+
+    let uploadCloudinary = function(img) {
+
+        let data = {
+            public_id: $(elem).closest('.placeholder').prev().attr("public_id"),
+            img: img,
+            width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
+            height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
+            };
+
+        $(elem).closest(".placeholder").prev().attr({ src : img });
+        $(elem).next().html("UPLOADING IMAGE ...");
+        console.log(data);
+
+        $.ajax({
+            url: "/{{data.brand}}/{{data.permit}}/data/uploadCloudinary/n",
+            method: "POST",
+            data: data,
+            success: val => afterCloudinary(val),
+            error: (err, status, response) => console.log(err.responseText)
+        });
+    };
+
+    if (elem.files && elem.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            console.log("UPLOAD IMAGE TO CLOUDINARY");
+            return uploadCloudinary(e.target.result);
+        };
+        reader.readAsDataURL(elem.files[0]);
+    }
+}
+
+var editor = CodeMirror(document.getElementById("editor"),{
+    lineNumbers: true,
+    lineWrapping: true,
+    mode: "xml",
+    htmlMode: true,
+});
+
+let toggleMode = function(elem) {
+
+    $(elem).closest(".slide-editor").find(".placeholder").remove();
+    $(elem).closest(".slide-editor").find(".slide").toggleClass("d-none").prev(".advanced-editor").toggleClass("d-none");
+
+    if ( $(elem).closest(".slide-editor").find(".advanced-editor").hasClass("d-none") ) {
+        $(elem).closest(".slide-editor").find(".slide").html( editor.getValue() );
+        $(".slide-editor > .slide > div .e").attr({ onclick: "editable(this)" });
+    } else {
+        $(".slide-editor > .slide *").removeAttr("onclick contenteditable");
+        let html = $(elem).closest(".slide-editor").find(".slide").html().replace(/^ +/gm, "");
+        editor.setValue( html );
+    }
+
+};
+
+let openSlideEditor = function(elem, slide){
+
+        let setEditable = function() {
+
+            console.log(" alloting the attributes ");
+            $(".slide-editor > .slide > div .e").attr({ onclick: "editable(this)" });
+
+        };
+
+        let style = `[style=${ $(elem).attr('style') }]`;
+
+        if (slide == "new") {
+
+            let updateElemId = function(val) {
+
+                $(".slide-editor > .slide").remove();
+                $(".slide-new").find(style).clone().appendTo(".slide-editor").removeClass('d-none')
+                    .attr({ 
+                        id : val,
+                        sequence: $("#sortable > .sortable").length + 1
+                        });
+                setEditable();
+            };
+
+            $.ajax({
+                    url: "/{{data.brand}}/{{data.permit}}/data/getMongoId/n",
+                    method: "GET",
+                    success: val => updateElemId(val),
+                    error: (err, status, response) => console.log(err)
+                });
+
+        } else {
+            let content = $(elem).attr('content');
+            console.log({content, style});
+            // $(".slide-editor").find(".slide").remove();
+            $(".slide-new").find(style).clone().appendTo(".slide-editor").html(content).removeClass('d-none')
+                .attr({ 
+                        id : $(elem).attr('id'),
+                        sequence: $(elem).attr('sequence')
+                    });
+            setEditable();
+        }
+
+
+};
+
+    let saveSlide = function(elem, content) {
+
+            if ( $(elem).attr("id").match(/temp/g) ) {
+                $(".saved-templates > .box-top > button").attr({refreshwindow: true});
+            }
+
+            if ( $(elem).closest(".formBox").hasClass("slide-editor") ) {
+                $(".slide-editor > .box-top > button").attr({refreshwindow: true});
+            }
+
+            if ( content == undefined ) {
+                let temp;
+                temp = $(elem).closest(".slide-editor").clone();
+                temp.find("*").removeAttr("contenteditable");
+                console.log( temp.find(".e").attr("onclick").replace(/editable\(this\)/g,"") );
+                temp.find(".e").attr({onclick: temp.find(".e").attr("onclick").replace(/editable\(this\)/g, "") });
+                temp.find(".placeholder").remove();
+                content = temp.find(".slide").html();
+            }
+
+            $.ajax({
+                url: `/{{data.brand}}/{{data.permit}}/data/saveSlide/${ $(elem).attr('id') }`,
+                data: {
+                    style: $(elem).attr('style'),
+                    sequence: $(elem).attr('sequence'),
+                    content: content
+                    },
+                method: "POST",
+                success: val => {
+                    $(elem).attr({id: val._id});
+                },
+                error: (req,status,err) => console.log(err.responseText)
+            });
+
+        };
+
+    let editable = function(elem) {
+
+            let type = $(elem).prop("tagName");
+
+            console.log( $(elem).next() );
+
+            if ( $(elem).next().hasClass("placeholder") ) { 
+                    $(elem).next().remove();
+                    return console.log( "Placeholder is already placed next to this element" );
+                };
+
+            $(elem).attr({contenteditable: true});
+
+            let absoluteOrRelative = function() {
+
+                    if ( $(elem).css("position") == "absolute" ) {
+
+                            console.log( "making placeholder absolute" );
+                            $(elem).next().css({position: "absolute"});
+
+                        }
+
+                };
+
+            switch (true) {
+                    case ( type == "IMG" ) :
+                        console.log("Upload an Image or ADD the source of img below");
+                        $(".placeholders > .img").clone().insertAfter( elem ).find("input:eq(0)").val( $(elem).attr("src") )
+                            .closest("p").next().find(".btn.white")
+                            .html( $(".btn.white").html() + ` ( ${ $(elem).css("width").match(/\d+/g) } x ${ $(elem).css("height").match(/\d+/g) } RATIO )` );
+                        absoluteOrRelative();
+                        break;
+                    case ( type == "A" ) :
+                        console.log("Add the SRC inpute below this button");
+                        $(".placeholders > .href").clone().insertAfter( elem ).find("input").val( $(elem).attr("href") );
+                        absoluteOrRelative();
+                        break;
+                    default: 
+                        console.log("don't do anything");
+                        break;
+                }
+        };
+
+    let inputChanged = function(elem) {
+            console.log("input value has been changed");
+            let type = $(elem).closest(".placeholder").prev().prop("tagName");
+
+            if (type == "IMG") {
+                console.log( $(elem).closest(".placeholder").prev() );
+                $(elem).closest(".placeholder").prev().attr({ src : $(elem).val() });
+            } else if (type == "A") {
+                $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
+            }
+        };
+
+
+    </script>

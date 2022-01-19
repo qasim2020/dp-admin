@@ -270,8 +270,8 @@
                 formData = `${formData}&${imageTagsName}=${imageCSV}`;
             }
 
-            // TODO: Make serialize() take only one imageURL
 
+            $('#submitButton').html("Saving...");
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',
@@ -279,7 +279,7 @@
               success: (data) => {
                 console.log(data);
                 if (data.error) msg = data.error
-                else msg = data.success
+                else msg = "Stored Successfully"
                 $('#submitButton').html(msg);
               }
             });

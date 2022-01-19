@@ -95,9 +95,9 @@ mongoose.connect(process.env.MONGODB_URI, {
   useFindAndModify: false
 }, function(err) {
   if (err) {
-    console.log('Unable to connect to the server. Please start the server.');
+    //console.log('Unable to connect to the server. Please start the server.');
   } else {
-    console.log('Connected to Server successfully!');
+    //console.log('Connected to Server successfully!');
   }
 });
 
@@ -184,6 +184,7 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
+    console.log(val1,val2);
     return val1 == val2
 });
 
@@ -266,9 +267,9 @@ hbs.registerHelper('checkHtmlString', function(val) {
 });
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
-    console.log('');
-    console.log(chalk.bold.red('new Request starts here'));
-    console.log(req.params);
+    ////console.log('');
+    //console.log(chalk.bold.red('new Request starts here'));
+    //console.log(req.params);
 
     if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
     
@@ -299,7 +300,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
             properties: schema,
         };
         let output = await myFuncs.save(Collections,data);
-        console.log(chalk.bold.red('first collection created'));
+        //console.log(chalk.bold.red('first collection created'));
         return next();
     };
 
@@ -316,13 +317,13 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     };
 
 
-    console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
+    //console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
 
 let openBrand = async (req,res) => {
     if (req.params.brand.indexOf('.') > 0) {
-        console.log( chalk.bold.red("===== Wrong Call ===== \n", req.params.brand ) );
+        //console.log( chalk.bold.red("===== Wrong Call ===== \n", req.params.brand ) );
         return res.status(300).send('Wrong Attempt');
     };
 
@@ -340,7 +341,7 @@ let replyFunction = async (req,res) => {
         let data = await myFuncs[req.params.module](req,res);
         myFuncs.respond(data,req,res);
     } catch(e) {
-        console.log(e);
+        //console.log(e);
         res.status(e.status || 400).send(e);
     }
 
@@ -391,7 +392,6 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
 
-
         if( data.hasOwnProperty("error")) {
 
             return res.status(data.status).send(data.error);
@@ -421,14 +421,15 @@ var myFuncs = {
                 brand: req.params.brand,
                 input: req.params.input,
                 owner: await getOwnerContactDetails(req,res),
-                requiredType: req.params.requiredType
+                requiredType: req.params.requiredType,
+                theme: await this.getThemeName(req.params.brand)
             });
         } catch(e) {
-            console.log(e)
+            //console.log(e)
         }
 
-        // console.log(data);
-        // console.log(JSON.stringify(data,'',2));
+        // //console.log(data);
+        console.log(JSON.stringify(data,'',2));
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -441,7 +442,7 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
-            console.log({theme: req.params.theme, module: req.params.module});
+            //console.log({theme: req.params.theme, module: req.params.module});
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           default:
@@ -540,8 +541,8 @@ var myFuncs = {
 
     listenToWebhook: function(req,res) {
 
-        console.log(req.query);
-        console.log(JSON.stringify(req.body, 0, 2));
+        //console.log(req.query);
+        //console.log(JSON.stringify(req.body, 0, 2));
         if (req.body && req.body.event) {
             if (req.body.event.hasOwnProperty("attachments") == false) return {
                 status: 300,
@@ -576,7 +577,7 @@ var myFuncs = {
 
     syncFromAirtableToLocal: async function({ data, brand }){
 
-        console.log(data, brand);
+        //console.log(data, brand);
 
         // ONLY OPEN BELOW WHEN TESTING IN DEV MODE
 
@@ -641,12 +642,12 @@ var myFuncs = {
         let pipe_airtable_upload = async (record) => {
 
             let collectionName = brand + '-' + record.text.split('*')[1];
-            console.log({collectionName});
+            //console.log({collectionName});
             let airtableURLs = ( await Collections.findOne({name: collectionName}).lean() ).airtable;
 
             if (airtableURLs == undefined) {
 
-                // console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+                // //console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
                 return { msg: "Data not connected to Airtable" };
 
@@ -658,17 +659,17 @@ var myFuncs = {
                 method: 'GET'
             });
 
-            // console.log( airtableRecord.data );
+            // //console.log( airtableRecord.data );
 
             let remoteData = airtableRecord.data.fields;
 
-            console.log( remoteData );
+            //console.log( remoteData );
 
             // let storeNow = await record.model.findOne({ [airtableURLs.key]: remoteData[airtableURLs.key] }).lean();
 
             let storeNow = await record.model.findOneAndUpdate({ [airtableURLs.key]: remoteData[airtableURLs.key] }, remoteData, { new: true });
 
-            console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
+            //console.log( storeNow[airtableURLs.key], remoteData[airtableURLs.key] );
 
             return { msg: remoteData[airtableURLs.key] + ' — Updated locally' }
 
@@ -684,7 +685,7 @@ var myFuncs = {
 
             data = Object.assign( data, 
                 records.reduce( (total, val, index) => {
-                    // console.log( val, index );
+                    // //console.log( val, index );
                     Object.assign( total, {
                         [index+1] : val.msg
                     });
@@ -714,7 +715,7 @@ var myFuncs = {
 
         if (airtableURLs == undefined) {
 
-            // console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+            console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
             return {msg: "not linked with Airtable"};
 
@@ -750,23 +751,23 @@ var myFuncs = {
 
         let saveNewKeyInLocalDB = async function ( dataToStore ) {
 
-                // console.log( chalk.bold.bgYellow.black( "DATA IS PUSHED - SAVING ITS ID INTO LOCAL DB - "  + dataToStore.id) );
+                // //console.log( chalk.bold.bgYellow.black( "DATA IS PUSHED - SAVING ITS ID INTO LOCAL DB - "  + dataToStore.id) );
 
                 let deleteOldKeys = await Collections.findOneAndUpdate( { name: collection } , { $pull : { "airtable.connectingKeys" : { fields : { [airtableURLs.key] : data[airtableURLs.key] } } } } ) ;
 
                 let newStore = await Collections.findOneAndUpdate( { name: collection } , { $push : { "airtable.connectingKeys" : dataToStore } } , { new : true } ).lean();
 
-                // console.log( "DATA IS STORED LOCALLY" );
+                // //console.log( "DATA IS STORED LOCALLY" );
 
         };
 
         let pushNewToAirtable = async function( matchingID, data ) {
 
-                // console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND IN AIRTABLE - PUSHING DATA AS NEW" ) );
+                // //console.log( chalk.bold.bgYellow.black( "MATCHING ID NOT FOUND IN AIRTABLE - PUSHING DATA AS NEW" ) );
 
                 let newUpload = await myFuncs.axiosRequest({ method: "POST", data: formatData(matchingID, data), URL: airtableURLs.post});
                 
-		// console.log(newUpload);
+		// //console.log(newUpload);
 
 		if ( newUpload.error == 1 ) return { msg: newUpload.info } ;
 
@@ -790,14 +791,14 @@ var myFuncs = {
 
             if (connectingKey == undefined) return await pushNewToAirtable(undefined, data);
 
-            // console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
+            // //console.log( chalk.bold.bgYellow.black( "FOUND THIS KEY MOVED (REMOVED AND ADDED) IN AIRTABLE - UPLOADING NEW DATA TO FOUND KEY" ) );
 
             // let updateToAirtable = await myFuncs.axiosRequest({ method: "PUT", data: formatData(connectingKey , data), URL: airtableURLs.put});
             let updateToAirtable = await myFuncs.airtableAPI({ method: "update", data: formatData(matchingID, data), baseId: airtableURLs.baseId, baseName: airtableURLs.baseName });
 
             if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
                 
-                // console.log( updateToAirtable.response );
+                // //console.log( updateToAirtable.response );
                 
                 return {
                     msg: "Airtable > " + updateToAirtable.response.data.info
@@ -817,7 +818,7 @@ var myFuncs = {
 
         };
 
-        // console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE AGAINST UNIQUE KEY - " + airtableURLs.key ) );
+        // //console.log( chalk.bold.bgYellow.black( "UPDATING TO AIRTABLE AGAINST UNIQUE KEY - " + airtableURLs.key ) );
 
         let matchingID = airtableURLs.connectingKeys.find( val => val && val.fields && val.fields[airtableURLs.key] == data[airtableURLs.key] );
 
@@ -830,7 +831,7 @@ var myFuncs = {
         // let updateToAirtable = await this.airtableAPI({ method: "update", data: formatData(matchingID, data), baseId: airtableURLs.baseId, baseName: airtableURLs.baseName });
         let updateToAirtable = await this.axiosRequest({ method: "PUT", data: formatData(matchingID, data), URL: airtableURLs.put}); 
 
-        console.log( JSON.stringify(updateToAirtable, 0, 2) );
+        //console.log( JSON.stringify(updateToAirtable, 0, 2) );
 
         if ( updateToAirtable && updateToAirtable.response && updateToAirtable.response.data.hasOwnProperty("error") ) {
 
@@ -873,7 +874,7 @@ var myFuncs = {
         return new Promise ((resolve,reject) => {
             fs.readdir(directoryPath + '/views/' + directoryName, function (err, files) {
                 if (err) {
-                    // console.log('Unable to scan directory: ' + err);
+                    // //console.log('Unable to scan directory: ' + err);
                     return reject('Unable to scan directory: ' + err);
                 }
                 return resolve(files);
@@ -886,7 +887,7 @@ var myFuncs = {
         let properties = collection.properties;
         let keys = Object.keys(collection.properties);
         let values = Object.values(collection.properties);
-        // console.log(values);
+        // //console.log(values);
         let output = keys.map(val => {
             if (properties[val]['html'] == 'imgURL' && req.values && req.values[val] != undefined) {
                 req.values[val] = req.values && req.values[val].split(' ');
@@ -949,23 +950,25 @@ var myFuncs = {
     updateSequence: async function(req,res) {
         let model = await this.createModel(req.body.modelName);
         let modelName = req.body.modelName;
+        console.log(req.body);
         delete req.body.modelName;
 
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
 
+        console.log(result);
+
         if (result == undefined) return {status: 404, error: 'did not find matching document'};
 
-        let airtableSync = {};
+        // TODO: I think Airtable Sync is not required ever.. only pull the data and make this place self sufficient....
+        // let airtableSync = {};
+        // if (req.body.airtableSync != "false" || req.query.airtableSync != "false"  ) {
+        //     airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body})
+        // } else {
+        //     airtableSync.msg = "Sync manually kept off";
+        // }
+        // console.log(airtableSync);
 
-        // console.log( req.body );
-
-        if (req.body.airtableSync != "false" ) {
-            airtableSync = await this.syncWithAirtable({collection: modelName, data: req.body})
-        } else {
-            airtableSync.msg = "Sync manually kept off";
-        }
-
-        console.log(airtableSync);
+        return result;
 
         return {
             success: "Stored & " + airtableSync.msg, 
@@ -985,7 +988,7 @@ var myFuncs = {
             try {
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-		    console.log({modelExistsAlready, schemaExistsAlready});
+                //console.log({modelExistsAlready, schemaExistsAlready});
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
@@ -1030,18 +1033,18 @@ var myFuncs = {
                         }).eachPage(function page(records, fetchNextPage) {
 
                             records.forEach(function(record) {
-                                console.log('Retrieved', record.get('_id'));
+                                //console.log('Retrieved', record.get('_id'));
                                 allRecords.push(record.fields);
                             });
 
                             try { 
                                 fetchNextPage();
                             } catch(e) { 
-                                console.log("next page does not exist"); 
+                                //console.log("next page does not exist"); 
                             };
 
                         }, function done(err) {
-                            console.log(allRecords);
+                            //console.log(allRecords);
                             if (err) { reject( err ) }
                             resolve( allRecords );
                         });
@@ -1053,30 +1056,30 @@ var myFuncs = {
                 switch (true) {
 
                     case (method == "test") :
-                        console.log("test if this input is valid or not");
+                        //console.log("test if this input is valid or not");
                         output = await fetchAllRecords(1);
                         break;
                     case (method == "list") :
-                        console.log("fetch all records");
+                        //console.log("fetch all records");
                         output = await fetchAllRecords(100);
-                        console.log(output);
+                        //console.log(output);
                         break;
                     
                     case (method == "find") : 
-                        console.log("find a record by this Id");
+                        //console.log("find a record by this Id");
                         break;
 
                     case (method == "create") :
-                        console.log("create multiple records here");
+                        //console.log("create multiple records here");
                         break;
 
                     case (method == "update") :
-                        console.log("update multiple records here");
+                        //console.log("update multiple records here");
                         output = await base(baseName).update(data, {typecast: true});
                         break;
 
                     case (method == "delete") :
-                        console.log("delete a record here");
+                        //console.log("delete a record here");
                         break; 
 
                 };
@@ -1085,8 +1088,8 @@ var myFuncs = {
 
         } catch(e) {
 
-            console.log(e);
-            console.log(e.error);
+            //console.log(e);
+            //console.log(e.error);
 
             return {
                 status: 404,
@@ -1099,12 +1102,12 @@ var myFuncs = {
 
     saveAirtableURLs: async function(req,res) {
 
-        console.log(req.body);
+        //console.log(req.body);
 
         // TODO: Check if there is a way to test the airtableAPI is ok or not!
         let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.tableName, baseAPIKey: req.body.baseAPIKey, method: "test" }) );
 
-        console.log( chalk.bold.red("listing all Keys from airtable API fetch method") );
+        //console.log( chalk.bold.red("listing all Keys from airtable API fetch method") );
 
         if (keysAll.hasOwnProperty("error")) return keysAll;
 
@@ -1138,7 +1141,7 @@ var myFuncs = {
             }
 
         } catch (e) {
-            console.log(e);
+            //console.log(e);
             req.params.theme = 'root';
             return {
                 output: '',
@@ -1154,7 +1157,7 @@ var myFuncs = {
         try {
 
         let myProperties = await Collections.findOne({name: req.params.input}).lean();
-        console.log(myProperties);
+        //console.log(myProperties);
         let keysAll  = await this.airtableAPI({ 
             baseId: myProperties.airtable.baseId , 
             baseName: myProperties.airtable.tableName, 
@@ -1170,7 +1173,7 @@ var myFuncs = {
         let model = await this.createModel(req.params.input);
         let output = await Promise.all( keysAll.map( val => model.findOneAndUpdate( {_id: val._id}, val, {upsert: true, new: true}).lean() ) );;
         // let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
-        console.log( output );
+        //console.log( output );
 
         return { success: "Data is Merged" };
 
@@ -1258,7 +1261,7 @@ var myFuncs = {
 
         let airtableToLocal = file.map( val => {
             let matchInLocal = output2.find( row  => {
-                // if (val["fields"][airtableURLs.key] == row[airtableURLs.key] ) console.log( val['fields'][airtableURLs.key], row[airtableURLs.key] );
+                // if (val["fields"][airtableURLs.key] == row[airtableURLs.key] ) //console.log( val['fields'][airtableURLs.key], row[airtableURLs.key] );
                 return val["fields"][airtableURLs.key] == row[airtableURLs.key] ;
             });
             if (matchInLocal != undefined) return null;
@@ -1268,11 +1271,11 @@ var myFuncs = {
             }
         }).filter( val => val != null );
 
-        console.log({
-            localToAirtable: localToAirtable.length, 
-            airtableToLocal: airtableToLocal.length,
-            inFocus: file.filter( val => val.fields.ser == '1061' || val.fields.ser == '1062' )
-        });
+        //console.log({
+           //  localToAirtable: localToAirtable.length, 
+           //  airtableToLocal: airtableToLocal.length,
+           //  inFocus: file.filter( val => val.fields.ser == '1061' || val.fields.ser == '1062' )
+        // }); 
             
         let sidebyside = localToAirtable.concat(airtableToLocal);
 
@@ -1284,7 +1287,7 @@ var myFuncs = {
 
                 let makeObjectAnArray = function(object, database) {
 
-                    // console.log( object, database );
+                    // //console.log( object, database );
                     let output = Object.keys(object).map( val => {
                         return {
                             field: val,
@@ -1312,7 +1315,7 @@ var myFuncs = {
 
                 if (val == 'created_at' || val == 'updatedAt' || val == '_id' || val == '__v' || val == 'ser') return null;
 
-                // console.log( focal.local[val], focal.airtable.fields[val] );
+                // //console.log( focal.local[val], focal.airtable.fields[val] );
 
                 let diff = myFuncs.patienceDiffPlus( focal.local[val] == undefined ? " " : focal.local[val] , focal.airtable.fields[val] == undefined ? " " : focal.airtable.fields[val]).lines.filter( val => val.bIndex == -1 );
 
@@ -1607,7 +1610,7 @@ var myFuncs = {
 
         try {
 
-            console.log(JSON.stringify( req.body, 0, 2 ));
+            //console.log(JSON.stringify( req.body, 0, 2 ));
             let model = await this.createModel(req.params.input);
             let commonKey = ( await this.getAirtableUrls(req,res) ).key; 
             let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
@@ -1619,7 +1622,7 @@ var myFuncs = {
 
         } catch(e) {
 
-            console.log(e);
+            //console.log(e);
 
             return {
                 status: 300,
@@ -1636,7 +1639,7 @@ var myFuncs = {
             let output = await doc.save();
             return {success: 'Done'};
         } catch(e) {
-            // console.log(e);
+            // //console.log(e);
             return {status: 404, error: 'Failed'}
         };
     },
@@ -1690,6 +1693,9 @@ var myFuncs = {
             },{
                 name: 'String',
                 html: 'ckEditor'
+            },{
+                name: 'String',
+                html: 'webEditor'
             }
         ];
     },
@@ -1738,7 +1744,7 @@ var myFuncs = {
     },
 
     saveSequence: async function(req,res) {
-        // console.log(req.body);
+        // //console.log(req.body);
         let model = await this.createModel(req.body.modelName);
         let output = await this.save(model,req.body); 
         return output;
@@ -1748,12 +1754,12 @@ var myFuncs = {
 
         req.params.theme = "root";
         req.params.module = req.headers['x-pjax']  == 'true' ? req.params.input : "newDashboard";
-        console.log({module: req.params.module, pjax: req.headers['x-pjax']});
+        //console.log({module: req.params.module, pjax: req.headers['x-pjax']});
         
         let output = {};
         let model ;
 
-        console.log(req.params.input, req.params.input.match(/-/g));
+        //console.log(req.params.input, req.params.input.match(/-/g));
 
         if (req.params.input.match(/-/g) == null) {
 
@@ -1795,6 +1801,7 @@ var myFuncs = {
             let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
 
             collectionHeadings.unshift('_id');
+            collectionHeadings = collectionHeadings.filter( val => val != "fixed" );
 
             model = await this.createModel(req.params.input);
             let dataRows = await model.find().lean();
@@ -1805,20 +1812,23 @@ var myFuncs = {
                         case (collectionHeadings[i] == 'properties'):
                             total.push(JSON.stringify(val[collectionHeadings[i]]));
                             break;
+                        case (collectionHeadings[i] == 'fixed'):
+                            break;
                         default:
                             total.push(val[collectionHeadings[i]]);
                     }
                 }
                 return {
                     array: total,
-                    object: val
+                    object: val,
+                    fixed: val.fixed 
                 };
             });
 
             req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
 
             let thisCollection = await Collections.findOne({name: req.params.input}).lean();
-            console.log(JSON.stringify({thisCollection: thisCollection}, 0, 2));
+            // //console.log(JSON.stringify({thisCollection: thisCollection}, 0, 2));
 
             output = {
                 schema: collectionsTable.find(val => val.name == req.params.input).properties,
@@ -1851,10 +1861,10 @@ var myFuncs = {
                 input: req.params.input
         });
 
-        console.log( chalk.bold.red ("session") );
-        console.log(req.session);
+        //console.log( chalk.bold.red ("session") );
+        //console.log(req.session);
 
-        // console.log(JSON.stringify(output,'',2));
+        // //console.log(JSON.stringify(output,'',2));
         return output;
 
     },
@@ -1904,11 +1914,11 @@ var myFuncs = {
                         break;
                     default:
                         total.push(val[collectionHeadings[i]]);
-                        console.log( val[collectionHeadings[i]] );
+                        //console.log( val[collectionHeadings[i]] );
                 }
             }
 
-            console.log(total);
+            //console.log(total);
             return {
                 array: total,
                 object: val
@@ -1964,7 +1974,7 @@ var myFuncs = {
     },
 
     forgotpw: async function(req,res) {
-        // console.log('Send a 4 digit code here');
+        // //console.log('Send a 4 digit code here');
         return {success: true}
     },
 
@@ -1988,7 +1998,7 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
-        // console.log('checking signin');
+        // //console.log('checking signin');
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         // if 7am does not have this user look into myapp. it can be an brand. 
@@ -2066,7 +2076,7 @@ var myFuncs = {
                 if (err) {
                   return reject(err);
                 }
-                // console.log(process.env.url);
+                // //console.log(process.env.url);
                 let localhost = process.env.url.includes("localhost:3000");
                 if (localhost == true) {
                     resolve('myFile.csv');
@@ -4239,7 +4249,7 @@ var myFuncs = {
 
         let model = await this.createModel(`${brand}-newsletters`);
         let output = await model.findOne({slug: templateSlug}).lean();
-        if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
+        if (output == null) return //console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
 
         let sentMails = await this.sendMail(
@@ -4270,7 +4280,7 @@ var myFuncs = {
             new: true
         }).lean();
 
-        // console.log(output);
+        // //console.log(output);
 
         if (output != null) {
             return {
@@ -4294,7 +4304,7 @@ var myFuncs = {
 
             output = await axios.post(URL, data)
                       .then(res => {
-                          // // console.log(res);
+                          // // //console.log(res);
                           return res;
                       })
                       .catch(error => {
@@ -4326,7 +4336,7 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-newsletters`);
         let output = await model.findOne({slug: req.params.input}).lean();
 
-        // console.log(output);
+        // //console.log(output);
 
         return {
             output: output,
@@ -4362,7 +4372,7 @@ var myFuncs = {
 
     roadMap: async function(req,res) {
         let output = await this.fetchAirtable('todos');
-        // console.log( output.data.records );
+        // //console.log( output.data.records );
         return {
             list: output.data.records.map( val => val.fields )
         }
@@ -4388,7 +4398,7 @@ var myFuncs = {
 
                 fs.readFile(path, 'utf8', (err, data) => {
                     if (err) {
-                        console.log(err);
+                        //console.log(err);
                         reject(err);
                     }
                     resolve( data );
@@ -4424,7 +4434,7 @@ var myFuncs = {
 
                 fs.writeFile(path, data, (err, data) => {
                     if (err) {
-                        console.log(err);
+                        //console.log(err);
                         reject(err);
                     }
                     resolve( data );
@@ -4708,7 +4718,7 @@ var myFuncs = {
             townStatus = 'd-none';
         }
 
-	    console.log(model);
+	    //console.log(model);
             
         let filters = {
             cities: await this.getCities(req,res),
@@ -4836,7 +4846,7 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-properties`);
 
-	console.log(model);
+	//console.log(model);
 
         let output = await model.aggregate([
             {
@@ -5397,12 +5407,12 @@ var myFuncs = {
 
         switch (true) {
             case (req.params.input == 'contactEmail'):
-                console.log( chalk.bold.blue( "SEND EMAIL to the OWNER EMAIL ADDRESS" ) );
-                console.log( chalk.bold.blue( "STORE THIS MSG AND DETAILS INTO CONTACT COLLECTION" ) );
+                //console.log( chalk.bold.blue( "SEND EMAIL to the OWNER EMAIL ADDRESS" ) );
+                //console.log( chalk.bold.blue( "STORE THIS MSG AND DETAILS INTO CONTACT COLLECTION" ) );
                 break;
             case (req.params.input == 'contactWhatsApp'):
-                console.log( chalk.bold.blue( "SENT WHATSAPP MSG FROM THE BROWSER" ) );
-                console.log( chalk.bold.blue( "STORE IN CONTACT COLLECTION" ) );
+                //console.log( chalk.bold.blue( "SENT WHATSAPP MSG FROM THE BROWSER" ) );
+                //console.log( chalk.bold.blue( "STORE IN CONTACT COLLECTION" ) );
                 break;
             default: 
                 break;
@@ -5441,18 +5451,18 @@ var myFuncs = {
 
         switch (true) {
             case (req.params.input == 'editProperty'):
-                console.log( chalk.bold.blue( "EDIT A PROPERTY" ) );
+                //console.log( chalk.bold.blue( "EDIT A PROPERTY" ) );
                 output = await editProperty();
                 break;
             case (req.params.input == 'addProperty'):
-                console.log( chalk.bold.blue( "ADD A PROPERTY" ) );
+                //console.log( chalk.bold.blue( "ADD A PROPERTY" ) );
                 output = await addProperty();
                 break;
             case (req.params.input == 'websiteContent'):
-                console.log( chalk.bold.blue( "EDIT WEBSITE CONTENT" ) );
+                //console.log( chalk.bold.blue( "EDIT WEBSITE CONTENT" ) );
                 break;
             case (req.params.input == 'statusChange'):
-                console.log( chalk.bold.blue( "EDIT THE PROPERTY STATUS" ) );
+                //console.log( chalk.bold.blue( "EDIT THE PROPERTY STATUS" ) );
                 break;
             default: 
                 break;

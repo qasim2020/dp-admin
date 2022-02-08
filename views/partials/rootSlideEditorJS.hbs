@@ -1,14 +1,25 @@
 <script>
-console.log("hello world");
 
 let readURL = function (elem) {
+
+    $(elem).closest(".placeholder").find("p.error").addClass("d-none");
 
     let afterCloudinary = function(val) {
 
         console.log(val);
-        $(elem).closest('p').prev().find('input').val(val.url);
-        $(elem).closest('.placeholder').prev().attr({ src: val.url, public_id: val.public_id.split('/')[ val.public_id.split('/').length - 1 ] }).keyup();
-        $(elem).next().html("IMAGE UPLOADED");
+        $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image — Done. Saving...").removeClass("d-none");
+
+        $(elem).closest(".webEditor").find('input[type="text"]').val(val.url);
+        $(elem).closest('.placeholder').prev().attr({ 
+            src: val.url, 
+            public_id: val.public_id.split('/')[ val.public_id.split('/').length - 1 ] 
+        }); 
+        $(".btn.saving").addClass("d-none");
+
+        $(elem).closest(".webEditor").attr({lock: "false"});
+        saveSlide( $(elem).closest(".webEditor") );
+        $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image – Done. Saving – Done.").removeClass("d-none");
+        // inputChanged( $(elem).closest(".webEditor").find('input[type="text"]') );
 
     };
 
@@ -17,12 +28,13 @@ let readURL = function (elem) {
         let data = {
             public_id: $(elem).closest('.placeholder').prev().attr("public_id"),
             img: img,
-            width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
-            height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
+            // width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
+            // height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
             };
 
         $(elem).closest(".placeholder").prev().attr({ src : img });
-        $(elem).next().html("UPLOADING IMAGE ...");
+        // $(".btn.saving").html("UPLOADING IMAGE...").removeClass("d-none");
+        $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image...").removeClass("d-none");
         console.log(data);
 
         $.ajax({
@@ -37,12 +49,137 @@ let readURL = function (elem) {
     if (elem.files && elem.files[0]) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            console.log("UPLOAD IMAGE TO CLOUDINARY");
             return uploadCloudinary(e.target.result);
         };
         reader.readAsDataURL(elem.files[0]);
     }
 }
+
+let inputChanged = function(elem) {
+    console.log(" input changed");
+    $(elem).closest(".placeholder").find("p.error").addClass("d-none");
+
+    let type = $(elem).closest(".placeholder").prev().prop("tagName");
+
+    if ( $(elem).val() == "" ) {
+        $(elem).closest(".placeholder").find("p.error.one").html("Please enter a value.").removeClass("d-none");
+        return console.log(" no value entered ");
+    }
+
+    function checkImage(url) {
+        console.log( url.match(/^(http)s*/g) );
+        if ( url.match(/^(http)s*:\/\//g) == null ) {
+              $(elem).closest(".placeholder").find("p.error.one").html("Image does not exist. Please enter correct link.").removeClass("d-none");
+              return console.log("invalid url");
+        }
+
+        $(elem).closest(".placeholder").find("p.error.one").html("Checking Image Link...").removeClass("d-none");
+
+        try {
+            var request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.send();
+            request.onload = function() {
+            status = request.status;
+                if (request.status == 200) {
+                    console.log(" image exists ");
+                    $(elem).closest(".placeholder").find("p.error.one").html("Image Exists. Saving...").removeClass("d-none");
+                    $(elem).closest(".webEditor").attr({lock: false});
+                    $(elem).closest(".placeholder").prev().attr({ src : $(elem).val() });
+                    saveSlide( $(elem).closest(".webEditor") );
+                    $(elem).closest(".placeholder").find("p.error.one").html("Image Exists. Save Completed.").removeClass("d-none");
+                } else {
+                    $(elem).closest(".placeholder").find("p.error.one").html("Image does not exist. Please enter correct link.").removeClass("d-none");
+                    console.log(" image does not exist" );
+                }
+            }
+            request.onerror = function(val) {
+                $(elem).closest(".placeholder").find("p.error.one").html("Image does not exist. Please enter correct link.").removeClass("d-none");
+                console.log(" image does not exist " );
+            }
+        } catch (e) {
+            $(elem).closest(".placeholder").find("p.error.one").html("Image does not exist. Please enter correct link.").removeClass("d-none");
+            console.log(e);
+        }
+    }
+
+
+    if (type == "IMG") {
+        console.log( "check if this image src is valid or not" );
+        $(elem).closest(".webEditor").attr({lock: true});
+        checkImage( $(elem).val() );
+        return;
+    } else if (type == "A") {
+        console.log( "Change Src to Href  also");
+        $(elem).closest(".webEditor").attr({lock: false});
+        $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
+    }
+};
+
+let saveSlide = function(elem, content) {
+
+
+    if ( $(elem).attr("lock") == "true" ) {
+        return console.log("webEditor is Locked");
+    };
+
+    console.log(" webEditor is not LOCKED");
+    console.log(" saving slide ");
+
+    if ( content == undefined ) {
+        let temp;
+        temp = $(elem).clone();
+        temp.find("*").removeAttr("contenteditable");
+        temp.find(".e").attr({onclick: temp.find(".e").attr("onclick").replace(/editable\(this\)/g, "") });
+        temp.find(".placeholder").remove();
+        content = temp.html();
+    }
+
+    return saveInput(elem, $(elem).attr("_id"), "webEditor", content);
+
+};
+
+let editable = function(elem) {
+
+    $(elem).closest(".webEditor").attr({lock: "false"});
+    console.log(" unlocked webEditor");
+
+    let type = $(elem).prop("tagName");
+
+    if ( $(elem).next().hasClass("placeholder") ) { 
+        $(elem).next().remove();
+        return console.log( "Placeholder is already placed next to this element" );
+    };
+
+    let absoluteOrRelative = function() {
+
+        if ( $(elem).css("position") == "absolute" ) {
+
+            console.log( "making placeholder absolute" );
+            $(elem).next().css({position: "absolute"});
+
+        }
+
+    };
+
+    switch (true) {
+        case ( type == "IMG" ) :
+            console.log("Upload an Image or ADD the source of img below");
+            $(".placeholders > .img").clone().insertAfter( elem ).find("input:eq(0)").val( $(elem).attr("src") )
+                .closest("p").next().find(".btn.white")
+                .html( $(".btn.white").html() + ` ( ${ $(elem).css("width").match(/\d+/g) } x ${ $(elem).css("height").match(/\d+/g) } )` );
+            absoluteOrRelative();
+            break;
+        case ( type == "A" ) :
+            console.log("Add the SRC inpute below this button");
+            $(".placeholders > .href").clone().insertAfter( elem ).find("input").val( $(elem).attr("href") );
+            absoluteOrRelative();
+            break;
+        default: 
+            break;
+    }
+
+};
 
 var editor = CodeMirror(document.getElementById("editor"),{
     lineNumbers: true,
@@ -67,142 +204,4 @@ let toggleMode = function(elem) {
 
 };
 
-let openSlideEditor = function(elem, slide){
-
-        let setEditable = function() {
-
-            console.log(" alloting the attributes ");
-            $(".slide-editor > .slide > div .e").attr({ onclick: "editable(this)" });
-
-        };
-
-        let style = `[style=${ $(elem).attr('style') }]`;
-
-        if (slide == "new") {
-
-            let updateElemId = function(val) {
-
-                $(".slide-editor > .slide").remove();
-                $(".slide-new").find(style).clone().appendTo(".slide-editor").removeClass('d-none')
-                    .attr({ 
-                        id : val,
-                        sequence: $("#sortable > .sortable").length + 1
-                        });
-                setEditable();
-            };
-
-            $.ajax({
-                    url: "/{{data.brand}}/{{data.permit}}/data/getMongoId/n",
-                    method: "GET",
-                    success: val => updateElemId(val),
-                    error: (err, status, response) => console.log(err)
-                });
-
-        } else {
-            let content = $(elem).attr('content');
-            console.log({content, style});
-            // $(".slide-editor").find(".slide").remove();
-            $(".slide-new").find(style).clone().appendTo(".slide-editor").html(content).removeClass('d-none')
-                .attr({ 
-                        id : $(elem).attr('id'),
-                        sequence: $(elem).attr('sequence')
-                    });
-            setEditable();
-        }
-
-
-};
-
-    let saveSlide = function(elem, content) {
-
-            if ( $(elem).attr("id").match(/temp/g) ) {
-                $(".saved-templates > .box-top > button").attr({refreshwindow: true});
-            }
-
-            if ( $(elem).closest(".formBox").hasClass("slide-editor") ) {
-                $(".slide-editor > .box-top > button").attr({refreshwindow: true});
-            }
-
-            if ( content == undefined ) {
-                let temp;
-                temp = $(elem).closest(".slide-editor").clone();
-                temp.find("*").removeAttr("contenteditable");
-                console.log( temp.find(".e").attr("onclick").replace(/editable\(this\)/g,"") );
-                temp.find(".e").attr({onclick: temp.find(".e").attr("onclick").replace(/editable\(this\)/g, "") });
-                temp.find(".placeholder").remove();
-                content = temp.find(".slide").html();
-            }
-
-            $.ajax({
-                url: `/{{data.brand}}/{{data.permit}}/data/saveSlide/${ $(elem).attr('id') }`,
-                data: {
-                    style: $(elem).attr('style'),
-                    sequence: $(elem).attr('sequence'),
-                    content: content
-                    },
-                method: "POST",
-                success: val => {
-                    $(elem).attr({id: val._id});
-                },
-                error: (req,status,err) => console.log(err.responseText)
-            });
-
-        };
-
-    let editable = function(elem) {
-
-            let type = $(elem).prop("tagName");
-
-            console.log( $(elem).next() );
-
-            if ( $(elem).next().hasClass("placeholder") ) { 
-                    $(elem).next().remove();
-                    return console.log( "Placeholder is already placed next to this element" );
-                };
-
-            $(elem).attr({contenteditable: true});
-
-            let absoluteOrRelative = function() {
-
-                    if ( $(elem).css("position") == "absolute" ) {
-
-                            console.log( "making placeholder absolute" );
-                            $(elem).next().css({position: "absolute"});
-
-                        }
-
-                };
-
-            switch (true) {
-                    case ( type == "IMG" ) :
-                        console.log("Upload an Image or ADD the source of img below");
-                        $(".placeholders > .img").clone().insertAfter( elem ).find("input:eq(0)").val( $(elem).attr("src") )
-                            .closest("p").next().find(".btn.white")
-                            .html( $(".btn.white").html() + ` ( ${ $(elem).css("width").match(/\d+/g) } x ${ $(elem).css("height").match(/\d+/g) } RATIO )` );
-                        absoluteOrRelative();
-                        break;
-                    case ( type == "A" ) :
-                        console.log("Add the SRC inpute below this button");
-                        $(".placeholders > .href").clone().insertAfter( elem ).find("input").val( $(elem).attr("href") );
-                        absoluteOrRelative();
-                        break;
-                    default: 
-                        console.log("don't do anything");
-                        break;
-                }
-        };
-
-    let inputChanged = function(elem) {
-            console.log("input value has been changed");
-            let type = $(elem).closest(".placeholder").prev().prop("tagName");
-
-            if (type == "IMG") {
-                console.log( $(elem).closest(".placeholder").prev() );
-                $(elem).closest(".placeholder").prev().attr({ src : $(elem).val() });
-            } else if (type == "A") {
-                $(elem).closest(".placeholder").prev().attr({ href : $(elem).val() });
-            }
-        };
-
-
-    </script>
+</script>

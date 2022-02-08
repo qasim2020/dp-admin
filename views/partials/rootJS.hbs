@@ -2,75 +2,76 @@
 
 $(document).pjax('a[data-pjax]', '#pjax-container');
 
-$.pjax.defaults.scrollTo = false;
-$.pjax.defaults.timeout = false;
+    $.pjax.defaults.scrollTo = false;
+    $.pjax.defaults.timeout = false;
 
-let hideMe = function(elem) {
+    let hideMe = function(elem) {
 
-    let col  = {
-        no: $("th").index(elem),
-        name: $(elem).html(),
-        index: $(elem).attr("index")
-    };
+        let col  = {
+            no: $("th").index(elem),
+            name: $(elem).html(),
+            index: $(elem).attr("index")
+        };
 
-    console.log({col});
+        console.log({col});
 
-    $(elem).addClass("d-none");
-    $(`.${col.index}`).addClass("d-none");
+        $(elem).addClass("d-none");
+        $(`.${col.index}`).addClass("d-none");
 
-    let span = `<span index=${col.index} onclick=showMe(this)>${col.name}</span>`;
-    $("#hiddenFields").html( $("#hiddenFields").html() + span );
-
-};
-
-let showMe = function(elem) {
-
-    let index = $(elem).attr("index");
-
-    $(elem).remove();
-    $(`tr > [index=${index}]`).removeClass("d-none");
-    $(`.${index}`).removeClass("d-none");
-
-}
-
-let createForm = function(elem) {
-
-    let constructData = function(row) {
-
-        let headings = $(".headings").get().map( val => {
-            return {
-                heading: $(val).attr("formname") ,
-                index: $(val).attr("index")
-            };
-
-        });
-
-        let mydata = headings.reduce( (total, val) => {
-
-            // TODO: SAVE IN THE HTML
-            if ($(`#${row} > .${val.index}`).hasClass("page")) {
-                Object.assign( total, {
-                    [val.heading] : $(`#${row} > .${val.index}`).attr("mydata")
-                });
-            } else {
-                Object.assign( total, {
-                    [val.heading] : $(`#${row} > .${val.index}`).html()
-                });
-            }
-
-            return total;
-
-        },{});
-
-        console.log( mydata );
-
-        return mydata;
+        let span = `<span index=${col.index} onclick=showMe(this)>${col.name}</span>`;
+        $("#hiddenFields").html( $("#hiddenFields").html() + span );
 
     };
+
+    let showMe = function(elem) {
+
+        let index = $(elem).attr("index");
+
+        $(elem).remove();
+        $(`tr > [index=${index}]`).removeClass("d-none");
+        $(`.${index}`).removeClass("d-none");
+
+    }
+
+    let createForm = function(elem) {
+
+        let constructData = function(row) {
+
+            let headings = $(".headings").get().map( val => {
+                return {
+                    heading: $(val).attr("formname") ,
+                    index: $(val).attr("index")
+                };
+
+            });
+
+            let mydata = headings.reduce( (total, val) => {
+
+                if ($(`#${row} > .${val.index}`).hasClass("page")) {
+                    Object.assign( total, {
+                        [val.heading] : $(`#${row} > .${val.index}`).attr("mydata").trim()
+                    });
+                } else {
+                    Object.assign( total, {
+                        [val.heading] : $(`#${row} > .${val.index}`).html().trim()
+                    });
+                }
+
+                return total;
+
+            },{});
+
+            console.log( mydata );
+
+            return mydata;
+
+        };
 
     let data = constructData( $(elem).closest("tr").attr("id") );
 
     let schema = JSON.parse( $(elem).closest("table").attr("schema") );
+
+    console.log(schema); 
 
     let elems = $(".headings").map( (key,val) => {
         switch (true) {
@@ -96,7 +97,9 @@ let createForm = function(elem) {
         };
     }).get();
 
-    let formString = elems.reduce( (total,val, key) => { 
+    console.log(elems);
+
+    let formString = elems.reduce( (total, val, key) => { 
             if (val.html == 'ckEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
@@ -105,8 +108,7 @@ let createForm = function(elem) {
             } else if (val.html == 'webEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
-                   <div class="webEditor" name="${val.name}" onclick="openSlideEditor(this, 'old' )">${val.value}</div> `;
-                // TODO: SLIDE-INTRO SHOULD BE PART OF THE DIV WHICH IS STORED IN DB; KEEP IT DRY.... ok bro...
+                   <div class="webEditor" name="${val.name}" _id="${data._id}" onkeyup="saveSlide(this)">${val.value}</div> `;
             } else {
                 total = total +  `
                     <label for="${val.name}">${val.label}</label>
@@ -119,21 +121,29 @@ let createForm = function(elem) {
     let form = `
         <form action="" row=${ $(elem).closest("tr").attr("id") }> 
             ${formString} 
+            <div>
             <button type="button" class="btn close" onclick="openLayer('.formBox', '.layerOne')">CLOSE</button> 
             <button type="button" class="btn saving d-none" disabled>SAVING...</button>
+            </div>
         </form>
         `;
 
     $(".layerOne").addClass("d-none");
     $(".formBox").html(form).removeClass("d-none");
 
+    if ( document.querySelector( ".webEditor" ) ) {
+        $(".webEditor .e").attr({ 
+                contenteditable: true,
+                onclick: "editable(this)" 
+            });
+    };
 
     if ( document.querySelector( "#editor" ) ) {
         ClassicEditor
                 .create( document.querySelector( "#editor" ) ,{
                     simpleUpload: {
                         // The URL that the images are uploaded to.
-                        uploadUrl: '/{{data.brand}}/admin/data/uploadImage/n',
+                        uploadUrl: '/${urlParams().brand}/admin/data/uploadImage/n',
 
                         // Enable the XMLHttpRequest.withCredentials property.
                         withCredentials: true,
@@ -171,13 +181,9 @@ let createForm = function(elem) {
 
         let changeConnectedData = function(row, value) {
 
-            console.log( $(elem).attr("name") );
-
             let col = $(`[formname=${ $(elem).attr("name") }`).attr("index");
 
-            console.log({ col, row });
-
-            if ( type == "ckEditor" ) {
+            if ( type == "ckEditor" || type == "webEditor" ) {
                 $(`#${row} > .${col}`).addClass("page").attr({mydata: value}); 
                 $(`#${row} > .${col}`).html(`<a class="icon" onclick="createForm(this)">
                             <i class="fas fa-expand-alt black"></i>
@@ -187,29 +193,35 @@ let createForm = function(elem) {
                 $(`#${row} > .${col}`).html(value); 
             }
 
-            return console.log("data changed in table also");
+            return;
 
         };
 
-        let data = {};
+        let data = {}, name = "";
         switch (true) { 
             case (type == "ckEditor") :
-                console.log(optData);
                 changeConnectedData( $(elem).closest("form").attr("row"), `<div>${optData}</div>` );
                 data[$(elem).attr("name")] = optData ;
+                break;
+            case (type == "webEditor") :
+                changeConnectedData( $(elem).closest("form").attr("row"), `${optData}`);
+                data[$(elem).attr("name")] = optData;
                 break;
             case (type == "form") : 
                 changeConnectedData( $(elem).closest("form").attr("row"), $(elem).val() );
                 data[$(elem).attr("name")] =  $(elem).val() ;
                 break;
             case (type == "td" ) :
-                let name = $(`[index=${ $(elem).attr("class") }`).attr("formname");
+                name = $(`[index=${ $(elem).attr("class") }`).attr("formname");
                 if ( name == "_id" ) return; 
                 data[name] = $(elem).html(); 
                 break; 
+            case (type == "cloned") :
+                name = $(`[index=${ $(elem).attr("class").replace("page", "").trim() }`).attr("formname");
+                if ( name == "_id" ) return; 
+                data[name] = optData;
+                break;
         }
-
-        console.log( {data, _id} );
 
         if ( _id == "" ) {
             _id = $(elem).closest("tr").find(".col0").html();
@@ -218,11 +230,12 @@ let createForm = function(elem) {
         $(".btn.saving").html("SAVING...").removeClass("d-none");
 
         $.ajax({
-            url: `/{{data.brand}}/admin/data/updateDocument/{{data.modelName}}?_id=${_id}`,
+            url: `/${urlParams().brand}/admin/data/updateDocument/${urlParams().input}?_id=${_id}`,
             method: "POST",
             data: data,
             success: val => {
-                console.log(val);
+                // console.log(val);
+                console.log( "Saved in Database" );
                 $(".btn.saving").addClass("d-none");
             },
             }).fail( val => {
@@ -232,14 +245,134 @@ let createForm = function(elem) {
 
     };
 
-    let addNewRow = function() {
+    let urlParams = function() {
+
+        let url = {
+            brand: window.location.pathname.split("/")[1],
+            permit: window.location.pathname.split("/")[2],
+            requiredType: window.location.pathname.split("/")[3],
+            module: window.location.pathname.split("/")[4],
+            input: window.location.pathname.split("/")[5],
+        };
+
+        return url;
+
+    };
+
+
+    let cloneMe = function(elem, type, _id) {
+
+        type = type.split("-")[1];
+        console.log(elem, type);
+
+        $(elem).closest("tr").find("td").map( (key,val) => {
+
+            if ( key < 2 ) return;
+
+            $("tr:eq(-1)").find(`td.col${key - 1}`).remove();
+
+            var attr = $(val).attr('mydata');
+
+            if (typeof attr !== 'undefined' && attr !== false) {
+
+                $(val).clone().appendTo("tr:eq(-1)").removeAttr("onkeyup");
+
+            } else {
+
+                $(val).clone().appendTo("tr:eq(-1)").attr({
+                   onkeyup: `saveInput(this, '${_id}', 'td')`
+                });
+
+            }
+
+        });
+
+        let saveRow = function() {
+
+            console.log(" get entire rows inputs and one by one run saveInput on each value");
+
+            $("tr:eq(-1)").find("td").map( (key,val) => {
+
+                console.log(key,val);
+
+                if ( key < 2 ) return;
+
+                if ( $(val).hasClass("page") ) {
+
+                    saveInput( val, _id, "cloned", $(val).attr("mydata") );
+
+                } else {
+
+                    saveInput( val, _id, "cloned", $(val).html() );
+
+                }
+                    
+            });
+
+        };
+
+
+        let slideCloner = function() {
+
+           let col  = $(elem).closest("table").find("[formname='sequence']").attr("index");
+           let array = $("table").find(`.${col}`).map( (key,val) => {
+               if (key == 0) return;
+               console.log( $(val).html() );
+               return Number($(val).html());
+           }).get();
+                               
+           $("tr:eq(-1)").find(`.${col}`).html(Math.max(...array) + 1);
+
+        };
+
+        let pageCloner = function() {
+
+           let col  = {
+               ser: $(elem).closest("table").find("[formname='ser']").attr("index"),
+               slug : $(elem).closest("table").find("[formname='slug']").attr("index")
+           };
+
+           let array = $("table").find(`.${col.ser}`).map( (key,val) => {
+               if (key == 0) return;
+               return Number($(val).html());
+           }).get();
+                               
+           $("tr:eq(-1)").find(`.${col.ser}`).html(Math.max(...array) + 1);
+
+           let slugValue = $("tr:eq(-1)").find(`.${col.slug}`).html().trim() + `-${Math.max(...array)+1}`;
+           $("tr:eq(-1)").find(`.${col.slug}`).html(slugValue);
+
+        };
+
+        switch (true) {
+            case (type == "slides") :
+                console.log(" clone the slide");
+                slideCloner();
+                saveRow();
+                break;
+            case (type == "properties" ) :
+            case (type == "pages" ) :
+                console.log(" clone the page");
+                pageCloner();
+                saveRow();
+                break;
+            default: 
+                console.log(" it should not happen");
+                break;
+        };
+
+            
+    };
+
+    let addNewRow = function(cloneMe, elem, type) {
         
-        $.get("/{{data.brand}}/admin/data/getMongoId/n", function( data, status ){
-            console.log(data, status);
+        $.get("/${urlParams().brand}/admin/data/getMongoId/n", function( data, status ){
+            // console.log(data, status);
             if (status != "success") return alert("could not get the id");
             $("tr:eq(-1)").clone().attr({id: "row" + ( $("tr").get().length - 1 )}).appendTo("tbody").removeClass("d-none")
                 .find("td:not(:first-child)").html("").attr({onkeyup: `saveInput(this,'${data}','td')`})
                 .closest("tr").find(".col0").html(data);
+            if (cloneMe) cloneMe(elem, type, data);
         });
 
     }
@@ -248,14 +381,13 @@ let createForm = function(elem) {
 
         let _id = $(elem).closest("tr").find(".col0").html();
 
-        $.get(`/{{data.brand}}/admin/data/deleteDocument/{{data.modelName}}?_id=${_id}`, function( data, status ) {
+        $.get(`/${urlParams().brand}/admin/data/deleteDocument/${urlParams().input}?_id=${_id}`, function( data, status ) {
 
             console.log(data, status);
             if (status != "success") return alert("could not get the id"); 
             $(elem).closest("tr").remove();
 
         });
-
 
     };
 
@@ -287,7 +419,7 @@ let createForm = function(elem) {
             $(elem).html("Testing Values...");
 
             $.ajax({
-                    url: `/{{data.brand}}/{{data.permit}}/data/saveAirtableURLs/{{data.input}}`,
+                    url: `/${urlParams().brand}/${urlParams().permit}/data/saveAirtableURLs/${urlParams().input}`,
                     method: "POST",
                     data: data,
                     success: val => {
@@ -305,7 +437,7 @@ let createForm = function(elem) {
     let importAndMerge = function(elem, input) {
 
             $.ajax({
-                    url: `/{{data.brand}}/{{data.permit}}/data/importAndMerge/${input}`,
+                    url: `/${urlParams().brand}/${urlParams().permit}/data/importAndMerge/${input}`,
                     method: "GET",
                     success: val => {
                             console.log(val);

@@ -72,7 +72,7 @@
         top: 0;
     }
 
-    [contenteditable = true] {
+    td[contenteditable = true] {
         color: black;
     }
 
@@ -107,7 +107,7 @@
 
 <div class="table">
     <button class="btn" onclick="openContainerLayer('.table','.airtableKeys')">Airtable Pull</button>
-    <button class="btn" onclick="addNewRow()">Add New Row</button>
+    <!-- <button class="btn" onclick="addNewRow()">Add New Row</button> -->
     <button class="btn saving d-none">SAVING...</button>
     <div id="hiddenFields"> </div>
     <table schema="{{json schema}}">
@@ -127,7 +127,11 @@
             <tr id="row{{@index}}">
                 <td>
                     {{#if (matchValues this.fixed "true")}}
-                    <a class="icon"></a>
+                        {{#if (matchValues this.noClone "true")}}
+                        <a class="icon" href=""></a>
+                        {{else}}
+                        <a my-data="{{json this}}" class="icon" onclick="addNewRow(cloneMe, this, '{{../data.modelName}}')"><i class="fas fa-copy"></i></a>
+                        {{/if}}
                     {{else}}
                     <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
                     {{/if}}
@@ -144,7 +148,11 @@
 
                     {{else}}
 
-                    <td class="col{{@index}}" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} onkeyup="saveInput(this,'{{../array.[0]}}','td')" >{{#unless (matchValues this '[object Object]')}}{{this}}{{/unless}}</td>
+                    <td 
+                        class="col{{@index}}" 
+                        {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} 
+                        onkeyup="saveInput(this,'{{../array.[0]}}','td')" >{{#unless (matchValues this '[object Object]')}}{{this}}{{/unless}}
+                    </td>
 
                     {{/if}}
                 {{/each}}

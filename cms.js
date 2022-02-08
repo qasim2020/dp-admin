@@ -988,7 +988,7 @@ var myFuncs = {
             try {
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-                //console.log({modelExistsAlready, schemaExistsAlready});
+                console.log({modelExistsAlready, schemaExistsAlready});
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
@@ -1801,7 +1801,7 @@ var myFuncs = {
             let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
 
             collectionHeadings.unshift('_id');
-            collectionHeadings = collectionHeadings.filter( val => val != "fixed" );
+            collectionHeadings = collectionHeadings.filter( val => val != "fixed" && val != "noClone" );
 
             model = await this.createModel(req.params.input);
             let dataRows = await model.find().lean();
@@ -1812,7 +1812,7 @@ var myFuncs = {
                         case (collectionHeadings[i] == 'properties'):
                             total.push(JSON.stringify(val[collectionHeadings[i]]));
                             break;
-                        case (collectionHeadings[i] == 'fixed'):
+                        case (collectionHeadings[i] == /fixed|noClone/g):
                             break;
                         default:
                             total.push(val[collectionHeadings[i]]);
@@ -1821,14 +1821,14 @@ var myFuncs = {
                 return {
                     array: total,
                     object: val,
-                    fixed: val.fixed 
+                    fixed: val.fixed,
+                    noClone: val.noClone
                 };
             });
 
             req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
 
             let thisCollection = await Collections.findOne({name: req.params.input}).lean();
-            // //console.log(JSON.stringify({thisCollection: thisCollection}, 0, 2));
 
             output = {
                 schema: collectionsTable.find(val => val.name == req.params.input).properties,

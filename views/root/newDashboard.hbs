@@ -157,6 +157,69 @@
         margin-bottom: 10px;
     }
 
+    .webEditor .e:hover {
+        cursor: pointer;
+    }
+    
+    .placeholder.img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: black;
+        padding: 12px;
+        max-width: 600px;
+        width: 70%;
+        border: 2px solid dimgrey;
+    }
+
+    .placeholder.img > p.error {
+        padding: 0px 0 9px 0;
+        color: yellow;
+        font-size: 14px;
+    }
+
+    .placeholder.img > p {
+        margin: 0px;
+    }
+
+    .placeholder.img > p > span {
+        font-size: 12px;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: white;
+        display: block;
+    }
+
+    .placeholder.img > p > input, .placeholder.img > p > .btn {
+        border: white;
+    }
+
+    .placeholder.img > p > input , 
+    .placeholder.href > p > input {
+        font-size: 15px;
+        padding: 10px;
+        border: 2px solid white;
+        margin-bottom: 10px;
+    }
+
+
+    .placeholder.img > p > input[type="file"] {
+        color: white;
+    }
+
+    .placeholder.img > p > .btn {
+        background: black;
+        color: white;
+        border: 2px solid white;
+        font-weight: bold;
+        height: auto;
+    }
+
+    .placeholder.href > p {
+        margin-bottom: 0px;
+    }
+
     {{#if (matchValues data.theme "property")}}
         {{> cssSnippets/propertyTemplates}}
     {{/if}}
@@ -177,11 +240,19 @@
 
         <div>
             {{#each ( split data.collections )}} 
-                <a class="btn pjaxTrigger {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}" href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" data-pjax onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
+                <a 
+                   class="btn pjaxTrigger {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}" 
+                   href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" 
+                   data-pjax 
+                   onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
             {{#if data.modules}}
             {{#each ( split data.modules ) }} 
-                <a class="btn pjaxTrigger {{#if (matchValues ../data.input this)}} active {{/if}}" href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" data-pjax onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
+                <a 
+                    class="btn pjaxTrigger {{#if (matchValues ../data.input this)}} active {{/if}}" 
+                    href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" 
+                    data-pjax 
+                    onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
             {{/if}}
         </div>
@@ -206,10 +277,38 @@
     
     </div>
 
-    <!-- DO NOT DELETE THIS FORM -->
+    <!-- DO NOT DELETE BELOW FORM -->
     <div class="formBox d-none">
 
     </div>
+
+    <div class="placeholders d-none">
+
+        <div class="href placeholder">
+            <p>
+                <input type="text" placeholder="https://...." onkeyup="inputChanged(this)">
+            </p>
+        </div>
+
+        <div class="img placeholder">
+
+            <p>
+                <span>ENTER IMAGE LINK</span>
+                <input type="text" placeholder="https://...." onkeyup="inputChanged(this)">
+                <p class="error one d-none">Image does not exist. Please enter correct URL.</p>
+            </p>
+
+            <p>
+                <span>OR UPLOAD IMAGE MANUALLY</span>
+                <input class="" type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
+                <p class="error two d-none">Image does not exist. Please enter correct URL.</p>
+                <!-- <button class="btn white w-100" onclick="$(this).prev().click();">Upload Image</button> -->
+            </p>
+        
+        </div>
+
+    </div>
+    <!-- DO NOT DELETE ABOVE FORM -->
 
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>

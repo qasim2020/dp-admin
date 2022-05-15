@@ -237,6 +237,10 @@
         background: black;
     }
 
+    .listedFKs .card.disabled {
+        opacity: 0.5;
+    }
+
     .listedFKs .card > div {
         display: flex;
         flex-direction: column;
@@ -571,7 +575,7 @@
                                     {{#each this.val}}
 
                                     <div class="fields items" myId="{{this.id}}">
-                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this); saveQuantityFK(this,'multipleFK')">
+                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this)">
                                         <i onclick="deleteQuantityFK(this)" class="fas fa-trash"></i>
                                     </div>
 
@@ -616,7 +620,7 @@
                                             <button onclick="changeQuantityFK(this, 1)"><i class="fas fa-plus"></i></button>
                                         </p>
                                         <i class="fas fa-times"></i>
-                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this); saveQuantityFK(this)">
+                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this)">
                                         <i onclick="deleteQuantityFK(this)" class="fas fa-trash"></i>
                                     </div>
 

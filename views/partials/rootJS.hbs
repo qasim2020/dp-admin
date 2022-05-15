@@ -17,32 +17,39 @@ let urlParams = function() {
 
 let calcOrder = function(elem, key) {
 
-    if ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") == "" ) {
+    console.log ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") );
+
+    if ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") == "[]" ) {
 
         return $(elem).find("span").html("0");
 
     };
 
-    // console.log( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") ||  $(elem).closest("form").find(`[key=${key}]`).attr("mydata") )
-    if ( 
-        ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") ||  $(elem).closest("form").find(`[key=${key}]`).attr("mydata") ) == undefined 
-       ) return console.log("not calc order due to undefined")
+    if ( ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") ||  $(elem).closest("form").find(`[key=${key}]`).attr("mydata") ) == undefined ) return $(elem).find("span").html("0");
 
     let data = {
         items : JSON.parse( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") || $(elem).closest("form").find(`[key=${key}]`).attr("mydata") ) ,
         FK    : $(elem).closest("tr").find(`[key=${key}]`).attr("FK") || $(elem).closest("form").find(`[key=${key}]`).attr("FK")
     };
 
-    // console.log( data );
-
     let refreshData = function( val ) {
 
-        let sum = val.reduce( (total, price) => {
+        let sum ;
 
-            total += price[0].multiplied;
-            return total;
+        if (val.some( item => item.length == 0 ) ) {
 
-        },0);
+            sum = "Invalid data";
+
+        } else {
+
+            sum = val.reduce( (total, price) => {
+
+                total += price[0].multiplied;
+                return total;
+
+
+            },0);
+        };
 
         $(elem).closest(".formula").find("span").html(sum);
         $(elem).closest(".formula").attr({mydata: sum});
@@ -185,9 +192,9 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                     <div
                         index="${val.index}"
                         mydata='${val.value}'
-                        class="fixed pointer photos"
+                        class="fixed photos"
                         >
-                       <span onclick="uploadImages(this)">${JSON.parse(val.value).length}x photo(s)</span>
+                       <span class="pointer" onclick="uploadImages(this)">${JSON.parse(val.value).length}x photo(s)</span>
                     </div>
                 `;
 
@@ -854,7 +861,8 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         let myArray = val.output;
 
-        myArray.sort(function(a, b){
+        myArray.sort( function(a,b) {
+
             let calcScore = function(val) {
                 let output = val.reduce( (total, sss) => { 
                     let cell = Object.entries(sss)[0];
@@ -863,9 +871,12 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                     return total;
                 }, "" );
                 let re = new RegExp( $(elem).val() || $(elem).html().trim() , 'i')
+
                 return re.test(output) ? 1 :  -1;
             };
+
             return calcScore(b) - calcScore(a);
+
         });
 
         let entries = myArray;
@@ -916,7 +927,14 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                 col : $(elem).closest(".fixed").attr("index")
             };
 
-            return `<div class="card pointer" my-ser="${findings.ser}" my-slug="${findings.slug}" row="${ findings.row }" col="${ findings.col }" input="${ $(elem).attr('index') }" onclick="updateCellFK(this, '${type}')" >${output}</div>`;
+            return `<div 
+                class="card pointer" 
+                my-ser="${findings.ser}" 
+                my-slug="${findings.slug}" 
+                row="${ findings.row }" 
+                col="${ findings.col }" 
+                input="${ $(elem).attr('index') }" 
+                onclick="updateCellFK(this, '${type}')">${output}</div>`;
         });
 
         entries = entries.reduce( (total, val) => total = total + val, "" );
@@ -947,6 +965,22 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             $(elem).closest(".FK").find(".listedFKs > .searchedItems").remove();
             $(elem).closest(".FK").find(".listedFKs").append(`<div class="searchedItems">${entries}</div>`);
             $(elem).closest(".FK").find(".listedFKs .card:eq(0)").addClass("active");
+
+            // ALREADY SELECTED ITEMS ARE MADE DISABLED
+
+            let alreadySelected = $(elem).closest(".FK").find("input").get().map( val => $(val).val() );
+
+            var index = alreadySelected.indexOf( $(elem).val() || $(elem).html() );
+            if (index !== -1) {
+                  alreadySelected.splice(index, 1);
+            }
+
+            alreadySelected.forEach( val => {
+                $(elem).closest(".FK").find(`[my-slug='${val}'`).get().forEach( val => { 
+                    $(val).addClass("disabled").removeClass("active pointer").attr({onclick: ""});
+                    $(val).siblings(".card:not(.disabled):eq(0)").addClass("active");
+                });
+            })
 
         }
 
@@ -1024,6 +1058,8 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let updateCellFK = function(elem, type) {
 
+        $(elem).addClass("active").siblings(".card").removeClass("active");
+
         let findings = {
             row: $(elem).attr("row"),
             col: $(elem).attr("col"),
@@ -1035,8 +1071,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             elem: $(` [id=${findings.row}] > [index=${findings.col}] `),
             _id: $(` [id=${findings.row}] > [index=col0] `).html().trim()
         });
-
-        console.log({type});
 
         if ( type == "selectFK" ) {
 
@@ -1206,6 +1240,10 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let getMyId = function(elem) {
 
+        elem = $(elem).get().length == 0 ? $(".cellBox:not(.d-none)") : elem;
+
+        console.log(elem , $(elem).get().length, $(".cellBox:not(.d-none)") );
+
         let _id = "";
         try {
            _id = $(elem).closest("tr").find("td:eq(1)").html().trim(); 
@@ -1306,8 +1344,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         }
 
-        console.log( { type, html } );
-
         $(elem).closest(".FK").find(".cellBox > .static > button").before(html);
         $(elem).closest(".FK").find(".cellBox > .static > .fields:eq(-1) > input").focus();
 
@@ -1340,8 +1376,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                 }
             });
         };
-
-        console.log(data);
 
         $.ajax({
             url: `/${urlParams().brand}/admin/data/saveItemInArray/${urlParams().input}`,
@@ -1376,6 +1410,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                 console.log(val[data.key]);
                 let FK = $(elem).closest(".FK");
                 $(elem).closest(".fields").remove();
+                $(FK).find("[index]:eq(0)").focus();
                 refreshQuantityData(FK); 
             }
         }).fail( error => console.log(error) );
@@ -1393,6 +1428,12 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
     };
 
     let refreshQuantityData = function( elem ) {
+            
+        $(elem).find("[index]").get().forEach( (val, index)  => {
+            $(val).attr({index: index});
+        });
+
+        console.log( " refreshing quantity data ");
 
         let array = [], html = "", fields = "";
 

@@ -56,7 +56,7 @@
             width: 700px;
             margin: auto;
             border: 1px solid black;
-            padding: 2rem;
+            padding: 10px;
             background: black;
             color: white;
             display: grid;
@@ -67,20 +67,45 @@
             width: 100%;
             box-sizing: border-box;
             margin: auto;
-            border: 1px solid lightgrey;
             padding: 10px;
         }
 
         .modal > div > * {
+            margin: 10px 0;
         }
 
         .modal > button {
             margin-top: 10px;
         }
 
+        .modal.dropdown > div {
+            grid-column: 1/-1;
+        }
+
+        .modal.dropdown > div > input {
+            width: 100%;
+            font-weight: bold;
+            height: 1.5rem;
+            margin-bottom: 10px;
+            border: white;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .modal.dropdown > div > button {
+            background: white;
+            border: 1px solid white;
+        }
+
         .d-none {
             display: none !important;
         }
+
+        input[type="checkbox"] {
+            width: inherit;
+            margin: 0 15px;
+        }
+            
     </style>
 </head>
 
@@ -107,7 +132,7 @@
       {{#unless data.inputs}}
       <div class="propertySelect">
 
-          <input name="label0" type="text" placeholder="Label" value="">
+          <input type="text" class="label" id="label0" placeholder="Label" value="label">
 
           <select class="check"  name="type0" id="type0">
             {{#each data.types}}
@@ -115,12 +140,11 @@
             {{/each}}
           </select>
 
-          <input type="radio" id="req0"  name="req0" value=true checked>
-          <label for="req0">true</label>
+          <input type="checkbox" id="req0" name="req0" value="true">
+          <label for="req0">required</label>
 
-          <input type="radio" id="req10" name="req10" value=false >
-          <label for="req10">false</label>
-
+          <input type="text" class="allowedValues" id="allowedValues0" name="allowedValues0" value="" placeholder="allowedValues">
+          <input type="text" class="info" id="info0" name="info0" value="" placeholder="info">
       </div>
       {{/unless}}
         
@@ -128,7 +152,7 @@
 
       <div class="propertySelect">
 
-          <input name="label{{@index}}" type="text" placeholder="Label" value="{{this.name}}">
+          <input class="label" name="label{{@index}}" type="text" placeholder="Label" value="{{this.name}}">
 
           <select class="check"  name="type{{@index}}" id="type{{@index}}">
             {{#each ../data.types}}
@@ -136,11 +160,12 @@
             {{/each}}
           </select>
 
-          <input type="radio" id="req{{@index}}"  name="req{{@index}}" value=true {{#if (matchValues this.required 'true')}} checked {{/if}}>
-          <label for="req{{@index}}">true</label>
+          <input type="checkbox" id="req{{@index}}" name="req{{@index}}" value="true" {{#if (matchValues this.required 'true')}} checked {{/if}}>
+          <label for="req{{@index}}">required</label>
 
-          <input type="radio" id="req{{@index}}" name="req{{@index}}" value=false {{#if (matchValues this.required 'false')}} checked {{/if}}>
-          <label for="req{{@index}}">false</label>
+          <input type="text" class="allowedValues" id="allowedValues{{@index}}" name="allowedValues{{@index}}" value="{{this.allowedValues}}" placeholder="allowedValues" >
+
+          <input type="text" class="info" id="info{{@index}}" name="info{{@index}}" value="{{this.info}}" placeholder="info" >
 
       </div>
           
@@ -151,6 +176,16 @@
       <button type="submit">Submit</button>
 
     </form>
+
+    <div class="modal dropdown d-none">
+
+        <div>
+            <p>DROP DOWN: Enter Possible Values (Comma Separated) in below input:-</p>
+            <input type="text">
+            <button onclick="dropDownModal(this)">Done</button>
+        </div>
+    
+    </div>
 
     <div class="modal d-none">
 
@@ -180,7 +215,9 @@
 
         $('#btn-more').on('click',function() {
             $('.propertySelect:eq(0)').clone().insertAfter('.propertySelect:eq(-1)');
-            $('.propertySelect:eq(-1)>input').attr('name','label'+$('.propertySelect').length);
+            $('.propertySelect:eq(-1)>input.label').attr('name','label'+$('.propertySelect').length);
+            $('.propertySelect:eq(-1)>input.allowedValues').attr('name','allowedValues'+$('.propertySelect').length);
+            $('.propertySelect:eq(-1)>input.info').attr('name','info'+$('.propertySelect').length);
             $('.propertySelect:eq(-1)>select').attr('name','type'+$('.propertySelect').length).attr('id','type'+$('.propertySelect').length);
             $('.propertySelect:eq(-1)>[type=radio]').attr('name','req'+$('.propertySelect').length);
         });
@@ -189,17 +226,39 @@
             e.preventDefault();
             let labels = $(this).serializeArray().filter(val => /label/gi.test(val.name)); // INPUT Tag
             let types = $(this).serializeArray().filter(val => /type/gi.test(val.name)); // SELECT Tag
-            let reqs = $(this).serializeArray().filter(val => /req/gi.test(val.name)); // RADIO Tag
+            let reqs = $(this).serializeArray().filter(val => /req/gi.test(val.name)); // CHECKBOX Tag
+            let allowedValues = $(this).serializeArray().filter(val => /allowedValues/gi.test(val.name)); // ALLOWED VALUES
+            let info = $(this).serializeArray().filter(val => /info/gi.test(val.name)); // INFO
+
             let output = labels.reduce((total,val,index) => {
-                return Object.assign(total,{
+
+                Object.assign(total,{
                     [val.value] : {
                         type: types[index].value.split('+')[1], 
-                        required: reqs[index].value,
-                        html: types[index].value.split('+')[0]
+                        required: reqs[index] && reqs[index].value,
+                        html: types[index].value.split('+')[0],
+                        allowedValues: allowedValues[index] && allowedValues[index].value,
+                        info: info[index] && info[index].value
                     }
                 });
+
+                if ( [val.value].required == /false/gi ) delete [val.value].required;
+
+                return total;
+
             },{});
-            console.log(output);
+
+            Object.assign( output, {
+                noClone: {
+                    type: "String", 
+                    html: "input",
+                },
+                fixed: {
+                    type: "String",
+                    html: "input",
+                }
+            });
+
             let data = {
                 modelName: 'collections',
                 _id: '{{data._id}}',
@@ -208,6 +267,9 @@
                 redirect: $('#redirect').val(),
                 properties: output
             }
+
+            console.log( JSON.stringify(data, 0, 2) );
+
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/admin/data/updateSequence/n',
@@ -220,8 +282,9 @@
 
         $('.check').change(function(){
             var data= $(this).val();
-            if (data.split('+')[0] == 'selectForeignKey') return alert('show > collections > and a key inside it');
+            if (data.split('+')[0] == 'selectFK') return alert('show > collections > and a key inside it');
         });
+
     </script>
 
 </body>

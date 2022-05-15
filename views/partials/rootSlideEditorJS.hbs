@@ -6,21 +6,16 @@ let readURL = function (elem) {
 
     let afterCloudinary = function(val) {
 
-        console.log(val);
         $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image — Done. Saving...").removeClass("d-none");
-
         $(elem).closest(".webEditor").find('input[type="text"]').val(val.url);
         $(elem).closest('.placeholder').prev().attr({ 
             src: val.url, 
             public_id: val.public_id.split('/')[ val.public_id.split('/').length - 1 ] 
         }); 
         $(".btn.saving").addClass("d-none");
-
         $(elem).closest(".webEditor").attr({lock: "false"});
         saveSlide( $(elem).closest(".webEditor") );
         $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image – Done. Saving – Done.").removeClass("d-none");
-        // inputChanged( $(elem).closest(".webEditor").find('input[type="text"]') );
-
     };
 
     let uploadCloudinary = function(img) {
@@ -28,12 +23,9 @@ let readURL = function (elem) {
         let data = {
             public_id: $(elem).closest('.placeholder').prev().attr("public_id"),
             img: img,
-            // width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
-            // height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
-            };
+        };
 
         $(elem).closest(".placeholder").prev().attr({ src : img });
-        // $(".btn.saving").html("UPLOADING IMAGE...").removeClass("d-none");
         $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image...").removeClass("d-none");
         console.log(data);
 

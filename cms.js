@@ -184,8 +184,11 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1,val2);
-    return val1 == val2
+    try {
+        return val1.toLowerCase()  == val2.toLowerCase();
+    } catch(e) {
+        return false;
+    }
 });
 
 hbs.registerHelper('removeSpaces', (val) => {
@@ -244,6 +247,12 @@ hbs.registerHelper('split', (val) => {
     return output;
 });
 
+hbs.registerHelper('splitComma', (val) => {
+    console.log({val});
+    let output = val.split(',').map(val => val.trim() );
+    return output;
+});
+
 hbs.registerHelper('collectionToWord', (string) => {
 
     string = string.match(/-/g) ? string.split('-')[1] : string;
@@ -266,10 +275,16 @@ hbs.registerHelper('checkHtmlString', function(val) {
     return /<\/?[a-z][\s\S]*>/i.test(val);
 });
 
+hbs.registerHelper('countArray', function(val) {
+    let output = val == undefined ? 0 : val.length;
+    return output;
+});
+
+hbs.registerHelper('trim', function(val) {
+    return val.trim();
+});
+
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
-    ////console.log('');
-    //console.log(chalk.bold.red('new Request starts here'));
-    //console.log(req.params);
 
     if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
     
@@ -282,11 +297,12 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
             case (myFuncs.moduleRole[req.params.module] == 'admin' && req.session.person.role == 'auth'): 
                 return res.send('you are trying to access admin page while your role is auth only');
                 break;
-            case (req.session.person.role == req.params.permit && req.session.person.brand == req.params.brand) :
+            case (req.session.person.role == req.params.permit && req.session.person.brand.split(",").some( val => val.trim() == req.params.brand ) ) :
                 return next();
                 break;
             // 'Auth' role tries to access 'Admin' Module
             default :
+                // console.log(req.session);
                 return res.status(400).send('you are not authorized to make this request');
                 break;
         };
@@ -323,7 +339,6 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
 
 let openBrand = async (req,res) => {
     if (req.params.brand.indexOf('.') > 0) {
-        //console.log( chalk.bold.red("===== Wrong Call ===== \n", req.params.brand ) );
         return res.status(300).send('Wrong Attempt');
     };
 
@@ -392,30 +407,87 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
 
-        if( data.hasOwnProperty("error")) {
-
+        if( data && data.hasOwnProperty("error")) {
+            console.log(data);
             return res.status(data.status).send(data.error);
-
         };
 
         let getOwnerContactDetails = async function(req,res) {
 
-            let model = await myFuncs.createModel("myapp-users");
-            let output = await model.findOne({brand: req.params.brand});
+            let model = await myFuncs.createModel("myapp-themes");
+            let model2 = await myFuncs.createModel("myapp-users");
+
+            let output = {
+                brand: await model.findOne({brand: req.params.brand}).lean(),
+                person : await model2.aggregate([
+                    {
+                        $match: {
+                            "email": req.session.person.email,
+                        }
+                    },{
+                        $addFields: {
+                            "brands" : {
+                                $split: ["$brand", ","]
+                            }
+                        }
+                    },{
+                        $unwind: "$brands"
+                    },{
+                        $addFields: {
+                            brands: {
+                                $trim: {
+                                    input: "$brands"
+                                }
+                            }
+                        }
+                    },{
+                        $lookup: {
+                            from: "myapp-themes",
+                            localField: 'brands',
+                            foreignField: 'brand',
+                            as: 'brands'
+                        }
+                    },{
+                        $group: {
+                            _id: {
+                                "name" : "$name",
+                                "email" : "$email",
+                                "role" : "$role",
+                                "brand" : "$brand"
+                            },
+                            brands: {
+                                $addToSet: "$brands"
+                            }
+                        }
+                    },{
+                        $project: {
+                            "name" : "$_id.name",
+                            "email" : "$_id.email",
+                            "role" : "$_id.role",
+                            "brandsString" : "$_id.brand",
+                            "brands" : "$brands",
+                            "_id" : 0
+                        }
+                    }
+                ])
+            };
 
             return {
-                name: output.name,
-                email: output.email,
-                mobile: output.mobile,
-                loc: output.googleMaps,
-                brandWebsite: output.brandWebsite,
-                brandName: output.brandName,
-                brandDesc: output.brandDesc,
-                metaImg: output.metaImg
+                person: output.person,
+                brand: output.brand && output.brand.name,
+                brandName: output.brand && output.brand.brandName,
+                brandWebsite: output.brand && output.brand.brandWebsite,
+                mobile: output.brand && output.brand.brandMobile,
+                email: output.brand && output.brand.brandEmail,
+                loc: output.brand && output.brand.brandGooglePin,
+                brandDesc: output.brand && output.brand.brandDesc,
+                metaImg: output.brand && output.brand.brandMetaImg
             };
+
         };
 
         try {
+
             Object.assign(data, {
                 permit: req.params.permit,
                 brand: req.params.brand,
@@ -424,12 +496,30 @@ var myFuncs = {
                 requiredType: req.params.requiredType,
                 theme: await this.getThemeName(req.params.brand)
             });
+
         } catch(e) {
-            //console.log(e)
+            console.log(e)
         }
 
-        // //console.log(data);
-        console.log(JSON.stringify(data,'',2));
+        let storeThisFileInSession = async function() {
+
+            req.session.file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(`./views/${req.params.theme}/${req.params.module}.hbs`, 'utf8', (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return 1;
+
+        };
+
+        // console.log(data);
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -442,8 +532,11 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
-            //console.log({theme: req.params.theme, module: req.params.module});
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
+            break;
+          case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
+            storeThisFileInSession();
+            return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data, webEdit: true});
             break;
           default:
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
@@ -537,12 +630,17 @@ var myFuncs = {
         uploadCloudinary: "auth",
         updateDocument: "admin",
         importAndMerge: "auth",
+        storeHTML: "admin",
+        fetchCollectionData: "admin",
+        saveImgInArray: "admin",
+        deleteImgInArray: "admin",
+        deleteImgInCloudinary: "admin",
+        saveItemInArray: "gen",
+        deleteItemInArray: "gen"
     },
 
     listenToWebhook: function(req,res) {
 
-        //console.log(req.query);
-        //console.log(JSON.stringify(req.body, 0, 2));
         if (req.body && req.body.event) {
             if (req.body.event.hasOwnProperty("attachments") == false) return {
                 status: 300,
@@ -715,7 +813,7 @@ var myFuncs = {
 
         if (airtableURLs == undefined) {
 
-            console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
+            // console.log( chalk.bold.bgYellow.black( "DATA IS NOT CONNECTED WITH AIRTABLE" ) ); 
 
             return {msg: "not linked with Airtable"};
 
@@ -950,7 +1048,7 @@ var myFuncs = {
     updateSequence: async function(req,res) {
         let model = await this.createModel(req.body.modelName);
         let modelName = req.body.modelName;
-        console.log(req.body);
+        // console.log(req.body);
         delete req.body.modelName;
 
         let result = await model.findOneAndUpdate({_id: req.body._id},req.body,{new: true, upsert: true}).lean();
@@ -988,14 +1086,12 @@ var myFuncs = {
             try {
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
-                console.log({modelExistsAlready, schemaExistsAlready});
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
                 let schema = await Collections.findOne({name: modelName}).lean();
-                return mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
+                return mongoose.models[modelName] || mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
             } catch(e) {
-
                 console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
 	        console.log(e);
                 return e;
@@ -1102,12 +1198,7 @@ var myFuncs = {
 
     saveAirtableURLs: async function(req,res) {
 
-        //console.log(req.body);
-
-        // TODO: Check if there is a way to test the airtableAPI is ok or not!
         let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.tableName, baseAPIKey: req.body.baseAPIKey, method: "test" }) );
-
-        //console.log( chalk.bold.red("listing all Keys from airtable API fetch method") );
 
         if (keysAll.hasOwnProperty("error")) return keysAll;
 
@@ -1120,64 +1211,107 @@ var myFuncs = {
 
         return {success: "Keys are Saved!"};
 
-        try {
-
-
-            let keysAll  = ( await this.airtableAPI({ baseId: req.body.baseId , baseName: req.body.baseName, method: "list" }) ).data.records;
-
-            let connectingKeys = ( await this.axiosRequest({ method: "GET", URL: req.body.get + "&fields=" + req.body.key }) ).data.records;
-
-            if (connectingKeys == undefined) throw "Could not find matching data in airtable"; 
-
-            req.body.connectingKeys = connectingKeys;
-
-            let airtableAdded = await Collections.findOneAndUpdate({name: req.params.input}, { $set: { airtable: req.body } }, {new: true});
-
-            req.params.theme = 'root';
-
-            return {
-                output: airtableAdded,
-                msg: "Successfully saved in database",
-            }
-
-        } catch (e) {
-            //console.log(e);
-            req.params.theme = 'root';
-            return {
-                output: '',
-                error: "Could not find matching data in airtable",
-                status: 404,
-            }
-        }
-
     },
 
     importAndMerge: async function(req,res) {
 
         try {
 
-        let myProperties = await Collections.findOne({name: req.params.input}).lean();
-        //console.log(myProperties);
-        let keysAll  = await this.airtableAPI({ 
-            baseId: myProperties.airtable.baseId , 
-            baseName: myProperties.airtable.tableName, 
-            baseAPIKey: myProperties.airtable.baseAPIKey, 
-            method: "list" 
-        });
+            let myProperties = await Collections.findOne({name: req.params.input}).lean();
+            let cp = myProperties.properties;
 
-        keysAll = keysAll.map( val => {
-            val._id = val.hasOwnProperty("_id") == false ? new mongoose.mongo.ObjectID() : val._id;
-            return val;
-        });
+            let keysAll  = await this.airtableAPI({ 
+                baseId: myProperties.airtable.baseId , 
+                baseName: myProperties.airtable.tableName, 
+                baseAPIKey: myProperties.airtable.baseAPIKey, 
+                method: "list" 
+            });
 
-        let model = await this.createModel(req.params.input);
-        let output = await Promise.all( keysAll.map( val => model.findOneAndUpdate( {_id: val._id}, val, {upsert: true, new: true}).lean() ) );;
-        // let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
-        //console.log( output );
+            let arrays = [], items = [];
+            keysAll = keysAll.map( val => {
 
-        return { success: "Data is Merged" };
+                Object.entries( val ).forEach( love => {
+
+                    switch(true) {
+                        case cp[love[0]] == undefined :
+                            console.log( love[0] + " is not wanted - removing it" );
+                            delete val[love[0]];
+                            break;
+                        case cp[love[0]].html == "multipleFK" :
+                            val[ love[0] ] = love[1].reduce( (total, item) => {
+                                total.push({
+                                    id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+                                    slug: item 
+                                });
+                                return total;
+                            },[]);
+                            Object.values( val[ love[0] ]).forEach( entry => {
+                                items.push({ 
+                                    ser: val.ser, 
+                                    [ love[0] ]: entry
+                                });
+                            });
+                            delete val[love[0]];
+                            break;
+                        case cp[love[0]].html == "selectFK" :
+                            val[ love[0] ] = love[1][0].trim();
+                            break;
+                        case cp[love[0]].html == "photos" :
+                            val[ love[0] ] = love[1].reduce( (total, photo) => {
+                                total.push({
+                                    imgId: photo.id,
+                                    small: photo.thumbnails.small.url,
+                                    medium: photo.thumbnails.large.url,
+                                    large: photo.url
+                                });
+                                return total;
+                            },[]);
+                            Object.values( val[ love[0] ]).forEach( entry => {
+                                arrays.push({ 
+                                    ser: val.ser, 
+                                    [ love[0] ]: entry
+                                });
+                            });
+                            delete val[love[0]];
+                            break;
+                        default:
+                            val[ love[0] ] = love[1];
+                            break;
+                    };
+
+                });
+
+                if ( val.ser == 1 ) {
+                    val.noClone = "false";
+                    val.fixed = "true";
+                } else {
+                    val.noClone = "false";
+                    val.fixed = "false";
+                }
+                return val;
+            });
+            let model = await this.createModel(req.params.input);
+            await Promise.all( keysAll.map( val => model.deleteOne({ser: val.ser}) ) );
+            await Promise.all( keysAll.map( val => model.create( val ) ) );
+            await Promise.all( arrays.map( val => {
+                return model.findOneAndUpdate({ser: val.ser},{
+                    $push: {
+                        [Object.keys( val )[1] ]: Object.values( val )[1]
+                    }
+                });
+            }));
+            await Promise.all( items.map( val => {
+                return model.findOneAndUpdate({ser: val.ser},{
+                    $push: {
+                        [Object.keys( val )[1] ]: Object.values( val )[1]
+                    }
+                });
+            }));
+            return { success: "Data is Merged" };
 
         } catch(e) {
+
+            console.log(e);
 
             return {
                 status: 400,
@@ -1610,7 +1744,6 @@ var myFuncs = {
 
         try {
 
-            //console.log(JSON.stringify( req.body, 0, 2 ));
             let model = await this.createModel(req.params.input);
             let commonKey = ( await this.getAirtableUrls(req,res) ).key; 
             let output = await Promise.all( req.body.results.map( val => model.findOneAndUpdate({ [commonKey]: val[commonKey] }, val, {upsert: true, new: true}) ) );
@@ -1686,7 +1819,13 @@ var myFuncs = {
                 html: 'imgURL',
             },{
                 name: 'String',
-                html: 'selectForeignKey'
+                html: 'selectFK'
+            },{
+                name: 'Array',
+                html: 'multipleFK'
+            },{
+                name: 'Array',
+                html: 'quantityFK'
             },{
                 name: 'Object',
                 html: 'JSON'
@@ -1696,6 +1835,21 @@ var myFuncs = {
             },{
                 name: 'String',
                 html: 'webEditor'
+            },{
+                name: 'String',
+                html: 'dropdown'
+            },{
+                name: 'String',
+                html: 'fixed'
+            },{
+                name: 'String',
+                html: 'brick'
+            },{
+                name: "Array",
+                html: "photos",
+            },{
+                name: "String",
+                html: "formula"
             }
         ];
     },
@@ -1727,7 +1881,9 @@ var myFuncs = {
                 name: val,
                 type: collectionDetails.properties[val].type,
                 required: collectionDetails.properties[val].required,
-                html: collectionDetails.properties[val].html == undefined ? 'input' : collectionDetails.properties[val].html
+                html: collectionDetails.properties[val].html == undefined ? 'input' : collectionDetails.properties[val].html,
+                allowedValues: collectionDetails.properties[val].allowedValues,
+                info: collectionDetails.properties[val].info
             };
         });
         let types = this.getTypes();
@@ -1754,12 +1910,9 @@ var myFuncs = {
 
         req.params.theme = "root";
         req.params.module = req.headers['x-pjax']  == 'true' ? req.params.input : "newDashboard";
-        //console.log({module: req.params.module, pjax: req.headers['x-pjax']});
         
         let output = {};
         let model ;
-
-        //console.log(req.params.input, req.params.input.match(/-/g));
 
         if (req.params.input.match(/-/g) == null) {
 
@@ -1775,9 +1928,6 @@ var myFuncs = {
             };
 
             switch (true) {
-                case (req.params.input == "slides"):
-                    output = await showSlides();
-                    break;
                 case (req.params.input == "tickets"):
                     output = {tickets: [1,2,3]};
                     break;
@@ -1798,33 +1948,93 @@ var myFuncs = {
 
             req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
 
+            let requestedCollection = collectionsTable.find(val => val.name == req.params.input);
+
             let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
 
             collectionHeadings.unshift('_id');
+
             collectionHeadings = collectionHeadings.filter( val => val != "fixed" && val != "noClone" );
 
             model = await this.createModel(req.params.input);
-            let dataRows = await model.find().lean();
-            let newRows = dataRows.map(val => {
-                let total = [];
-                for (i=0; i<collectionHeadings.length; i++) {
-                    switch (true) {
-                        case (collectionHeadings[i] == 'properties'):
-                            total.push(JSON.stringify(val[collectionHeadings[i]]));
-                            break;
-                        case (collectionHeadings[i] == /fixed|noClone/g):
-                            break;
-                        default:
-                            total.push(val[collectionHeadings[i]]);
+
+            let dataRows = await model.find().sort({ser: 1}).collation({locale: "en_US", numericOrdering: true}).lean();
+
+            let newRows = [];
+
+            if ( dataRows.length == 0 ) {
+
+                newRows = [];
+
+            } else {
+
+                newRows = dataRows.map(val => {
+
+                    let total = [], temp, property;
+
+                    for (i=0; i<collectionHeadings.length; i++) {
+
+                        switch (true) {
+
+                            case (collectionHeadings[i] == '_id'):
+
+                                temp = val[collectionHeadings[i]];
+                                property = {
+                                    html: "brick",
+                                    type: "String"
+                                };
+                                break;
+
+                            case (collectionHeadings[i] == 'properties'):
+
+                                temp = JSON.stringify(val[collectionHeadings[i]]);
+                                break;
+
+                            case (collectionHeadings[i] == /fixed|noClone/g):
+
+                                break;
+
+                            default:
+
+                                temp = val[collectionHeadings[i]];
+                                property = requestedCollection.properties[collectionHeadings[i]];
+                                Object.assign(property, {
+                                    key: collectionHeadings[i]
+                                });
+
+                        }
+
+                        total.push({
+                            val: temp,
+                            meta: property
+                        });
+
                     }
-                }
-                return {
-                    array: total,
-                    object: val,
-                    fixed: val.fixed,
-                    noClone: val.noClone
+
+                    console.log( val.ser , val.ser == 1 );
+
+                    return {
+
+                        array: total,
+                        object: val,
+                        fixed: val.ser && val.ser.trim() == "1" ? "true" : val.fixed, 
+                        noClone: val.noClone
+
+                    };
+                });
+
+            };
+
+            let newHeadings = [];
+
+            for (i=0; i<collectionHeadings.length; i++) {
+
+                newHeadings[i] = {
+                    val: collectionHeadings[i],
+                    meta:  newRows[0] && newRows[0].array[i].meta
                 };
-            });
+
+            };
 
             req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
 
@@ -1832,7 +2042,7 @@ var myFuncs = {
 
             output = {
                 schema: collectionsTable.find(val => val.name == req.params.input).properties,
-                th: collectionHeadings,
+                th: newHeadings,
                 dataRows: newRows,
                 modelName: req.params.input,
                 airtable: {
@@ -1855,16 +2065,12 @@ var myFuncs = {
         let myTheme = await model.findOne({brand: req.params.brand}).lean();
 
         Object.assign(output, {
-                modules: myTheme.modules,
-                collections: myTheme.collections,
-                notifications: notifications,
-                input: req.params.input
+            modules: myTheme.modules,
+            collections: myTheme.collections,
+            notifications: notifications,
+            input: req.params.input
         });
 
-        //console.log( chalk.bold.red ("session") );
-        //console.log(req.session);
-
-        // //console.log(JSON.stringify(output,'',2));
         return output;
 
     },
@@ -2260,9 +2466,15 @@ var myFuncs = {
         }
     },
 
+    kalles: async function(req,res) {
+        return {
+            success: true
+        }
+    },
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);
+        console.log(req.params.theme);
         return output;
     },
 
@@ -2273,7 +2485,6 @@ var myFuncs = {
             let query = model[index].query.split(',');
             switch(true) {
                 case ( /req.session._id/gi.test(query[0]) ) :
-                    // TODO: Make the session ID concatanate with Database Query
                     query[0] = {sessionId: req.sessionID};
                     break;
                 default : 
@@ -3713,8 +3924,6 @@ var myFuncs = {
     
     createAppBackup : async function(req,res) {
 
-        // store all collections inside a separate file
-
         let names = await Collections.find({},{name:1});
 
         let models  = await Promise.all( names.map( val => this.createModel(val.name) ) ); 
@@ -4717,8 +4926,6 @@ var myFuncs = {
         } else {
             townStatus = 'd-none';
         }
-
-	    //console.log(model);
             
         let filters = {
             cities: await this.getCities(req,res),
@@ -4726,6 +4933,8 @@ var myFuncs = {
             status: await model.distinct("status").lean(),
             sort: req.query.hasOwnProperty("sort") ? req.query.sort : -1
         };
+
+        console.log(filters);
 
         filters = this.getFiltersStatus(filters, req.query);
 
@@ -4846,8 +5055,6 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-properties`);
 
-	//console.log(model);
-
         let output = await model.aggregate([
             {
                 $match: query
@@ -4863,6 +5070,8 @@ var myFuncs = {
                 }
             }
         ]);
+
+        console.log(output);
 
         output = this.matchSelectedProperties(req,res,output);
 
@@ -5476,8 +5685,8 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-slides`);
         let output = {
-            sliders: await model.find({style: { $ne : "slide-footer" } }).sort({sequence: 1}).lean(),
-            footer: await model.findOne({style: "slide-footer"}).lean(),
+            sliders: await model.find({style: { $ne : "Footer" } }).sort({sequence: 1}).lean(),
+            footer: await model.findOne({style: "Footer"}).lean(),
         }
 
         if (output.sliders && output.sliders.length > 0) {
@@ -5549,8 +5758,190 @@ var myFuncs = {
         return {
             subjects: output
         }
-    }
+    },
 
+    storeHTML: async function(req,res) {
+
+        let file = req.session.file;
+
+        let after = file.split(`<!-- =====${req.body.ser} -->`)[1];
+
+        let updatedFile = `
+             ${file.split(`<!-- =====${req.body.ser} -->`)[0]}
+             ${req.body.string}
+             ${file.split(`<!-- +++++${req.body.ser} -->`)[1]}
+        `;
+
+        await fs.writeFile(
+            './views/kalles/landingPage.hbs', 
+            updatedFile, 
+            (err) => {
+                if (err) {
+                  console.log(err);
+                  console.log("failed to backup");
+                  return 'Failed to backup';
+                }
+                return 'Successful';
+            });
+
+        req.session.file = updatedFile;
+
+        return {success: "done"};
+
+    },
+
+    matchDataWithHeadings: function(dataArray, headings) {
+
+        dataArray = dataArray.map( val => {
+            let total = [], see;
+            headings.forEach( hdg => {
+                if ( /noClone|fixed/gi.test(hdg) == false && val[hdg] != undefined ) {
+                    total.push({
+                        [ hdg ] : val[hdg]
+                    });
+                };
+            });
+            return total;
+        });
+
+        return dataArray;
+
+    },
+
+    fetchCollectionData: async function(req,res) {
+
+        let model = await this.createModel(req.params.input);
+        let collection = await Collections.findOne({name: req.params.input}).lean();
+        let output = await model.find().lean();
+        let result = this.matchDataWithHeadings( output, Object.keys(collection.properties) )
+        return {
+            output: result
+        };
+
+    },
+
+    saveImgInArray: async function(req,res) {
+
+        console.log("saving the image in array");
+
+        let model = await this.createModel(req.params.input);
+
+        let output = await model.findOneAndUpdate(
+            {
+                _id: mongoose.Types.ObjectId(req.body._id)
+            },{
+                $push: {
+                    "photos": req.body.photo
+                }
+            },
+            { new: true }
+        );
+
+        console.log(output);
+
+        return output;
+
+    },
+
+    deleteImgInArray: async function(req,res) {
+
+        let model = await this.createModel(req.params.input);
+
+        let output = await model.findOneAndUpdate(
+            { _id: mongoose.Types.ObjectId(req.body._id) },
+            { $pull: { 'photos': { imgId: req.body.imgId } } },
+            { new: true }
+        );
+
+        console.log(output);
+
+        return output;
+
+    },
+
+    deleteImgInCloudinary: async function(req,res) {
+
+        console.log(req.body);
+        let output = await cloudinary.uploader.destroy(req.params.brand+"/"+req.body.imgId, {type : 'upload', resource_type : 'image'} );
+        return {
+            output: output
+        };
+
+    },
+
+    saveItemInArray: async function(req,res) {
+
+        console.log("saving the item  in array");
+
+        let model = await this.createModel(req.params.input);
+
+        await model.findOneAndUpdate(
+            { _id: mongoose.Types.ObjectId(req.body._id) },
+            { $pull: { [ req.body.key ] : { id: req.body.item.id } } },
+        );
+
+        let output = await model.findOneAndUpdate(
+            {
+                _id: mongoose.Types.ObjectId(req.body._id)
+            },{
+                $push: {
+                    [req.body.key] : req.body.item
+                }
+            },
+            { new: true }
+        );
+
+        return output;
+    },
+
+    deleteItemInArray: async function(req,res) {
+
+        let model = await this.createModel(req.params.input);
+
+        let output = await model.findOneAndUpdate(
+            { _id: mongoose.Types.ObjectId(req.body._id) },
+            { $pull: { [ req.body.key ] : { id: req.body.keyId } } },
+            { new: true }
+        );
+
+        return output;
+
+
+    },
+
+    calcOrder: async function(req,res) {
+
+        let model = await this.createModel( req.body.FK );
+
+        let output = await Promise.all( req.body.items.map( val => {
+            return model.aggregate([
+                {
+                    $match: {
+                        slug: val.slug
+                    }
+                },{
+                    $limit: 1
+                },{
+                    $addFields: {
+                        multiplied: {
+                            $toInt : "$price"
+                        },
+                    }
+                },{
+                    $project: {
+                        slug: 1,
+                        multiplied: 1
+                        // multiplied: { $multiply: [ "$intPrice", Number(val.quantity) ] }
+                    }
+                }
+            ])
+        }) );
+
+        console.log( output );
+
+        return output;
+
+    },
 };
 
 server.listen(3000)

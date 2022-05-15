@@ -154,6 +154,11 @@
 
         {{#each data.inputs}}
 
+            {{#if (matchValues this.type 'webEditor')}}
+                <label for="{{name}}">{{this.label}}</label>
+                <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} {{/if}} value="{{this.value}}">
+            {{/if}}
+
             {{#if (matchValues this.type 'input')}}
                 <label for="{{name}}">{{this.label}}</label>
                 <input name="{{this.name}}" type="text" id="{{this.id}}" placeholder="" {{#if (matchValues this.required 'true')}} {{/if}} value="{{this.value}}">

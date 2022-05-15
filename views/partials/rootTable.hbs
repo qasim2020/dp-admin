@@ -10,8 +10,12 @@
         padding-left: 78px;
     }
 
+    th:hover {
+        cursor: pointer;
+    }
+
     th, td {
-        max-width: 400px;
+        max-width: 150px;
         padding: 7px 10px;
         overflow: scroll;
         white-space: nowrap;
@@ -42,12 +46,11 @@
     }
 
     tr > *:nth-child(1) {
-        position: absolute;
-        z-index: 10;
         background: black;
-        border: 4px solid black;
+        border: 5px solid black;
         margin-left: -80px;
         min-width: auto !important;
+        z-index: 10000;
     }
 
     tr > td:nth-child(2) {
@@ -60,10 +63,22 @@
         text-align: center;
     }
 
+    th {
+        position: relative;
+    }
+
     td {
         color: darkgrey;
         position: relative;
         min-width: 100px;
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+
+    .pointer:hover {
+        opacity: 0.8;
     }
 
     td > div {
@@ -103,6 +118,324 @@
     .page {
         text-align: center;
     }
+
+    .fixed {
+        text-align: center;
+        padding: 0px;
+    }
+
+    .fixed > span {
+        font-size: 13px;
+        padding: 4px 8px;
+        border-radius: 2px;
+        background: darkcyan;
+        color: white;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .multipleFK > span, 
+    .quantityFK > span {
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+
+    .fixed.green > span {
+        font-weight: bold;
+        background: #c9e9cd;
+        color: black;
+    }
+
+    i.fas.fa-caret-down.black {
+        position: absolute;
+        right: 9px;
+    }
+
+    .brick {
+        background: darkcyan;
+        color: white;
+        border: 4px solid darkcyan;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .dropdown {
+        text-align: center;
+        padding: 0px;
+        border: 0px;
+        padding-right: 10px;
+    }
+
+    .dropdown > select {
+        border: 0px;
+        font-size: 16px;
+        background: whitesmoke;
+        padding: 6px;
+    }
+
+    select:focus-visible {
+        outline: 0px;
+    }
+
+    .cellBox {
+        z-index: 100000;
+        border-radius: 6px;
+        max-width: 98vw;
+        box-sizing: border-box;
+        box-shadow: 0px 0px 5px black;
+        position: fixed;
+        left: 50%;
+        top: 10%;
+        transform: translate(-50%);
+        cursor: defualt;
+    }
+
+    .cellBox.listedFKs {
+        background: darkcyan;
+        height: 70vh;
+        width: 648px;
+        overflow: scroll;
+        padding: 0px 5px;
+        text-align: center;
+    }
+
+    .multipleFK > .cellBox.listedFKs, 
+    .quantityFK > .cellBox.listedFKs {
+        background: transparent;
+        height: auto;
+        overflow: scroll;
+        box-shadow: none;
+        max-height: 85vh;
+    }
+
+    .cellBox.listedPhotos {
+        background: white;
+        overflow: scroll;
+        padding: 5px 1px 1px 5px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .cellBox > input {
+        border-radius: 5px;
+        margin-top: 6px;
+        font-size: 15px;
+    }
+
+    .listedFKs .card {
+        width: 100%;
+        margin: 7px 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 1px 7px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        background: white;
+    }
+
+    .listedFKs .card.active {
+        background: black;
+    }
+
+    .listedFKs .card > div {
+        display: flex;
+        flex-direction: column;
+        color: black;
+        margin-right: 1px;
+        padding: 10px 2px 6px 3px;
+    }
+
+    .listedFKs .card > div > span:nth-child(1) {
+        font-weight: bold;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        font-size: 11px;
+        color: darkcyan;
+    }
+
+    .listedFKs .card.active > div > span:nth-child(2) {
+        color: white;
+    }
+
+    .listedFKs .card > .photos {
+        grid-column: 1/-1;
+    }
+
+    .listedFKs .card > .photos > div > img {
+        width: 150px;
+        padding: 0px;
+        border-radius: 7px;
+        margin: 4px;
+    }
+
+    .quantityFK, 
+    .selectFK,
+    .photos {
+        padding: 0px;
+    }
+
+    form > .photos > .cellBox {
+        margin-left: 0px;
+        margin-top: 10px;
+        width: min-content;
+    }
+
+    form > .selectFK > .cellBox {
+        margin-left: 0px;
+        margin-top: 10px;
+    }
+
+    .listedPhotos > .card {
+        width: 150px;
+        border: 3px solid darkcyan;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;   
+        min-height: 150px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+
+    .listedPhotos > .card > .fa-trash {
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        color: indianred;
+    }
+
+    .listedPhotos > .card > .fa-plus {
+        color: darkcyan;
+    }
+
+    .listedPhotos > .card > .fa-spinner {
+        position: absolute;
+        left: 39%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        font-size: 36px;
+        color: darkcyan;
+    }
+
+    .listedPhotos > .card > img.uploading {
+        opacity: 0.3;
+    }
+
+    .listedFKs .fields {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px 0px;
+    }
+
+    .listedFKs .fields > p {
+        background: white;
+        border: 2px solid black;
+        margin: 0px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .listedFKs .fields > p > button {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        color: black;
+        font-size: 15px;
+        background: white;
+        border-color: white;
+        border-width: 0px;
+    }
+
+    .listedFKs .fields > p > button > i {
+        padding: 12px 11px;
+        border-radius: 0px;
+        background: lightgrey;
+        font-size: 13px;
+        color: black;
+    }
+
+    .listedFKs .fields > p > span {
+        min-width: 38px;
+        display: block;
+        padding: 9px 8px;
+        color: black;
+    }
+
+    .listedFKs .fields > i {
+        font-size: 14px;
+    }
+
+    .listedFKs .fields > i.fa-trash {
+        padding: 11px 10px;
+        margin-left: 3px;
+        color: white;
+        font-size: 13px;
+    }
+
+    .listedFKs .fields > input {
+        font-size: 15px;
+        margin-left: 8px;
+    }
+
+    .listedFKs .fields > input:nth-child(1) {
+        width: 20%;
+        margin-right: 10px;
+        text-align: center;
+    }
+
+    .listedFKs .fields.items > input {
+        width: 100%;
+        text-align: left;
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    .listedFKs > .static {
+        background: darkcyan;
+        padding: 1px 7px 10px 7px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px black;
+    }
+
+    .listedFKs > .static > button {
+        width: 100%;
+        border: 1px dashed white;
+        background: white;
+        padding: 10px 10px;
+        font-weight: bold;
+        margin: 10px 0px;
+        border-radius: 5px;
+    }
+    
+    .listedFKs > .static > button > i {
+        color: darkcyan;
+    }
+
+    .listedFKs > .searchedItems {
+        background: darkcyan;
+        padding: 3px 7px;
+        margin-top: 10px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px black;
+        overflow: scroll;
+        height: 49vh;
+        min-height: 300px;
+    }
+
+    .fakeScreen {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background: #030c0c;
+        top: 0px;
+        left: 0px;
+        z-index: 10000;
+        opacity: 0.92;
+        box-sizing: border-box;
+    }
 </style>
 
 <div class="table">
@@ -119,12 +452,21 @@
                     <span class="icon"></span>
                 </th>
                 {{#each data.th}}
-                    <th class="headings" formname="{{this}}"  index="col{{@index}}" onclick="hideMe(this)">{{camelToWord this}}</th>
+                    <th 
+                        class="headings brick" 
+                        formname="{{this.val}}"  
+                        index="col{{@index}}" 
+                        >
+                        {{camelToWord this.val}} 
+                        {{#if this.meta.info}}
+                        <span class="info-circle" mydata="{{this.meta.info}}">?</span>
+                        {{/if}}
+                    </th>
                 {{/each}}
             </tr>
 
             {{#each dataRows}}
-            <tr id="row{{@index}}">
+            <tr id="row{{@index}}" row>
                 <td>
                     {{#if (matchValues this.fixed "true")}}
                         {{#if (matchValues this.noClone "true")}}
@@ -135,23 +477,204 @@
                     {{else}}
                     <a class="icon" onclick="deleteMe(this)" ><i class="fas fa-trash"></i></a>
                     {{/if}}
-                    <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
+                    <a class="icon" onclick="createForm(this)" ><i class="fas fa-expand-alt"></i></a>
                 </td>
                 {{#each this.array}}
-                    {{#if (checkHtmlString this)}}
 
-                    <td class="col{{@index}} page" mydata="{{this}}">
-                        <a class="icon" onclick="createForm(this)" >
-                            <i class="fas fa-expand-alt black"></i>
-                        </a>
+                    {{#if (matchValues ../this.noClone "true")}}
+
+                        {{#if (checkHtmlString this.val) }}
+
+                        <td 
+                            index="col{{@index}}"
+                            class="page" 
+                            mydata="{{this.val}}">
+                                <a class="icon" onclick="createForm(this)" >
+                                    <i class="fas fa-expand-alt black"></i>
+                                </a>
+                        </td>
+
+                        {{else}}
+
+                        <td 
+                            index="col{{@index}}"
+                            mydata="{{this.val}}"
+                            class="brick"> {{this.val}} 
+                        </td>
+
+                        {{/if}}
+
+                    {{else if (checkHtmlString this.val) }}
+
+                    <td 
+                        index="col{{@index}}"
+                        class="page" 
+                        mydata="{{this.val}}">
+                            <a class="icon" onclick="createForm(this)" >
+                                <i class="fas fa-expand-alt black"></i>
+                            </a>
+                    </td>
+
+                    {{else if (matchValues "fixed" this.meta.html)}}
+
+                    <td 
+                        mydata="{{this.val}}"
+                        index="col{{@index}}"
+                        class="fixed green"> 
+                        <span>{{this.val}}</span> 
+                    </td>
+
+                    {{else if (matchValues "brick" this.meta.html)}}
+
+                    <td 
+                        index="col{{@index}}"
+                        mydata="{{this.val}}"
+                        class="brick"> {{this.val}} 
+                    </td>
+
+                    {{else if (matchValues "selectFK" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{this.val}}"
+                            FK="{{this.meta.allowedValues}}"
+                            class="fixed selectFK FK"
+                            >
+                            <span onclick="selectFK(this)" class="pointer">{{this.val}}</span>
+                            <div class="listedFKs cellBox d-none" type="selectFK">
+                                <input type="text" onkeyup="selectFK(this)" value="">
+                            </div>
+                        </td>
+
+                    {{else if (matchValues "multipleFK" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{json this.val}}"
+                            FK="{{this.meta.allowedValues}}"
+                            key="{{this.meta.key}}"
+                            class="fixed multipleFK FK"
+                            >
+
+                            {{#unless this.val}}
+                            <span class="pointer" onclick="addInputField(this)" >Add {{this.meta.key}}</span>
+                            {{/unless}}
+
+                            {{#each this.val}}
+                            <span class="pointer" onclick="quantityFK(this)" >{{this.slug}}</span>
+                            {{/each}}
+
+                            <div class="listedFKs cellBox d-none">
+
+                                <div class="static pt-10">
+                                
+                                    {{#each this.val}}
+
+                                    <div class="fields items" myId="{{this.id}}">
+                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this); saveQuantityFK(this,'multipleFK')">
+                                        <i onclick="deleteQuantityFK(this)" class="fas fa-trash"></i>
+                                    </div>
+
+                                    {{/each}}
+
+                                    <button class="pointer" onclick="addInputField(this)"><i class="fas fa-plus"></i></button>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    {{else if (matchValues "quantityFK" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{json this.val}}"
+                            FK="{{this.meta.allowedValues}}"
+                            class="fixed quantityFK FK"
+                            key="{{this.meta.key}}"
+                            >
+
+                            {{#unless this.val}}
+                            <span class="pointer " onclick="addInputField(this);" >Add {{this.meta.key}}</span>
+                            {{/unless}}
+
+                            {{#each this.val}}
+                            <span class="pointer" onclick="quantityFK(this)" >{{this.quantity}}x {{this.slug}}</span>
+                            {{/each}}
+
+                            <div class="listedFKs cellBox d-none" type="quantityFK">
+
+                                <div class="static">
+                                
+                                    {{#each this.val}}
+
+                                    <div class="fields" myId="{{this.id}}">
+                                        <p>
+                                            <button onclick="changeQuantityFK(this, -1)"><i class="fas fa-minus"></i></button>
+                                            <span>{{this.quantity}}</span>
+                                            <button onclick="changeQuantityFK(this, 1)"><i class="fas fa-plus"></i></button>
+                                        </p>
+                                        <i class="fas fa-times"></i>
+                                        <input index="{{@index}}" type="text" onfocus="quantityFK(this)" value="{{this.slug}}" onkeyup="quantityFK(this); saveQuantityFK(this)">
+                                        <i onclick="deleteQuantityFK(this)" class="fas fa-trash"></i>
+                                    </div>
+
+                                    {{/each}}
+
+                                    <button class="pointer" onclick="addInputField(this)"><i class="fas fa-plus"></i></button>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    {{else if (matchValues "formula" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{this.val}}"
+                            onmousedown={{this.meta.allowedValues}}
+                            class="fixed formula"
+                            >
+                            <span>{{this.val}}</span>
+                        </td>
+
+                    {{else if (matchValues "photos" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{json this.val}}"
+                            class="photos fixed"
+                            >
+                            <span class="pointer" onclick="uploadImages(this)">{{countArray this.val}}x photo(s)</span>
+                        </td>
+
+                    {{else if (matchValues "dropdown" this.meta.html)}}
+
+                    <td 
+                        class="dropdown" 
+                        index="col{{@index}}" 
+                        mydata="{{this.val}}"
+                        allowedValues="{{this.mera.allowedValues}}"
+                        onchange="saveInput(this,'{{../array.[0].val}}','dropdown')">
+                            <select>
+                                {{#each (splitComma this.meta.allowedValues) }}
+                                <option value="{{this}}" {{#if (matchValues this ../this.val)}} selected {{/if}} >{{this}}</option>
+                                {{/each}}
+                            </select>
                     </td>
 
                     {{else}}
 
                     <td 
-                        class="col{{@index}}" 
+                        index="col{{@index}}"
+                        mydata="{{this.val}}"
+                        meta="{{json this.meta}}"
+                        class="{{this.meta.html}}" 
                         {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} 
-                        onkeyup="saveInput(this,'{{../array.[0]}}','td')" >{{#unless (matchValues this '[object Object]')}}{{this}}{{/unless}}
+                        onkeyup="saveInput(this,'{{../array.[0].val}}','td')" >{{#unless (matchValues this.val '[object Object]')}}{{this.val}}{{/unless}}
                     </td>
 
                     {{/if}}
@@ -164,7 +687,7 @@
                 <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
             </td>
             {{#each data.th}}
-            <td class="col{{@index}}" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}></td>
+            <td index="col{{@index}}" {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}></td>
             {{/each}}
         </tr>
 
@@ -199,7 +722,9 @@
     <div class="block">
 
         {{#each data.th}}
-            <p>{{this}}</p>
+            {{#unless (matchValues "_id" this.val) }}
+            <p>{{this.val}}</p>
+            {{/unless}}
         {{/each}}
 
     </div>
@@ -218,4 +743,5 @@
     <button class="btn close mt-20" onclick="reloadPjax();">Close</button>
 
 </div>
+
 

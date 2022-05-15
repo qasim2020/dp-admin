@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/root/codemirror/css/codemirror.css">
     <link rel="stylesheet" href="/root/codemirror/css/neo.css">
 
-    <title></title>
+    <title>New Dashboard</title>
     <style>
 
     body {
@@ -31,8 +31,20 @@
         color: black;
         font-size: 15px;
         background: #f2f2f2;
-        height: 36px;
+        height: 37px;
         box-sizing: border-box;
+        cursor: pointer;
+    }
+
+    i.fas {
+        text-decoration: none;
+        color: #F2F2F2;
+    }
+
+    .icon {
+        width: 25px;
+        display: inline-block;
+        text-align: center;
     }
 
     nav {
@@ -44,15 +56,39 @@
         padding: 0 10px;
     }
 
-    .layerOne > div {
+    nav > div {
+        display: flex;
+    }
+
+    nav > div.left > div:nth-child(1) {
+        border: 2px solid black;
+        padding-right: 6px;
+    }
+
+    nav > div.left select {
+        padding: 7px 6px;
+        border-color: transparent;
+        background: white;
+    }
+
+    nav .icon {
+        width: auto;
+    }
+
+    nav i.fas {
+        color: black;
+        padding: 0 2px;
+    }
+
+    nav .btn {
+        margin-bottom: 0px;
+        margin-left: 4px;
+    }
+
+    .layerOne > div , .themes > div {
         padding: 20px 10px;
         background: whitesmoke;
         margin: 10px 0;
-    }
-
-    i.fas {
-        text-decoration: none;
-        color: #F2F2F2;
     }
 
     tr > *:nth-child(1) {
@@ -67,14 +103,13 @@
         font-size: 9px;
     }
 
-    .icon {
-        width: 25px;
-        display: inline-block;
-        text-align: center;
-    }
-
     .d-none {
         display: none !important;
+    }
+
+    .d-block {
+        display: block !important;
+        width: fit-content;
     }
 
     #hiddenFields {
@@ -102,19 +137,57 @@
         padding-bottom: 20px;
     }
 
-    form > label {
+    .themes {
+        max-width: 90vw;
+        margin: auto;
+        width: 900px;
+    }
+
+    form > label, .themes label {
         font-size: 12px;
         margin-bottom: 5px;
         font-weight: bold;
         color: black;
     }
 
-    form > input {
+    .themes label {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .themes input, 
+    form > input, 
+    form > .brick,
+    form > .dropdown,
+    form > .photos,
+    form > .quantityFK,
+    form > .multipleFK,
+    form > .formula,
+    form > .selectFK {
         font-size: 15px;
         padding: 10px;
         border: 2px solid black;
         margin-bottom: 10px;
+        text-align: left;
     }
+
+    form > .multipleFK, 
+    form > .quantityFK {
+        padding-bottom: 6px;
+    }
+
+    form > .dropdown {
+        padding: 0px;
+        padding-right: 10px;
+        background: whitesmoke;
+    }
+
+    form > .dropdown > select {
+        width: 100%;
+        margin-right: 10px;
+        padding-left: 7px;
+    }
+
 
     form > button {
         font-size: 15px;
@@ -220,22 +293,77 @@
         margin-bottom: 0px;
     }
 
+    span.info-circle {
+        position: absolute;
+        right: 0px;
+        font-size: 9px;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 3px 6px;
+        background: white;
+        color: black;
+        border-radius: 4px;
+    }
+
+    span.info-circle:hover, .info-circle.hovered {
+        cursor: pointer;
+        box-shadow: 0px 1px 4px black;
+    }
+
+    .popover {
+        background: white;
+        position: absolute;
+        max-width: 200px;
+        font-size: 12px;
+        padding: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        line-height: 1.4;
+        box-shadow: 0px 1px 4px lightgrey;
+    }
+
+    .primary {
+        background: darkcyan;
+        color: white;
+    }
+
+    .pt-10 {
+        padding-top: 10px;
+    }
+
     {{#if (matchValues data.theme "property")}}
         {{> cssSnippets/propertyTemplates}}
     {{/if}}
 
     </style>
+
 </head>
 <body>
 
     <div class="layerOne">
 
         <nav>
-            <p>{{data.owner.brandName}}</p>
-            <p> 
-                <a class="btn" href="/{{data.brand}}/gen/page/landingPage/n" target="_blank">Home</a>
+            <div class="left">
+                
+                <div>
+                    <select class="" name="" onchange="changeBrand(this)">
+                        {{#each data.owner.person.0.brands}}
+                            {{#if (matchValues this.0.brand ../data.brand)}}
+                            <option value="/{{this.0.brand}}/admin/page/newDashboard/{{this.0.brand}}-{{this.0.collections}}" selected>{{this.0.brandName}}</option>
+                            {{else}}
+                            <option value="/{{this.0.brand}}/admin/page/newDashboard/{{this.0.brand}}-{{this.0.collections}}" >{{this.0.brandName}}</option>
+                            {{/if}}
+                        {{/each}}
+                    </select>
+                </div>
+
+                <button class="btn" onclick="openLayer('.layerOne', '.themes')"><i class="fas fa-plus"></i></button>
+
+            </div>
+            <div>
+                <a class="btn icon" href="/{{data.brand}}/gen/page/landingPage/n" target="_blank"><i class="fas fa-home"></i></a>
                 <a class="btn" href="/{{data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">Log Out</a> 
-            </p>
+            </div>
         </nav>
 
         <div>
@@ -278,6 +406,26 @@
     </div>
 
     <!-- DO NOT DELETE BELOW FORM -->
+    <div class="themes d-none">
+
+        <div>
+            <label for="brandName">BRAND NAME</label>
+            <input type="text" placeholder="Name of your Business">
+        </div>
+        <div>
+            <label>PROJECT THEME</label>
+            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/property">Property Listings</a>
+            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/printer">Services Center</a>
+            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/7am">Small Business</a>
+        </div>
+
+        <div>
+            <button class="btn d-block primary">Create New Project →</button>
+            <button class="btn close" onclick="openLayer('.themes','.layerOne')">Close</button>
+        </div>
+    
+    </div>
+
     <div class="formBox d-none">
 
     </div>
@@ -308,6 +456,9 @@
         </div>
 
     </div>
+
+    <div class="popover d-none"></div>
+    <div class="fakeScreen d-none" onclick="$(this).addClass('d-none')"></div>
     <!-- DO NOT DELETE ABOVE FORM -->
 
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>

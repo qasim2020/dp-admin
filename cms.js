@@ -406,6 +406,7 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
+        // console.log(data);
 
         if( data && data.hasOwnProperty("error")) {
             console.log(data);
@@ -413,6 +414,8 @@ var myFuncs = {
         };
 
         let getOwnerContactDetails = async function(req,res) {
+
+            if (req.session && req.session.person == undefined) return console.log("this is a gen request owner not found");
 
             let model = await myFuncs.createModel("myapp-themes");
             let model2 = await myFuncs.createModel("myapp-users");
@@ -636,7 +639,10 @@ var myFuncs = {
         deleteImgInArray: "admin",
         deleteImgInCloudinary: "admin",
         saveItemInArray: "gen",
-        deleteItemInArray: "gen"
+        deleteItemInArray: "gen",
+
+        kallesQuickView: "gen",
+        kallesCartUpdate: "gen",
     },
 
     listenToWebhook: function(req,res) {
@@ -1218,6 +1224,9 @@ var myFuncs = {
         try {
 
             let myProperties = await Collections.findOne({name: req.params.input}).lean();
+
+            console.log(myProperties);
+
             let cp = myProperties.properties;
 
             let keysAll  = await this.airtableAPI({ 
@@ -1228,6 +1237,7 @@ var myFuncs = {
             });
 
             let arrays = [], items = [];
+
             keysAll = keysAll.map( val => {
 
                 Object.entries( val ).forEach( love => {
@@ -2461,12 +2471,6 @@ var myFuncs = {
     },
 
     richpakistan: async function(req,res) {
-        return {
-            success: true
-        }
-    },
-
-    kalles: async function(req,res) {
         return {
             success: true
         }
@@ -5945,6 +5949,141 @@ var myFuncs = {
 
 
     // TODO: HERE MAKE THE KALLES THEME FUNCTIONAL
+    kalles: async function(req,res) {
+
+        console.log( req.params );
+        let model = await this.createModel(`${req.params.brand}-products`);
+        let trending = await model.find({trending: "true"}).limit(8).lean();
+        let sale = await model.find({sale: { $exists: true} }).limit(8).lean();
+        return {
+            products: trending,
+            sale: sale
+        }
+    },
+
+    kallesQuickView: async function(req,res) {
+
+        console.log("quick view ");
+
+        try {
+        let model = await this.createModel(`${req.params.brand}-products`);
+        let product = await model.findOne({_id : mongoose.mongo.ObjectID( req.params.input ) }).lean();
+        let sizes = await model.aggregate([ 
+            {
+                '$match': {
+                    '_id': mongoose.mongo.ObjectID( req.params.input )
+                }
+            }, {
+                '$lookup': {
+                    'from': `${req.params.brand}-sizes`, 
+                    'localField': 'category', 
+                    'foreignField': 'category', 
+                    'as': 'sizes'
+                }
+            }, {
+                '$unwind': '$sizes'
+            }, {
+                '$unwind': '$items'
+            }, {
+                '$lookup': {
+                    'from': `${req.params.brand}-items`, 
+                    'let': {
+                        'mySlug': '$items.slug', 
+                        'mySize': '$sizes.slug'
+                    }, 
+                    'pipeline': [
+                        {
+                            '$match': {
+                                '$expr': {
+                                    '$and': [
+                                        {
+                                            '$eq': [
+                                                '$slug', '$$mySlug'
+                                            ]
+                                        }, {
+                                            '$eq': [
+                                                '$size', '$$mySize'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ], 
+                    'as': 'stock'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$stock',
+                    'preserveNullAndEmptyArrays': true
+                }
+            }, {
+                '$group': {
+                    '_id': {
+                        'stock': '$sizes.slug',
+                        'label': '$sizes.label',
+                        'ser': '$sizes.ser'
+                    },
+                    'items': {
+                        '$addToSet': '$stock'
+                    }
+                }
+            }, {
+                '$project': {
+                    'size': '$_id.stock',
+                    'label': '$_id.label',
+                    'ser': {
+                        '$toInt': '$_id.ser'
+                    },
+                    'stock': {
+                        '$cond': {
+                            'if': {
+                                '$isArray': '$items'
+                            },
+                            'then': {
+                                '$size': '$items'
+                            },
+                            'else': 'NA'
+                        }
+                    },
+                    'items': '$items',
+                    '_id': 0
+                }
+                }, {
+                    '$sort': {
+                        'ser': 1
+                    }
+                }
+        ]);
+
+        return {
+            product: product,
+            sizes: sizes
+        };
+
+        } catch(e) {
+            console.log(e);
+            return e;
+        }
+
+    },
+
+    kallesCartUpdate: async function(req,res) {
+
+        let cart = req.session && req.session.cart || [];
+
+        cart = cart.filter( val => val.size != req.body.size && val.product.slug != req.body.product.slug );
+
+        cart.push( req.body );
+
+        req.session.cart = cart;
+
+        return {
+            cart: cart
+        };
+
+    },
+
 };
 
 server.listen(3000)

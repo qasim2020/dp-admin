@@ -11344,3 +11344,12 @@ body .tooltip_bottom_right:hover .tt_txt {
 .kalles-section-pr_summary .product_title {
     font-size: 20px;
 }
+
+
+/*** MANUAL BY QASIM ***/
+
+.swatch_pr_item.pr.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+}
+

@@ -546,6 +546,9 @@
         };
 
         $.fn.swatchesOnBGGrid = function () {
+
+            console.log("swatch clicked");
+
             const $this    = $( this );
             let imageBg    = $this.data( 'bgset' ),
                 paddingImg = $this.data( 'pd' ),
@@ -689,6 +692,13 @@
                     $this.addClass( 'is-selected' ).siblings().removeClass( 'is-selected' );
                     if ( $this.data( 'escape' ) ) {
                         $this.closest( '.kalles_swatch_js' ).find( '.user_choose_js,.nt_name_current' ).text( $this.data( 'escape' ) );
+                        let details = JSON.parse( $this.closest(".swatch_pr_item").attr('my-data') );
+                        if ( details.items[0].sale_price != "" ) {
+                            $this.closest(".product-quickview").find(".price_range").html( `<del>PKR ${details.items[0].price}</del><ins>PKR ${details.items[0].sale_price}</ins>`);
+                        } else {
+                            $this.closest(".product-quickview").find(".price_range").html( `<span>PKR ${details.items[0].price}</span>`);
+                        };
+                        $this.closest(".product-quickview").find(".quantity > .qty_pr_js").attr({max : details.stock });
                     }
                     if ( $this.data( 'index' ) ) {
                         const $main_slide = $this.closest( '.kalles-section' ).find( '.col_thumb .pr_carousel' ).first();
@@ -1844,43 +1854,151 @@
             }
         };
 
-        $.fn.kallesLoadQuickView = function () {
-            const $btn       = $( this ),
-                  $container = $( '#quick-view-tpl' ),
-                  data       = $container.length ? $container.html() : null;
+        let urlParams = function() {
 
-            if ( data.length ) {
-                $.magnificPopup.open( {
-                    items        : {
-                        src  : '<div class="mfp-with-anim popup-quick-view" id="content_quickview">' + data + '</div>',
-                        type : 'inline'
-                    },
-                    tClose       : 'Close (Esc)',
-                    removalDelay : 500, /*delay removal by X to allow out-animation*/
-                    callbacks    : {
-                        beforeOpen : function () {
-                            this.st.mainClass = 'mfp-move-horizontal';
+            let url = {
+                brand: window.location.pathname.split("/")[1],
+                permit: window.location.pathname.split("/")[2],
+                requiredType: window.location.pathname.split("/")[3],
+                module: window.location.pathname.split("/")[4],
+                input: window.location.pathname.split("/")[5],
+            };
+
+            return url;
+
+        };
+
+
+        $.fn.kallesLoadQuickView = function () {
+
+            const $btn       = $( this ),
+                  $container = $( '#quick-view-tpl' );
+
+            //TODO:here my own data module loads the item
+            
+            let drawPop = function() {
+              let data = $container.length ? $container.html() : null;
+                if ( data.length ) {
+                    $.magnificPopup.open( {
+                        items        : {
+                            src  : '<div class="mfp-with-anim popup-quick-view" id="content_quickview">' + data + '</div>',
+                            type : 'inline'
                         },
-                        open       : function () {
-                            const el = $( '.nt_carousel_qv' ), option = el.attr( "data-flickity" ) || '{}';
-                            el.flickity( JSON.parse( option ) );
-                            body.addClass( 'open_ntqv' );
-                            $( '.kalles_swatch_js' ).kallesSwatches();
-                            $( '#callBackVariant_qv .single_add_to_cart_button' ).kallesAnimation();
-                            $( '#nt_countdow_qv' ).initCountdown_pr();
-                            $btn.removeClass( 'loading' );
-                            $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                        tClose       : 'Close (Esc)',
+                        removalDelay : 500, /*delay removal by X to allow out-animation*/
+                        callbacks    : {
+                            beforeOpen : function () {
+                                this.st.mainClass = 'mfp-move-horizontal';
+                            },
+                            open       : function () {
+                                const el = $( '.nt_carousel_qv' ), option = el.attr( "data-flickity" ) || '{}';
+                                el.flickity( JSON.parse( option ) );
+                                body.addClass( 'open_ntqv' );
+                                $( '.kalles_swatch_js' ).kallesSwatches();
+                                $( '#callBackVariant_qv .single_add_to_cart_button' ).kallesAnimation();
+                                $( '#nt_countdow_qv' ).initCountdown_pr();
+                                $btn.removeClass( 'loading' );
+                                $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                            },
+                            close      : function () {
+                                $( '#content_quickview' ).empty();
+                                body.removeClass( 'open_ntqv' );
+                                $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                            }
                         },
-                        close      : function () {
-                            $( '#content_quickview' ).empty();
-                            body.removeClass( 'open_ntqv' );
-                            $( '.dropdown_picker_js' ).kallesDropdownPicker();
-                        }
-                    },
-                } );
-            } else {
-                $btn.removeClass( 'loading' );
+                    } );
+                } else {
+                    $btn.removeClass( 'loading' );
+                }
             }
+
+            let myId = $(this).closest(".product").attr("myId");
+
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesQuickView/${ myId }`,
+                method: "GET",
+                success: val => {
+
+                    console.log(val);
+
+                    let object = {};
+
+                    object.photoHtml = val.product.photos.reduce( (total, photo) => {
+                        total += `
+                        <div data-grname="not4" data-grpvl="ntt4" class="js-sl-item q-item sp-pr-gallery__img w__100" data-mdtype="image">
+                            <span class="nt_bg_lz lazyload" data-bgset="${photo.large}"></span>
+                        </div>
+                        `;
+                        return total;
+                    }, "" );
+
+                    object.sizes = val.sizes.reduce( (total, size, index) => {
+
+                        if ( size.stock > 0 == false ) {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr disabled" data-escape="${size.label}" my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                        } else {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                        };
+
+                        return total;
+
+                    },"");
+
+                    object.selectedSize = val.sizes.find( val => val.stock > 0 ) || {
+                        label: "Out of Stock",
+                        stock: 0,
+                        items:[{
+                            price: "---",
+                        }]
+                    };
+
+                    if (val.product.new) {
+
+                        object.saleLabel = `<span class="nt_label new">New</span>`;
+
+                    } 
+
+                    if (val.product.sale) {
+
+                        object.saleLabel = `<span class="onsale nt_label"><span>${val.product.sale}</span></span>`;
+
+                    }
+
+                    if ( object.selectedSize.items[0].hasOwnProperty("sale_price") ) {
+
+                        $container.find(".price_range").html( `<del>PKR ${object.selectedSize.items[0].price}</del><ins>PKR ${object.selectedSize.items[0].sale_price}</ins>`);
+
+                    } else {
+
+                        $container.find(".price_range").html( `<span>PKR ${object.selectedSize.items[0].price}</span>`);
+
+                    };
+
+                    $container.find(".price-review").html( object.prices );
+                    $container.find(".product-images-slider > div").remove();
+                    $container.find(".product-images-slider").append(object.photoHtml);
+                    $container.find(".nt_labels").html(object.saleLabel);
+                    $container.find(".nt_name_current").html( object.selectedSize.label );
+                    $container.find(".swatches-select").html( object.sizes );
+                    $container.find(".swatches-select").find(".nt-swatch:not('.disabled'):eq(0)").addClass("is-selected");
+                    $container.find(".product_title > a").html( val.product.name );
+                    $container.find(".pr_short_des > .mg__0").html( val.product.description );
+                    $container.find(".quantity > .qty_pr_js").attr({max : object.selectedSize.stock });
+
+                    drawPop();
+                },
+            }).fail( err => console.log( err ) );
+
+            //END TODO
+
         }
 
         $.fn.kallesLoadQuikShop = function () {
@@ -2099,29 +2217,104 @@
             e.preventDefault();
             e.stopPropagation();
             let mini_cart_block$ = $( '#nt_cart_canvas' ),
-                btn$             = $( this );
-            if ( mini_cart_block$.length !== 0 ) {
-                btn$.addClass( 'loading' );
-                if ( $.magnificPopup && $.magnificPopup.instance.isOpen ) {
-                    $.magnificPopup.close();
-                }
-                if ( $( body ).hasClass( 'pside_opened' ) ) {
-                    $( body ).closeMenu();
-                }
-                if ( body.hasClass( 'cart_pos_dropdown' ) ) {
-                    setTimeout( () => {
-                        $( 'html, body' ).animate( { scrollTop : 0 }, 'slow', () => {
-                            mini_cart_block$.addClass( 'current_hover' );
+                btn$             = $( this ),
+                quantity = btn$.closest(".product-quickview").find(".quantity").find("input").val(),
+                product = JSON.parse( btn$.closest(".product-quickview").find(".swatch_pr_item.is-selected").attr("my-product") ),
+                size = JSON.parse( btn$.closest(".product-quickview").find(".swatch_pr_item.is-selected").attr("my-data") );
+
+            let data  = { product: product, items: size.items, quantity: quantity, size: size.size };
+
+            let drawPop = function() {
+
+                if ( mini_cart_block$.length !== 0 ) {
+                    btn$.addClass( 'loading' );
+                    if ( $.magnificPopup && $.magnificPopup.instance.isOpen ) {
+                        $.magnificPopup.close();
+                    }
+                    if ( $( body ).hasClass( 'pside_opened' ) ) {
+                        $( body ).closeMenu();
+                    }
+                    if ( body.hasClass( 'cart_pos_dropdown' ) ) {
+                        setTimeout( () => {
+                            $( 'html, body' ).animate( { scrollTop : 0 }, 'slow', () => {
+                                mini_cart_block$.addClass( 'current_hover' );
+                                btn$.removeClass( 'loading' );
+                            } );
+                        }, 500 );
+                    } else {
+                        setTimeout( () => {
+                            btn$.openMenu( mini_cart_block$ );
                             btn$.removeClass( 'loading' );
-                        } );
-                    }, 500 );
-                } else {
-                    setTimeout( () => {
-                        btn$.openMenu( mini_cart_block$ );
-                        btn$.removeClass( 'loading' );
-                    }, 500 );
+                        }, 500 );
+                    }
                 }
-            }
+
+            };
+
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesCartUpdate/n`,
+                method: "POST",
+                data: data,
+                success: val => {
+                    console.log( val );
+                    let html = val.cart.reduce( (total, val, key) => {
+
+                        return total += `
+                        <div class="mini_cart_item js_cart_item flex al_center pr oh">
+                            <div class="ld_cart_bar"></div>
+                            <a href="product-detail-layout-01.html" class="mini_cart_img">
+                                <img class="w__100 lazyload" data-src="${val.product.photos[0].medium}" width="120" height="153" alt="" src="${val.product.photos[0].medium}">
+                            </a>
+                            <div class="mini_cart_info">
+                                <a href="product-detail-layout-01.html" class="mini_cart_title truncate">${val.product.name}</a>
+                                <div class="mini_cart_meta"><p class="cart_meta_variant">${val.size}</p>
+                                    <p class="cart_selling_plan"></p>
+                                    <div class="cart_meta_price price">
+                                        <div class="cart_price">
+                                            <del>PKR ${val.items[0].price}</del>
+                                            <ins>PKR ${val.items[0].sale_price}</ins>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mini_cart_actions">
+                                    <div class="quantity pr mr__10 qty__true">
+                                        <input type="number" class="input-text qty text tc qty_cart_js" step="1" min="1" max="${val.items.length}" value="${val.quantity}">
+                                        <div class="qty tc fs__14">
+                                            <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
+                                                <i class="facl facl-plus"></i>
+                                            </button>
+                                            <button type="button" class="minus db cb pa pd__0 pl__15 tl l__0 qty_1">
+                                                <i class="facl facl-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right"><span class="tt_txt">Edit this item</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </a>
+                                    <a href="#" class="cart_ac_remove js_cart_rem ttip_nt tooltip_top_right"><span class="tt_txt">Remove this item</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    },"");
+
+                    mini_cart_block$.find(".mini_cart_items").html( html );
+
+                    drawPop();
+                }
+            }).fail( err => console.log( err ) );
+            
         } );
 
         /**********************************************
@@ -2157,12 +2350,13 @@
         body.on( 'click', 'button.plus , a.plus , button.minus , a.minus', function ( e ) {
             e.preventDefault();
             e.stopPropagation();
-            const $inputTag = $( this ).closest( '.quantity' ).find( '.qty_cart_js,.qty_pr_js' );
+            const $inputTag = $( this ).closest( '.quantity' ).find( '.qty_cart_js, .qty_pr_js' );
             if ( $inputTag ) {
                 let value = $inputTag.val() ? parseInt( $inputTag.val(), 10 ) : 0,
-                    max   = $inputTag.data( 'max' ) || 100,
-                    min   = $inputTag.data( 'min' ) || 0,
+                    max   = $inputTag.attr( 'max' ) || 100,
+                    min   = $inputTag.data( 'min' ) || 1,
                     step  = $inputTag.data( 'step' ) || 1;
+                console.log({min, max});
                 if ( $( this ).hasClass( 'plus' ) ) {
                     value = value + step <= max ? value + step : max;
                 } else {

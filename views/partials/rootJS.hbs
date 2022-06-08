@@ -976,7 +976,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             }
 
             alreadySelected.forEach( val => {
-                $(elem).closest(".FK").find(`[my-slug='${val}'`).get().forEach( val => { 
+                $(elem).closest(".FK").find(`[my-slug='${val.trim()}'`).get().forEach( val => { 
                     $(val).addClass("disabled").removeClass("active pointer").attr({onclick: ""});
                     $(val).siblings(".card:not(.disabled):eq(0)").addClass("active");
                 });

@@ -280,8 +280,18 @@ hbs.registerHelper('countArray', function(val) {
     return output;
 });
 
+hbs.registerHelper('multiply', function(one, two) {
+    return Number(one) * Number(two);
+});
+
 hbs.registerHelper('trim', function(val) {
     return val.trim();
+});
+
+hbs.registerHelper('calcTotalPrice', function(cart) {
+    let eachPrice = cart.map( val => Number(val.quantity) * Number(val.items[0].sale_price) || Number(val.items[0].price) );
+    let totalPrice = eachPrice.reduce( (total, val, key) => total += val, 0 );
+    return totalPrice;
 });
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
@@ -497,7 +507,7 @@ var myFuncs = {
                 input: req.params.input,
                 owner: await getOwnerContactDetails(req,res),
                 requiredType: req.params.requiredType,
-                theme: await this.getThemeName(req.params.brand)
+                theme: await this.getThemeName(req.params.brand),
             });
 
         } catch(e) {
@@ -522,7 +532,7 @@ var myFuncs = {
 
         };
 
-        // console.log(data);
+        console.log(JSON.stringify(data, 0, 2));
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -643,6 +653,12 @@ var myFuncs = {
 
         kallesQuickView: "gen",
         kallesCartUpdate: "gen",
+        kallesRemoveCartItem: "gen",
+        kallesShoppingCart: "gen", 
+        kallesChangeCartQty: "gen",
+        kallesCheckOut: "gen",
+
+
     },
 
     listenToWebhook: function(req,res) {
@@ -5947,23 +5963,19 @@ var myFuncs = {
 
     },
 
-
-    // TODO: HERE MAKE THE KALLES THEME FUNCTIONAL
     kalles: async function(req,res) {
 
-        console.log( req.params );
         let model = await this.createModel(`${req.params.brand}-products`);
         let trending = await model.find({trending: "true"}).limit(8).lean();
         let sale = await model.find({sale: { $exists: true} }).limit(8).lean();
         return {
             products: trending,
-            sale: sale
+            sale: sale,
+            cart: req.session.cart != undefined ? req.session.cart : []
         }
     },
 
     kallesQuickView: async function(req,res) {
-
-        console.log("quick view ");
 
         try {
         let model = await this.createModel(`${req.params.brand}-products`);
@@ -6071,16 +6083,73 @@ var myFuncs = {
     kallesCartUpdate: async function(req,res) {
 
         let cart = req.session && req.session.cart || [];
-
-        cart = cart.filter( val => val.size != req.body.size && val.product.slug != req.body.product.slug );
-
+        cart = cart.filter( val => val.slug != req.body.slug );
         cart.push( req.body );
+        req.session.cart = cart;
+
+        return {
+            cart: cart
+        };
+
+    },
+
+    kallesRemoveCartItem: async function(req,res) {
+        
+        let cart = req.session && req.session.cart || [];
+        cart = cart.filter( val => val.slug != req.body.slug );
+        req.session.cart = cart;
+
+        return {
+            cart: cart
+        };
+
+    },
+
+    kallesShoppingCart: async function(req,res) {
+
+        req.params.module = "shopping-cart";
+
+        if (req.session.cart == undefined || req.session.cart == []) {
+            req.params.module = "landingPage";
+            return this.kalles(req,res);
+        }
+
+        return {
+            cart: req.session.cart != undefined ? req.session.cart : [],
+        }
+
+    },
+
+    kallesChangeCartQty: async function(req, res) {
+
+        let cartItem = req.session && req.session.cart && req.session.cart.find( val => val.size.size == req.body.size && val.product.slug == req.body.product );
+        cartItem.quantity = req.body.quantity;
+
+        let cart = req.session && req.session.cart || [];
+        cart = cart.filter( val => val.size.size != req.body.size || val.product.slug != req.body.product );
+        cart.push(cartItem);
 
         req.session.cart = cart;
 
         return {
             cart: cart
         };
+
+
+    },
+
+    kallesCheckOut: async function(req, res) {
+
+        req.params.module = "checkout";
+
+        if (req.session.cart == undefined || req.session.cart == []) {
+            req.params.module = "landingPage";
+            return this.kalles(req,res);
+        }
+
+        return {
+            cart: req.session.cart != undefined ? req.session.cart : [],
+        }
 
     },
 

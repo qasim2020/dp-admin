@@ -703,12 +703,6 @@
                                                                             <div class="hover_img pa pe_none t__0 l__0 r__0 b__0 op__0">
                                                                                 <div class="pr_lazy_img back-img pa nt_bg_lz lazyload padding-top__127_571" data-bgset="{{this.photos.0.medium}}"></div>
                                                                             </div>
-                                                                            <div class="nt_add_w ts__03 pa ">
-                                                                                <a href="#" class="wishlistadd cb chp ttip_nt tooltip_right">
-                                                                                    <span class="tt_txt">Add to Wishlist</span>
-                                                                                    <i class="facl facl-heart-o"></i>
-                                                                                </a>
-                                                                            </div>
                                                                             <div class="hover_button op__0 tc pa flex column ts__03">
                                                                                 <a class="pr nt_add_qv js_add_qv cd br__40 pl__25 pr__25 bgw tc dib ttip_nt tooltip_top_left" href="#">
                                                                                     <span class="tt_txt">Quick view</span>
@@ -834,10 +828,8 @@
                                         <a class="cb chp db push_side" href="#" data-id="#nt_login_canvas">
                                             <i class="iccl iccl-user"></i></a>
                                     </div>
-                                    <a class="icon_like cb chp position-relative dn db_md js_link_wis" href="wishlist.html"><i class="iccl iccl-heart pr"><span class="op__0 ts_op pa tcount bgb br__50 cw tc">3</span></i>
-                                    </a>
                                     <div class="icon_cart pr">
-                                        <a class="push_side position-relative cb chp db" href="#" data-id="#nt_cart_canvas"><i class="iccl iccl-cart pr"><span class="op__0 ts_op pa tcount bgb br__50 cw tc">5</span></i></a>
+                                        <a class="push_side position-relative cb chp db" href="#" data-id="#nt_cart_canvas"><i class="iccl iccl-cart pr"><span class="op__0 ts_op pa cart tcount bgb br__50 cw tc">{{countArray data.cart}}</span></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -1079,12 +1071,6 @@
                                 </a>
                                 <div class="hover_img pa pe_none t__0 l__0 r__0 b__0 op__0">
                                     <div class="pr_lazy_img back-img pa nt_bg_lz lazyload padding-top__127_571" data-bgset="{{this.photos.0.medium}}"></div>
-                                </div>
-                                <div class="nt_add_w ts__03 pa ">
-                                    <a href="#" class="wishlistadd cb chp ttip_nt tooltip_right">
-                                        <span class="tt_txt">Add to Wishlist</span>
-                                        <i class="facl facl-heart-o"></i>
-                                    </a>
                                 </div>
                                 <div class="hover_button op__0 tc pa flex column ts__03">
                                     <a class="pr nt_add_qv js_add_qv cd br__40 pl__25 pr__25 bgw tc dib ttip_nt tooltip_top_left" href="#">
@@ -2033,85 +2019,6 @@
 
 <!--quick shop-->
 <div id="quick-shop-tpl" class="dn">
-    <div class="wrap_qs_pr buy_qs_false kalles-quick-shop">
-        <div class="qs_imgs_i row al_center mb__30">
-            <div class="col-auto cl_pr_img">
-                <div class="pr oh qs_imgs_wrap">
-                    <div class="row equal_nt qs_imgs nt_slider nt_carousel_qs p-thumb_qs" data-flickity='{"fade":false,"cellSelector":".qs_img_i","cellAlign":"center","wrapAround":true,"autoPlay":false,"prevNextButtons":false,"adaptiveHeight":true,"imagesLoaded":false,"lazyload":0,"dragThreshold":0,"pageDots":false,"rightToLeft":false}'>
-                        <div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="/kalles/images/quick_shop/p_qs_01.jpg"></div>
-                        <div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="/kalles/images/quick_shop/p_qs_02.jpg"></div>
-                        <div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="/kalles/images/quick_shop/p_qs_03.jpg"></div>
-                        <div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="/kalles/images/quick_shop/p_qs_04.jpg"></div>
-                        <div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="/kalles/images/quick_shop/p_qs_05.jpg"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col cl_pr_title tc">
-                <h3 class="product-title pr fs__16 mg__0 fwm">
-                    <a class="cd chp" href="product-detail-layout-01.html">Cluse La Boheme Rose Gold</a>
-                </h3>
-                <div id="price_qs"><span class="price "><del>$60.00</del> <ins>$45.00</ins></span><span class="qs_label onsale cw"><span>-25%</span></span>
-                </div>
-            </div>
-        </div>
-        <div class="qs_info_i tc">
-            <div class="qs_swatch">
-                <div id="callBackVariant_qs" class="nt_green nt1_xs nt2_">
-                    <div id="cart-form_qs" class="nt_cart_form variations_form variations_form_qs">
-                        <div class="variations mb__40 style__circle size_medium style_color des_color_1">
-                            <div class="nt_select_qs0 swatch is-color kalles_swatch_js">
-                                <h4 class="swatch__title">Color: <span class="nt_name_current">Green</span></h4>
-                                <ul class="swatches-select swatch__list_pr">
-                                    <li class="ttip_nt tooltip_top_right nt-swatch swatch_pr_item bg_css_green is-selected" data-escape="Green">
-                                        <span class="tt_txt">Green</span><span class="swatch__value_pr pr bg_color_green"></span>
-                                    </li>
-                                    <li class="ttip_nt tooltip_top nt-swatch swatch_pr_item " data-escape="Grey">
-                                        <span class="tt_txt">Grey</span><span class="swatch__value_pr pr bg_color_grey"></span>
-                                    </li>
-                                    <li class="ttip_nt tooltip_top nt-swatch swatch_pr_item bg_css_blue " data-escape="Blue">
-                                        <span class="tt_txt">Blue</span><span class="swatch__value_pr pr bg_color_blue"></span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="nt_select_qs1 swatch is-label kalles_swatch_js">
-                                <h4 class="swatch__title">Size: <span class="nt_name_current">XS</span></h4>
-                                <ul class="swatches-select swatch__list_pr">
-                                    <li class="nt-swatch swatch_pr_item pr bg_css_xs is-selected" data-escape="XS">
-                                        <span class="swatch__value_pr">XS</span>
-                                    </li>
-                                    <li class="nt-swatch swatch_pr_item pr " data-escape="S">
-                                        <span class="swatch__value_pr">S</span>
-                                    </li>
-                                    <li class="nt-swatch swatch_pr_item pr " data-escape="M">
-                                        <span class="swatch__value_pr">M</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="variations_button in_flex column w__100">
-                            <div class="flex al_center column">
-                                <div class="quantity pr mb__15 order-1 qty__" id="sp_qty_qs">
-                                    <input type="number" class="input-text qty text tc qty_pr_js qty_cart_js" step="1" min="1" max="9999" name="quantity" value="1" inputmode="numeric">
-                                    <div class="qty tc fs__14">
-                                        <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
-                                            <i class="facl facl-plus"></i></button>
-                                        <button type="button" class="minus db cb pa pd__0 pl__15 tl l__0">
-                                            <i class="facl facl-minus"></i></button>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="single_add_to_cart_button button truncate js_frm_cart w__100 order-4">
-                                    <span class="txt_add ">Add to cart</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <a href="product-detail-layout-01.html" class="btn fwsb detail_link dib mt__15">View full details<i class="facl facl-right"></i></a>
-        </div>
-    </div>
 </div>
 <!--end quick shop-->
 
@@ -2130,13 +2037,85 @@
         <div class="mini_cart_wrap">
             <div class="mini_cart_content fixcl-scroll">
                 <div class="fixcl-scroll-content">
+
+                    {{#if data.cart}}
+
                     <div class="empty tc mt__40 dn"><i class="las la-shopping-bag pr mb__10"></i>
                         <p>Your cart is empty.</p>
                         <p class="return-to-shop mb__15">
                             <a class="button button_primary tu js_add_ld" href="shop-filter-sidebar.html">Return To Shop</a>
                         </p>
                     </div>
+
+                    {{else}}
+
+                    <div class="empty tc mt__40"><i class="las la-shopping-bag pr mb__10"></i>
+                        <p>Your cart is empty.</p>
+                        <p class="return-to-shop mb__15">
+                            <a class="button button_primary tu js_add_ld" href="shop-filter-sidebar.html">Return To Shop</a>
+                        </p>
+                    </div>
+
+                    {{/if}}
+
+                    {{#if data.cart}}
+                    
                     <div class="mini_cart_items js_cat_items lazyload">
+
+                        {{#each data.cart}}
+
+                        <div 
+                             class="mini_cart_item js_cart_item flex al_center pr oh product" 
+                             myId="{{this.product._id}}" 
+                             product="{{this.product.slug}}-{{this.size.size}}" 
+                         >
+                            <div class="ld_cart_bar"></div>
+                            <a href="product-detail-layout-01.html" class="mini_cart_img">
+                                <img class="w__100 lazyload" data-src="{{this.product.photos.0.medium}}" width="120" height="153" alt="" src="{{this.product.photos.0.medium}}">
+                            </a>
+                            <div class="mini_cart_info">
+                                <a href="product-detail-layout-01.html" class="mini_cart_title truncate">{{this.product.name}}</a>
+                                <div class="mini_cart_meta"><p class="cart_meta_variant">{{this.size.size}}</p>
+                                    <p class="cart_selling_plan"></p>
+                                    <div class="cart_meta_price price">
+                                        <div class="cart_price" data="{{this.size.items.0.sale_price}}">
+                                            <del>PKR {{this.size.items.0.price}}</del>
+                                            <ins>PKR {{this.size.items.0.sale_price}}</ins>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mini_cart_actions">
+                                    <div class="quantity pr mr__10 qty__true">
+                                        <input type="number" class="input-text qty text tc qty_cart_js" step="1" min="1" max="{{countArray this.size.items}}" value="{{this.quantity}}">
+                                        <div class="qty tc fs__14">
+                                            <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
+                                                <i class="facl facl-plus"></i>
+                                            </button>
+                                            <button type="button" class="minus db cb pa pd__0 pl__15 tl l__0 qty_1">
+                                                <i class="facl facl-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right" product="{{this.product.slug}}-{{this.size.size}}"><span class="tt_txt">Edit this item</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </a>
+                                    <a href="#" class="cart_ac_remove js_cart_rem ttip_nt tooltip_top_right" product="{{this.product.slug}}-{{this.size.size}}"><span class="tt_txt">Remove this item</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{/each}}
+
                     </div>
                     <div class="mini_cart_tool js_cart_tool tc ">
                         <div data-id="note" class="mini_cart_tool_note js_cart_tls ttip_nt tooltip_top">
@@ -2153,6 +2132,29 @@
                             <i class="las la-tag"></i><span class="tt_txt">Add A Coupon</span>
                         </div>
                     </div>
+
+                    {{else}}
+
+                    <div class="mini_cart_items js_cat_items lazyload"></div>
+
+                    <div class="mini_cart_tool js_cart_tool tc dn">
+                        <div data-id="note" class="mini_cart_tool_note js_cart_tls ttip_nt tooltip_top">
+                            <span class="txt_add_note "><i class="lar la-clipboard"></i><span class="tt_txt">Add Order Note</span></span>
+                            <span class="txt_edit_note dn"><i class="las la-clipboard-list"></i><span class="tt_txt">Edit Order Note</span></span>
+                        </div>
+                        <div data-id="gift" class="mini_cart_tool_gift js_cart_tls js_gift_wrap ttip_nt tooltip_top">
+                            <i class="las la-gift"></i><span class="tt_txt">Add A Gift Wrap</span>
+                        </div>
+                        <div data-id="ship" class="mini_cart_tool_ship js_cart_tls ttip_nt tooltip_top">
+                            <i class="las la-truck-moving"></i><span class="tt_txt">Estimate Shipping</span>
+                        </div>
+                        <div data-id="dis" class="mini_cart_tool_dis js_cart_tls ttip_nt tooltip_top">
+                            <i class="las la-tag"></i><span class="tt_txt">Add A Coupon</span>
+                        </div>
+                    </div>
+
+                    {{/if}}
+
                 </div>
             </div>
             <div class="mini_cart_footer js_cart_footer">
@@ -2160,7 +2162,7 @@
                 <div class="total row fl_between al_center">
                     <div class="col-auto"><strong>Subtotal:</strong></div>
                     <div class="col-auto tr js_cat_ttprice">
-                        <div class="cart_tot_price">$91.00</div>
+                        <div class="cart_tot_price">PKR {{calcTotalPrice data.cart}}</div>
                     </div>
                 </div>
                 <p class="txt_tax_ship mb__5 fs__12">Taxes, shipping and discounts codes calculated at checkout</p>
@@ -2170,8 +2172,8 @@
                         <path d="M9 20l-7-7 3-3 4 4L19 4l3 3z"></path>
                     </svg>
                 </p>
-                <a href="shopping-cart.html" class="button btn-cart mt__10 mb__10 js_add_ld d-inline-flex justify-content-center align-items-center cd-imp">View cart</a>
-                <a href="checkout.html" class="button btn-checkout mt__10 mb__10 js_add_ld d-inline-flex justify-content-center align-items-center text-white">Check Out</a>
+                <a href="/{{data.brand}}/gen/page/kallesShoppingCart/n" class="button btn-cart mt__10 mb__10 js_add_ld d-inline-flex justify-content-center align-items-center cd-imp">View cart</a>
+                <a href="/{{data.brand}}/gen/page/kallesCheckOut/n" class="button btn-checkout mt__10 mb__10 js_add_ld d-inline-flex justify-content-center align-items-center text-white">Check Out</a>
                 <div class="cat_img_trust mt__10 lazyload">
                     <img class="w__100 lz_op_ef" src="/kalles/images/trust_img2.png" width="360" height="46" alt="">
                 </div>
@@ -2465,18 +2467,10 @@
                 <span class="kalles_toolbar_label">Filter</span>
             </a>
         </div>
-        <div class="type_toolbar_wish kalles_toolbar_item">
-            <a class="js_link_wis" href="wishlist.html">
-				<span class="toolbar_icon">
-					<span class="jswcount toolbar_count">3</span>
-				</span>
-                <span class="kalles_toolbar_label">Wishlist</span>
-            </a>
-        </div>
         <div class="type_toolbar_cart kalles_toolbar_item">
             <a href="#" class="push_side" data-id="#nt_cart_canvas">
 				<span class="toolbar_icon">
-					<span class="jsccount toolbar_count">5</span>
+                                    <span class="jsccount toolbar_count">{{countArray data.cart}}</span>
 				</span>
                 <span class="kalles_toolbar_label">Cart</span>
             </a>
@@ -2827,9 +2821,6 @@
                         </a>
                         <div class="hover_img pa pe_none t__0 l__0 r__0 b__0 op__0">
                             <div class="pr_lazy_img back-img pa nt_bg_lz lazyload padding-top__127_571" data-bgset="/kalles/images/megamenu/pr-02.jpg"></div>
-                        </div>
-                        <div class="nt_add_w ts__03 pa ">
-                            <a href="#" class="wishlistadd cb chp ttip_nt tooltip_right"><span class="tt_txt">Add to Wishlist</span><i class="facl facl-heart-o"></i></a>
                         </div>
                         <div class="hover_button op__0 tc pa flex column ts__03">
                             <a class="pr nt_add_qv js_add_qv cd br__40 pl__25 pr__25 bgw tc dib ttip_nt tooltip_top_left" href="#"><span class="tt_txt">Quick view</span><i class="iccl iccl-eye"></i><span>Quick view</span></a>

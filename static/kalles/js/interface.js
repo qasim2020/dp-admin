@@ -1,4 +1,23 @@
-( function ( $ ) {
+
+( 
+
+    function ( $ ) {
+
+
+        let urlParams = function() {
+
+            let url = {
+                brand: window.location.pathname.split("/")[1],
+                permit: window.location.pathname.split("/")[2],
+                requiredType: window.location.pathname.split("/")[3],
+                module: window.location.pathname.split("/")[4],
+                input: window.location.pathname.split("/")[5],
+            };
+
+            return url;
+
+        };
+
         'use strict';
         const body           = $( 'body' ),
               $window        = $( window ),
@@ -694,11 +713,11 @@
                         $this.closest( '.kalles_swatch_js' ).find( '.user_choose_js,.nt_name_current' ).text( $this.data( 'escape' ) );
                         let details = JSON.parse( $this.closest(".swatch_pr_item").attr('my-data') );
                         if ( details.items[0].sale_price != "" ) {
-                            $this.closest(".product-quickview").find(".price_range").html( `<del>PKR ${details.items[0].price}</del><ins>PKR ${details.items[0].sale_price}</ins>`);
+                            $this.closest(".product-quickview, .kalles-quick-shop").find(".price_range, .price").html( `<del>PKR ${details.items[0].price}</del><ins>PKR ${details.items[0].sale_price}</ins>`);
                         } else {
-                            $this.closest(".product-quickview").find(".price_range").html( `<span>PKR ${details.items[0].price}</span>`);
+                            $this.closest(".product-quickview, .kalles-quick-shop").find(".price_range, .price").html( `<span>PKR ${details.items[0].price}</span>`);
                         };
-                        $this.closest(".product-quickview").find(".quantity > .qty_pr_js").attr({max : details.stock });
+                        $this.closest(".product-quickview, .kalles-quick-shop").find(".quantity > .qty_pr_js").attr({max : details.stock }).val(1);
                     }
                     if ( $this.data( 'index' ) ) {
                         const $main_slide = $this.closest( '.kalles-section' ).find( '.col_thumb .pr_carousel' ).first();
@@ -1375,10 +1394,12 @@
 
                 /*Quantity.*/
                 body.on( 'change', '.sticky_atc_wrap .qty', function () {
+                    console.log("changed the input here");
                     $( '#sp_qty_ppr .qty_pr_js' ).val( $( this ).val() )
                 } );
 
                 body.on( 'change', '#sp_qty_ppr .qty_pr_js', function () {
+                    console.log("ccchange changed the input here");
                     $( '.sticky_atc_wrap .qty' ).val( $( this ).val() );
                 } );
             }
@@ -1854,34 +1875,17 @@
             }
         };
 
-        let urlParams = function() {
-
-            let url = {
-                brand: window.location.pathname.split("/")[1],
-                permit: window.location.pathname.split("/")[2],
-                requiredType: window.location.pathname.split("/")[3],
-                module: window.location.pathname.split("/")[4],
-                input: window.location.pathname.split("/")[5],
-            };
-
-            return url;
-
-        };
-
-
         $.fn.kallesLoadQuickView = function () {
 
             const $btn       = $( this ),
                   $container = $( '#quick-view-tpl' );
-
-            //TODO:here my own data module loads the item
             
             let drawPop = function() {
               let data = $container.length ? $container.html() : null;
                 if ( data.length ) {
                     $.magnificPopup.open( {
                         items        : {
-                            src  : '<div class="mfp-with-anim popup-quick-view" id="content_quickview">' + data + '</div>',
+                            src  : `<div class="mfp-with-anim popup-quick-view" id="content_quickview"> ` + data + '</div>',
                             type : 'inline'
                         },
                         tClose       : 'Close (Esc)',
@@ -1997,46 +2001,160 @@
                 },
             }).fail( err => console.log( err ) );
 
-            //END TODO
-
         }
 
         $.fn.kallesLoadQuikShop = function () {
             const $btn       = $( this ),
                   $container = $( '#quick-shop-tpl' ),
-                  data       = $container.length ? $container.html() : null;
+                  productSlug = $(this).closest(".mini_cart_item").attr("product");
 
-            if ( data.length ) {
-                $.magnificPopup.open( {
-                    items        : {
-                        src  : '<div class="mfp-with-anim pp_qs" id="content_quickview">' + data + '</div>', /* can be a HTML string, jQuery_T4NT object, or CSS selector*/
-                        type : 'inline'
-                    },
-                    tClose       : 'Close (Esc)',
-                    removalDelay : 500, /*delay removal by X to allow out-animation*/
-                    callbacks    : {
-                        beforeOpen : function () {
-                            this.st.mainClass = 'mfp-move-vertical';
+            console.log("Load quick shop");
+
+            let drawPop = function(data) {
+
+                if ( data.length ) {
+                    $.magnificPopup.open( {
+                        items        : {
+                            src  : `<div class="mfp-with-anim pp_qs" id="content_quickview" product="${productSlug}">` + data + '</div>', /* CSS selector*/
+                            type : 'inline'
                         },
-                        open       : function () {
-                            body.addClass( 'open_ntqs' );
-                            $btn.removeClass( 'loading' );
-                            const el = $( '.nt_carousel_qs' ), option = el.attr( "data-flickity" ) || '{}';
-                            el.flickity( JSON.parse( option ) );
-                            $( '.kalles_swatch_js' ).kallesSwatches();
-                            $( '.dropdown_picker_js' ).kallesDropdownPicker();
-                        },
-                        close      : function () {
-                            $( '.clicked_ed_js' ).removeClass( 'clicked_ed_js' );
-                            $( '#content_quickview' ).empty();
-                            body.removeClass( 'open_ntqs' );
-                            $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                        tClose       : 'Close (Esc)',
+                        removalDelay : 500, /*delay removal by X to allow out-animation*/
+                        callbacks    : {
+                            beforeOpen : function () {
+                                this.st.mainClass = 'mfp-move-vertical';
+                            },
+                            open       : function () {
+                                body.addClass( 'open_ntqs' );
+                                $btn.removeClass( 'loading' );
+                                const el = $( '.nt_carousel_qs' ), option = el.attr( "data-flickity" ) || '{}';
+                                el.flickity( JSON.parse( option ) );
+                                $( '.kalles_swatch_js' ).kallesSwatches();
+                                $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                            },
+                            close      : function () {
+                                $( '.clicked_ed_js' ).removeClass( 'clicked_ed_js' );
+                                $( '#content_quickview' ).empty();
+                                body.removeClass( 'open_ntqs' );
+                                $( '.dropdown_picker_js' ).kallesDropdownPicker();
+                            }
                         }
-                    }
-                } );
-            } else {
-                $btn.removeClass( 'loading' );
-            }
+                    } );
+                } else {
+                    $btn.removeClass( 'loading' );
+                }
+
+            };
+
+            let myId = $(this).closest(".product").attr("myId");
+            console.log({myId});
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesQuickView/${ myId }`,
+                method: "GET",
+                success: val => {
+
+                    console.log(val);
+
+                    let photos = val.product.photos.reduce( (total, photo, key) => {
+                        total += `<div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="${photo.medium}"></div>`;
+                        return total;
+                    }, "");
+
+                    let selectedOne = false, 
+                        selectedSize = "",
+                        selectedMax = 0,
+                        selectedItem = {};
+
+                    let sizes = val.sizes.reduce( (total, size, key) => {
+
+                        if ( size.stock > 0 == false ) {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr disabled" data-escape="${size.label}" my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                        } else if ( size.stock > 0 && selectedOne == false ) {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr is-selected" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                            selectedOne = true;
+                            selectedSize = size.label;
+                            selectedMax = size.items.length;
+                            selectedItem = size.items[0];
+                        } else {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                        };
+                        return total;
+
+                    },"");
+
+                    let html = `
+                        <div class="wrap_qs_pr buy_qs_false kalles-quick-shop">
+                            <div class="qs_imgs_i row al_center mb__30">
+                                <div class="col-auto cl_pr_img">
+                                    <div class="pr oh qs_imgs_wrap">
+                                        <div class="row equal_nt qs_imgs nt_slider nt_carousel_qs p-thumb_qs" data-flickity='{"fade":false,"cellSelector":".qs_img_i","cellAlign":"center","wrapAround":true,"autoPlay":false,"prevNextButtons":false,"adaptiveHeight":true,"imagesLoaded":false,"lazyload":0,"dragThreshold":0,"pageDots":false,"rightToLeft":false}'>
+                                            ${photos}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col cl_pr_title tc">
+                                    <h3 class="product-title pr fs__16 mg__0 fwm">
+                                        <a class="cd chp" href="product-detail-layout-01.html">${val.product.name}</a>
+                                    </h3>
+                                    <div id="price_qs">
+                                        <span class="price">
+                                            <del>PKR ${selectedItem.price}</del><ins>PKR ${selectedItem.sale_price}</ins>
+                                        </span>
+                                        <span class="qs_label onsale cw"> <span> ${val.product.sale} </span> </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="qs_info_i tc">
+                                <div class="qs_swatch">
+                                    <div id="callBackVariant_qs" class="nt_green nt1_xs nt2_">
+                                        <div id="cart-form_qs" class="nt_cart_form variations_form variations_form_qs">
+                                            <div class="variations mb__40 style__circle size_medium style_color des_color_1">
+                                                <div class="nt_select_qs1 swatch is-label kalles_swatch_js">
+                                                    <h4 class="swatch__title">Size: <span class="nt_name_current">${selectedSize}</span></h4>
+                                                    <ul class="swatches-select swatch__list_pr">
+                                                        ${sizes}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="variations_button in_flex column w__100">
+                                                <div class="flex al_center column">
+                                                    <div class="quantity pr mb__15 order-1 qty__" id="sp_qty_qs">
+                                                        <input type="number" class="input-text qty text tc qty_pr_js qty_cart_js" step="1" min="1" max="${selectedMax}" name="quantity" value="1" inputmode="numeric">
+                                                        <div class="qty tc fs__14">
+                                                            <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
+                                                                <i class="facl facl-plus"></i></button>
+                                                            <button type="button" class="minus db cb pa pd__0 pl__15 tl l__0">
+                                                                <i class="facl facl-minus"></i></button>
+                                                        </div>
+                                                    </div>
+                    
+                                                    <button type="submit" class="single_add_to_cart_button button truncate js_frm_cart w__100 order-4">
+                                                        <span class="txt_add ">Add to cart</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="product-detail-layout-01.html" class="btn fwsb detail_link dib mt__15">View full details<i class="facl facl-right"></i></a>
+                            </div>
+                        </div>
+                    `;
+                    drawPop(html);
+                }
+            }).fail( err => console.log(err) );
         }
 
         $.fn.kallesPaymentMethodDropdown = function () {
@@ -2218,11 +2336,9 @@
             e.stopPropagation();
             let mini_cart_block$ = $( '#nt_cart_canvas' ),
                 btn$             = $( this ),
-                quantity = btn$.closest(".product-quickview").find(".quantity").find("input").val(),
-                product = JSON.parse( btn$.closest(".product-quickview").find(".swatch_pr_item.is-selected").attr("my-product") ),
-                size = JSON.parse( btn$.closest(".product-quickview").find(".swatch_pr_item.is-selected").attr("my-data") );
-
-            let data  = { product: product, items: size.items, quantity: quantity, size: size.size };
+                quantity = btn$.closest(".product-quickview, .kalles-quick-shop").find(".quantity").find("input").val(),
+                product = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop").find(".swatch_pr_item.is-selected").attr("my-product") ),
+                size = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop").find(".swatch_pr_item.is-selected").attr("my-data") );
 
             let drawPop = function() {
 
@@ -2251,34 +2367,42 @@
 
             };
 
+            let data  = { slug: product.slug+"-"+size.size, product: product, quantity: quantity, size: size };
+
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesCartUpdate/n`,
                 method: "POST",
                 data: data,
                 success: val => {
-                    console.log( val );
+
                     let html = val.cart.reduce( (total, val, key) => {
 
+                        console.log(val);
+
                         return total += `
-                        <div class="mini_cart_item js_cart_item flex al_center pr oh">
+                        <div 
+                             class="mini_cart_item js_cart_item flex al_center pr oh product" 
+                             myId="${val.product._id}" 
+                             product="${val.slug}" 
+                         >
                             <div class="ld_cart_bar"></div>
                             <a href="product-detail-layout-01.html" class="mini_cart_img">
                                 <img class="w__100 lazyload" data-src="${val.product.photos[0].medium}" width="120" height="153" alt="" src="${val.product.photos[0].medium}">
                             </a>
                             <div class="mini_cart_info">
                                 <a href="product-detail-layout-01.html" class="mini_cart_title truncate">${val.product.name}</a>
-                                <div class="mini_cart_meta"><p class="cart_meta_variant">${val.size}</p>
+                                <div class="mini_cart_meta"><p class="cart_meta_variant size" sizeLabel="${val.size.label}">${val.size.size}</p>
                                     <p class="cart_selling_plan"></p>
                                     <div class="cart_meta_price price">
-                                        <div class="cart_price">
-                                            <del>PKR ${val.items[0].price}</del>
-                                            <ins>PKR ${val.items[0].sale_price}</ins>
+                                        <div class="cart_price" data="${val.size.items[0].sale_price}">
+                                            <del>PKR ${val.size.items[0].price}</del>
+                                            <ins>PKR ${val.size.items[0].sale_price}</ins>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mini_cart_actions">
                                     <div class="quantity pr mr__10 qty__true">
-                                        <input type="number" class="input-text qty text tc qty_cart_js" step="1" min="1" max="${val.items.length}" value="${val.quantity}">
+                                        <input type="number" class="input-text qty text tc qty_cart_js" step="1" min="1" max="${val.size.items.length}" value="${val.quantity}">
                                         <div class="qty tc fs__14">
                                             <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
                                                 <i class="facl facl-plus"></i>
@@ -2288,13 +2412,13 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right"><span class="tt_txt">Edit this item</span>
+                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right" product="${val.slug}"><span class="tt_txt">Edit this item</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                         </svg>
                                     </a>
-                                    <a href="#" class="cart_ac_remove js_cart_rem ttip_nt tooltip_top_right"><span class="tt_txt">Remove this item</span>
+                                    <a href="#" class="cart_ac_remove js_cart_rem ttip_nt tooltip_top_right" product="${val.slug}"><span class="tt_txt">Remove this item</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2309,7 +2433,17 @@
 
                     },"");
 
-                    mini_cart_block$.find(".mini_cart_items").html( html );
+                    mini_cart_block$.find(".mini_cart_items").removeClass("dn").html( html );
+                    mini_cart_block$.find(".mini_cart_tool").removeClass("dn");
+                    mini_cart_block$.find(".empty.tc").addClass("dn").css({display: "none"});
+                    $(".tcount.cart,  .toolbar_count").html( val.cart.length );
+
+                    let newSlug = data.slug;
+                    let oldSlug = $(this).closest("#content_quickview").attr("product");
+                    console.log({oldSlug, newSlug});
+                    $(`.cart_item[product=${oldSlug}]`).attr({product: newSlug});
+                    $(`.cart_item[product=${newSlug}]`).find(".qty_cart_js").attr({max: size.items.length});
+                    $(`.mini_cart_item[product=${newSlug}]`).refreshCart();
 
                     drawPop();
                 }
@@ -2347,6 +2481,59 @@
         /**********************************************
          * Product quantity ( plus / minus )
          * ********************************************/
+
+        $.fn.refreshCart = function( updateQty ) {
+
+            let product = $(this).closest(".mini_cart_item, .cart_item").attr("product");
+
+            //total cart cost
+            let itemsCost = $(this).closest(".mini_cart_items, .cart_items").find(".mini_cart_item, .cart_item").get().map( val => {
+                let price = $(val).find(".cart_price").attr("data");
+                let quantity = $(val).find(".qty.qty_cart_js").val();
+                console.log({price,quantity});
+                return Number(price) * Number(quantity);
+            });
+            let totalCost = itemsCost.reduce( (total, val, key) => total+= val, 0 );
+            console.log({totalCost});
+            $(this).closest(".nt_js_cart").find(".cart_tot_price").html(`PKR ${totalCost}`);
+            $(".nt_js_cart").find(".cart_tot_price").get().forEach( val=> $(val).html(`PKR ${totalCost}`) );
+
+            //this item cost 
+            let thisItemCost = $(this).closest(".mini_cart_items, .cart_item").find(".cart_price").attr("data");
+            let value = $(this).closest(".mini_cart_item, .cart_item").find(".qty.qty_cart_js").val();
+            let thisItemCartCost = Number(thisItemCost) * Number(value);
+            $(`[product=${product}]`).find(".js_tt_price_it").html(`PKR ${thisItemCartCost}`);
+
+            //change quantity & name in front end 
+            $(`[product=${product}]`).find(".qty.qty_cart_js").val( value );
+            if ( $(this).closest(".mini_cart_item") ) {
+                let sizeLabel = $(`.mini_cart_item[product=${product}]`).find(".cart_meta_variant.size").attr("sizeLabel");
+                let productName = $(`.mini_cart_item[product=${product}]`).find(".mini_cart_title").html();
+                console.log({sizeLabel, productName});
+                $(`.cart_item[product=${product}]`).find(".mini_cart_title > a").html( `${productName} (Size: ${sizeLabel})` );
+            };
+            
+            //change quantity in session cart
+
+            if (updateQty) {
+
+                let data = {
+                    quantity: value,
+                    product: $(this).closest(".mini_cart_item, .cart_item").attr("productSlug"),
+                    size: $(this).closest(".mini_cart_item, .cart_item").attr("sizeSlug"),
+                };
+
+                $.ajax({
+                    url: `/${urlParams().brand}/gen/data/kallesChangeCartQty/n`,
+                    method: "POST",
+                    data: data,
+                    success: val => console.log(val),
+                }).fail( val => console.log(val) );
+
+            };
+
+        };
+
         body.on( 'click', 'button.plus , a.plus , button.minus , a.minus', function ( e ) {
             e.preventDefault();
             e.stopPropagation();
@@ -2356,13 +2543,20 @@
                     max   = $inputTag.attr( 'max' ) || 100,
                     min   = $inputTag.data( 'min' ) || 1,
                     step  = $inputTag.data( 'step' ) || 1;
-                console.log({min, max});
                 if ( $( this ).hasClass( 'plus' ) ) {
                     value = value + step <= max ? value + step : max;
                 } else {
                     value = value - step >= min ? value - step : min;
                 }
-                $inputTag.val( value ).trigger( 'change' );
+
+                $inputTag.val( value );
+
+                if ( $(this).closest(".mini_cart_items, .cart_items").length ) {
+
+                    $(this).refreshCart();
+
+                };
+
             }
         } );
 
@@ -2846,41 +3040,67 @@
             evt.preventDefault();
             evt.stopPropagation();
             let $this       = $( this ),
-                $wrapItem   = $this.closest( '.mini_cart_item' ),
+                $wrapItem   = $this.closest( '.mini_cart_item, .cart_item' ),
                 $processTag = $wrapItem.find( '.ld_cart_bar' );
 
             $nt_js_cart.addClass( 'ld_nt_cl' );
-            if ( $processTag.length ) {
-                $processTag.addClass( 'on_star' );
-                setTimeout( () => {
-                    $processTag.addClass( 'on_end' );
-                    $wrapItem.slideUp( 300, 'swing', function () {
-                        $( this ).remove()
-                        if ( !$nt_js_cart.find( '.mini_cart_item' ).length ) {
-                            $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).remove();
-                            $nt_js_cart.find( '.empty.tc' ).show( 300, 'swing', function () {
-                                $( this ).removeClass( 'dn' )
-                            } );
-                        }
-                        console.log( $nt_js_cart.find( '.mini_cart_item' ).length );
-                    } );
-                    $nt_js_cart.removeClass( 'ld_nt_cl' );
 
-                }, 1000 );
-            } else {
-                setTimeout( () => {
-                    $wrapItem.slideUp( 300, 'swing', function () {
-                        $( this ).remove();
-                        if ( !$nt_js_cart.find( '.mini_cart_item' ).length ) {
-                            $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).remove();
-                            $nt_js_cart.find( '.empty.tc' ).show( 300, 'swing', function () {
-                                $( this ).removeClass( 'dn' )
-                            } );
-                        }
-                    } );
-                    $nt_js_cart.removeClass( 'ld_nt_cl' );
-                }, 1000 );
-            }
+            let redrawCart = function() {
+
+                if ( $processTag.length ) {
+                    $processTag.addClass( 'on_star' );
+                    setTimeout( () => {
+                        $processTag.addClass( 'on_end' );
+                        $wrapItem.slideUp( 300, 'swing', function () {
+                            let product = $(this).closest(".mini_cart_item, .cart_item").attr("product");
+                            $(`[product=${product}]`).remove();
+                            if ( !$nt_js_cart.find( '.mini_cart_item' ).length ) {
+                                // $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).remove();
+                                $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).addClass("dn");
+                                $nt_js_cart.find( '.empty.tc' ).show( 300, 'swing', function () {
+                                    $( this ).removeClass( 'dn' )
+                                } );
+                            }
+                            $(".mini_cart_items, .cart_items").refreshCart();
+                        } );
+                        $nt_js_cart.removeClass( 'ld_nt_cl' );
+
+                    }, 1000 );
+                } else {
+                    setTimeout( () => {
+                        $wrapItem.slideUp( 300, 'swing', function () {
+                            let product = $(this).closest(".mini_cart_item, .cart_item").attr("product");
+                            $(`[product=${product}]`).remove();
+                            if ( !$nt_js_cart.find( '.mini_cart_item' ).length ) {
+                                $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).addClass("dn");
+                                // $nt_js_cart.find( '.mini_cart_items , .mini_cart_tool' ).remove();
+                                $nt_js_cart.find( '.empty.tc' ).show( 300, 'swing', function () {
+                                    $( this ).removeClass( 'dn' )
+                                } );
+                            }
+                            $(".mini_cart_items, .cart_items").refreshCart();
+                        } );
+                        $nt_js_cart.removeClass( 'ld_nt_cl' );
+
+                    }, 1000 );
+                }
+
+            };
+
+            let data  = {
+                slug: $(this).attr("product"),
+            };
+
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesRemoveCartItem/n`,
+                method: "POST",
+                data: data,
+                success: val => {
+                    $(".tcount.cart,  .toolbar_count").html( val.cart.length );
+                    redrawCart();
+                }
+            }).fail( err => console.log(err) );
+
         } );
 
         /**********************************************

@@ -2053,8 +2053,6 @@
                 method: "GET",
                 success: val => {
 
-                    console.log(val);
-
                     let photos = val.product.photos.reduce( (total, photo, key) => {
                         total += `<div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="${photo.medium}"></div>`;
                         return total;
@@ -2063,7 +2061,8 @@
                     let selectedOne = false, 
                         selectedSize = "",
                         selectedMax = 0,
-                        selectedItem = {};
+                        selectedItem = {},
+                        myPrice = "";
 
                     let sizes = val.sizes.reduce( (total, size, key) => {
 
@@ -2082,7 +2081,8 @@
                             selectedOne = true;
                             selectedSize = size.label;
                             selectedMax = size.items.length;
-                            selectedItem = size.items[0];
+                            myPrice = val.product.sale_price && val.product.sale_price.length > 0 ? `<del>${val.product.price}</del><ins>${val.product.sale_price}</ins>` : val.product.price;
+                                
                         } else {
                             total += `
                                 <li class="nt-swatch swatch_pr_item pr" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
@@ -2110,7 +2110,7 @@
                                     </h3>
                                     <div id="price_qs">
                                         <span class="price">
-                                            <del>PKR ${selectedItem.price}</del><ins>PKR ${selectedItem.sale_price}</ins>
+                                            ${myPrice}
                                         </span>
                                         <span class="qs_label onsale cw"> <span> ${val.product.sale} </span> </span>
                                     </div>

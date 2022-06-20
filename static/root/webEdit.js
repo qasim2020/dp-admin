@@ -279,6 +279,8 @@ let storeHTML = function(elem) {
         ser : connection,
     };
 
+    console.log(data);
+
     $(elem).html("Saving...").attr({disabled: true});
 
     $.ajax({
@@ -290,6 +292,7 @@ let storeHTML = function(elem) {
             $(elem).html("Good!").attr({disabled: false});
         },
         error: (err, status, response) => {
+            console.log(err);
             console.log(err.responseText);
             $(elem).html("Error while saving, try again.").attr({disabled: false});
         }

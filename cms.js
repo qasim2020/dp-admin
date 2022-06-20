@@ -532,7 +532,7 @@ var myFuncs = {
 
         };
 
-        console.log(JSON.stringify(data, 0, 2));
+        // console.log(JSON.stringify(data, 0, 2));
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -5968,8 +5968,10 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-products`);
         let trending = await model.find({trending: "true"}).limit(8).lean();
         let sale = await model.find({sale: { $exists: true} }).limit(8).lean();
+        let newProducts = await model.find({new: "true"}).limit(8).lean();
         return {
             products: trending,
+            newProducts, 
             sale: sale,
             cart: req.session.cart != undefined ? req.session.cart : []
         }

@@ -1,3 +1,9 @@
+// 706 - kallesSwatches
+// quick shop - the bigger overlay of shop
+// quick view - the small overlay of item placing into the cart
+// trigger quick view or trigger quick shop - the event listeners to open the models
+// add to cart - the button on view that adds items to the cart
+// remove from cart - the delete button on each cart item
 
 ( 
 
@@ -709,16 +715,15 @@
                     evt.preventDefault();
                     let $this = $( this );
                     $this.addClass( 'is-selected' ).siblings().removeClass( 'is-selected' );
+
+                    // kind is "escape" 
                     if ( $this.data( 'escape' ) ) {
                         $this.closest( '.kalles_swatch_js' ).find( '.user_choose_js,.nt_name_current' ).text( $this.data( 'escape' ) );
-                        let details = JSON.parse( $this.closest(".swatch_pr_item").attr('my-data') );
-                        if ( details.items[0].sale_price != "" ) {
-                            $this.closest(".product-quickview, .kalles-quick-shop").find(".price_range, .price").html( `<del>PKR ${details.items[0].price}</del><ins>PKR ${details.items[0].sale_price}</ins>`);
-                        } else {
-                            $this.closest(".product-quickview, .kalles-quick-shop").find(".price_range, .price").html( `<span>PKR ${details.items[0].price}</span>`);
-                        };
-                        $this.closest(".product-quickview, .kalles-quick-shop").find(".quantity > .qty_pr_js").attr({max : details.stock }).val(1);
+                        let size = JSON.parse( $this.closest(".swatch_pr_item").attr('my-data') );
+                        // console.log(details, product);
+                        $this.closest(".product-quickview, .kalles-quick-shop").find(".quantity > .qty_pr_js").attr({max : size.stock }).val(1);
                     }
+
                     if ( $this.data( 'index' ) ) {
                         const $main_slide = $this.closest( '.kalles-section' ).find( '.col_thumb .pr_carousel' ).first();
                         if ( $main_slide ) {
@@ -1875,13 +1880,13 @@
             }
         };
 
+        // quick view
         $.fn.kallesLoadQuickView = function () {
 
             const $btn       = $( this ),
                   $container = $( '#quick-view-tpl' );
             
-            let drawPop = function() {
-              let data = $container.length ? $container.html() : null;
+            let drawPop = function(data) {
                 if ( data.length ) {
                     $.magnificPopup.open( {
                         items        : {
@@ -1923,11 +1928,7 @@
                 method: "GET",
                 success: val => {
 
-                    console.log(val);
-
-                    let object = {};
-
-                    object.photoHtml = val.product.photos.reduce( (total, photo) => {
+                    let photos = val.product.photos.reduce( (total, photo) => {
                         total += `
                         <div data-grname="not4" data-grpvl="ntt4" class="js-sl-item q-item sp-pr-gallery__img w__100" data-mdtype="image">
                             <span class="nt_bg_lz lazyload" data-bgset="${photo.large}"></span>
@@ -1936,7 +1937,15 @@
                         return total;
                     }, "" );
 
-                    object.sizes = val.sizes.reduce( (total, size, index) => {
+                    let selectedOne = false, 
+                        selectedSize = "",
+                        selectedMax = 0,
+                        selectedItem = {},
+                        myPrice = "",
+                        label = "";
+
+
+                    let sizes = val.sizes.reduce( (total, size, key) => {
 
                         if ( size.stock > 0 == false ) {
                             total += `
@@ -1944,6 +1953,24 @@
                                     <span class="swatch__value_pr">${size.label}</span>
                                 </li>
                             `;
+                        } else if ( size.stock > 0 && selectedOne == false ) {
+                            total += `
+                                <li class="nt-swatch swatch_pr_item pr is-selected" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
+                                    <span class="swatch__value_pr">${size.label}</span>
+                                </li>
+                            `;
+                            selectedOne = true;
+                            selectedSize = size.label;
+                            selectedMax = size.items.length;
+                            myPrice = val.product.sale_price && val.product.sale_price.length > 0
+                                ? `<p class="price_range" id="price_qv">
+                                        <del>PKR ${val.product.price}</del>
+                                        <ins>PKR ${val.product.sale_price}</ins>
+                                    </p>`
+                                : `<p class="price_range" id="price_qv">
+                                        PKR ${val.product.price}
+                                    </p>`;
+                                
                         } else {
                             total += `
                                 <li class="nt-swatch swatch_pr_item pr" data-escape="${size.label}" my-product='${JSON.stringify(val.product)}' my-data='${JSON.stringify(size)}' >
@@ -1951,64 +1978,104 @@
                                 </li>
                             `;
                         };
-
                         return total;
 
                     },"");
 
-                    object.selectedSize = val.sizes.find( val => val.stock > 0 ) || {
-                        label: "Out of Stock",
-                        stock: 0,
-                        items:[{
-                            price: "---",
-                        }]
-                    };
-
                     if (val.product.new) {
 
-                        object.saleLabel = `<span class="nt_label new">New</span>`;
+                        label = `<span class="nt_label new">New</span>`;
 
                     } 
 
                     if (val.product.sale) {
 
-                        object.saleLabel = `<span class="onsale nt_label"><span>${val.product.sale}</span></span>`;
+                        label = `<span class="onsale nt_label"><span>${val.product.sale}</span></span>`;
 
                     }
 
-                    if ( object.selectedSize.items[0].hasOwnProperty("sale_price") ) {
+                    let html = `
+                                <div class="product-quickview single-product-content img_action_zoom kalles-quick-view-tpl">
+                                    <div class="row product-image-summary">
+                                        <div class="col-lg-7 col-md-6 col-12 product-images pr oh">
+                                            <span class="tc nt_labels pa pe_none cw">${label}</span>
+                                            <div class="images">
+                                                <div class="product-images-slider tc equal_nt nt_slider nt_carousel_qv p-thumb_qv nt_contain ratio_imgtrue position_8" data-flickity='{ "fade":true,"cellSelector": ".q-item:not(.is_varhide)","cellAlign": "center","wrapAround": true,"autoPlay": false,"prevNextButtons":true,"adaptiveHeight": true,"imagesLoaded": false, "lazyLoad": 0,"dragThreshold" : 0,"pageDots": true,"rightToLeft": false }'>
+                                                ${photos}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5 col-md-6 col-12 summary entry-summary pr">
+                                            <div class="summary-inner gecko-scroll-quick">
+                                                <div class="gecko-scroll-content-quick">
+                                                    <div class="kalles-section-pr_summary kalles-section summary entry-summary mt__30">
+                                                        <h1 class="product_title entry-title fs__16"><a href="product-detail-layout-01.html">${val.product.name}</a></h1>
+                                                        <div class="flex wrap fl_between al_center price-review">
+                                                            ${myPrice}
+                                                        </div>
+                                                        <div class="pr_short_des">
+                                                            <p class="mg__0">Go kalles this summer with this vintage navy and white striped v-neck t-shirt from the Nike. Perfect for pairing with denim and white kicks for a stylish kalles vibe.</p>
+                                                        </div>
+                                                        <div class="btn-atc atc-slide btn_des_1 btn_txt_3">
+                                                            <div id="callBackVariant_qv" class="nt_pink nt1_ nt2_">
+                                                                <div id="cart-form_qv" class="nt_cart_form variations_form variations_form_qv">
+                                                                    <div class="variations mb__40 style__circle size_medium style_color des_color_1">
+                                                                        <div class="swatch is-label kalles_swatch_js">
+                                                                            <h4 class="swatch__title">Size:
+                                                                                <span class="nt_name_current user_choose_js">${selectedSize}</span>
+                                                                            </h4>
+                                                                            <ul class="swatches-select swatch__list_pr">
+                                                                                ${sizes}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="variations_button in_flex column w__100 buy_qv_false">
+                                                                        <div class="flex wrap">
+                                                                            <div class="quantity pr mr__10 order-1 qty__true" id="sp_qty_qv">
+                                                                                <input type="number" class="input-text qty text tc qty_pr_js qty_cart_js" value="1" name="quantity" max="${selectedMax}" inputmode="numeric">
 
-                        $container.find(".price_range").html( `<del>PKR ${object.selectedSize.items[0].price}</del><ins>PKR ${object.selectedSize.items[0].sale_price}</ins>`);
+                                                                                <div class="qty tc fs__14">
+                                                                                    <button type="button" class="plus db cb pa pd__0 pr__15 tr r__0">
+                                                                                        <i class="facl facl-plus"></i>
+                                                                                    </button>
+                                                                                    <button type="button" class="minus db cb pa pd__0 pl__15 tl l__0">
+                                                                                        <i class="facl facl-minus"></i>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                            <button type="submit" data-time='6000' data-ani='shake' class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
+                                                                                <span class="txt_add ">Add to cart</span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="product_meta">
 
-                    } else {
+                                                        </div>
+                                                        <a href="product-detail-layout-01.html" class="btn fwsb detail_link p-0 fs__14">View full details<i class="facl facl-right"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        $container.find(".price_range").html( `<span>PKR ${object.selectedSize.items[0].price}</span>`);
+                    `;
 
-                    };
-
-                    $container.find(".price-review").html( object.prices );
-                    $container.find(".product-images-slider > div").remove();
-                    $container.find(".product-images-slider").append(object.photoHtml);
-                    $container.find(".nt_labels").html(object.saleLabel);
-                    $container.find(".nt_name_current").html( object.selectedSize.label );
-                    $container.find(".swatches-select").html( object.sizes );
-                    $container.find(".swatches-select").find(".nt-swatch:not('.disabled'):eq(0)").addClass("is-selected");
-                    $container.find(".product_title > a").html( val.product.name );
-                    $container.find(".pr_short_des > .mg__0").html( val.product.description );
-                    $container.find(".quantity > .qty_pr_js").attr({max : object.selectedSize.stock });
-
-                    drawPop();
+                    drawPop(html);
                 },
             }).fail( err => console.log( err ) );
 
         }
 
+        // quick shop
         $.fn.kallesLoadQuikShop = function () {
             const $btn       = $( this ),
                   $container = $( '#quick-shop-tpl' ),
                   productSlug = $(this).closest(".mini_cart_item").attr("product");
-
-            console.log("Load quick shop");
+                  myId = $(this).closest(".mini_cart_item").attr("myId");
 
             let drawPop = function(data) {
 
@@ -2046,12 +2113,12 @@
 
             };
 
-            let myId = $(this).closest(".product").attr("myId");
-            console.log({myId});
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesQuickView/${ myId }`,
                 method: "GET",
                 success: val => {
+
+                    console.log(val);
 
                     let photos = val.product.photos.reduce( (total, photo, key) => {
                         total += `<div class="col-12 js-sl-item qs_img_i nt_img_ratio lazyload nt_bg_lz" data-bgset="${photo.medium}"></div>`;
@@ -2081,7 +2148,14 @@
                             selectedOne = true;
                             selectedSize = size.label;
                             selectedMax = size.items.length;
-                            myPrice = val.product.sale_price && val.product.sale_price.length > 0 ? `<del>${val.product.price}</del><ins>${val.product.sale_price}</ins>` : val.product.price;
+                            myPrice = val.product.sale_price && val.product.sale_price.length > 0
+                                ?  `<span class="price">
+                                        <del>PKR ${val.product.price}</del><ins>PKR ${val.product.sale_price}</ins>
+                                    </span>
+                                    <span class="qs_label onsale cw"> <span> ${val.product.sale} </span> </span>`
+                                :  `<span class="price">
+                                        PKR ${val.product.price}
+                                    </span>`;
                                 
                         } else {
                             total += `
@@ -2109,10 +2183,7 @@
                                         <a class="cd chp" href="product-detail-layout-01.html">${val.product.name}</a>
                                     </h3>
                                     <div id="price_qs">
-                                        <span class="price">
                                             ${myPrice}
-                                        </span>
-                                        <span class="qs_label onsale cw"> <span> ${val.product.sale} </span> </span>
                                     </div>
                                 </div>
                             </div>
@@ -2140,7 +2211,7 @@
                                                         </div>
                                                     </div>
                     
-                                                    <button type="submit" class="single_add_to_cart_button button truncate js_frm_cart w__100 order-4">
+                                                    <button type="submit" class="single_add_to_cart_button button truncate js_frm_cart w__100 order-4" product="${productSlug}">
                                                         <span class="txt_add ">Add to cart</span>
                                                     </button>
                                                 </div>
@@ -2152,6 +2223,7 @@
                             </div>
                         </div>
                     `;
+
                     drawPop(html);
                 }
             }).fail( err => console.log(err) );
@@ -2331,9 +2403,13 @@
         /**********************************************
          * Add to cart button
          * ********************************************/
+        // add to cart
         body.on( 'click', '.js_addtc , .single_add_to_cart_button', function ( e ) {
             e.preventDefault();
             e.stopPropagation();
+
+            console.log( $(this).attr("product") );
+
             let mini_cart_block$ = $( '#nt_cart_canvas' ),
                 btn$             = $( this ),
                 quantity = btn$.closest(".product-quickview, .kalles-quick-shop").find(".quantity").find("input").val(),
@@ -2367,7 +2443,15 @@
 
             };
 
-            let data  = { slug: product.slug+"-"+size.size, product: product, quantity: quantity, size: size };
+            let data  = { 
+                // oldSlug: $(this).attr("product"), 
+                slug: product.slug+"-"+size.size, 
+                product: product, 
+                quantity: quantity, 
+                size: size 
+            };
+
+            // return console.log({data});
 
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesCartUpdate/n`,
@@ -2377,7 +2461,14 @@
 
                     let html = val.cart.reduce( (total, val, key) => {
 
-                        console.log(val);
+                        let myPrice = val.product.sale_price && val.product.sale_price.length > 0 
+                        ? ` <div class="cart_price" data="${val.product.sale_price}">
+                                <del>PKR ${val.product.price}</del>
+                                <ins>PKR ${val.product.sale_price}</ins>
+                            </div> `
+                        : `<div class="cart_price" data="${val.product.price}">
+                                PKR ${val.product.price}
+                            </div>`;
 
                         return total += `
                         <div 
@@ -2394,10 +2485,7 @@
                                 <div class="mini_cart_meta"><p class="cart_meta_variant size" sizeLabel="${val.size.label}">${val.size.size}</p>
                                     <p class="cart_selling_plan"></p>
                                     <div class="cart_meta_price price">
-                                        <div class="cart_price" data="${val.size.items[0].sale_price}">
-                                            <del>PKR ${val.size.items[0].price}</del>
-                                            <ins>PKR ${val.size.items[0].sale_price}</ins>
-                                        </div>
+                                        ${myPrice}
                                     </div>
                                 </div>
                                 <div class="mini_cart_actions">
@@ -2590,6 +2678,7 @@
         /**********************************************
          * Quick view / Quick Shop
          * ********************************************/
+        // trigger quick view or trigger quick shop
         body.on( 'click', '.js_add_qv , .js__qs', function ( e ) {
             e.preventDefault();
             e.stopPropagation();
@@ -3036,6 +3125,7 @@
         /**********************************************
          * Remove mini cart
          * ********************************************/
+        // remove from cart
         $nt_js_cart.on( 'click', '.cart_ac_remove', function ( evt ) {
             evt.preventDefault();
             evt.stopPropagation();

@@ -289,7 +289,8 @@ hbs.registerHelper('trim', function(val) {
 });
 
 hbs.registerHelper('calcTotalPrice', function(cart) {
-    let eachPrice = cart.map( val => Number(val.quantity) * Number(val.items[0].sale_price) || Number(val.items[0].price) );
+    console.log(cart);
+    let eachPrice = cart.map( val => Number(val.quantity) * Number(val.product.sale_price || val.product.price) );
     let totalPrice = eachPrice.reduce( (total, val, key) => total += val, 0 );
     return totalPrice;
 });
@@ -5988,6 +5989,13 @@ var myFuncs = {
                     '_id': mongoose.mongo.ObjectID( req.params.input )
                 }
             }, {
+                '$project': {
+                    'category': {
+                        '$toLower': '$category'
+                    }, 
+                    'items': 1
+                }
+            },{
                 '$lookup': {
                     'from': `${req.params.brand}-sizes`, 
                     'localField': 'category', 

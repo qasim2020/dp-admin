@@ -4126,6 +4126,7 @@ button.plyr__control.plyr__control--overlaid {
 }
 
 .hover_button > a.loading:after, .nt_add_w > a.loading:after, .mail_agree.loading:after, .js_frm_cart.loading:after, .cart_ac_edit.loading:after,
+.js_add_group.loading, .sticky_atc_js.loading, .css_add_ld.loading,
 .hotspot_ins.loading:after, .js_add_group.loading:after, .sticky_atc_js.loading:after,
 .css_add_ld.loading:after,
 .on_list_view_true .pr_list_item .product-info__btns > a.loading:after {
@@ -4736,6 +4737,15 @@ button.plyr__control.plyr__control--overlaid {
 
 .wrap_sea_section .widget_img_pr {
     padding-left: 0 !important;
+}
+
+.border-red {
+    border-color: red !important;
+}
+
+.bg-red {
+    background: red !important;
+    border-color: red !important;
 }
 
 .error_css_checkbox .css_agree_ck + label:before,

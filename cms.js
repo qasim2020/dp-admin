@@ -292,6 +292,7 @@ hbs.registerHelper('calcTotalPrice', function(cart) {
     console.log(cart);
     let eachPrice = cart.map( val => Number(val.quantity) * Number(val.product.sale_price || val.product.price) );
     let totalPrice = eachPrice.reduce( (total, val, key) => total += val, 0 );
+    console.log(eachPrice, totalPrice);
     return totalPrice;
 });
 
@@ -327,13 +328,13 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
             properties: schema,
         };
         let output = await myFuncs.save(Collections,data);
-        //console.log(chalk.bold.red('first collection created'));
         return next();
     };
 
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
 
     if (checkCollectionExists) {
+        if (req.params.requiredType != "page") return res.status(404).send("sign in is required or may be module does not exist");
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
     
@@ -417,7 +418,9 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
-        // console.log(data);
+        // console.log(JSON.stringify(data, 0, 2));
+        console.log(data);
+        console.log("    ");
 
         if( data && data.hasOwnProperty("error")) {
             console.log(data);
@@ -533,7 +536,6 @@ var myFuncs = {
 
         };
 
-        // console.log(JSON.stringify(data, 0, 2));
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -658,7 +660,10 @@ var myFuncs = {
         kallesShoppingCart: "gen", 
         kallesChangeCartQty: "gen",
         kallesCheckOut: "gen",
-
+        kallesCartReplaceItem: "gen",
+        kallesLoadMore: "gen",
+        kallesReceipt: "gen",
+        kallesPlaceOrder: "gen",
 
     },
 
@@ -1877,6 +1882,9 @@ var myFuncs = {
             },{
                 name: "String",
                 html: "formula"
+            },{
+                name: "Array",
+                html: "stages"
             }
         ];
     },
@@ -1904,6 +1912,7 @@ var myFuncs = {
 
         let collectionDetails = await Collections.findOne({name: req.params.input}).lean();
         let output = Object.keys(collectionDetails.properties).map(val => {
+            if (val == "fixed" || val == "noClone" ) return null;
             return {
                 name: val,
                 type: collectionDetails.properties[val].type,
@@ -1912,7 +1921,7 @@ var myFuncs = {
                 allowedValues: collectionDetails.properties[val].allowedValues,
                 info: collectionDetails.properties[val].info
             };
-        });
+        }).filter( val => val );
         let types = this.getTypes();
         req.params.theme = 'root';
         return {
@@ -1943,23 +1952,16 @@ var myFuncs = {
 
         if (req.params.input.match(/-/g) == null) {
 
-            let showSlides = async function() {
-
-                let model = await myFuncs.createModel(`${req.params.brand}-slides`);
-
-                return {
-                    slides: await myFuncs.getSlides(req,res),
-                    templates: [ 1, 2, 3],
-                };
-
-            };
-
             switch (true) {
                 case (req.params.input == "tickets"):
                     output = {tickets: [1,2,3]};
                     break;
                 case (req.params.input == "printContract"):
                     output = {contracts: true};
+                    break;
+                case (req.params.input == "orders"):
+                    let model = await this.createModel(`${req.params.brand}-orders`);
+                    output.orders = await model.find().lean();
                     break;
             };
 
@@ -5978,6 +5980,27 @@ var myFuncs = {
         }
     },
 
+    kallesLoadMore: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-products`);
+        let trending = await model.aggregate([
+            {
+                $match: {
+                    trending: "true"
+                },
+            },{
+                $skip: Number(req.body.skip)
+            },{
+                $limit: 8
+            }]);
+        let count = await model.find({trending: "true"}).count();
+        return {
+            products: trending,
+            count
+        };
+
+    },
+
     kallesQuickView: async function(req,res) {
 
         try {
@@ -6093,7 +6116,25 @@ var myFuncs = {
     kallesCartUpdate: async function(req,res) {
 
         let cart = req.session && req.session.cart || [];
+        // remove items similar in size
+        cart = cart.filter( val => val.slug != req.body.slug ); 
+        cart.push( req.body );
+        req.session.cart = cart;
+
+        return {
+            cart: cart
+        };
+
+    },
+
+    kallesCartReplaceItem: async function(req,res) {
+
+        let cart = req.session && req.session.cart || [];
+        // remove items to be replaced
+        cart = cart.filter( val => val.slug != req.body.oldSlug );
+        // remove items similar in size
         cart = cart.filter( val => val.slug != req.body.slug );
+        delete req.body.oldSlug;
         cart.push( req.body );
         req.session.cart = cart;
 
@@ -6132,11 +6173,11 @@ var myFuncs = {
 
     kallesChangeCartQty: async function(req, res) {
 
-        let cartItem = req.session && req.session.cart && req.session.cart.find( val => val.size.size == req.body.size && val.product.slug == req.body.product );
+        let cartItem = req.session && req.session.cart && req.session.cart.find( val => val.slug == req.body.slug );
         cartItem.quantity = req.body.quantity;
 
         let cart = req.session && req.session.cart || [];
-        cart = cart.filter( val => val.size.size != req.body.size || val.product.slug != req.body.product );
+        cart = cart.filter( val => val.slug != req.body.slug );
         cart.push(cartItem);
 
         req.session.cart = cart;
@@ -6162,6 +6203,24 @@ var myFuncs = {
         }
 
     },
+
+    kallesReceipt: async function(req,res) {
+
+        req.params.module = "order";
+
+        return {
+            success: true
+        };
+
+    },
+
+    kallesPlaceOrder: async function(req,res) {
+
+        return {
+            success: true
+        }
+
+    }
 
 };
 

@@ -645,6 +645,17 @@
                             <span>{{this.val}}</span>
                         </td>
 
+                    {{else if (matchValues "stages" this.meta.html)}}
+
+                        <td
+                            index="col{{@index}}"
+                            mydata="{{json this.val}}"
+                            class="stages fixed"
+                            linkedCols="{{this.meta.allowedValues}}"
+                            >
+                            <span class="pointer" onclick="openStages(this)">{{countArray this.val}}x stage(s)</span>
+                        </td>
+
                     {{else if (matchValues "photos" this.meta.html)}}
 
                         <td

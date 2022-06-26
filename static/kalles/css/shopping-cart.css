@@ -37,6 +37,11 @@
     margin: 0 auto
 }
 
+.template-cart .mini_cart_actions .quantity.mb-15 {
+    margin-left: 0px;
+    margin-bottom: 15px;
+}
+
 .template-cart .cart_item {
     padding-top: 1.875rem;
     padding-bottom: 1.875rem;

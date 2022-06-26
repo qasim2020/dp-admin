@@ -15,9 +15,15 @@ let urlParams = function() {
 };
 
 
+let openStages = function(elem) {
+
+        console.log(`1. Stages can not be added.  2. Stages are editable.  3. Stages are updated when linkedCols are changed as per a switch statement that is in the following paragraph`);
+
+    };
+
 let calcOrder = function(elem, key) {
 
-    console.log ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") );
+    // console.log ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") );
 
     if ( $(elem).closest("tr").find(`[key=${key}]`).attr("mydata") == "[]" ) {
 
@@ -71,7 +77,6 @@ let calcOrder = function(elem, key) {
 
 };
 
-
 $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let runImpFunctions = function() {
@@ -83,6 +88,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     $.pjax.defaults.scrollTo = false;
     $.pjax.defaults.timeout = false;
+
     $(document).on('pjax:complete', function() {
         runImpFunctions();
     })

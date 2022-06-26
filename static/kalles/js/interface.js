@@ -4,6 +4,8 @@
 // trigger quick view or trigger quick shop - the event listeners to open the models
 // add to cart - the button on view that adds items to the cart
 // remove from cart - the delete button on each cart item
+// load more - in featured collection on landing page
+// checkout button
 
 ( 
 
@@ -1885,7 +1887,7 @@
 
             const $btn       = $( this ),
                   $container = $( '#quick-view-tpl' );
-            
+
             let drawPop = function(data) {
                 if ( data.length ) {
                     $.magnificPopup.open( {
@@ -1942,8 +1944,27 @@
                         selectedMax = 0,
                         selectedItem = {},
                         myPrice = "",
-                        label = "";
+                        label = "",
+                        cartBtn = "";
 
+                    if ( $btn.hasClass("cart_ac_edit") ) {
+                        cartBtn = `<button 
+                        type="submit" 
+                        data-time='6000' 
+                        data-ani='shake' 
+                        cartSlug='${ $(this).attr("cartSlug") }'
+                        class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
+                            <span class="txt_add ">Update Cart</span>
+                        </button>`;
+                    } else {
+                        cartBtn = `<button 
+                        type="submit" 
+                        data-time='6000' 
+                        data-ani='shake' 
+                        class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
+                            <span class="txt_add ">Add to cart</span>
+                        </button>`;
+                    };
 
                     let sizes = val.sizes.reduce( (total, size, key) => {
 
@@ -2043,9 +2064,7 @@
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
-                                                                            <button type="submit" data-time='6000' data-ani='shake' class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
-                                                                                <span class="txt_add ">Add to cart</span>
-                                                                            </button>
+                                                                            ${cartBtn}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2075,7 +2094,7 @@
             const $btn       = $( this ),
                   $container = $( '#quick-shop-tpl' ),
                   productSlug = $(this).closest(".mini_cart_item").attr("product");
-                  myId = $(this).closest(".mini_cart_item").attr("myId");
+                  myId = $(this).closest(".mini_cart_item, .product").attr("myId");
 
             let drawPop = function(data) {
 
@@ -2129,7 +2148,27 @@
                         selectedSize = "",
                         selectedMax = 0,
                         selectedItem = {},
-                        myPrice = "";
+                        myPrice = "",
+                        cartBtn = "";
+
+                    if ( $btn.hasClass("cart_ac_edit") ) {
+                        cartBtn = `<button 
+                        type="submit" 
+                        data-time='6000' 
+                        data-ani='shake' 
+                        cartSlug='${ $(this).attr("cartSlug") }'
+                        class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
+                            <span class="txt_add ">Update Cart</span>
+                        </button>`;
+                    } else {
+                        cartBtn = `<button 
+                        type="submit" 
+                        data-time='6000' 
+                        data-ani='shake' 
+                        class="single_add_to_cart_button button truncate js_frm_cart w__100 mt__20 order-4">
+                            <span class="txt_add ">Add to cart</span>
+                        </button>`;
+                    };
 
                     let sizes = val.sizes.reduce( (total, size, key) => {
 
@@ -2210,10 +2249,7 @@
                                                                 <i class="facl facl-minus"></i></button>
                                                         </div>
                                                     </div>
-                    
-                                                    <button type="submit" class="single_add_to_cart_button button truncate js_frm_cart w__100 order-4" product="${productSlug}">
-                                                        <span class="txt_add ">Add to cart</span>
-                                                    </button>
+                                                    ${cartBtn}
                                                 </div>
                                             </div>
                                         </div>
@@ -2234,13 +2270,13 @@
                 $( this ).on( 'change', function () {
                     $( this ).closest( '.payment_methods' ).find( '.payment_box' ).slideUp( 300 );
                     $( this ).closest( '.payment_method' ).find( '.payment_box' ).slideDown( 300 );
-                    /*$( this ).is( ":checked" )
-                     console.log( this.checked );
-                     if ( $( this ).is( ":checked" ) ) {
-                     console.log( $( this ).attr( 'id' ) );
-                     } else if ( $( this ).is( ":not(:checked)" ) ) {
-                     console.log( $( this ).attr( 'id' ) );
-                     }*/
+                    if ( $(this).attr("id") == "payment_method_bacs" ) {
+                        $("#transactionId").attr({ optional: "false" });
+                        $("[for=transactionId]").html("Bank Transaction ID");
+                    } else {
+                        $("#transactionId").attr({ optional: "true" }).removeClass("border-red");
+                        $("[for=transactionId]").html("Bank Transaction ID (Optional)");
+                    };
                 } )
             }
         }
@@ -2408,8 +2444,6 @@
             e.preventDefault();
             e.stopPropagation();
 
-            console.log( $(this).attr("product") );
-
             let mini_cart_block$ = $( '#nt_cart_canvas' ),
                 btn$             = $( this ),
                 quantity = btn$.closest(".product-quickview, .kalles-quick-shop").find(".quantity").find("input").val(),
@@ -2443,21 +2477,36 @@
 
             };
 
-            let data  = { 
-                // oldSlug: $(this).attr("product"), 
-                slug: product.slug+"-"+size.size, 
-                product: product, 
-                quantity: quantity, 
-                size: size 
+            let data = {}, url = "";
+
+            if ( $(this).attr("cartSlug") && $(this).attr("cartSlug").length > 0 ) {
+                console.log("this is an edit cart");
+                url =  `/${urlParams().brand}/gen/data/kallesCartReplaceItem/n`;
+                data  = { 
+                    oldSlug: $(this).attr("cartSlug"),
+                    slug: product.slug+"-"+size.size, 
+                    product: product, 
+                    quantity: quantity, 
+                    size: size 
+                };
+            } else {
+                console.log("this is a new cart item");
+                url =  `/${urlParams().brand}/gen/data/kallesCartUpdate/n`;
+                data  = { 
+                    slug: product.slug+"-"+size.size, 
+                    product: product, 
+                    quantity: quantity, 
+                    size: size 
+                };
             };
 
-            // return console.log({data});
-
             $.ajax({
-                url: `/${urlParams().brand}/gen/data/kallesCartUpdate/n`,
+                url: url,
                 method: "POST",
                 data: data,
                 success: val => {
+
+                    console.log( val );
 
                     let html = val.cart.reduce( (total, val, key) => {
 
@@ -2500,7 +2549,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right" product="${val.slug}"><span class="tt_txt">Edit this item</span>
+                                    <a href="#" class="cart_ac_edit js__qs ttip_nt tooltip_top_right" cartSlug="${val.slug}"><span class="tt_txt">Edit this item</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -2535,7 +2584,7 @@
 
                     drawPop();
                 }
-            }).fail( err => console.log( err ) );
+            }).fail( err => console.log( err , err.responseText ) );
             
         } );
 
@@ -2578,11 +2627,9 @@
             let itemsCost = $(this).closest(".mini_cart_items, .cart_items").find(".mini_cart_item, .cart_item").get().map( val => {
                 let price = $(val).find(".cart_price").attr("data");
                 let quantity = $(val).find(".qty.qty_cart_js").val();
-                console.log({price,quantity});
                 return Number(price) * Number(quantity);
             });
             let totalCost = itemsCost.reduce( (total, val, key) => total+= val, 0 );
-            console.log({totalCost});
             $(this).closest(".nt_js_cart").find(".cart_tot_price").html(`PKR ${totalCost}`);
             $(".nt_js_cart").find(".cart_tot_price").get().forEach( val=> $(val).html(`PKR ${totalCost}`) );
 
@@ -2594,10 +2641,9 @@
 
             //change quantity & name in front end 
             $(`[product=${product}]`).find(".qty.qty_cart_js").val( value );
-            if ( $(this).closest(".mini_cart_item") ) {
+            if ( $(this).closest(".mini_cart_item").length > 0 ) {
                 let sizeLabel = $(`.mini_cart_item[product=${product}]`).find(".cart_meta_variant.size").attr("sizeLabel");
                 let productName = $(`.mini_cart_item[product=${product}]`).find(".mini_cart_title").html();
-                console.log({sizeLabel, productName});
                 $(`.cart_item[product=${product}]`).find(".mini_cart_title > a").html( `${productName} (Size: ${sizeLabel})` );
             };
             
@@ -2606,6 +2652,7 @@
             if (updateQty) {
 
                 let data = {
+                    slug: $(this).closest(".mini_cart_item, .cart_item").attr("product"),
                     quantity: value,
                     product: $(this).closest(".mini_cart_item, .cart_item").attr("productSlug"),
                     size: $(this).closest(".mini_cart_item, .cart_item").attr("sizeSlug"),
@@ -2641,7 +2688,7 @@
 
                 if ( $(this).closest(".mini_cart_items, .cart_items").length ) {
 
-                    $(this).refreshCart();
+                    $(this).refreshCart( true );
 
                 };
 
@@ -3060,12 +3107,96 @@
         $( '.filter_area_js, .js_sidebar' ).kallesRefreshPriceTitle();
 
         /**********************************************
-         * load more button in shop
+         * l
          * ********************************************/
+        // load more - in featured collection on landing page
         $( '.nt_cat_lm:not(.jscl_ld)' ).on( 'click', function ( e ) {
             e.preventDefault();
             let $this = $( this );
             $this.addClass( 'jscl_ld' );
+            console.log("load item into the field");
+            let data = {
+                skip : $(this).closest(".type_featured_collection").find(".product").get().length
+            };
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesLoadMore/n`,
+                method: "POST",
+                data: data,
+                success: val => {
+                    console.log(val);
+                    let html = val.products.reduce( (total, item, key) => {
+
+
+                        let label = "",
+                            myPrice = "";
+
+                        if (item.new) {
+                            label = `<span class="nt_label new">New</span>`;
+                        } else if (item.sale) {
+                            label = `<span class="onsale nt_label">
+                                        <span>${item.sale}</span>
+                                     </span>`;
+                        }
+
+                        myPrice = item.sale_price && item.sale_price.length > 0
+                                ?  `<span class="price dib mb__5">
+                                        <del>PKR ${item.price}</del><ins>PKR ${item.sale_price}</ins>
+                                    </span>`
+                                :  `<span class="price dib mb__5">
+                                        PKR ${item.price}
+                                    </span>`;
+                        return total += `
+                            <div class="col-lg-3 col-md-3 col-6 pr_animated done mt__30 pr_grid_item product nt_pr desgin__1" myId="${item._id}">
+                                <div class="product-inner pr">
+                                    <div class="product-image position-relative oh lazyload">
+                                        <span class="tc nt_labels pa pe_none cw">
+                                            ${label}
+                                        </span>
+                                        <a class="d-block" href="product-detail-layout-01.html">
+                                            <div class="pr_lazy_img main-img nt_img_ratio nt_bg_lz lazyload padding-top__127_571" data-bgset="${item.photos[0].medium}"></div>
+                                        </a>
+                                        <div class="hover_img pa pe_none t__0 l__0 r__0 b__0 op__0">
+                                            <div class="pr_lazy_img back-img pa nt_bg_lz lazyload padding-top__127_571" data-bgset="${item.photos[0].medium}"></div>
+                                        </div>
+                                        <div class="hover_button op__0 tc pa flex column ts__03">
+                                            <a class="pr nt_add_qv js_add_qv cd br__40 pl__25 pr__25 bgw tc dib ttip_nt tooltip_top_left" href="#">
+                                                <span class="tt_txt">Quick view</span>
+                                                <i class="iccl iccl-eye"></i>
+                                                <span>Quick view</span>
+                                            </a>
+                                            <a href="#" class="pr pr_atc cd br__40 bgw tc dib js__qs cb chp ttip_nt tooltip_top_left">
+                                                <span class="tt_txt">Quick Shop</span>
+                                                <i class="iccl iccl-cart"></i>
+                                                <span>Quick Shop</span>
+                                            </a>
+                                        </div>
+                                        <div class="product-attr pa ts__03 cw op__0 tc">
+                                            <p class="truncate mg__0 w__100">here come aval sizes</p>
+                                        </div>
+                                    </div>
+                                    <div class="product-info mt__15">
+                                        <h3 class="product-title position-relative fs__14 mg__0 fwm">
+                                            <a class="cd chp" href="product-detail-layout-01.html">${item.name}</a>
+                                        </h3>
+                                        ${myPrice}
+                                    </div>
+                                </div>
+                            </div>
+
+                        `;
+                    }, "");
+                    
+                    $(this).closest(".type_featured_collection").find(".products").append( html );
+
+                    let newCount = $(this).closest(".type_featured_collection").find(".product").get().length;
+
+                    // console.log({newCount, count: val.count});
+
+                    if (val.count <= newCount) $(this).css({display: "none"});
+                }
+
+            }).fail( err => console.log(err) );
+
             setTimeout( () => $this.removeClass( 'jscl_ld' ), 2000 );
         } );
 
@@ -3178,7 +3309,7 @@
             };
 
             let data  = {
-                slug: $(this).attr("product"),
+                slug: $(this).attr("cartSlug"),
             };
 
             $.ajax({
@@ -3214,6 +3345,50 @@
                 $( href ).removeClass( 'dn' );
             }
         } );
+
+        // checkout button
+        body.on( 'click', '.checkout-payment__btn-place-order', function(e) {
+
+            console.log("convert this cart into an order");
+            console.log("go with basics and slowly you build drop downs");
+            console.log("checkout clicked");
+
+            $(this).html("Placing order...").removeClass("bg-red");
+
+            let unfilled = [];
+            let data = $(".checkout-section__field > input, .checkout-section__field > select, .checkout-section__field > textarea").get().map( val => {
+
+                $(val).removeClass("border-red");
+
+                if ( $(val).attr("optional") != "true" ) {
+                    let d = $(val).val();
+                    if ( d == "" || d == undefined ) unfilled.push( $(val).attr("id") );
+                };
+
+                return {
+                    [ $(val).attr("id") ] : $(val).val() 
+                };
+
+            }).reduce( (total, val, key) => Object.assign( total, val ), {} );
+
+            console.log( unfilled );
+
+            if ( unfilled.length > 0 ) {
+                unfilled.forEach( val => $(`#${val}`).addClass("border-red") );
+                $(this).html("Fill all required fields").addClass("bg-red");
+                return console.log("error on page");
+            };
+
+            return console.log(data);
+
+            $.ajax({
+                url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,
+                data: data,
+                method: "POST",
+                success: val => console.log("order placed"),
+            }).fail( err => console.log(err) );
+
+        });
 
         /**********************************************
          * Settings when window resize

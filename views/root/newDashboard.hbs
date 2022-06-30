@@ -403,7 +403,7 @@
             {{/if}}
 
             {{#if data.orders}}
-            {{> kallesOrders}}
+            {{> kallesOrders orders=data.orders}}
             {{/if}}
 
         </div>
@@ -464,6 +464,190 @@
 
     <div class="popover d-none"></div>
     <div class="fakeScreen d-none" onclick="$(this).addClass('d-none')"></div>
+
+    {{#if data.orders}}
+
+    <style>
+
+.kallesReceipt {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    background: white;
+    height: 100vh;
+    width: 100vw;
+    padding: 10px;
+    overflow: scroll;
+}
+
+    .actions { 
+        margin-top: 10px;
+    }
+
+    .actions > button {
+        padding: 7px 8px;
+    border: 2px solid black;
+    display: inline-block;
+    margin-bottom: 4px;
+    text-decoration: none;
+    color: black;
+    font-size: 15px;
+    background: white;
+    height: 37px;
+    box-sizing: border-box;
+    cursor: pointer;
+    }
+
+    .orderDetails {
+        display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+    flex-wrap: wrap;
+
+    }
+
+    .orderDetails > div {
+        width: 50%;
+    box-sizing: border-box;
+
+    }
+
+    
+    .collapsable {
+
+        margin-bottom: 20px;
+    background: whitesmoke;
+    padding: 10px;
+    border-left: 2px solid #2296f3;
+
+    }
+    
+    .collapsable > p:nth-child(1) {
+        font-size: 12px;
+    font-weight: bold;
+    color: #2196f3;
+    margin-top: 0px;
+
+    }
+
+
+    .collapsable > p:nth-child(2) {
+        font-weight: bold;
+    }
+
+
+    .collapsable > div {
+
+        width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    border: 1px dashed #d4d4d4;
+    padding: 5px;
+    box-sizing: border-box;
+    background: white;
+
+    }
+
+    .collapsable >  button {
+        border: 2px solid transparent;
+    color: black;
+    margin-top: 7px;
+    margin-right: 5px;
+    padding: 3px 8px;
+    background: #dfdfdf;
+    }
+
+    </style>
+
+    <div class="kallesReceipt d-none">
+
+        <button> ← Back </button>
+
+        <div class="actions">
+
+            <button>Collapse All</button>
+            <button>Add Delivery Status</button>
+            <button>Add Payment Details</button>
+            <button>Add Notification</button>
+            <button>Delete Order</button>
+            <button>Edit Order</button>
+        
+        </div>
+
+
+        <div class="orderDetails">
+
+            <div>
+
+                <!--
+                    TODO: FIX THE COLLAPSABLES 
+                <div class="collapsable">
+                    <h3 class="collapsed">Order Dispatched</h3>
+                    <div class="open">
+
+                        <p>0912 · 19 Apr 2022</p>
+                        <p>Order Dispatched</p>
+
+                        <div>Our rider is on his way. He should read your door step today noon. Please keep Rs 8900 handy.</div>
+
+                        <button>Edit</button>
+                        <button>Delete</button>
+                        
+                    </div>
+                </div>
+                -->
+
+                <div class="collapsable">
+                    <p>0912 · 19 Apr 2022</p>
+                    <p>Notify Shop on Email</p>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+            
+                <div class="collapsable">
+                    <p>0912 · 19 Apr 2022</p>
+                    <p>Notify Shop on Slack</p>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+
+                <div class="collapsable">
+                    <p>0912 · 19 Apr 2022</p>
+                    <p>Notify Shop on Dashboard</p>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+
+                <div class="collapsable">
+                    <p>0912 · 19 Apr 2022</p>
+                    <p>Notify Customer on Email</p>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+
+                <div class="collapsable">
+                    <p>0912 · 19 Apr 2022</p>
+                    <p>Special Message from Customer</p>
+
+                    <div>Please hurry we are in desparate trouble and need to collect this order. Please asap....</div>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </div>
+
+            </div>
+
+            <div class="receipt">
+
+                here please show the receipt
+            
+            </div>
+        
+        </div>
+    
+    </div>
+
+    {{/if}}
     <!-- DO NOT DELETE ABOVE FORM -->
 
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
@@ -472,6 +656,7 @@
     <script src="/root/codemirror/js/xml.js"></script>
     <script src="/root/ckeditor.js"></script>
     <script src="/root/pjax.js"></script>
+    {{#if data.orders}} <script src="/root/kalles.js"></script> {{/if}}
 
     {{> rootJS}}
 

@@ -334,7 +334,8 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
 
     if (checkCollectionExists) {
-        if (req.params.requiredType != "page") return res.status(404).send("sign in is required or may be module does not exist");
+        console.log(req.params.requiredType)
+        if (req.params.requiredType != "page" && req.params.requiredType != "pjax") return res.status(404).send("sign in is required or may be module does not exist");
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
     
@@ -343,8 +344,6 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     if (checkCollectionExists) {
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
-
-
     //console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
@@ -548,6 +547,8 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
+            console.log("sending pjax at the below link");
+            console.log(`${req.params.theme}/pjax/${req.params.module}.hbs`);
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
@@ -1804,7 +1805,7 @@ var myFuncs = {
             let output = await doc.save();
             return {success: 'Done'};
         } catch(e) {
-            // //console.log(e);
+            console.log(e);
             return {status: 404, error: 'Failed'}
         };
     },
@@ -1962,6 +1963,7 @@ var myFuncs = {
                 case (req.params.input == "orders"):
                     let model = await this.createModel(`${req.params.brand}-orders`);
                     output.orders = await model.find().lean();
+                    req.params.module = req.headers['x-pjax']  == 'true' ? "kallesOrders" : "newDashboard";
                     break;
             };
 
@@ -6216,11 +6218,78 @@ var myFuncs = {
 
     kallesPlaceOrder: async function(req,res) {
 
+        console.log(req.body);
+        let data = req.body;
+        data.stages = [{
+            id: 1,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Order Placed",
+            type: "completed",
+        },{
+            id: 2,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Special Msg from Customer",
+            msg: "Please sir we are so hungry hurry up. waiting for your order. Thanks",
+            type: "customer",
+        },{
+            id: 4,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Notified the Shop on Email",
+            type: "completed"
+        },{
+            id: 5,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Notificed the Shop on Slack",
+            type: "completed"
+        },{
+            id: 6,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Sent receipt on Email",
+            type: "completed"
+        },{
+            id: 7,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Sent receipt on Email",
+            type: "completed"
+        },{
+            id: 8,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Sent receipt on Email",
+            type: "completed"
+        },{
+            id: 9,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Shipped",
+            msg: "Our rider is on his way. He should read your door step today noon. Please keep Rs 8900 handy.",
+            type: "completed"
+        },{
+            id: 10,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Delivered",
+            type: "pending"
+        },{
+            id: 11,
+            time: "0718 hrs · 19 Apr 2022",
+            hdg: "Payment",
+            type: "pending"
+        }];
+
+        console.log(data);
+
+        let model = await this.createModel( `${req.params.brand}-orders` );
+        data.ser = await model.find().count() + 1;
+        data.status = "Order placed";
+        data.payment = "Pending";
+        let placeOrder = await this.save(model, data);
+
+        console.log(placeOrder);
+
         return {
-            success: true
+            data: placeOrder,
         }
 
-    }
+    },
+
 
 };
 

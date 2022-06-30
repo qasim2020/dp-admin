@@ -3379,7 +3379,7 @@
                 return console.log("error on page");
             };
 
-            return console.log(data);
+           console.log(data);
 
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,

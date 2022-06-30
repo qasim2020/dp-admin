@@ -1,1 +1,117 @@
-<p>Hello Orders</p>
+<style>
+
+    .orders > h3  {
+        background: black;
+        color: white;
+        padding: 0 10px;
+        font-weight: 900;
+    }
+
+    .order {
+        display: flex;
+        background: white;
+        margin-bottom: 10px;
+        padding: 0px;
+        flex-wrap: wrap;
+    }
+
+    .order:hover {
+        background: #e8e8e8;
+        opacity: 0.8;
+        cursor: pointer;
+    }
+
+    .order > div {
+        padding: 10px;
+        width: 25%;
+        text-align: center;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order > div > h3 {
+        flex-grow: 1;
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 1.0;
+        color: #737272;
+    }
+
+    .order > div > p {
+        font-size: 16px;
+        line-height: 1.0;
+        margin-top: 3px;
+        margin-bottom: 9px;
+    }
+
+@media only screen and (max-width: 600px) {
+    .order > div {
+        width: 50%;
+    }
+}
+
+</style>
+<div class="orders">
+
+    <h3>NEW ORDERS</h3>
+
+    {{#each orders}}
+
+    <div class="order" onclick="openOrder(this, '{{this._id}}')">
+
+        <div>
+            <h3>ORDER NO</h3>
+            <p>{{this.ser}}</p>
+        </div>
+
+        <div>
+            <h3>ORDER COST</h3>
+            <p>{{this.cost}}</p>
+        </div>
+
+        <div>
+            <h3>DELIVERY STATUS</h3>
+            <p>{{this.status}}</p>
+        </div>
+
+        <div>
+            <h3>PAYMENT</h3>
+            <p>{{this.payment}}</p>
+        </div>
+    
+    </div>
+
+    {{/each}}
+
+    <h3>REMAINING ORDERS</h3>
+
+    {{#each orders}}
+
+    <div class="order">
+
+        <div>
+            <h3>ORDER NO</h3>
+            <p>1</p>
+        </div>
+
+        <div>
+            <h3>ORDER COST</h3>
+            <p>3400</p>
+        </div>
+
+        <div>
+            <h3>DELIVERY STATUS</h3>
+            <p>Pending</p>
+        </div>
+
+        <div>
+            <h3>PAYMENT</h3>
+            <p>Pending</p>
+        </div>
+    
+    </div>
+
+    {{/each}}
+
+</div>

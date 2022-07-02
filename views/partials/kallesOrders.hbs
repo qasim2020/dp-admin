@@ -23,7 +23,7 @@
 
     .order > div {
         padding: 10px;
-        width: 25%;
+        width: 20%;
         text-align: center;
         box-sizing: border-box;
         display: flex;
@@ -45,20 +45,135 @@
         margin-bottom: 9px;
     }
 
-@media only screen and (max-width: 600px) {
-    .order > div {
-        width: 50%;
+    .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
-}
+
+    .orderDetails {
+        display: flex;
+        justify-content: space-around;
+        padding-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .orderDetails > div {
+        width: 50%;
+        box-sizing: border-box;
+    }
+
+    .collapsable {
+
+        margin-bottom: 20px;
+        background: whitesmoke;
+        padding: 10px;
+        border-left: 2px solid #2296f3;
+    }
+    
+    .collapsable > p:nth-child(1) {
+        font-size: 12px;
+        font-weight: bold;
+        color: #2196f3;
+        margin-top: 0px;
+    }
+
+
+    .collapsable > p:nth-child(2) {
+        font-weight: bold;
+    }
+
+
+    .collapsable > div {
+
+        width: 100%;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.5;
+        border: 1px dashed #d4d4d4;
+        padding: 5px;
+        box-sizing: border-box;
+        background: white;
+
+    }
+
+    .collapsable >  button {
+        border: 2px solid transparent;
+        color: black;
+        margin-top: 7px;
+        margin-right: 5px;
+        padding: 3px 8px;
+        background: #dfdfdf;
+    }
+
+    .btns {
+        display: flex;
+        margin-bottom: 13px;
+    }
+
+    .btns > .btn:nth-child(2) {
+        flex-grow: 1;
+        margin-left: 3px;
+        background: darkcyan;
+        color: #ffe2d8;
+    }
+
+    .actions-page > div:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .section {
+        padding: 10px;
+        border: 1px dashed lightgrey;
+        margin-top: 6px;
+        margin-right: 6px;
+        flex-grow: 1;
+        display: flex;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+        background: whitesmoke;
+    }
+
+    .section > h5 {
+        width: 100%;
+        padding: 5px;
+        padding-left: 10px;
+        color: darkcyan;
+    }
+
+    .section > button {
+        padding: 18px 18px;
+        font-weight: bold;
+        margin-bottom: 3px;
+        margin-right: 3px;
+        font-size: 17px;
+        background: white;
+        border: 2px solid black;
+        color: black;
+    }
+
+    
+
+
+    @media only screen and (max-width: 600px) {
+        .order > div {
+            width: 50%;
+        }
+    }
 
 </style>
-<div class="orders">
 
-    <h3>NEW ORDERS</h3>
+<div class="orders">
 
     {{#each orders}}
 
     <div class="order" onclick="openOrder(this, '{{this._id}}')">
+
+        <div>
+            <h3>Date/ Time</h3>
+            <p>{{getFormattedDateTimeMongoId this._id}}</p>
+        </div>
 
         <div>
             <h3>ORDER NO</h3>
@@ -84,34 +199,151 @@
 
     {{/each}}
 
-    <h3>REMAINING ORDERS</h3>
+</div>
 
-    {{#each orders}}
+<div class="kallesReceipt d-none">
 
-    <div class="order">
+    <div class="nav">
+    
+        <button class="btn" onclick="openLayer('.kallesReceipt', '.layerOne')"> ← Back </button>
 
-        <div>
-            <h3>ORDER NO</h3>
-            <p>1</p>
-        </div>
+        <div class="actions">
 
-        <div>
-            <h3>ORDER COST</h3>
-            <p>3400</p>
-        </div>
-
-        <div>
-            <h3>DELIVERY STATUS</h3>
-            <p>Pending</p>
-        </div>
-
-        <div>
-            <h3>PAYMENT</h3>
-            <p>Pending</p>
+            <button class="btn" >Cancel Order</button>
+            <button class="btn" >Edit Order</button>
+        
         </div>
     
     </div>
 
-    {{/each}}
+    <div class="orderDetails">
+
+        <div>
+
+            <!--
+            TODO: FIX THE COLLAPSABLES 
+            <div class="collapsable">
+                <h3 class="collapsed">Order Dispatched</h3>
+                <div class="open"> </div>
+            </div>
+            -->
+
+            <div class="btns">
+                <button class="btn" >Collapse All</button>
+                <button class="btn" onclick="openLayer('.kallesReceipt', '.actions-page')">Actions</button>
+            </div>
+
+            <div class="collapsable">
+                <p>0912 · 19 Apr 2022</p>
+                <p>Notify Shop on Email</p>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+        
+            <div class="collapsable">
+                <p>0912 · 19 Apr 2022</p>
+                <p>Notify Shop on Slack</p>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+
+            <div class="collapsable">
+                <p>0912 · 19 Apr 2022</p>
+                <p>Notify Shop on Dashboard</p>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+
+            <div class="collapsable">
+                <p>0912 · 19 Apr 2022</p>
+                <p>Notify Customer on Email</p>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+
+            <div class="collapsable">
+                <p>0912 · 19 Apr 2022</p>
+                <p>Special Message from Customer</p>
+
+                <div>Please hurry we are in desparate trouble and need to collect this order. Please asap....</div>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+
+        </div>
+
+        <div class="receipt">
+
+        </div>
+    
+    </div>
+
+</div>
+
+<div class="actions-page d-none">
+
+
+    <div class="nav">
+    
+        <button class="btn" onclick="openLayer('.actions-page', '.kallesReceipt')"> ← Back </button>
+
+        <div class="actions">
+
+            <button class="btn" >Cancel Order</button>
+            <button class="btn" >Edit Order</button>
+        
+        </div>
+    
+    </div>
+
+    <div>
+    
+        <div class="section">
+
+            <h5>SHARE RECEIPT</h5>
+
+            <button>Send Receipt to Shop Email</button>
+            <button>Send Receipt to Customer Email</button>
+            <button>Send Receipt to Slack Channel</button>
+
+        </div>
+        <div class="section">
+
+            <h5>SEND A NOTE</h5>
+
+            <button>Send Special Note to Shop</button>
+            <button>Send Special Note to Customer</button>
+
+        </div>
+        <div class="section">
+
+            <h5>TEST ALARM</h5>
+
+            <button>Generate New Order Alarm</button>
+
+        </div>
+
+        <div class="section">
+
+            <h5>UPDATE ORDER STATUS</h5>
+            <button class="status">Processing</button>
+            <button class="status">Shipped</button>
+            <button class="status">Delivered</button>
+            <button class="status">Returned</button>
+            <button class="status">Cancelled</button>
+        
+        </div>
+
+        <div class="section">
+
+            <h5>ADD PAYMENT DETAILS</h5>
+
+            <button class="payment">Cash On Delivery (COD)</button>
+            <button class="payment">Bank Transfer</button>
+        
+        </div>
+
+    
+    </div>
 
 </div>

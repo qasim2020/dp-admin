@@ -3349,14 +3349,11 @@
         // checkout button
         body.on( 'click', '.checkout-payment__btn-place-order', function(e) {
 
-            console.log("convert this cart into an order");
-            console.log("go with basics and slowly you build drop downs");
-            console.log("checkout clicked");
-
             $(this).html("Placing order...").removeClass("bg-red");
 
-            let unfilled = [];
-            let data = $(".checkout-section__field > input, .checkout-section__field > select, .checkout-section__field > textarea").get().map( val => {
+            let unfilled = [], items = [], stages = [];
+
+            let data = $(".checkout-section__field:not('.special') > input, .checkout-section__field > select, .checkout-section__field:not('.special') > textarea").get().map( val => {
 
                 $(val).removeClass("border-red");
 
@@ -3371,15 +3368,52 @@
 
             }).reduce( (total, val, key) => Object.assign( total, val ), {} );
 
-            console.log( unfilled );
+            // items
+            $(".cart_item.with_meta").get().forEach( val => {
+                let cart = JSON.parse( $(val).attr("meta") );
+                let thisArr = cart.product.items.slice(0, Number(cart.quantity) );
+                console.log( thisArr );
+                items = items.concat( thisArr );
+            });
 
+            // stages
+            if ( $("#transactionId").val().length > 0 ) {
+                stages.push({
+                    id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+                    time: "0718 hrs · 19 Apr 2022", // Time and Date like this
+                    hdg: "Payment Transaction ID",
+                    msg: $('#order_comments').val(),
+                    type: "payment"
+                });
+            };
+
+            if ( $('#order_comments').val().length > 0 ) {
+                stages.push({
+                    id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+                    time: "0718 hrs · 19 Apr 2022", // Time and Date like this
+                    hdg: "Special Note On Order",
+                    msg: $('#order_comments').val(),
+                    type: "note"
+                });
+            };
+
+            // order status
+            Object.assign( data, {
+                items: items,
+                status: "Order Placed",
+                payment: ( $("#transactionId").val().length > 0 )  ? "Paid — verification pending" : "Pending",
+                stages: stages,
+                cost: $(".cart_price.amount").attr("data")
+            });
+
+            // missing fields
             if ( unfilled.length > 0 ) {
                 unfilled.forEach( val => $(`#${val}`).addClass("border-red") );
                 $(this).html("Fill all required fields").addClass("bg-red");
                 return console.log("error on page");
             };
 
-           console.log(data);
+            console.log(data);
 
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,

@@ -155,8 +155,25 @@ hbs.registerHelper('inc', (val) => {
     return Number(val)+1;
 });
 
+// unformatted date and time
 hbs.registerHelper('mongoIdToDate', (objectId) => {
     return new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
+});
+
+// formatted 0718 hrs · 9 Apr 22
+hbs.registerHelper('getFormattedDateTimeMongoId', (objectId) => {
+    let date = new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
+    let dtg = date.toString().split(" ");
+    let obj = {
+        time: dtg[4],
+        date: dtg[2],
+        month: dtg[1],
+        yr: dtg[3]
+    }
+    let time = obj.time.split(":");
+    obj.time = time[0]+time[1]+ " hrs";
+    return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
+
 });
 
 hbs.registerHelper('breaklines', (val) => {
@@ -6220,66 +6237,65 @@ var myFuncs = {
 
         console.log(req.body);
         let data = req.body;
-        data.stages = [{
-            id: 1,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Order Placed",
-            type: "completed",
-        },{
-            id: 2,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Special Msg from Customer",
-            msg: "Please sir we are so hungry hurry up. waiting for your order. Thanks",
-            type: "customer",
-        },{
-            id: 4,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Notified the Shop on Email",
-            type: "completed"
-        },{
-            id: 5,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Notificed the Shop on Slack",
-            type: "completed"
-        },{
-            id: 6,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Sent receipt on Email",
-            type: "completed"
-        },{
-            id: 7,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Sent receipt on Email",
-            type: "completed"
-        },{
-            id: 8,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Sent receipt on Email",
-            type: "completed"
-        },{
-            id: 9,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Shipped",
-            msg: "Our rider is on his way. He should read your door step today noon. Please keep Rs 8900 handy.",
-            type: "completed"
-        },{
-            id: 10,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Delivered",
-            type: "pending"
-        },{
-            id: 11,
-            time: "0718 hrs · 19 Apr 2022",
-            hdg: "Payment",
-            type: "pending"
-        }];
-
-        console.log(data);
-
+//         data.stages = [{
+//             id: 1,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Order Placed",
+//             type: "completed",
+//         },{
+//             id: 2,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Special Msg from Customer",
+//             msg: "Please sir we are so hungry hurry up. waiting for your order. Thanks",
+//             type: "customer",
+//         },{
+//             id: 4,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Notified the Shop on Email",
+//             type: "completed"
+//         },{
+//             id: 5,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Notificed the Shop on Slack",
+//             type: "completed"
+//         },{
+//             id: 6,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Sent receipt on Email",
+//             type: "completed"
+//         },{
+//             id: 7,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Sent receipt on Email",
+//             type: "completed"
+//         },{
+//             id: 8,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Sent receipt on Email",
+//             type: "completed"
+//         },{
+//             id: 9,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Shipped",
+//             msg: "Our rider is on his way. He should read your door step today noon. Please keep Rs 8900 handy.",
+//             type: "completed"
+//         },{
+//             id: 10,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Delivered",
+//             type: "pending"
+//         },{
+//             id: 11,
+//             time: "0718 hrs · 19 Apr 2022",
+//             hdg: "Payment",
+//             type: "pending"
+//         }];
+        
         let model = await this.createModel( `${req.params.brand}-orders` );
-        data.ser = await model.find().count() + 1;
-        data.status = "Order placed";
-        data.payment = "Pending";
+        let ser = await model.find({}, {ser: 1, _id:0}).sort({ser:-1}).limit(1).lean();
+        console.log({ser});
+        data.ser = Number(ser[0].ser) + 1;
+
         let placeOrder = await this.save(model, data);
 
         console.log(placeOrder);

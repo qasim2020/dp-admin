@@ -1196,14 +1196,14 @@
                                     </select>
                                 </p>
                                 <p class="checkout-section__field col-12">
-                                    <label for="phone">Phone</label>
-                                    <input type="text" id="phone"/>
+                                    <label for="mobile">Phone</label>
+                                    <input type="text" id="mobile"/>
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="email">Email</label>
                                     <input type="text" id="email"/>
                                 </p>
-                                <p class="checkout-section__field col-12">
+                                <p class="checkout-section__field special col-12">
                                     <label for="transactionId">Bank Transaction ID </label>
                                     <input type="text" id="transactionId"/>
                                 </p>
@@ -1233,7 +1233,7 @@
                                     </thead>
                                     <tbody>
                                     {{#each data.cart}}
-                                    <tr class="cart_item">
+                                    <tr class="cart_item with_meta" meta="{{json this}}">
                                         <td class="product-name">{{this.product.name}} ({{this.size.label}})<strong class="product-quantity">× {{this.quantity}}</strong>
                                         </td>
                                         {{#if this.product.sale_price}}
@@ -1255,7 +1255,7 @@
                                     </tr>
                                     <tr class="order-total cart_item">
                                         <th>Total</th>
-                                        <td><strong><span class="cart_price amount">PKR {{calcTotalPrice data.cart}}</span></strong></td>
+                                        <td><strong><span class="cart_price amount" data="{{calcTotalPrice data.cart}}">PKR {{calcTotalPrice data.cart}}</span></strong></td>
                                     </tr>
                                     </tfoot>
                                 </table>

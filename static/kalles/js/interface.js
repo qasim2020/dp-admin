@@ -3351,7 +3351,7 @@
 
             $(this).html("Placing order...").removeClass("bg-red");
 
-            let unfilled = [], items = [], stages = [];
+            let unfilled = [], items = [], stages = [], meta = [];
 
             let data = $(".checkout-section__field:not('.special') > input, .checkout-section__field > select, .checkout-section__field:not('.special') > textarea").get().map( val => {
 
@@ -3371,10 +3371,12 @@
             // items
             $(".cart_item.with_meta").get().forEach( val => {
                 let cart = JSON.parse( $(val).attr("meta") );
-                let thisArr = cart.product.items.slice(0, Number(cart.quantity) );
-                console.log( thisArr );
+                let thisArr = cart.size.items.slice(0, Number(cart.quantity) );
                 items = items.concat( thisArr );
+                meta.push(cart);
             });
+
+            // console.log("fixing the items portion in this array");
 
             // stages
             if ( $("#transactionId").val().length > 0 ) {
@@ -3382,7 +3384,7 @@
                     id : Date.now().toString(36) + Math.random().toString(36).substr(2),
                     time: "0718 hrs · 19 Apr 2022", // Time and Date like this
                     hdg: "Payment Transaction ID",
-                    msg: $('#order_comments').val(),
+                    msg: $('#transactionId').val(),
                     type: "payment"
                 });
             };
@@ -3403,15 +3405,21 @@
                 status: "Order Placed",
                 payment: ( $("#transactionId").val().length > 0 )  ? "Paid — verification pending" : "Pending",
                 stages: stages,
-                cost: $(".cart_price.amount").attr("data")
+                cost: $(".cart_price.amount").attr("data"),
+                meta: JSON.stringify( meta )
             });
 
+
+            console.log("meta");
+            console.log( JSON.parse(data.meta) );
             // missing fields
             if ( unfilled.length > 0 ) {
                 unfilled.forEach( val => $(`#${val}`).addClass("border-red") );
                 $(this).html("Fill all required fields").addClass("bg-red");
                 return console.log("error on page");
             };
+
+            delete data.transactionId;
 
             console.log(data);
 

@@ -173,7 +173,6 @@ hbs.registerHelper('getFormattedDateTimeMongoId', (objectId) => {
     let time = obj.time.split(":");
     obj.time = time[0]+time[1]+ " hrs";
     return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
-
 });
 
 hbs.registerHelper('breaklines', (val) => {
@@ -1820,6 +1819,7 @@ var myFuncs = {
         try {
             const doc = new model(data);
             let output = await doc.save();
+            console.log(output);
             return {success: 'Done'};
         } catch(e) {
             console.log(e);
@@ -4431,8 +4431,6 @@ var myFuncs = {
         var millisTillPublish = new Date(letter.publishTime) - now;
 
         setTimeout( async () => {
-            
-            // let body = this.convertStringToArticle(letter.body);
 
             let output;
 
@@ -4447,7 +4445,6 @@ var myFuncs = {
             let mailSent = await this.sendBulkEmailWithTemplate('life', letter.slug, output);
 
             let url = process.env.url;
-            // let url = env == 'test' || env == 'development' ? process.env. : 'https://qasimali.xyz'
 
             let notifyOnTelegram = await this.axiosRequest({
                 URL: "https://v1.nocodeapi.com/punch__lines/telegram/bcvUoCOJfShwnjlS",
@@ -4500,12 +4497,12 @@ var myFuncs = {
 
         let model = await this.createModel(`${brand}-newsletters`);
         let output = await model.findOne({slug: templateSlug}).lean();
-        if (output == null) return //console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
+        if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
 
         let sentMails = await this.sendMail(
             {
-               from: `Qasim Ali<${process.env.zoho}>`,
+                from: `Qasim Ali<${process.env.zoho}>`,
                 template: 'lifeNewsletter', 
                 context: {
                     body: this.convertStringToArticle(output.body),
@@ -6227,85 +6224,80 @@ var myFuncs = {
 
         req.params.module = "order";
 
+        // now 4 Jul works
+        console.log("show me this order first");
+        console.log("make the action buttons functional first");
+
+        console.log("render all items inside this order on the front end");
+        console.log("load kallesreceipt module if this is gen request");
+        console.log("collapse and expand these order details");
+
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOne({_id: req.params.input}).lean();
         return {
-            success: true
+            order: output
         };
+
+    },
+
+    // create a document that as some values of array inside it
+    createDocWithArr: async function(collection, model, data) {
+
+        console.log("create Doc with Arr");
+
+        try {
+            let props = ( await Collections.findOne({name: collection}).lean() ).properties;
+            let arrays = [], items = [];
+            console.log( JSON.stringify(props, 0, 2) );
+            delete props.noClone;
+            delete props.fixed;
+
+            Object.entries(props).forEach( owl =>  {
+                console.log("Reading foreach - ", owl[0]);
+                let key = owl[0],
+                    value = owl[1];
+
+                if (value.type == "Array" && data[key] && data[key].length > 0) {
+                    console.log("this is array - ", key );
+                    data[key].forEach( val => arrays.push({ser: data.ser, key: key, val: val}) );
+                    delete data[key];
+                }
+
+                return 0;
+            });
+
+            let placeOrder = await model.create( data );
+
+            await Promise.all( arrays.map( val => {
+
+                return model.findOneAndUpdate({ser: val.ser},{
+                    $push: {
+                        [ val.key ] : val.val
+                    }
+                });
+            }));
+
+            return true;
+
+        } catch(e) {
+            console.log(e);
+            return false;
+        }
 
     },
 
     kallesPlaceOrder: async function(req,res) {
 
-        console.log(req.body);
-        let data = req.body;
-//         data.stages = [{
-//             id: 1,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Order Placed",
-//             type: "completed",
-//         },{
-//             id: 2,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Special Msg from Customer",
-//             msg: "Please sir we are so hungry hurry up. waiting for your order. Thanks",
-//             type: "customer",
-//         },{
-//             id: 4,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Notified the Shop on Email",
-//             type: "completed"
-//         },{
-//             id: 5,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Notificed the Shop on Slack",
-//             type: "completed"
-//         },{
-//             id: 6,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Sent receipt on Email",
-//             type: "completed"
-//         },{
-//             id: 7,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Sent receipt on Email",
-//             type: "completed"
-//         },{
-//             id: 8,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Sent receipt on Email",
-//             type: "completed"
-//         },{
-//             id: 9,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Shipped",
-//             msg: "Our rider is on his way. He should read your door step today noon. Please keep Rs 8900 handy.",
-//             type: "completed"
-//         },{
-//             id: 10,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Delivered",
-//             type: "pending"
-//         },{
-//             id: 11,
-//             time: "0718 hrs · 19 Apr 2022",
-//             hdg: "Payment",
-//             type: "pending"
-//         }];
-        
         let model = await this.createModel( `${req.params.brand}-orders` );
         let ser = await model.find({}, {ser: 1, _id:0}).sort({ser:-1}).limit(1).lean();
-        console.log({ser});
-        data.ser = Number(ser[0].ser) + 1;
-
-        let placeOrder = await this.save(model, data);
-
-        console.log(placeOrder);
+        req.body.ser = Number(ser[0] ? ser[0].ser : 0) + 1;
+        let store = this.createDocWithArr(`${req.params.brand}-orders`, model , req.body);
 
         return {
-            data: placeOrder,
+            data: store ? "order placed" : "error occured"
         }
 
     },
-
 
 };
 

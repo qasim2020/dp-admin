@@ -37,6 +37,13 @@
         line-height: 1.0;
         color: #737272;
     }
+    
+    .receipt h3 {
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 1.0;
+        color: #737272;
+    }
 
     .order > div > p {
         font-size: 16px;
@@ -49,6 +56,26 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+
+    .nav > p {
+        font-size: 12px;
+    }
+
+    .nav > p > span {
+        padding: 2px 5px;
+    }
+
+    .nav > p > span.link {
+        font-weight: bold;
+        color: black;
+        background: antiquewhite;
+    }
+
+    .nav > p > span.link:hover {
+        background: white;
+        cursor: pointer;
+        opacity: 0.6;
     }
 
     .orderDetails {
@@ -64,14 +91,13 @@
     }
 
     .collapsable {
-
         margin-bottom: 20px;
         background: whitesmoke;
         padding: 10px;
         border-left: 2px solid #2296f3;
     }
     
-    .collapsable > p:nth-child(1) {
+    .collapsable > .open > p:nth-child(1) {
         font-size: 12px;
         font-weight: bold;
         color: #2196f3;
@@ -79,12 +105,12 @@
     }
 
 
-    .collapsable > p:nth-child(2) {
+    .collapsable > .open > p:nth-child(2) {
         font-weight: bold;
     }
 
 
-    .collapsable > div {
+    .collapsable > .open >  div {
 
         width: 100%;
         font-family: inherit;
@@ -97,7 +123,7 @@
 
     }
 
-    .collapsable >  button {
+    .collapsable > .open > button {
         border: 2px solid transparent;
         color: black;
         margin-top: 7px;
@@ -111,10 +137,16 @@
         margin-bottom: 13px;
     }
 
+    .btns > .btn:nth-child(1) {
+        background: #2196f3;
+        color: #d8eeff;
+        border: #2196f3;
+    }
+
     .btns > .btn:nth-child(2) {
         flex-grow: 1;
         margin-left: 3px;
-        background: darkcyan;
+        background: black;
         color: #ffe2d8;
     }
 
@@ -139,26 +171,192 @@
         width: 100%;
         padding: 5px;
         padding-left: 10px;
-        color: darkcyan;
     }
 
     .section > button {
         padding: 18px 18px;
-        font-weight: bold;
         margin-bottom: 3px;
         margin-right: 3px;
-        font-size: 17px;
         background: white;
         border: 2px solid black;
         color: black;
+        font-size: 15px;
     }
 
+    .section > button:hover {
+        cursor: pointer;
+    }
+
+    .receipt {
+        max-width: 600px;
+        width: 95%;
+        margin: auto;
+        margin-top: 1rem;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 18%);
+        border-radius: 12px;
+        padding-top: 1rem;
+    }
+
+    .receipt > *:not(article) {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .receipt > div > p, 
+    .receipt > .firstRow p {
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 1.5;
+        margin-top: -10px;
+    }
+
+    .imgRow {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: -6px;
+    }
+
+    .imgRow > img {
+        height: 62px;
+        margin-left: -23px;
+        display: block;
+        margin-bottom: 0rem;
+    }
+
+    .imgRow > button {
+        margin-left: auto;
+        width: auto;
+        padding: 0px;
+        padding: 2px 11px;
+        border-radius: 5px;
+        border: 1px solid #F2F2F2;
+        text-decoration: none;
+        background: #EB5757;
+        color: white;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    .firstRow {
+        display: flex;
+        margin-top: 10px;
+        margin-bottom: -6px;
+    }
+
+    .firstRow > *:nth-child(2) {
+        margin-left: auto;
+        margin-right: 200px;
+    }
+
+    .orderSummary {
+        margin-bottom: 1rem;
+    }
+
+    article {
+        background: whitesmoke;
+        padding-bottom: 2rem;
+        padding-top: 1rem;
+        border-top: 1px dashed black;
+    }
+
+    article > p {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        line-height: 1.5;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+        color: #4F4F4F;
+        font-weight: 300;
+    }
+
+    .receipt h3 {
+        color: #333333;
+    }
+
+    article > p > span:nth-child(2) {
+        color: black;
+        font-weight: bold;
+    }
+
+    article > a {
+        color: #333333;
+        font-weight: bold;
+    }
     
-
-
     @media only screen and (max-width: 600px) {
+
         .order > div {
             width: 50%;
+        }
+        
+        .orderDetails > div {
+            width: 100%;
+        }
+
+        .orderDetails > div:nth-child(1) {
+            order: 1;
+        }
+
+        .receipt {
+            order: 0;
+            padding-top: 0px;
+            margin: auto;
+            margin-bottom: 1rem;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .receipt > *:not(article) {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        article > p {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .imgRow {
+            padding-top: 1rem;
+            flex-direction: column;
+        }
+
+        .imgRow > img {
+            margin-left: 0;
+            margin-bottom: 14px;
+        }
+
+        .imgRow > button {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .firstRow {
+            margin-top: 18px;
+        }
+
+        .firstRow > *:nth-child(1) {
+            width: 145px;
+        }
+
+        .firstRow > *:nth-child(2) {
+            margin-right: 0px;
+        }
+
+        article > p{
+            max-width: 100%;
+       }
+
+        article > p > span:nth-child(1) {
+            max-width: 50%;
+        }
+
+        article > p > span:nth-child(2) {
+            max-width: 40%;
+            text-align: end;
         }
     }
 
@@ -205,7 +403,13 @@
 
     <div class="nav">
     
-        <button class="btn" onclick="openLayer('.kallesReceipt', '.layerOne')"> ← Back </button>
+        <p>
+            
+            <span class="link" onclick="openLayer('.kallesReceipt', '.layerOne')">Dashboard</span>
+            /
+            <span class="black">Order</span>
+        
+        </p>
 
         <div class="actions">
 
@@ -218,15 +422,7 @@
 
     <div class="orderDetails">
 
-        <div>
-
-            <!--
-            TODO: FIX THE COLLAPSABLES 
-            <div class="collapsable">
-                <h3 class="collapsed">Order Dispatched</h3>
-                <div class="open"> </div>
-            </div>
-            -->
+        <div id="attach_stages">
 
             <div class="btns">
                 <button class="btn" >Collapse All</button>
@@ -272,8 +468,9 @@
 
         </div>
 
-        <div class="receipt">
-
+        <div id="attach_receipt">
+        
+        
         </div>
     
     </div>
@@ -285,7 +482,15 @@
 
     <div class="nav">
     
-        <button class="btn" onclick="openLayer('.actions-page', '.kallesReceipt')"> ← Back </button>
+        <p>
+            
+            <span class="link" onclick="openLayer('.kallesReceipt, .actions-page', '.layerOne')">Dashboard</span>
+            /
+            <span class="link" onclick="openLayer('.actions-page', '.kallesReceipt')">Order</span>
+            /
+            <span class="black">Actions</span>
+        
+        </p>
 
         <div class="actions">
 
@@ -302,35 +507,35 @@
 
             <h5>SHARE RECEIPT</h5>
 
-            <button>Send Receipt to Shop Email</button>
-            <button>Send Receipt to Customer Email</button>
-            <button>Send Receipt to Slack Channel</button>
+            <button id="send_receipt_to_shop" >Send Receipt to Shop Email</button>
+            <button id="send_receipt_to_customer" >Send Receipt to Customer Email</button>
+            <button onclick="sendReceiptToSlack('{{data.brand.slack}}')">Send Receipt to Slack Channel</button>
 
         </div>
         <div class="section">
 
             <h5>SEND A NOTE</h5>
 
-            <button>Send Special Note to Shop</button>
-            <button>Send Special Note to Customer</button>
+            <button onclick="createLayer('noteToShop')">Send Special Note to Shop</button>
+            <button onclick="createLayer('noteToCustomer')">Send Special Note to Customer</button>
 
         </div>
         <div class="section">
 
             <h5>TEST ALARM</h5>
 
-            <button>Generate New Order Alarm</button>
+            <button onclick="generateAlarm('newOrder')">Generate Alarm</button>
 
         </div>
 
         <div class="section">
 
             <h5>UPDATE ORDER STATUS</h5>
-            <button class="status">Processing</button>
-            <button class="status">Shipped</button>
-            <button class="status">Delivered</button>
-            <button class="status">Returned</button>
-            <button class="status">Cancelled</button>
+            <button class="status" onclick="setOrderStatus('processing')">Processing</button>
+            <button class="status" onclick="setOrderStatus('shipped')">Shipped</button>
+            <button class="status" onclick="setOrderStatus('delivered')">Delivered</button>
+            <button class="status" onclick="setOrderStatus('returned')">Returned</button>
+            <button class="status" onclick="setOrderStatus('cancelled')">Cancelled</button>
         
         </div>
 
@@ -338,11 +543,10 @@
 
             <h5>ADD PAYMENT DETAILS</h5>
 
-            <button class="payment">Cash On Delivery (COD)</button>
-            <button class="payment">Bank Transfer</button>
+            <button class="payment" onclick="addPaymentDetails('COD')">Cash On Delivery (COD)</button>
+            <button class="payment" onclick="addPaymentDetails('bank_tfr')">Bank Transfer</button>
         
         </div>
-
     
     </div>
 

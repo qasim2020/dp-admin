@@ -1,4 +1,3 @@
-
 let openOrder = function(elem, id) {
 
     $.ajax({
@@ -122,7 +121,6 @@ let openOrder = function(elem, id) {
             $("#attach_stages > .collapsable").remove();
             $("#attach_stages").append(stages);
 
-            console.log("check why the id is not having the onclick");
             $("#send_receipt_to_shop").attr({ onclick: `sendReceiptToEmail('${val.owner.email}', '${val.order._id}')` });
             $("#send_receipt_to_customer").attr({ onclick: `sendReceiptToEmail('${val.order.email}', '${val.order._id}')` });
 

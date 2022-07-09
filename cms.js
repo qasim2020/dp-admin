@@ -552,6 +552,7 @@ var myFuncs = {
         };
 
 
+        // sending data to page
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
             return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
@@ -570,6 +571,9 @@ var myFuncs = {
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
             storeThisFileInSession();
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data, webEdit: true});
+            break;
+          case (req.params.requiredType == 'email'):
+            return res.status(200).render(`emails/${req.params.module}.hbs`,{data});
             break;
           default:
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
@@ -670,6 +674,7 @@ var myFuncs = {
         deleteImgInCloudinary: "admin",
         saveItemInArray: "gen",
         deleteItemInArray: "gen",
+        receipt: "gen",
 
         kallesQuickView: "gen",
         kallesCartUpdate: "gen",
@@ -681,6 +686,170 @@ var myFuncs = {
         kallesLoadMore: "gen",
         kallesReceipt: "gen",
         kallesPlaceOrder: "gen",
+
+    },
+
+    newDashboard: async function(req,res) {
+
+        req.params.theme = "root";
+        req.params.module = req.headers['x-pjax']  == 'true' ? req.params.input : "newDashboard";
+        
+        let output = {};
+        let model ;
+
+        if (req.params.input.match(/-/g) == null) {
+
+            switch (true) {
+                case (req.params.input == "tickets"):
+                    output = {tickets: [1,2,3]};
+                    break;
+                case (req.params.input == "settings"):
+                    output = {settings: true};
+                    req.params.module = req.headers['x-pjax']  == 'true' ? "rootSettings" : "newDashboard";
+                    break;
+                case (req.params.input == "orders"):
+                    let model = await this.createModel(`${req.params.brand}-orders`);
+                    output.orders = await model.find().lean();
+                    req.params.module = req.headers['x-pjax']  == 'true' ? "kallesOrders" : "newDashboard";
+                    break;
+            };
+
+        } else {
+
+            let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
+
+            if (collectionsTable.length == 0) return {
+                status:200, 
+                success: 'no Collection exists yet. Try starting the app with basic configurations.',
+                brand: req.params.brand
+            };
+
+            req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
+
+            let requestedCollection = collectionsTable.find(val => val.name == req.params.input);
+
+            let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
+
+            collectionHeadings.unshift('_id');
+
+            collectionHeadings = collectionHeadings.filter( val => val != "fixed" && val != "noClone" );
+
+            model = await this.createModel(req.params.input);
+
+            let dataRows = await model.find().sort({ser: 1}).collation({locale: "en_US", numericOrdering: true}).lean();
+
+            let newRows = [];
+
+            if ( dataRows.length == 0 ) {
+
+                newRows = [];
+
+            } else {
+
+                newRows = dataRows.map(val => {
+
+                    let total = [], temp, property;
+
+                    for (i=0; i<collectionHeadings.length; i++) {
+
+                        switch (true) {
+
+                            case (collectionHeadings[i] == '_id'):
+
+                                temp = val[collectionHeadings[i]];
+                                property = {
+                                    html: "brick",
+                                    type: "String"
+                                };
+                                break;
+
+                            case (collectionHeadings[i] == 'properties'):
+
+                                temp = JSON.stringify(val[collectionHeadings[i]]);
+                                break;
+
+                            case (collectionHeadings[i] == /fixed|noClone/g):
+
+                                break;
+
+                            default:
+
+                                temp = val[collectionHeadings[i]];
+                                property = requestedCollection.properties[collectionHeadings[i]];
+                                Object.assign(property, {
+                                    key: collectionHeadings[i]
+                                });
+
+                        }
+
+                        total.push({
+                            val: temp,
+                            meta: property
+                        });
+
+                    }
+
+                    console.log( val.ser , val.ser == 1 );
+
+                    return {
+
+                        array: total,
+                        object: val,
+                        fixed: val.ser && val.ser.trim() == "1" ? "true" : val.fixed, 
+                        noClone: val.noClone
+
+                    };
+                });
+
+            };
+
+            let newHeadings = [];
+
+            for (i=0; i<collectionHeadings.length; i++) {
+
+                newHeadings[i] = {
+                    val: collectionHeadings[i],
+                    meta:  newRows[0] && newRows[0].array[i].meta
+                };
+
+            };
+
+            req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
+
+            let thisCollection = await Collections.findOne({name: req.params.input}).lean();
+
+            output = {
+                schema: collectionsTable.find(val => val.name == req.params.input).properties,
+                th: newHeadings,
+                dataRows: newRows,
+                modelName: req.params.input,
+                airtable: {
+                    basePin: thisCollection.airtable && thisCollection.airtable.baseId,
+                    baseAPIKey: thisCollection.airtable && thisCollection.airtable.baseAPIKey,
+                    tableName: thisCollection.airtable && thisCollection.airtable.tableName
+                }
+            };
+                
+
+        };
+
+        model = await this.createModel(`${req.params.brand}-notifications`);
+        let notifications = {
+            count: await model.countDocuments({status: 'unread'}),
+            texts: await model.find({status: 'unread'})
+        };
+
+        model = await this.createModel("myapp-themes");
+        let myTheme = await model.findOne({brand: req.params.brand}).lean();
+
+        Object.assign(output, {
+            modules: myTheme.modules,
+            collections: myTheme.collections,
+            notifications: notifications,
+            input: req.params.input
+        });
+
+        return output;
 
     },
 
@@ -1959,169 +2128,6 @@ var myFuncs = {
         let output = await this.save(model,req.body); 
         return output;
     },        
-
-    newDashboard: async function(req,res) {
-
-        req.params.theme = "root";
-        req.params.module = req.headers['x-pjax']  == 'true' ? req.params.input : "newDashboard";
-        
-        let output = {};
-        let model ;
-
-        if (req.params.input.match(/-/g) == null) {
-
-            switch (true) {
-                case (req.params.input == "tickets"):
-                    output = {tickets: [1,2,3]};
-                    break;
-                case (req.params.input == "printContract"):
-                    output = {contracts: true};
-                    break;
-                case (req.params.input == "orders"):
-                    let model = await this.createModel(`${req.params.brand}-orders`);
-                    output.orders = await model.find().lean();
-                    req.params.module = req.headers['x-pjax']  == 'true' ? "kallesOrders" : "newDashboard";
-                    break;
-            };
-
-        } else {
-
-            let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
-
-            if (collectionsTable.length == 0) return {
-                status:200, 
-                success: 'no Collection exists yet. Try starting the app with basic configurations.',
-                brand: req.params.brand
-            };
-
-            req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
-
-            let requestedCollection = collectionsTable.find(val => val.name == req.params.input);
-
-            let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
-
-            collectionHeadings.unshift('_id');
-
-            collectionHeadings = collectionHeadings.filter( val => val != "fixed" && val != "noClone" );
-
-            model = await this.createModel(req.params.input);
-
-            let dataRows = await model.find().sort({ser: 1}).collation({locale: "en_US", numericOrdering: true}).lean();
-
-            let newRows = [];
-
-            if ( dataRows.length == 0 ) {
-
-                newRows = [];
-
-            } else {
-
-                newRows = dataRows.map(val => {
-
-                    let total = [], temp, property;
-
-                    for (i=0; i<collectionHeadings.length; i++) {
-
-                        switch (true) {
-
-                            case (collectionHeadings[i] == '_id'):
-
-                                temp = val[collectionHeadings[i]];
-                                property = {
-                                    html: "brick",
-                                    type: "String"
-                                };
-                                break;
-
-                            case (collectionHeadings[i] == 'properties'):
-
-                                temp = JSON.stringify(val[collectionHeadings[i]]);
-                                break;
-
-                            case (collectionHeadings[i] == /fixed|noClone/g):
-
-                                break;
-
-                            default:
-
-                                temp = val[collectionHeadings[i]];
-                                property = requestedCollection.properties[collectionHeadings[i]];
-                                Object.assign(property, {
-                                    key: collectionHeadings[i]
-                                });
-
-                        }
-
-                        total.push({
-                            val: temp,
-                            meta: property
-                        });
-
-                    }
-
-                    console.log( val.ser , val.ser == 1 );
-
-                    return {
-
-                        array: total,
-                        object: val,
-                        fixed: val.ser && val.ser.trim() == "1" ? "true" : val.fixed, 
-                        noClone: val.noClone
-
-                    };
-                });
-
-            };
-
-            let newHeadings = [];
-
-            for (i=0; i<collectionHeadings.length; i++) {
-
-                newHeadings[i] = {
-                    val: collectionHeadings[i],
-                    meta:  newRows[0] && newRows[0].array[i].meta
-                };
-
-            };
-
-            req.params.module = req.headers['x-pjax']  == 'true' ? "rootTable" : "newDashboard";
-
-            let thisCollection = await Collections.findOne({name: req.params.input}).lean();
-
-            output = {
-                schema: collectionsTable.find(val => val.name == req.params.input).properties,
-                th: newHeadings,
-                dataRows: newRows,
-                modelName: req.params.input,
-                airtable: {
-                    basePin: thisCollection.airtable && thisCollection.airtable.baseId,
-                    baseAPIKey: thisCollection.airtable && thisCollection.airtable.baseAPIKey,
-                    tableName: thisCollection.airtable && thisCollection.airtable.tableName
-                }
-            };
-                
-
-        };
-
-        model = await this.createModel(`${req.params.brand}-notifications`);
-        let notifications = {
-            count: await model.countDocuments({status: 'unread'}),
-            texts: await model.find({status: 'unread'})
-        };
-
-        model = await this.createModel("myapp-themes");
-        let myTheme = await model.findOne({brand: req.params.brand}).lean();
-
-        Object.assign(output, {
-            modules: myTheme.modules,
-            collections: myTheme.collections,
-            notifications: notifications,
-            input: req.params.input
-        });
-
-        return output;
-
-    },
 
     showCollection: async function(req,res) {
         let collectionsTable = await Collections.find({brand: req.params.brand}).lean();
@@ -6296,6 +6302,18 @@ var myFuncs = {
         return {
             data: store ? "order placed" : "error occured"
         }
+
+    },
+
+    receipt: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOne({ser: req.params.input}).lean();
+        
+        return {
+            order: output,
+            meta: JSON.parse(output.meta)
+        };
 
     },
 

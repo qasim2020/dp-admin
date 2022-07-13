@@ -433,10 +433,6 @@ var myFuncs = {
 
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
-        // console.log(JSON.stringify(data, 0, 2));
-        console.log(data);
-        console.log("    ");
-
         if( data && data.hasOwnProperty("error")) {
             console.log(data);
             return res.status(data.status).send(data.error);
@@ -482,8 +478,10 @@ var myFuncs = {
                     },{
                         $group: {
                             _id: {
+                                "_id": "$_id",
                                 "name" : "$name",
                                 "email" : "$email",
+                                "mobile" : "$mobile",
                                 "role" : "$role",
                                 "brand" : "$brand"
                             },
@@ -495,25 +493,27 @@ var myFuncs = {
                         $project: {
                             "name" : "$_id.name",
                             "email" : "$_id.email",
+                            "mobile" : "$_id.mobile",
                             "role" : "$_id.role",
                             "brandsString" : "$_id.brand",
                             "brands" : "$brands",
-                            "_id" : 0
+                            "_id" : "$_id._id",
                         }
                     }
                 ])
             };
 
             return {
-                person: output.person,
+                person: output.person[0],
                 brand: output.brand && output.brand.name,
                 brandName: output.brand && output.brand.brandName,
                 brandWebsite: output.brand && output.brand.brandWebsite,
+                brandLogo: output.brand && output.brand.brandLogo, 
                 mobile: output.brand && output.brand.brandMobile,
                 email: output.brand && output.brand.brandEmail,
                 loc: output.brand && output.brand.brandGooglePin,
                 brandDesc: output.brand && output.brand.brandDesc,
-                metaImg: output.brand && output.brand.brandMetaImg
+                brandMetaImg: output.brand && output.brand.brandMetaImg
             };
 
         };
@@ -551,6 +551,10 @@ var myFuncs = {
 
         };
 
+
+        // console.log(JSON.stringify(data, 0, 2));
+        // console.log(data);
+        // console.log("    ");
 
         // sending data to page
         switch(true) {
@@ -704,11 +708,13 @@ var myFuncs = {
                     output = {tickets: [1,2,3]};
                     break;
                 case (req.params.input == "settings"):
-                    output = {settings: true};
+                    model = await this.createModel(`myapp-themes`);
+                    output.themeDetails = await model.findOne({brand: req.params.brand}).lean();
+                    output.settings = {success: true};
                     req.params.module = req.headers['x-pjax']  == 'true' ? "rootSettings" : "newDashboard";
                     break;
                 case (req.params.input == "orders"):
-                    let model = await this.createModel(`${req.params.brand}-orders`);
+                    model = await this.createModel(`${req.params.brand}-orders`);
                     output.orders = await model.find().lean();
                     req.params.module = req.headers['x-pjax']  == 'true' ? "kallesOrders" : "newDashboard";
                     break;
@@ -5787,6 +5793,7 @@ var myFuncs = {
     },
 
     updateDocument : async function(req,res) {
+        console.log(req.body);
 
         let model = await this.createModel(req.params.input);
         let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});

@@ -1,164 +1,366 @@
-<div class="bar">
+<style>
 
-    <p>Collapse All</p>
+    .contained {
+        max-width: 600px;
+        margin: auto;
+    }
 
-</div>
-<div class="bar">
+    .contained .header {
+        text-align: right;
+    }
 
-    <div class="closed">
+    .contained .header > p {
+        display: inline-block;
+    }
 
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Personal Info</h3>
-        <i class="fa fa-check"></i>
-        <i class="d-none fa fa-exclamation"></i>
+    .contained .header > p:hover {
+        cursor: pointer;
+    }
 
-    </div>
+    .contained > .bar {
+        padding: 6px 20px;
+        border: 3px solid whitesmoke;
+        background: white;
+    }
+    
+    .contained .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+    }
 
-    <div class="open">
+    .contained .open {
+        padding-top: 10px;
+    }
 
-        <label for="name">Full Name</label>
-        <input type="text" placeholder="">
+    .contained h3 {
+        display: flex;
+        align-items: center;
+    }
+
+    .contained h3 > i.fa {
+        margin-right: 10px;
+    }
+
+    .contained i.fa {
+        font-size: 12px;
+    }
+
+    .contained .fa.fa-circle-notch {
+        color: red;
+    }
+
+    .contained label {
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        font-size: 13px;
+    }
+
+    .contained input {
+        padding: 15px 10px;
+        border: 2px solid whitesmoke;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 13px;
+        background: whitesmoke;
+        font-size: 15px;
+    }
+
+    .contained .open > p.note {
+        margin: 0px;
+        margin-bottom: 15px;
+        margin-top: -3px;
+
+        font-size: 12px;
+    }
+
+    .contained .open > p.note > a {
+        font-size: 12px;
+        text-decoration: none;
+        padding-bottom: 3px;
+        font-weight: bold;
+    }
+
+    .contained input[disabled] {
+        background: whitesmoke;
+        border: 2px solid whitesmoke;
+        background-image: 
+            url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi2r9//38gYGAEESAAEGAAasgJOgzOKCoAAAAASUVORK5CYII=);
+    }
+
+    .contained .imgUpload {
+        position: relative;
+        margin-bottom: 12px;
+    }
+
+    .contained .imgUpload > img.logo {
+        width: 150px;
+        height: 150px;
+    }
+
+    .contained .imgUpload > img.meta {
+        width: 100%;
+        height: auto;
+        box-sizing: border-box;
+    }
+
+    .contained .imgUpload > img {
+        background: whitesmoke;
+        border: solid whitesmoke;
+        padding: 2px;
+    }
+
+    .contained .imgUpload > .uploader{
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        opacity: 0.9;
+        width: 100%;
+        height: 100%;
+    }
+
+    .contained .imgUpload:hover > .uploader, 
+    .contained .imgUpload.loading > .uploader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .contained .uploader > .fa-plus {
+        font-size: 12px;
+        color: black;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .contained .imgUpload:hover {
+        cursor: pointer;
+    }
+
+
+</style>
+
+<div class="contained collapseToggles">
+
+    <div class="bar header">
+
+        <p onclick="collapseToggle(this)" class="closed">
+
+            <span>Expand All</span>
+            <span class="d-none">Collapse All</span>
         
-        <label for="email">Email</label>
-        <input type="email" placeholder="">
-    
-        <label for="phone">Phone</label>
-        <input type="phone" placeholder="+923236723623" >
-    
-    </div>
-
-</div>
-
-<div class="bar">
-
-    <div class="closed">
-
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Change Password</h3>
+        </p>
 
     </div>
+    <div class="bar toggleable closed">
 
-    <div class="open">
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
-        <label for="oldPass">Old Password</label>
-        <input type="password" placeholder="" />
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Personal Info</h3>
+            <i class="fa fa-check"></i>
+            <i class="d-none fa fa-circle-notch spin"></i>
+            <i class="d-none fa fa-exclamation"></i>
+
+        </div>
+
+        <div class="open d-none">
+
+            <label for="name">Full Name</label>
+            <input name="name" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.name}}">
+            
+            <label for="email">Email</label>
+            <p class="note">The email used to login to this account.</p>
+            <input name="email" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.email}}">
         
-        <label for="newPass">New Password</label>
-        <input type="password" placeholder="" />
- 
-        <label for="cfmPass">Confirm New Password</label>
-        <input type="password" placeholder="" />
-
-        <button>Change Password</button>
-    
-    </div>
-
-</div>
-
-<div class="bar">
-
-    <div class="closed">
-
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Brand Identity</h3>
-        <i class="fa fa-check"></i>
-        <i class="d-none fa fa-exclamation"></i>
+            <label for="mobile">Phone</label>
+            <input name="mobile" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.mobile}}">
+        
+        </div>
 
     </div>
 
-    <div class="open">
+    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
 
-        <label for="brandName">Brand Name</label>
-        <input type="text" />
+        <div class="head closed">
 
-        <label for="logo">Brand Logo</label>
-        <input type="file" name="img" accept="image/*" />
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Change Password</h3>
 
-        <label for="metaImg">Brand Meta Image</label>
-        <input type="file" name="img" accept="image/*" />
+        </div>
 
-        <label for="slogan">Brand Slogan</label>
-        <input type="text" placeholder="4 to 8 words"/>
+        <div class="open d-none">
 
-        <label for="desc">Brand Description</label>
-        <input type="textarea">
+            <label for="oldPass">Old Password</label>
+            <input type="password" placeholder="" />
+            
+            <label for="newPass">New Password</label>
+            <input type="password" placeholder="" />
+     
+            <label for="cfmPass">Confirm New Password</label>
+            <input type="password" placeholder="" />
 
-        <label for="locPin">Brand Location Pin</label>
-        <input type="text" placeholder="https://google.com/your-location-pin" />
-    
-    </div>
-
-</div>
-
-<div class="bar">
-
-    <div class="closed">
-
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Airtable Pull</h3>
-        <i class="fa fa-check"></i>
-        <i class="d-none fa fa-exclamation"></i>
+            <button>Change Password</button>
+        
+        </div>
 
     </div>
 
-    <div class="open">
+    <div class="bar toggleable closed" >
 
-        <label for="baseID">Base ID</label>
-        <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
-        <input type="text" placeholder="" />
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
-        <label for="baseAPIKey">Base API Key</label>
-        <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
-        <input type="text" placeholder="" />
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Brand Identity</h3>
+            <i class="fa fa-check"></i>
+            <i class="d-none fa fa-circle-notch spin"></i>
+            <i class="d-none fa fa-exclamation"></i>
+
+        </div>
+
+        <div class="open d-none">
+
+            <label for="brand">Brand Name</label>
+            <p class="note">Brand name can not be changed.</p>
+            <input name="brand" type="text" placeholder="" value="{{brand.brand}}" disabled>
+
+            <label for="logo">Brand Logo</label>
+
+            <div class="imgUpload d-inline-block">
+
+                {{#if brand.brandLogo}}
+                <img class="logo" src="{{brand.brandLogo.photo.large}}" imgId={{brand.brandLogo.imgId}}>
+                {{else}}
+                <img class="logo" src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685257/myapp/Picture2_1.png" >
+                {{/if}}
+
+                <div class="uploader">
+                    <i class="fas fa-plus" onclick="uploadMultipleImages(this)"></i>
+                    <input class="d-none" type="file" name="brandLogo" accept="image/*" onchange="readSinglePhotoURL(this, '{{brand._id}}', 'myapp-themes' )" />
+                    <i class="fas fa-circle-notch spin font-black d-none"></i>
+                </div>
+            
+            </div>
+
+            <label for="metaImg">Brand Meta Image</label>
+            <p class="note">Upload img of 1200 x 630 px (1.91:1).</p>
+            <div class="imgUpload d-block w-100">
+
+
+                {{#if brand.brandMetaImg}}
+                <img class="meta" src="{{brand.brandMetaImg.photo.large}}" imgId={{brand.brandLogo.imgId}}>
+                {{else}}
+                <img class="meta" src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685081/myapp/Picture_1.png" >
+                {{/if}}
+
+                <div class="uploader">
+                    <i class="fas fa-plus" onclick="uploadMultipleImages(this)"></i>
+                    <input class="d-none" type="file" name="brandMetaImg" accept="image/*" onchange="readSinglePhotoURL(this, '{{brand._id}}', 'myapp-themes' )" />
+                    <i class="fas fa-circle-notch spin font-black d-none"></i>
+                </div>
+            
+            </div>
+
+            <label for="slogan">Business Slogan</label>
+            <input type="text" placeholder="4 to 8 words"/>
+
+            <label for="desc">Business Description</label>
+            <input type="textarea">
+
+            <label for="address">Business Address</label>
+            <input type="textarea" placeholder="https://google.com/your-location-pin" />
+        
+
+            <label for="locPin">Business Location Pin</label>
+            <input type="text" placeholder="https://google.com/your-location-pin" />
+        
+        </div>
 
     </div>
 
-</div>
+    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
 
-<div class="bar">
+        <div class="head closed">
 
-    <div class="closed">
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Airtable Pull</h3>
+            <i class="fa fa-check"></i>
+            <i class="d-none fa fa-circle-notch spin"></i>
+            <i class="d-none fa fa-exclamation"></i>
 
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Slack Channel</h3>
-        <i class="fa fa-check"></i>
-        <i class="d-none fa fa-exclamation"></i>
-    
+        </div>
+
+        <div class="open d-none">
+
+            <label for="baseID">Base ID</label>
+            <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
+            <input type="text" placeholder="" />
+
+            <label for="baseAPIKey">Base API Key</label>
+            <p class="note"><a href="https://airtable.com/api" target="_blank">https://airtable.com/api</a></p>
+            <input type="text" placeholder="" />
+
+        </div>
+
     </div>
 
-    <div class="open">
+    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
 
-        <label for="slackName">Slack Channel Name</label>
-        <input type="text" />
+        <div class="head closed">
 
-        <label for="slackID">Slack API Key</label>
-        <input type="text" />
-    
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Slack Channel</h3>
+            <i class="fa fa-check"></i>
+            <i class="d-none fa fa-circle-notch spin"></i>
+            <i class="d-none fa fa-exclamation"></i>
+
+        </div>
+
+        <div class="open d-none">
+
+            <label for="slackName">Slack Channel Name</label>
+            <input type="text" />
+
+            <label for="slackID">Slack API Key</label>
+            <input type="text" />
+        
+        </div>
+
     </div>
 
-</div>
+    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
 
-<div class="bar">
+        <div class="head closed">
 
-    <div class="closed">
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Social Media Links</h3>
+            <i class="fa fa-check"></i>
+            <i class="d-none fa fa-circle-notch spin"></i>
+            <i class="d-none fa fa-exclamation"></i>
+        
+        </div>
 
-        <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Social Media Links</h3>
-        <i class="fa fa-check"></i>
-        <i class="d-none fa fa-exclamation"></i>
-    
-    </div>
+        <div class="open d-none">
 
-    <div class="open">
+            <label for="twitter">Twitter</label>
+            <input type="text" placeholder="https://twitter.com/your-link" />
 
-        <label for="twitter">Twitter</label>
-        <input type="text" placeholder="https://twitter.com/your-link" />
+            <label for="facebook">Facebook</label>
+            <input type="text" placeholder="https://facebook.com/your-link" />
 
-        <label for="facebook">Facebook</label>
-        <input type="text" placeholder="https://facebook.com/your-link" />
+            <label for="insta">Instagram</label>
+            <input type="text" placeholder="https://instagram.com/your-link" />
 
-        <label for="insta">Instagram</label>
-        <input type="text" placeholder="https://instagram.com/your-link" />
+            <label for="youtube">YouTube</label>
+            <input type="text" placeholder="https://youtube.com/your-link" />
 
-        <label for="youtube">YouTube</label>
-        <input type="text" placeholder="https://youtube.com/your-link" />
+            <label for="linkedin">LinkedIn</label>
+            <input type="text" placeholder="https://linkedin.com/your-profile" />
 
-        <label for="linkedin">LinkedIn</label>
-        <input type="text" placeholder="https://linkedin.com/your-profile" />
+        </div>
 
     </div>
 

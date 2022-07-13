@@ -331,6 +331,59 @@
         padding-top: 10px;
     }
 
+    .spin {
+        -webkit-animation-name: spin;
+        -webkit-animation-duration: 500ms;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-timing-function: linear;
+        -moz-animation-name: spin;
+        -moz-animation-duration: 500ms;
+        -moz-animation-iteration-count: infinite;
+        -moz-animation-timing-function: linear;
+        -ms-animation-name: spin;
+        -ms-animation-duration: 500ms;
+        -ms-animation-iteration-count: infinite;
+        -ms-animation-timing-function: linear;
+
+        animation-name: spin;
+        animation-duration: 500ms;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+
+    @-ms-keyframes spin {
+        from { -ms-transform: rotate(0deg); }
+        to { -ms-transform: rotate(360deg); }
+    }
+    @-moz-keyframes spin {
+        from { -moz-transform: rotate(0deg); }
+        to { -moz-transform: rotate(360deg); }
+    }
+    @-webkit-keyframes spin {
+        from { -webkit-transform: rotate(0deg); }
+        to { -webkit-transform: rotate(360deg); }
+    }
+    @keyframes spin {
+        from {
+            transform:rotate(0deg);
+        }
+        to {
+            transform:rotate(360deg);
+        }
+    }
+
+    .d-inline-block {
+        display: inline-block;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+
+    .font-black {
+        color: black !important;
+    }
+
     {{#if (matchValues data.theme "property")}}
         {{> cssSnippets/propertyTemplates}}
     {{/if}}
@@ -347,7 +400,7 @@
                 
                 <div>
                     <select class="" name="" onchange="changeBrand(this)">
-                        {{#each data.owner.person.0.brands}}
+                        {{#each data.owner.person.brands}}
                             {{#if (matchValues this.0.brand ../data.brand)}}
                             <option value="/{{this.0.brand}}/admin/page/newDashboard/{{this.0.brand}}-{{this.0.collections}}" selected>{{this.0.brandName}}</option>
                             {{else}}
@@ -414,7 +467,7 @@
             {{/if}}
 
             {{#if data.settings}}
-            {{> rootSettings}}
+            {{> rootSettings owner=data.owner brand=data.themeDetails}}
             {{/if}}
 
         </div>

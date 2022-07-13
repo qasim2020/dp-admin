@@ -1265,7 +1265,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let uploadMultipleImages = function(elem) {
 
-        console.log("upload multiple images here");
         $(elem).siblings("input").trigger("click");
 
     };
@@ -1548,5 +1547,174 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         if (!this.asc){rows = rows.reverse()}
         for (var i = 0; i < rows.length; i++){table.append(rows[i])} // >
     })
+
+    let collapseToggle = function(elem) {
+        if ($(elem).hasClass("opened")) {
+
+            $(elem).closest(".collapseToggles").find(".bar.toggleable").removeClass("opened");
+            $(elem).closest(".collapseToggles").find(".bar.toggleable").addClass("closed");
+            $(elem).closest(".collapseToggles").find(".open").addClass("d-none");
+            $(elem).closest(".collapseToggles").find("h3 > .fa-minus").addClass("d-none");
+            $(elem).closest(".collapseToggles").find("h3 > .fa-plus").removeClass("d-none");
+
+            $(elem).find("span:nth-child(1)").removeClass("d-none");
+            $(elem).find("span:nth-child(2)").addClass("d-none");
+            $(elem).addClass("closed");
+            $(elem).removeClass("opened");
+
+        } else {
+
+            $(elem).closest(".collapseToggles").find(".bar.toggleable").addClass("opened");
+            $(elem).closest(".collapseToggles").find(".bar.toggleable").removeClass("closed");
+            $(elem).closest(".collapseToggles").find(".open").removeClass("d-none");
+            $(elem).closest(".collapseToggles").find("h3 > .fa-minus").removeClass("d-none");
+            $(elem).closest(".collapseToggles").find("h3 > .fa-plus").addClass("d-none");
+
+            $(elem).find("span:nth-child(1)").addClass("d-none");
+            $(elem).find("span:nth-child(2)").removeClass("d-none");
+            $(elem).addClass("opened");
+            $(elem).removeClass("closed");
+        };
+    };
+
+    let smallCollapseToggle = function(elem) {
+
+        if ($(elem).hasClass("opened")) {
+
+            $(elem).closest(".toggleable").find(".open").addClass("d-none");
+            $(elem).closest(".toggleable").find("h3 > .fa-minus").addClass("d-none");
+            $(elem).closest(".toggleable").find("h3 > .fa-plus").removeClass("d-none");
+
+            $(elem).addClass("closed");
+            $(elem).removeClass("opened");
+
+        } else {
+
+            $(elem).closest(".toggleable").find(".open").removeClass("d-none");
+            $(elem).closest(".toggleable").find("h3 > .fa-minus").removeClass("d-none");
+            $(elem).closest(".toggleable").find("h3 > .fa-plus").addClass("d-none");
+
+            $(elem).removeClass("closed");
+            $(elem).addClass("opened");
+
+        }
+
+
+    };
+
+    let saveSettings = function( elem, _id, collection ) {
+
+        let type = $(elem).attr("type");
+
+        let data = {};
+
+        switch (true) { 
+            case (type == "text") :
+                data[$(elem).attr("name")] = $(elem).val() ;
+                break;
+        }
+
+        console.log({_id, collection, data});
+
+        $(elem).closest(".bar.toggleable").find(".fa-circle-notch").removeClass("d-none");
+        $(elem).closest(".bar.toggleable").find(".fa-check").addClass("d-none");
+        $(elem).closest(".bar.toggleable").find(".fa-exclamation").addClass("d-none");
+
+        $.ajax({
+            url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+            method: "POST",
+            data: data,
+            success: val => {
+                console.log(val);
+                $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+                $(elem).closest(".bar.toggleable").find(".fa-check").removeClass("d-none");
+            },
+        }).fail( err => {
+            console.log(err);
+            $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+            $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
+        }); 
+
+
+    };
+
+    let readSinglePhotoURL = function(elem, _id, collection) {
+
+        $(elem).closest(".imgUpload").addClass("loading");
+        $(elem).closest(".uploader").find(".fa-plus").addClass("d-none");
+        $(elem).closest(".uploader").find(".fa-circle-notch").removeClass("d-none");
+
+        let afterCloudinary = function(val, imgId) {
+
+            console.log(val, imgId);
+
+            let finishUpload = function(mydata) {
+                $(elem).closest(".imgUpload").find("img").attr({ src: val.url });
+                $(elem).closest(".imgUpload").removeClass("loading");
+                $(elem).closest(".uploader").find(".fa-plus").removeClass("d-none");
+                $(elem).closest(".uploader").find(".fa-circle-notch").addClass("d-none");
+                console.log("finished uploading this image");
+            };
+
+            let data = {
+               [ $(elem).attr("name") ] : {
+                   _id: _id, 
+                   photo: {
+                       imgId: imgId, 
+                       small: "http://res.cloudinary.com/miscellaneous/image/upload/" + "c_scale,h_100,q_100/" + val.url.split("http://res.cloudinary.com/miscellaneous/image/upload/")[1],
+                       medium: "http://res.cloudinary.com/miscellaneous/image/upload/" + "c_scale,h_200,q_100/" + val.url.split("http://res.cloudinary.com/miscellaneous/image/upload/")[1],
+                       large: val.url
+                   }
+               }
+            };
+
+            $.ajax({
+                url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+                method: "POST",
+                data: data,
+                success: val => finishUpload(val),
+                error: (err, status, response) => console.log(err)
+            });
+        };
+
+        let uploadCloudinary = function(img, imgId) {
+
+            let data = {
+                public_id: imgId,
+                img: img,
+            };
+
+            $.ajax({
+                url: `/${urlParams().brand}/${urlParams().permit}/data/uploadCloudinary/n`,
+                method: "POST",
+                data: data,
+                success: val => afterCloudinary(val, imgId),
+                error: (err, status, response) => console.log(err.responseText)
+            });
+        };
+
+        let loadInReader = function(val) {
+
+            console.log(val);
+
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                let imgId = $(this).closest(".imgUpload").find("img").attr("imgId") || Date.now().toString(36) + Math.random().toString(36).substr(2);
+                $(elem).closest(".imgUpload").find("img").attr({
+                        src: e.target.result,
+                        imgId: imgId
+                    });
+                return uploadCloudinary(e.target.result, imgId);
+            };
+
+            reader.readAsDataURL(elem.files[0]);
+
+        };
+
+        loadInReader();
+        return;
+
+    };
 
 </script>

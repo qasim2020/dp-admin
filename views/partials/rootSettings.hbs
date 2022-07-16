@@ -267,18 +267,27 @@
             
             </div>
 
+            <label for="brandEmail">Business Email</label>
+            <p class="note">Currently supporting <a href="https://zoho.com" target="_blank">Zoho</a> Mail.</p>
+            <input type="email" name="brandEmail" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandEmail}}" />
+
+            <label for="brandPass">Business Email Password</label>
+            <input type="password" name="brandEmailPassword" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="*****" />
+
+            <label for="brandMobile">Business Mobile </label>
+            <input type="text" name="brandMobile" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandMobile}}" />
+
             <label for="slogan">Business Slogan</label>
-            <input type="text" placeholder="4 to 8 words"/>
+            <input type="text" name="brandSlogan" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandSlogan}}" />
 
             <label for="desc">Business Description</label>
-            <input type="textarea">
+            <input type="textarea" name="brandDesc" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandDesc}}" />
 
-            <label for="address">Business Address</label>
-            <input type="textarea" placeholder="https://google.com/your-location-pin" />
+            <label for="address">Business Postal Address</label>
+            <input type="textarea" name="brandAddress" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandAddress}}" />
         
-
-            <label for="locPin">Business Location Pin</label>
-            <input type="text" placeholder="https://google.com/your-location-pin" />
+            <label for="brandGooglePin">Business Location Pin</label>
+            <input type="text" name="brandGooglePin" placeholder="https://google.com/your-location-pin"  onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandGooglePin}}" />
         
         </div>
 

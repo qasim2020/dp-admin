@@ -305,10 +305,10 @@ hbs.registerHelper('trim', function(val) {
 });
 
 hbs.registerHelper('calcTotalPrice', function(cart) {
-    console.log(cart);
+    // console.log(cart);
     let eachPrice = cart.map( val => Number(val.quantity) * Number(val.product.sale_price || val.product.price) );
     let totalPrice = eachPrice.reduce( (total, val, key) => total += val, 0 );
-    console.log(eachPrice, totalPrice);
+    // console.log(eachPrice, totalPrice);
     return totalPrice;
 });
 
@@ -434,7 +434,7 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
         if( data && data.hasOwnProperty("error")) {
-            console.log(data);
+            // console.log(data);
             return res.status(data.status).send(data.error);
         };
 
@@ -690,6 +690,8 @@ var myFuncs = {
         kallesLoadMore: "gen",
         kallesReceipt: "gen",
         kallesPlaceOrder: "gen",
+        
+        sendReceiptToEmail: "gen",
 
     },
 
@@ -4276,23 +4278,28 @@ var myFuncs = {
 
     },
 
-    sendMail : async function({template, context, toEmail, subject, brand, from, msg}) { // FROM , toEMAIL, subject, msg required for Simple MAil
+    sendMail : async function({template, context, toEmail, subject, brand, msg}) { // FROM , toEMAIL, subject, msg required for Simple MAil
 
-        let testAccount = await nodemailer.createTestAccount();
+        let model = await this.createModel(`myapp-themes`);
+        let output = await model.findOne({brand: brand}).lean();
+
+        // let testAccount = await nodemailer.createTestAccount();
 
         let transporter = nodemailer.createTransport({
           host: "smtppro.zoho.eu",
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
-            user: process.env.zoho, // generated ethereal user
-            pass: process.env.zohop,
+            user: output.brandEmail.trim(), 
+            pass: output.brandEmailPassword.trim(),
           },
         });
 
-        if (template != undefined) {
+        console.log( transporter, 0, 2 );
 
-            let hbstemplate, html;
+        let hbstemplate, html;
+
+        if (template != undefined) {
 
             let file = await new Promise( (resolve, reject) => {
 
@@ -4303,20 +4310,27 @@ var myFuncs = {
 
             });
 
-            hbstemplate = hbs.compilet(file);
+            hbstemplate = hbs.compile(file);
             html = hbstemplate({data: context});
+
         } else {
+
             html = msg; // this is now a simple MSG
+
         }
 
+        // console.log(html);
+
         var mail = {
-           from: from,
+           from: output.brandEmail,
            to: toEmail,
            subject: subject,
            html: html
         }
 
         const info = await transporter.sendMail(mail);
+
+        console.log(info);
 
         return info;
 
@@ -6315,12 +6329,54 @@ var myFuncs = {
     receipt: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-orders`);
-        let output = await model.findOne({ser: req.params.input}).lean();
+        // TODO: LOAD RECEIPT FROM EMAIL AND SER
+        let output = await model.findOne({ser: req.query.ser, email : req.query.email }).lean();
+
+        console.log(output);
         
         return {
             order: output,
             meta: JSON.parse(output.meta)
         };
+
+    },
+
+    sendReceiptToEmail: async function(req,res) {
+
+        try {
+
+            req.query = {
+                ser: req.body.ser, 
+                email: req.body.email
+            }
+
+            let receipt = await this.receipt(req,res);
+
+            console.log( " -------- ");
+            console.log( " -------- ");
+
+            
+            let mail  = await this.sendMail({ 
+                    template: "receipt", 
+                    context: receipt, 
+                    toEmail: req.body.email, 
+                    subject: "Receipt", 
+                    brand: req.params.brand
+                });
+
+            console.log( mail  );
+
+            return {
+                success: true
+            };
+
+        } catch (e) {
+            console.log(e);
+            return {
+                status: 400,
+                error: e,
+            }
+        }
 
     },
 

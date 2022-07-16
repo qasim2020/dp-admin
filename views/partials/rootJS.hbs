@@ -1608,11 +1608,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         let data = {};
 
-        switch (true) { 
-            case (type == "text") :
-                data[$(elem).attr("name")] = $(elem).val() ;
-                break;
-        }
+        data[$(elem).attr("name")] = $(elem).val() ;
 
         console.log({_id, collection, data});
 

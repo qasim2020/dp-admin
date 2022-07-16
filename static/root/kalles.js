@@ -121,8 +121,8 @@ let openOrder = function(elem, id) {
             $("#attach_stages > .collapsable").remove();
             $("#attach_stages").append(stages);
 
-            $("#send_receipt_to_shop").attr({ onclick: `sendReceiptToEmail('${val.owner.email}', '${val.order._id}')` });
-            $("#send_receipt_to_customer").attr({ onclick: `sendReceiptToEmail('${val.order.email}', '${val.order._id}')` });
+            $("#send_receipt_to_shop").attr({ onclick: `sendReceiptToEmail('${val.owner.email}', '${val.order.ser}')` });
+            $("#send_receipt_to_customer").attr({ onclick: `sendReceiptToEmail('${val.order.email}', '${val.order.ser}')` });
 
             // layers handling dont write after this
             if ( $("body > .kallesReceipt, body > .actions-page").length > 0 ) {
@@ -137,15 +137,15 @@ let openOrder = function(elem, id) {
 
 };
 
-let sendReceiptToEmail = function(email, orderId) {
+let sendReceiptToEmail = function(email, ser) {
     console.log("send this receipt on a certain email");
 
     let data = {
         email: email,
-        orderId: orderId, 
+        ser: ser, 
     };
 
-    return console.log(data);
+    console.log(data);
 
     $.ajax({
         url: `/${urlParams().brand}/gen/data/sendReceiptToEmail/n`,

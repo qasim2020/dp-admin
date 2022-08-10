@@ -162,6 +162,7 @@ hbs.registerHelper('mongoIdToDate', (objectId) => {
 
 // formatted 0718 hrs · 9 Apr 22
 hbs.registerHelper('getFormattedDateTimeMongoId', (objectId) => {
+    if ( objectId == null ) return null;
     let date = new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
     let dtg = date.toString().split(" ");
     let obj = {
@@ -305,7 +306,6 @@ hbs.registerHelper('trim', function(val) {
 });
 
 hbs.registerHelper('calcTotalPrice', function(cart) {
-    // console.log(cart);
     let eachPrice = cart.map( val => Number(val.quantity) * Number(val.product.sale_price || val.product.price) );
     let totalPrice = eachPrice.reduce( (total, val, key) => total += val, 0 );
     // console.log(eachPrice, totalPrice);
@@ -529,6 +529,13 @@ var myFuncs = {
                 theme: await this.getThemeName(req.params.brand),
             });
 
+            if ( (/admin|auth/g).test(req.params.permit)  == false ) {
+
+                console.log("deleting the person because this is not auth or admin");
+                delete data.owner.person;
+
+            }
+
         } catch(e) {
             console.log(e)
         }
@@ -553,9 +560,7 @@ var myFuncs = {
 
 
         // console.log(JSON.stringify(data, 0, 2));
-        // console.log(data);
-        // console.log("    ");
-
+        console.log(data);
         // sending data to page
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -688,10 +693,17 @@ var myFuncs = {
         kallesCheckOut: "gen",
         kallesCartReplaceItem: "gen",
         kallesLoadMore: "gen",
-        kallesReceipt: "gen",
         kallesPlaceOrder: "gen",
+        kallesSendNote: "gen", 
         
-        sendReceiptToEmail: "gen",
+        showReceipt: "gen", 
+        showOrder: "admin",
+        editOrder: "admin", 
+        sendReceiptToEmail: "admin",
+        sendMsgToEmail: "admin", 
+        saveSlackAPI: "admin",
+        sendReceiptToSlack: "admin", 
+        testPlaceOrder: "admin"
 
     },
 
@@ -4198,7 +4210,6 @@ var myFuncs = {
 
     dateBlogHeader: function(date) {
 
-        // let formattedDate = this.getFormattedDate(date);
         let d = new Date(date);
         let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
         let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
@@ -4278,15 +4289,15 @@ var myFuncs = {
 
     },
 
-    sendMail : async function({template, context, toEmail, subject, brand, msg}) { // FROM , toEMAIL, subject, msg required for Simple MAil
+    sendMail: async function({template, context, toEmail, subject, brand, msg}) { 
+
+        console.log({ toEmail });
 
         let model = await this.createModel(`myapp-themes`);
         let output = await model.findOne({brand: brand}).lean();
 
-        // let testAccount = await nodemailer.createTestAccount();
-
         let transporter = nodemailer.createTransport({
-          host: "smtppro.zoho.eu",
+          host: output.brandEmailServerLoc.trim(), 
           port: 465,
           secure: true, // true for 465, false for other ports
           auth: {
@@ -4294,8 +4305,6 @@ var myFuncs = {
             pass: output.brandEmailPassword.trim(),
           },
         });
-
-        console.log( transporter, 0, 2 );
 
         let hbstemplate, html;
 
@@ -4318,8 +4327,6 @@ var myFuncs = {
             html = msg; // this is now a simple MSG
 
         }
-
-        // console.log(html);
 
         var mail = {
            from: output.brandEmail,
@@ -4578,11 +4585,11 @@ var myFuncs = {
 
             output = await axios.post(URL, data)
                       .then(res => {
-                          // // //console.log(res);
+                          console.log(res);
                           return res;
                       })
                       .catch(error => {
-                        // console.error(error.response.data)
+                          console.error(error.response.data)
                           return error.response.data;
                       })
 
@@ -5962,6 +5969,8 @@ var myFuncs = {
 
     deleteItemInArray: async function(req,res) {
 
+        // input = collection name, _id = data._id, key = data.key, keyId = data.key.Id
+
         let model = await this.createModel(req.params.input);
 
         let output = await model.findOneAndUpdate(
@@ -6229,7 +6238,6 @@ var myFuncs = {
             cart: cart
         };
 
-
     },
 
     kallesCheckOut: async function(req, res) {
@@ -6247,9 +6255,23 @@ var myFuncs = {
 
     },
 
-    kallesReceipt: async function(req,res) {
+    showReceipt: async function(req, res) {
+        req.params.theme = "root";
+        req.params.module = "showOrder";
 
-        req.params.module = "order";
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let output = await model.findOne({_id: req.params.input}).lean();
+
+        return {
+            order: output, 
+            meta: JSON.parse(output.meta),
+            stages: output.stages.reverse(), 
+        };
+    },
+
+    showOrder: async function(req,res) {
+
+        req.params.theme = "root";
 
         // now 4 Jul works
         console.log("show me this order first");
@@ -6261,82 +6283,238 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({_id: req.params.input}).lean();
+
         return {
-            order: output
+            order: output, 
+            meta: JSON.parse(output.meta),
+            stages: output.stages.reverse(), 
         };
 
     },
 
-    // create a document that as some values of array inside it
+    // create a document that has some values of array inside it
     createDocWithArr: async function(collection, model, data) {
 
-        console.log("create Doc with Arr");
+        let props = ( await Collections.findOne({name: collection}).lean() ).properties;
+        let arrays = [], items = [];
+        delete props.noClone;
+        delete props.fixed;
 
-        try {
-            let props = ( await Collections.findOne({name: collection}).lean() ).properties;
-            let arrays = [], items = [];
-            console.log( JSON.stringify(props, 0, 2) );
-            delete props.noClone;
-            delete props.fixed;
+        Object.entries(props).forEach( owl =>  {
+            console.log("Reading foreach - ", owl[0]);
+            let key = owl[0],
+                value = owl[1];
 
-            Object.entries(props).forEach( owl =>  {
-                console.log("Reading foreach - ", owl[0]);
-                let key = owl[0],
-                    value = owl[1];
+            if (value.type == "Array" && data[key] && data[key].length > 0) {
+                console.log("this is array - ", key );
+                data[key].forEach( val => arrays.push({ser: data.ser, key: key, val: val}) );
+                delete data[key];
+            }
 
-                if (value.type == "Array" && data[key] && data[key].length > 0) {
-                    console.log("this is array - ", key );
-                    data[key].forEach( val => arrays.push({ser: data.ser, key: key, val: val}) );
-                    delete data[key];
+            return 0;
+        });
+
+        let order = {};
+
+        await model.create( data ).then(result => order = result );
+
+        await Promise.all( arrays.map( val => {
+
+            return model.findOneAndUpdate({ser: val.ser},{
+                $push: {
+                    [ val.key ] : val.val
                 }
-
-                return 0;
             });
+        }));
 
-            let placeOrder = await model.create( data );
-
-            await Promise.all( arrays.map( val => {
-
-                return model.findOneAndUpdate({ser: val.ser},{
-                    $push: {
-                        [ val.key ] : val.val
-                    }
-                });
-            }));
-
-            return true;
-
-        } catch(e) {
-            console.log(e);
-            return false;
-        }
+        console.log(order);
+        
+        return order;
 
     },
 
     kallesPlaceOrder: async function(req,res) {
 
         let model = await this.createModel( `${req.params.brand}-orders` );
-        let ser = await model.find({}, {ser: 1, _id:0}).sort({ser:-1}).limit(1).lean();
-        req.body.ser = Number(ser[0] ? ser[0].ser : 0) + 1;
-        let store = this.createDocWithArr(`${req.params.brand}-orders`, model , req.body);
+        let ser = await model.aggregate([
+        {
+            $addFields: {
+                numSer: { $toInt: "$ser" }
+            }
+        },{
+            $project: {
+                numSer: 1
+            }
+        },{
+            $sort: {
+                numSer: -1
+            }
+        }
+        ]);
+        req.body.ser = (ser[0] ? Number(ser[0].numSer) : Number(0)) + 1;
+        let store = await this.createDocWithArr(`${req.params.brand}-orders`, model , req.body);
+
+        this.createNewOrder(req, res, store); //place necessary stages
 
         return {
-            data: store ? "order placed" : "error occured"
+            order: store
         }
 
     },
 
+    createNewOrder: async function(req, res, order) {
+
+        let getDateTime = function(objectId) {
+            console.log({objectId});
+            let date = objectId != undefined ? new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000) : new Date();
+            let dtg = date.toString().split(" ");
+            let obj = {
+                time: dtg[4],
+                date: dtg[2],
+                month: dtg[1],
+                yr: dtg[3]
+            }
+            let time = obj.time.split(":");
+            obj.time = time[0]+time[1]+ " hrs";
+            return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
+        };
+
+        let saveItemInStage = async function(stage) {
+            let model = await myFuncs.createModel(`${req.params.brand}-orders`);
+            console.log("=====model & order====");
+            console.log(model);
+            console.log("---order----");
+            console.log(order);
+            let output = await model.findOneAndUpdate(
+                {
+                    _id: order._id
+                },{
+                    $push: {
+                        stages : stage
+                    }
+                },
+                { new: true }
+            );
+            return output;
+        };
+
+        // send email to the customer
+
+        try { 
+            req.query = {
+                ser: order.ser,
+                email: order.email
+            }
+
+            console.log(" ++++++++ ");
+            console.log(order);
+            console.log(" ++++++++ ");
+            console.log(order.email);
+            console.log(" ++++++++ ");
+
+            let receipt = await this.receipt(req,res);
+
+            let mail  = await this.sendMail({ 
+                template: "receipt", 
+                context: receipt, 
+                toEmail: order.email, 
+                subject: "receipt", 
+                brand: req.params.brand
+            });
+
+            await saveItemInStage({
+                id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+                time: getDateTime(), 
+                hdg: "Sent Receipt to Customer's Email", 
+                msg: `<p><small>Created by the Server.</small></p>`, 
+                type: "email"
+            });
+
+            // send slack notification
+
+            let meta = JSON.parse( order.meta );
+
+            let items = meta.reduce( (total, val, key) => {
+
+                return total += `${val.quantity} x ${val.product.name} (${val.size.label}) with item cost of  pkr ${val.product.sale_price ? val.product.sale_price : val.product.price} \n`;
+
+            }, "" );
+
+            let url = {};
+            console.log("process.env");
+            console.log(process.env.url);
+
+            let msg =  `*New Order Received!* 
+
+Order No = ${order.ser}
+Status = ${order.status}
+Day/Time = ${ getDateTime(order._id.toString()) }
+
+Customer
+Name = ${order.name}
+Address = ${order.address}
+Email = ${order.email}
+Mobile = ${order.mobile}
+
+Order 
+${items}
+
+Total Amount
+*PKR ${order.cost}*
+
+View receipt at : ${process.env.url}/${req.params.brand}/gen/email/receipt/n?ser=${order.ser}&email=${order.email}
+
+Receipt sent by Server.`;
+
+            let model = await this.createModel("myapp-themes");
+            let brandDetails = await model.findOne({ brand: req.params.brand }).lean();
+            let checkSlack = await this.axiosRequest({ method: "POST" , data: { text: msg } , URL: brandDetails.brandSlackURL });
+
+            await saveItemInStage({
+                id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+                time: getDateTime(), 
+                hdg: "Sent Receipt to Slack", 
+                msg: `<p><small>Created by the Server.</small></p>`, 
+                type: "email"
+            });
+
+            // send dashboard notification
+            io.sockets.emit( `${req.params.brand}newOrder` , order );
+
+            return {
+                success: true
+            }
+
+        } catch(e) {
+            console.log(e);
+        };
+
+    }, 
+
+    testPlaceOrder: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let lastOrder = await model.find().limit(1).sort({$natural:-1}).lean();
+        lastOrder[0].testing = "true";
+        io.sockets.emit( `${req.params.brand}newOrder`, lastOrder );
+
+        return {
+            success: true
+        }
+
+    }, 
+
     receipt: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-orders`);
-        // TODO: LOAD RECEIPT FROM EMAIL AND SER
         let output = await model.findOne({ser: req.query.ser, email : req.query.email }).lean();
-
-        console.log(output);
+        let brandModel = await this.createModel(`myapp-themes`);
+        let brand = await brandModel.findOne({brand: req.params.brand}).lean();
         
         return {
             order: output,
-            meta: JSON.parse(output.meta)
+            meta: JSON.parse(output.meta),
+            brandData: brand
         };
 
     },
@@ -6346,32 +6524,28 @@ var myFuncs = {
         try {
 
             req.query = {
-                ser: req.body.ser, 
-                email: req.body.email
+                ser: req.body.orderSer,
+                email: req.body.orderEmail
             }
 
             let receipt = await this.receipt(req,res);
 
-            console.log( " -------- ");
-            console.log( " -------- ");
-
-            
             let mail  = await this.sendMail({ 
-                    template: "receipt", 
-                    context: receipt, 
-                    toEmail: req.body.email, 
-                    subject: "Receipt", 
-                    brand: req.params.brand
-                });
-
-            console.log( mail  );
+                template: "receipt", 
+                context: receipt, 
+                toemail: req.body.toemail, 
+                subject: "receipt", 
+                brand: req.params.brand
+            });
 
             return {
                 success: true
             };
 
         } catch (e) {
+
             console.log(e);
+
             return {
                 status: 400,
                 error: e,
@@ -6379,6 +6553,60 @@ var myFuncs = {
         }
 
     },
+
+    saveSlackAPI: async function(req,res) {
+
+        let checkSlack = await this.axiosRequest({ method: "POST" , data: {text: "Hello boss testing the app"} , URL: req.body.url });
+        if (checkSlack.data == "ok") return { success: true }
+        else return {status: 404, error: 'Could not send on this webhook. Validate the webhook please. '};
+
+    },
+
+    sendReceiptToSlack: async function(req,res) {
+
+        let model = await this.createModel("myapp-themes");
+        let brandDetails = await model.findOne({ brand: req.params.brand }).lean();
+        let checkSlack = await this.axiosRequest({ method: "POST" , data: { text: req.body.msg } , URL: brandDetails.brandSlackURL });
+
+        if (checkSlack.data == "ok") return { success: true }
+        else return {status: 404, error: 'Could not send on this webhook. Validate the webhook please. '};
+
+    },
+
+    sendMsgToEmail: async function(req, res) {
+
+        console.log( " -------- ");
+        console.log( " -------- ");
+        
+        let mail  = await this.sendMail({ 
+                msg: req.body.msgText, 
+                toEmail: req.body.toEmail, 
+                subject: req.body.msgSubject, 
+                brand: req.params.brand
+            });
+
+        console.log( mail  );
+
+        return {
+            success: true
+        };
+
+    }, 
+
+    editOrder: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let order = await model.findOne({_id: req.params.input}).lean();
+        let cart = JSON.parse( order.meta );
+
+        req.session.cart = cart;
+        req.params.module = "shopping-cart";
+
+        return {
+            cart: req.session.cart != undefined ? req.session.cart : [],
+        }
+
+    }, 
 
 };
 

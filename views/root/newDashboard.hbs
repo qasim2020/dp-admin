@@ -14,6 +14,7 @@
     body {
         font-family: "Roboto";
         padding: 0px;
+        margin: 0px;
     }
 
     .btn.active {
@@ -54,6 +55,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 0 10px;
+        margin-top: 10px;
     }
 
     nav > div {
@@ -463,13 +465,12 @@
             {{/if}}
 
             {{#if data.orders}}
-            {{> kallesOrders orders=data.orders}}
+            {{> kallesOrders orders=data.orders data=data}}
             {{/if}}
 
             {{#if data.settings}}
             {{> rootSettings owner=data.owner brand=data.themeDetails}}
             {{/if}}
-
         </div>
     
     </div>
@@ -536,11 +537,9 @@
     <script src="/root/codemirror/js/codemirror.js"></script>
     <script src="/root/codemirror/js/xml.js"></script>
     <script src="/root/ckeditor.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/root/pjax.js"></script>
-    {{#if (matchValues data.theme "kalles")}}
-    <script src="/root/kalles.js"></script>
-    {{/if}}
-
+    <script src="/root/collapseToggles.js"></script>
     {{> rootJS}}
 
     <!-- BELOW SHOULD BE DYNAMICALLY LOADED ONLY IF NEEDED-->

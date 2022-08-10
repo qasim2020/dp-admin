@@ -1,8 +1,16 @@
 <script>
 
+let socket = io();
+
+socket.on(`{{data.brand}}newOrder`, (data) => {
+    console.log(data);
+});
+
+
 let urlParams = function() {
 
     let url = {
+        origin: window.location.origin, 
         brand: window.location.pathname.split("/")[1],
         permit: window.location.pathname.split("/")[2],
         requiredType: window.location.pathname.split("/")[3],
@@ -421,15 +429,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             } );
 
         };
-
-    };
-
-    let openLayer = function(elem, target) {
-
-            console.log("close", elem);
-            console.log("open", target);
-        $(elem).addClass("d-none");
-        $(target).removeClass("d-none");
 
     };
 
@@ -1548,60 +1547,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         for (var i = 0; i < rows.length; i++){table.append(rows[i])} // >
     })
 
-    let collapseToggle = function(elem) {
-        if ($(elem).hasClass("opened")) {
-
-            $(elem).closest(".collapseToggles").find(".bar.toggleable").removeClass("opened");
-            $(elem).closest(".collapseToggles").find(".bar.toggleable").addClass("closed");
-            $(elem).closest(".collapseToggles").find(".open").addClass("d-none");
-            $(elem).closest(".collapseToggles").find("h3 > .fa-minus").addClass("d-none");
-            $(elem).closest(".collapseToggles").find("h3 > .fa-plus").removeClass("d-none");
-
-            $(elem).find("span:nth-child(1)").removeClass("d-none");
-            $(elem).find("span:nth-child(2)").addClass("d-none");
-            $(elem).addClass("closed");
-            $(elem).removeClass("opened");
-
-        } else {
-
-            $(elem).closest(".collapseToggles").find(".bar.toggleable").addClass("opened");
-            $(elem).closest(".collapseToggles").find(".bar.toggleable").removeClass("closed");
-            $(elem).closest(".collapseToggles").find(".open").removeClass("d-none");
-            $(elem).closest(".collapseToggles").find("h3 > .fa-minus").removeClass("d-none");
-            $(elem).closest(".collapseToggles").find("h3 > .fa-plus").addClass("d-none");
-
-            $(elem).find("span:nth-child(1)").addClass("d-none");
-            $(elem).find("span:nth-child(2)").removeClass("d-none");
-            $(elem).addClass("opened");
-            $(elem).removeClass("closed");
-        };
-    };
-
-    let smallCollapseToggle = function(elem) {
-
-        if ($(elem).hasClass("opened")) {
-
-            $(elem).closest(".toggleable").find(".open").addClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-minus").addClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-plus").removeClass("d-none");
-
-            $(elem).addClass("closed");
-            $(elem).removeClass("opened");
-
-        } else {
-
-            $(elem).closest(".toggleable").find(".open").removeClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-minus").removeClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-plus").addClass("d-none");
-
-            $(elem).removeClass("closed");
-            $(elem).addClass("opened");
-
-        }
-
-
-    };
-
     let saveSettings = function( elem, _id, collection ) {
 
         let type = $(elem).attr("type");
@@ -1631,6 +1576,58 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
         }); 
 
+
+    };
+
+    let saveSlackAPI = function( elem, _id, collection ) {
+
+        let saveMe = function() {
+            let d2 = {};
+            d2.brandSlackURL = $("[name='brandSlackURL']").val()
+            $.ajax({
+                url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+                method: "POST",
+                data: d2,
+                success: val => {
+                    console.log(val);
+                    $(elem).html("Saved successfully!");
+                    $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+                    $(elem).closest(".bar.toggleable").find(".fa-check").removeClass("d-none");
+                },
+            }).fail( err => {
+                console.log(err);
+                $(elem).html(err.responseText == "{}" ? "Error. Failed to save the URL." : err.responseText);
+                $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+                $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
+            }); 
+
+        };
+
+        let data = {
+            url: $("[name='brandSlackURL']").val()
+        };
+        
+        $(elem).html("Saving...");
+        $(elem).closest(".bar.toggleable").find(".fa-circle-notch").removeClass("d-none");
+        $(elem).closest(".bar.toggleable").find(".fa-check").addClass("d-none");
+        $(elem).closest(".bar.toggleable").find(".fa-exclamation").addClass("d-none");
+
+        console.log(data);
+
+        $.ajax({
+            url: `/${urlParams().brand}/admin/data/saveSlackAPI/${collection}?_id=${_id}`,
+            method: "POST",
+            data: data,
+            success: val => {
+                console.log(val);
+                return saveMe();
+            },
+        }).fail( err => {
+            console.log(err);
+            $(elem).html(err.responseText == "{}" ? "Error. Validate input please" : err.responseText);
+            $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+            $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
+        }); 
 
     };
 

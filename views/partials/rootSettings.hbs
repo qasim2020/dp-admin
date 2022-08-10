@@ -47,10 +47,6 @@
         font-size: 12px;
     }
 
-    .contained .fa.fa-circle-notch {
-        color: red;
-    }
-
     .contained label {
         margin-bottom: 8px;
         display: block;
@@ -271,8 +267,11 @@
             <p class="note">Currently supporting <a href="https://zoho.com" target="_blank">Zoho</a> Mail.</p>
             <input type="email" name="brandEmail" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandEmail}}" />
 
+            <label for="brandEmailServerLoc">Business Email Server Location</label>
+            <input type="email" name="brandEmailServerLoc" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandEmailServerLoc}}" />
+
             <label for="brandPass">Business Email Password</label>
-            <input type="password" name="brandEmailPassword" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="*****" />
+            <input type="text" name="brandEmailPassword" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandEmailPassword}}" />
 
             <label for="brandMobile">Business Mobile </label>
             <input type="text" name="brandMobile" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandMobile}}" />
@@ -318,9 +317,9 @@
 
     </div>
 
-    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
+    <div class="bar toggleable closed" >
 
-        <div class="head closed">
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
             <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Slack Channel</h3>
             <i class="fa fa-check"></i>
@@ -331,12 +330,12 @@
 
         <div class="open d-none">
 
-            <label for="slackName">Slack Channel Name</label>
-            <input type="text" />
-
-            <label for="slackID">Slack API Key</label>
-            <input type="text" />
+            <label for="slackName">Slack URL</label>
+            <p class="note">Copy your slack webhook url from <a href="https://api.slack.com/apps/A03R4FNSNKB/incoming-webhooks?" target=_blank>this link</a> and paste below.</p>
+            <input type="text" name="brandSlackURL" placeholder=""  value="{{brand.brandSlackURL}}" />
         
+            <button class="btn" onclick="saveSlackAPI(this, '{{brand._id}}', 'myapp-themes' )">Save</button>
+
         </div>
 
     </div>

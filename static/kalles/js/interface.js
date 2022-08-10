@@ -3353,18 +3353,21 @@
 
             let unfilled = [], items = [], stages = [], meta = [];
 
-            let data = $(".checkout-section__field:not('.special') > input, .checkout-section__field > select, .checkout-section__field:not('.special') > textarea").get().map( val => {
+            let data = 
+            $(`.checkout-section__field:not('.special') > input, 
+            .checkout-section__field > select, 
+            .checkout-section__field:not('.special') > textarea`).get().map( val => {
 
-                $(val).removeClass("border-red");
+                    $(val).removeClass("border-red");
 
-                if ( $(val).attr("optional") != "true" ) {
-                    let d = $(val).val();
-                    if ( d == "" || d == undefined ) unfilled.push( $(val).attr("id") );
-                };
+                    if ( $(val).attr("optional") != "true" ) {
+                        let d = $(val).val();
+                        if ( d == "" || d == undefined ) unfilled.push( $(val).attr("id") );
+                    };
 
-                return {
-                    [ $(val).attr("id") ] : $(val).val() 
-                };
+                    return {
+                        [ $(val).attr("id") ] : $(val).val() 
+                    };
 
             }).reduce( (total, val, key) => Object.assign( total, val ), {} );
 
@@ -3377,12 +3380,26 @@
             });
 
             // console.log("fixing the items portion in this array");
+            let getFormattedDate = function() {
+                let date = new Date();
+                let dtg = date.toString().split(" ");
+                let obj = {
+                    time: dtg[4],
+                    date: dtg[2],
+                    month: dtg[1],
+                    yr: dtg[3]
+                }
+                let time = obj.time.split(":");
+                obj.time = time[0]+time[1]+ " hrs";
+                return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr}`;
+            };
+
 
             // stages
             if ( $("#transactionId").val().length > 0 ) {
                 stages.push({
                     id : Date.now().toString(36) + Math.random().toString(36).substr(2),
-                    time: "0718 hrs · 19 Apr 2022", // Time and Date like this
+                    time: getFormattedDate(),
                     hdg: "Payment Transaction ID",
                     msg: $('#transactionId').val(),
                     type: "payment"
@@ -3392,7 +3409,7 @@
             if ( $('#order_comments').val().length > 0 ) {
                 stages.push({
                     id : Date.now().toString(36) + Math.random().toString(36).substr(2),
-                    time: "0718 hrs · 19 Apr 2022", // Time and Date like this
+                    time: getFormattedDate(),
                     hdg: "Special Note On Order",
                     msg: $('#order_comments').val(),
                     type: "note"
@@ -3403,16 +3420,13 @@
             Object.assign( data, {
                 items: items,
                 status: "Order Placed",
-                payment: ( $("#transactionId").val().length > 0 )  ? "Paid — verification pending" : "Pending",
+                payment: ( $("#transactionId").val().length > 0 )  ? "Paid — Verification Pending" : "Pending",
                 stages: stages,
                 cost: $(".cart_price.amount").attr("data"),
                 meta: JSON.stringify( meta )
             });
 
 
-            console.log("meta");
-            console.log( JSON.parse(data.meta) );
-            // missing fields
             if ( unfilled.length > 0 ) {
                 unfilled.forEach( val => $(`#${val}`).addClass("border-red") );
                 $(this).html("Fill all required fields").addClass("bg-red");
@@ -3421,14 +3435,19 @@
 
             delete data.transactionId;
 
-            console.log(data);
-
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,
                 data: data,
                 method: "POST",
-                success: val => console.log("order placed"),
-            }).fail( err => console.log(err) );
+                success: val => {
+                    console.log(val);
+                    window.location.href = `/${urlParams().brand}/gen/page/showReceipt/${val.order._id}`;
+                    return console.log("redirected");
+                }
+            }).fail( err => {
+                console.log(err);
+                alert(err);
+            });
 
         });
 

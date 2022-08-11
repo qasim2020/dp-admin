@@ -3351,6 +3351,14 @@
 
             $(this).html("Placing order...").removeClass("bg-red");
 
+
+            if ( $(this).attr("editOrder") != "" ) {
+
+                return console.log("edit this order");
+
+            };
+            
+            return;
             let unfilled = [], items = [], stages = [], meta = [];
 
             let data = 
@@ -3393,7 +3401,6 @@
                 obj.time = time[0]+time[1]+ " hrs";
                 return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr}`;
             };
-
 
             // stages
             if ( $("#transactionId").val().length > 0 ) {

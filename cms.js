@@ -6168,7 +6168,7 @@ var myFuncs = {
     kallesCartUpdate: async function(req,res) {
 
         let cart = req.session && req.session.cart || [];
-        // remove items similar in size
+
         cart = cart.filter( val => val.slug != req.body.slug ); 
         cart.push( req.body );
         req.session.cart = cart;
@@ -6182,9 +6182,7 @@ var myFuncs = {
     kallesCartReplaceItem: async function(req,res) {
 
         let cart = req.session && req.session.cart || [];
-        // remove items to be replaced
         cart = cart.filter( val => val.slug != req.body.oldSlug );
-        // remove items similar in size
         cart = cart.filter( val => val.slug != req.body.slug );
         delete req.body.oldSlug;
         cart.push( req.body );
@@ -6251,13 +6249,13 @@ var myFuncs = {
 
         return {
             cart: req.session.cart != undefined ? req.session.cart : [],
+            editOrder: req.session.editOrder , 
         }
 
     },
 
     showReceipt: async function(req, res) {
         req.params.theme = "root";
-        req.params.module = "showOrder";
 
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({_id: req.params.input}).lean();
@@ -6272,14 +6270,6 @@ var myFuncs = {
     showOrder: async function(req,res) {
 
         req.params.theme = "root";
-
-        // now 4 Jul works
-        console.log("show me this order first");
-        console.log("make the action buttons functional first");
-
-        console.log("render all items inside this order on the front end");
-        console.log("load kallesreceipt module if this is gen request");
-        console.log("collapse and expand these order details");
 
         let model = await this.createModel(`${req.params.brand}-orders`);
         let output = await model.findOne({_id: req.params.input}).lean();
@@ -6365,7 +6355,6 @@ var myFuncs = {
     createNewOrder: async function(req, res, order) {
 
         let getDateTime = function(objectId) {
-            console.log({objectId});
             let date = objectId != undefined ? new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000) : new Date();
             let dtg = date.toString().split(" ");
             let obj = {
@@ -6376,15 +6365,11 @@ var myFuncs = {
             }
             let time = obj.time.split(":");
             obj.time = time[0]+time[1]+ " hrs";
-            return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
+            return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr}`;
         };
 
         let saveItemInStage = async function(stage) {
             let model = await myFuncs.createModel(`${req.params.brand}-orders`);
-            console.log("=====model & order====");
-            console.log(model);
-            console.log("---order----");
-            console.log(order);
             let output = await model.findOneAndUpdate(
                 {
                     _id: order._id
@@ -6405,12 +6390,6 @@ var myFuncs = {
                 ser: order.ser,
                 email: order.email
             }
-
-            console.log(" ++++++++ ");
-            console.log(order);
-            console.log(" ++++++++ ");
-            console.log(order.email);
-            console.log(" ++++++++ ");
 
             let receipt = await this.receipt(req,res);
 
@@ -6458,7 +6437,6 @@ Mobile = ${order.mobile}
 
 Order 
 ${items}
-
 Total Amount
 *PKR ${order.cost}*
 
@@ -6494,8 +6472,8 @@ Receipt sent by Server.`;
     testPlaceOrder: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-orders`);
-        let lastOrder = await model.find().limit(1).sort({$natural:-1}).lean();
-        lastOrder[0].testing = "true";
+        let lastOrder = (await model.find().limit(1).sort({$natural:-1}).lean())[0];
+        lastOrder.testing = "true";
         io.sockets.emit( `${req.params.brand}newOrder`, lastOrder );
 
         return {
@@ -6575,17 +6553,12 @@ Receipt sent by Server.`;
 
     sendMsgToEmail: async function(req, res) {
 
-        console.log( " -------- ");
-        console.log( " -------- ");
-        
         let mail  = await this.sendMail({ 
                 msg: req.body.msgText, 
                 toEmail: req.body.toEmail, 
                 subject: req.body.msgSubject, 
                 brand: req.params.brand
             });
-
-        console.log( mail  );
 
         return {
             success: true
@@ -6600,10 +6573,12 @@ Receipt sent by Server.`;
         let cart = JSON.parse( order.meta );
 
         req.session.cart = cart;
+        req.session.editOrder = order; 
         req.params.module = "shopping-cart";
 
         return {
             cart: req.session.cart != undefined ? req.session.cart : [],
+            editOrder: req.session.editOrder , 
         }
 
     }, 

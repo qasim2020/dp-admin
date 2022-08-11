@@ -19,6 +19,45 @@
 </head>
 <body class="kalles-template header_full_true des_header_3 css_scrollbar lazy_icons btnt4_style_2 zoom_tp_2 css_scrollbar template-cart kalles_toolbar_true hover_img2 swatch_style_rounded swatch_list_size_small label_style_rounded wrapper_full_width header_full_true hide_scrolld_true lazyload">
 
+{{#if data.editOrder}}
+    <style>
+
+    nav.editOrder {
+        background: black;
+        color: white;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        line-height: 1.0;
+        margin: 0px;
+    }
+
+    nav.editOrder p {
+        margin: 0px;
+    }
+
+    nav.editOrder a {
+        padding: 5px 15px;
+        background: #212121;
+        color: white;
+    }
+
+    </style>
+
+    <nav class="editOrder">
+        <p>
+            <span class="link"> <a href="/{{data.brand}}/admin/page/newDashboard/orders">Orders</a></span>
+            /
+            <span class="link"> <a href="/{{data.brand}}/admin/page/showOrder/{{data.editOrder._id}}">Show Order</a></span>
+            /
+            <span class="link"> <a href="/{{data.brand}}/admin/page/editOrder/{{data.editOrder._id}}">Shopping Cart</a></span>
+            / 
+            <span class="black">Checkout</span>
+        </p>
+    </nav>
+{{/if}}
+
+
 <!--head banner-->
 <div id="kalles-section-header_banner" class="kalles-section-header_banner">
     <div class="h__banner bgp pt__10 pb__10 fs__14 flex fl_center al_center pr oh show_icon_false">
@@ -1181,31 +1220,31 @@
                             <div class="row">
                                 <p class="checkout-section__field col-12">
                                     <label for="name">Full name</label>
-                                    <input type="text" id="name" value="">
+                                    <input type="text" id="name" value="{{data.editOrder.name}}">
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="address">Full address</label>
-                                    <textarea type="text" rows="3" id="address" value="" class="mb__20" placeholder="House number and street name"></textarea>
+                                    <textarea type="text" rows="3" id="address" class="mb__20" placeholder="House number and street name">{{data.editOrder.address}}</textarea>
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="city" id="address_province_label">City <span class="small">— Shipping only to Chakwal/ Islamabad/ Rawalpindi</span></label>
                                     <select id="city">
-                                        <option value="Chakwal">Chakwal</option>
-                                        <option value="Rawalpindi">Rawalpindi</option>
-                                        <option value="Islamabad">Islamabad</option>
+                                        <option value="Chakwal" {{#if (matchValues data.editOrder.city 'Chakwal')}}selected{{/if}}>Chakwal</option>
+                                        <option value="Rawalpindi" {{#if (matchValues data.editOrder.city 'Rawalpindi')}}selected{{/if}}>Rawalpindi</option>
+                                        <option value="Islamabad" {{#if (matchValues data.editOrder.city 'Islamabad')}}selected{{/if}}>Islamabad</option>
                                     </select>
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="mobile">Phone</label>
-                                    <input type="text" id="mobile"/>
+                                    <input type="text" id="mobile" value="{{data.editOrder.mobile}}"/>
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="email">Email</label>
-                                    <input type="text" id="email"/>
+                                    <input type="text" id="email" value="{{data.editOrder.email}}"/>
                                 </p>
                                 <p class="checkout-section__field col-12">
                                     <label for="transactionId">Bank Transaction ID </label>
-                                    <input type="text" id="transactionId"/>
+                                    <input type="text" id="transactionId" value="{{data.editOrder.transactionId}}"/>
                                 </p>
                             </div>
                         </div>
@@ -1286,45 +1325,6 @@
                                             </div>
                                         </li>
 
-                                        <!--
-
-                                        <li class="payment_method">
-                                            <input id="payment_method_stripe" type="radio" class="input-radio" name="payment_method" value="stripe">
-                                            <label for="payment_method_stripe">
-                                                Credit Card (Stripe)
-                                                <img src="/kalles/images/shopping-cart/visa.svg" class="stripe-visa-icon stripe-icon" alt="Visa">
-                                                <img src="/kalles/images/shopping-cart/mastercard.svg" class="stripe-mastercard-icon stripe-icon" alt="Mastercard">
-                                                <img src="/kalles/images/shopping-cart/amex.svg" class="stripe-amex-icon stripe-icon" alt="American Express">
-                                                <img src="/kalles/images/shopping-cart/discover.svg" class="stripe-discover-icon stripe-icon" alt="Discover">
-                                                <img src="/kalles/images/shopping-cart/diners.svg" class="stripe-diners-icon stripe-icon" alt="Diners">
-                                                <img src="/kalles/images/shopping-cart/jcb.svg" class="stripe-jcb-icon stripe-icon" alt="JCB">
-                                            </label>
-                                            <div class="payment_box payment_method_bacs dn">
-                                                <p>Pay with your credit card via Stripe. TEST MODE ENABLED. In test mode, you can use the card number 4242424242424242 with any CVC and a valid expiration date or check the Testing Stripe documentation for more card numbers.</p>
-                                                <div class="credit-card-form">
-                                                    <div class="form-row form-row-wide">
-                                                        <label for="stripe-card-element">Card Number<span class="required">*</span></label>
-                                                        <div class="stripe-card-group">
-                                                            <input type="text" name="card-number" id="stripe-card-element" value="" placeholder="1234 1234 1234 1234">
-                                                            <i class="stripe-credit-card-brand stripe-card-brand" alt="Credit Card"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-row form-row-first">
-                                                        <label for="stripe-exp-element">Expiry Date *</label>
-                                                        <div class="stripe-card-group">
-                                                            <input type="text" name="card-number" id="stripe-exp-element" value="" placeholder="MM/YY">
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-row form-row-last">
-                                                        <label for="stripe-cvc-element">Card Code (CVC) *</label>
-                                                        <div class="stripe-card-group">
-                                                            <input type="text" name="card-number" id="stripe-cvc-element" value="" placeholder="CVC">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        -->
                                     </ul>
                                     <p class="checkout-payment__policy-text">Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our<a href="#">privacy policy</a>.
                                     </p>
@@ -1332,7 +1332,7 @@
                                         <input type="checkbox" name="terms" id="terms">
                                         <span>I have read and agree to the website <a href="#" class="terms-and-conditions-link">terms and conditions</a></span>&nbsp;<span class="required">*</span>
                                     </label>
-                                    <button type="button" class="button button_primary btn checkout-payment__btn-place-order">Place order</button>
+                                    <button type="button" class="button button_primary btn checkout-payment__btn-place-order" editOrder="{{data.editOrder._id}}">Place order</button>
                                 </div>
                             </div>
                         </div>

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/root/codemirror/css/neo.css">
 
     <meta charset="UTF-8">
-    <title>Show Order</title>
+    <title>Show Receipt</title>
 
     <style>
 
@@ -106,36 +106,15 @@
         box-sizing: border-box;
     }
 
-    .orderDetails > div.fullWidth {
-        width: 100%;
-    }
-
-    .shadow {
-        box-shadow: 0px 0px 10px rgb(0 0 0 / 18%);
-    }
-
-    .shadow.box {
+    .orderDetails > div:nth-child(1) {
         padding: 10px;
-        padding-bottom: 0px;
         background: white;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 18%);
         border-radius: 10px;
-        margin-bottom: 10px;
-    }
-
-    .orderMgr > div {
-        cursor: pointer;
-        background: whitesmoke;
-        padding: 10px 20px;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-bottom: 10px;
-        justify-content: space-between;
-        font-weight: bold;
     }
 
     .orderDetails .bar.toggleable {
-        margin-bottom: 10px;
+        margin-bottom: 6px;
     }
 
     .collapseToggles .bar.header {
@@ -148,7 +127,7 @@
     }
 
     .head > .left {
-        width: 90%;
+        width: 100%;
         box-sizing: border-box;
         display: grid;
         grid-template-columns: 35px 1fr;
@@ -200,8 +179,8 @@
         background: white;
     }
 
-    .error , 
-    .success {
+    .bar > .open > .error , 
+    .bar > .open > .success {
         width: 100%;
         font-size: 12px;
         margin-top: 0px;
@@ -214,7 +193,7 @@
         margin-right: -10px;
     }
 
-    .success {
+    .bar > .open > .success {
         background: #e8f5e9;
         color: #1b5e20;
     }
@@ -326,6 +305,7 @@
     .receipt {
         width: 98%;
         margin-left: auto;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 18%);
         border-radius: 12px;
         padding-top: 1rem;
     }
@@ -576,7 +556,12 @@
             width: 100%;
         }
 
+        .orderDetails > div:nth-child(1) {
+            order: 1;
+        }
+
         .receipt {
+            order: 0;
             padding-top: 0px;
             margin: auto;
             margin-bottom: 1rem;
@@ -643,42 +628,24 @@
         <div class="nav">
         
             <p>
-                <span class="link"> <a href="/{{data.brand}}/admin/page/newDashboard/orders">Dashboard</a></span>
+                
+                <span class="link"> <a href="/{{data.brand}}/gen/page/landingPage/n">{{data.brand}}</a></span>
                 /
                 <span class="black">Order</span>
+            
             </p>
 
             <div class="actions">
+
                 <button class="btn" onclick="openLayer('.kallesReceipt', '.actions-page')">Actions</button>
+            
             </div>
         
         </div>
 
         <div class="orderDetails">
 
-            <div class="orderMgr shadow box fullWidth">
-
-                <div class="cancel">
-                    <p>Cancel Order</p>
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-                </div>
-
-                <div class="edit" onclick="editOrder(this)">
-                    <p>Edit Order</p>
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-                </div>
-
-            </div>
-
-            <div id="attach_stages" class="collapseToggles shadow box" >
+            <div id="attach_stages" class="collapseToggles" >
 
                 <div class="bar header">
 
@@ -703,11 +670,6 @@
                             </p>
                             <h3> {{this.hdg}} </h3>
                         </div>
-                        <div class="right" onclick="deleteMeFromStages(this, '{{../data.order._id}}', 'stages', '{{this.id}}')" >
-                            <i class="fa fa-trash"></i>
-                            <i class="fa fa-circle-notch spin d-none"></i>
-                            <i class="fa fa-warning d-none"></i>
-                        </div>
                     </div>
                     <div class="open d-none">
                         <p> {{{this.msg}}} </p>
@@ -721,7 +683,7 @@
             <div id="attach_receipt">
             
 
-                <div class="receipt shadow">
+                <div class="receipt">
 
                     <div class="imgRow">
                         <img src="{{data.owner.brandLogo.photo.medium}}" alt="">
@@ -801,16 +763,18 @@
         
             <p>
                 
-                <span class="link"> <a href="/{{data.brand}}/admin/page/newDashboard/orders">Dashboard</a></span>
+                <span class="link"> <a href="/{{data.brand}}/gen/page/landingPage/n">{{data.brand}}</a></span>
                 /
-                <span class="link"> <a href="/{{data.brand}}/admin/page/showOrder/{{data.order._id}}">Order</a></span>
+                <span class="link"> <a href="/{{data.brand}}/admin/page/showReceipt/{{data.order._id}}">Order</a></span>
                 /
                 <span class="black">Actions</span>
             
             </p>
 
             <div class="actions">
+
                 <button class="btn" onclick="openLayer('.actions-page', '.kallesReceipt')">Close Actions</button>
+            
             </div>
         
         </div>
@@ -827,7 +791,7 @@
                 </p>
 
             </div>
-        
+
             <div class="section bar toggleable opened">
 
                 <h3 class="opened" onclick="smallCollapseToggle(this)">
@@ -838,19 +802,7 @@
 
                 <div class="open quick" id="send_receipt_to_customer" onclick="sendReceiptToEmail('customer' , this)" >
 
-                    <p id="send_receipt_to_customer">Send Receipt to Customer Email</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-                
-                </div>
-
-                <div class="open quick" id="send_receipt_to_slack" onclick="sendReceiptToSlack(this)">
-     
-                    <p>Send Receipt to Slack Channel</p>
+                    <p id="send_receipt_to_customer">Get a copy of Receipt in Email</p>
 
                     <div class="icons">
                         <i class="fa fa-circle-notch spin d-none"></i>
@@ -861,7 +813,7 @@
                 </div>
 
             </div>
-
+        
             <div class="section bar toggleable opened">
 
                 <h3 class="opened" onclick="smallCollapseToggle(this)">
@@ -873,70 +825,10 @@
                 <div class="open xtoggle">
 
                     <div class="head" onclick="xtoggle(this)">
-
-                        <i class="fa fa-plus d-none"></i>
-                        <i class="fa fa-minus"></i>
-                        <p>Send Special Note to Customer</p>
-
-                        <div class="icons">
-                            <i class="fa fa-circle-notch spin d-none"></i>
-                            <i class="fa fa-check d-none"></i>
-                            <i class="fa fa-warning d-none"></i>
-                        </div>
-
-                    </div>
-
-                    <div class="body">
-
-                        <textarea id="" name="" cols="" rows="5"></textarea>
-                        <button id="send_note_to_customer" class="btn" onclick="sendNote('customer', this)">Send</button>
-                    
-                    </div>
-                
-                </div>
-
-            </div>
-
-            <div class="section bar toggleable opened">
-
-                <h3 class="opened" onclick="smallCollapseToggle(this)">
-                    <span>General Tests</span>
-                    <i class="fa fa-plus d-none"></i>
-                    <i class="fa fa-minus"></i>
-                </h3>
-
-                <div class="open quick" id="send_receipt_to_shop" onclick="sendReceiptToEmail('shop' , this)" >
-
-                    <p>Send Receipt to Shop Email</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-                
-                </div>
-
-
-                <div class="open quick" onclick="generateAlarm(this)">
-                
-                    <p>Generate a Test Alarm</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open xtoggle">
-
-                    <div class="head" onclick="xtoggle(this)">
                     
                         <i class="fa fa-plus d-none"></i>
                         <i class="fa fa-minus"></i>
-                        <p>Send Special Note to Shop</p>
+                        <p>Add a note to the Order</p>
 
                         <div class="icons">
                             <i class="fa fa-circle-notch spin d-none"></i>
@@ -960,128 +852,10 @@
             <div class="section bar toggleable opened">
 
                 <h3 class="opened" onclick="smallCollapseToggle(this)">
-                    <span>Update Order Status</span>
-                    <i class="fa fa-plus d-none"></i>
-                    <i class="fa fa-minus"></i>
-                </h3>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Order Placed')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','In Store')">
-                
-                    <p>In Store</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Processing')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','Processing')">
-                
-                    <p>Processing</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Shipped')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','Shipped')">
-                
-                    <p>Shipped</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Delivered')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','Delivered')">
-                
-                    <p>Delivered</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Returned')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','Returned')">
-                
-                    <p>Returned</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.status 'Cancelled')}}active{{/if}}" onclick="setOrderStatus(this, '{{data.order._id}}','Cancelled')">
-                
-                    <p>Cancelled</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-            
-            </div>
-
-            <div class="section bar toggleable opened">
-
-                <h3 class="opened" onclick="smallCollapseToggle(this)">
                     <span>Add Payment Details</span>
                     <i class="fa fa-plus d-none"></i>
                     <i class="fa fa-minus"></i>
                 </h3>
-
-                <div class="open quick {{#if (matchValues data.order.payment 'Pending')}}active{{/if}}" onclick="setPaymentStatus(this, '{{data.order._id}}','Pending')">
-                
-                    <p>Pending</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.payment 'Paid - Verification Pending')}}active{{/if}}" onclick="setPaymentStatus(this, '{{data.order._id}}','Paid - Verification Pending')">
-                
-                    <p>Paid - Verification Pending</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
-
-                <div class="open quick {{#if (matchValues data.order.payment 'Paid - Verified')}}active{{/if}}" onclick="setPaymentStatus(this, '{{data.order._id}}','Paid - Verified')">
-                
-                    <p>Paid - Verified</p>
-
-                    <div class="icons">
-                        <i class="fa fa-circle-notch spin d-none"></i>
-                        <i class="fa fa-check d-none"></i>
-                        <i class="fa fa-warning d-none"></i>
-                    </div>
-
-                </div>
 
                 <div class="open xtoggle">
 
@@ -1125,42 +899,6 @@
         
         </div>
 
-    </div>
-
-    <div class="alarm-page d-none">
-        
-        <div class="container">
-        
-            <h3>New Order Received...</h3>
-
-            <div class="order">
-
-                <p><strong>Customer:</strong> Daud Ibrahim, Saddar, Rawalpindi. +92 323 6171231</p>
-                <hr>
-                <p> 7x Pants - FG School (Size:L) </p>
-                <p> 3x Shirts - Beacon House School (Size:XL) </p>
-                <p> 2x Socks - Ladies Blouse (Size: S)</p>
-                <hr>
-                <p><strong>Total: PKR 14800</strong></p>
-                <p><strong>Payment:</strong> Pending</p>
-
-            
-            </div>
-
-            <div class="skip" onclick="openLayer('.alarm-page', '.actions-page')">
-
-                <button class="btn">Skip</button>
-            
-            </div>
-
-            <div class="accept">
-
-                <button class="btn" onclick="acceptOrder(this, 'Processing' )">Accept</button>
-            
-            </div>
-
-        </div>
-    
     </div>
 
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>

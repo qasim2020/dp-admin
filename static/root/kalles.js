@@ -1,6 +1,5 @@
 let startShowOrder = function(id) {
 
-
     $(".open.quick.active").find(".fa-check").removeClass("d-none");
 
     $.ajax({
@@ -32,13 +31,11 @@ let urlParams = function() {
 let socket = io();
 
 socket.on(`${urlParams().brand}newOrder`, (order) => {
-    order = order[0];
     console.log(order);
 
     $("body > div").addClass("d-none");
     $(".alarm-page").removeClass("d-none");
 
-    console.log(order.meta);
     let meta = JSON.parse(order.meta);
 
     let items = meta.reduce( (total, val, key) => {
@@ -77,203 +74,6 @@ socket.on(`${urlParams().brand}newOrder`, (order) => {
 });
 
 startShowOrder(urlParams().input);
-
-let getDateTime = function(objectId) {
-    let date = new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
-    let dtg = date.toString().split(" ");
-    let obj = {
-        time: dtg[4],
-        date: dtg[2],
-        month: dtg[1],
-        yr: dtg[3]
-    }
-    let time = obj.time.split(":");
-    obj.time = time[0]+time[1]+ " hrs";
-    return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
-};
-
-let openOrder = function(elem, id) {
-
-    return window.location.href = `/${urlParams().brand}/admin/page/showOrder/${ id }`,
-
-    $.ajax({
-        url: `/${urlParams().brand}/gen/data/kallesReceipt/${ id }`,
-        method: "GET",
-        success: val => {
-
-            $(".layerOne").addClass("d-none");
-            let meta = JSON.parse(val.order.meta);
-            
-            // draw items html for placing inside receipt
-            let items = meta.reduce( (total, val, key) => {
-
-                return total += `<p class="itemRow items">
-                                     <span>${val.product.name} (${val.size.label}) <strong>x ${val.quantity} </strong></span>
-                                     <span>${val.quantity} x PKR ${val.product.sale_price ? val.product.sale_price : val.product.price}</span>
-                                 </p>`;
-            }, "" );
-
-            // get formatted date and time
-            // draw the receipt html
-            let html = `
-            <div class="receipt">
-
-                <div class="imgRow">
-                    <img src="${val.owner.brandLogo.photo.medium}" alt="">
-                </div>
-
-                <div class="firstRow ">
-                    
-                    <div class="">
-                        <h3>ORDER #</h3>
-                        <p id="orderNo">${val.order.ser}</p>
-                    </div>
-
-                    <div class="">
-                        <h3>STATUS</h3>
-                        <p>${val.order.status}</p>
-                    </div>
-                
-                </div>
-
-                <div class="">
-                    <h3>DATE/ TIME</h3>
-                    <p>${getDateTime(val.order._id)}</p>
-                </div>
-
-
-                <div class="">
-                    <h3>NAME</h3>
-                    <p>${val.order.name}</p>
-                </div>
-
-                <div class="">
-                    <h3>SHIPPING ADDRESS</h3>
-                    <p>${val.order.address}</p>
-                </div>
-                <div class="">
-                    <h3>EMAIL</h3>
-                    <p>${val.order.email}</p>
-                </div>
-
-                <div class="">
-                    <h3>MOBILE NUMBER</h3>
-                    <p>${val.order.mobile}</p>
-                </div>
-
-                <h3 class="orderSummary">ORDER SUMMARY</h3>
-            
-                <article class="" >
-
-                    ${items}
-
-                    <p class="itemRow">
-                        <span>Total Amount</span>
-                        <span>PKR ${val.order.cost}</span>
-                    </p>
-
-                    <p>In'sha'Allah, you will receive this order in next 2 days. In case of a problem, please contact <br> 0331-7AM7AM7</p>
-
-                </article>
-
-            </div>
-            `;
-
-            // draw the stages
-            let stagesOpened = $("#attach_stages > .bar.header > p").hasClass("opened") ? "opened" : "closed"; 
-            let stages = val.order.stages && val.order.stages.reverse().reduce( (total, stage, key) => {
-
-                stage.msg = stage.msg && stage.msg.length > 0 ? `<div>${stage.msg}</div>` : "";
-
-                if (stagesOpened == "opened") {
-
-                    return total += `
-                        <div class="bar toggleable opened">
-                            <div class="head">
-                                <div class="left opened" onclick="smallCollapseToggle(this)">
-                                    <p class="smallTime">${stage.time}</p>
-                                    <p class="icon">
-                                        <i class="fa fa-plus d-none"></i> 
-                                        <i class="fa fa-minus"></i> 
-                                    </p>
-                                    <h3> ${stage.hdg} </h3>
-                                </div>
-                                <div class="right" onclick="deleteMeFromStages(this, '${val.order._id}', 'stages', '${stage.id}')" >
-                                    <i class="fa fa-trash"></i>
-                                    <i class="fa fa-circle-notch spin d-none"></i>
-                                    <i class="fa fa-warning d-none"></i>
-
-                                </div>
-                            </div>
-                            <div class="open">
-                                <p> ${stage.msg} </p>
-                            </div>
-                        </div>
-                    `;
-
-                } else {
-                    return total += `
-                        <div class="bar toggleable closed">
-                            <div class="head">
-                                <div class="left closed" onclick="smallCollapseToggle(this)">
-                                    <p class="smallTime">${stage.time}</p>
-                                    <p class="icon">
-                                        <i class="fa fa-plus"></i> 
-                                        <i class="fa fa-minus d-none"></i> 
-                                    </p>
-                                    <h3> ${stage.hdg} </h3>
-                                </div>
-                                <div class="right" onclick="deleteMeFromStages(this, '${val.order._id}', 'stages', '${stage.id}')" >
-                                    <i class="fa fa-trash"></i>
-                                    <i class="fa fa-circle-notch spin d-none"></i>
-                                    <i class="fa fa-warning d-none"></i>
-                                </div>
-                            </div>
-                            <div class="open d-none">
-                                <p> ${stage.msg} </p>
-                            </div>
-                        </div>
-                    `;
-                }
-
-            }, "" )
-            
-            if ( $("body > .kallesReceipt, body > .actions-page").length > 0 ) {
-                $("#pjax-container").find(".kallesReceipt, .actions-page").remove();
-                $(".kallesReceipt").removeClass("d-none");
-            } else {
-                $(".kallesReceipt").appendTo("body").removeClass("d-none");
-                $(".actions-page").appendTo("body");
-            };
-
-            resetActionsOverlay(val);
-
-            $("#attach_receipt").html(html);
-            $("#attach_stages > .bar.toggleable").remove();
-
-            let elem = $("#attach_stages > .bar.header > p");
-
-            if (stagesOpened == "opened") {
-                $(elem).find("span:nth-child(1)").addClass("d-none");
-                $(elem).find("span:nth-child(2)").removeClass("d-none");
-            } else {
-                $(elem).find("span:nth-child(1)").removeClass("d-none");
-                $(elem).find("span:nth-child(2)").addClass("d-none");
-            }
-
-            $("#attach_stages").append(stages);
-
-            $("#send_receipt_to_shop").attr({ onclick: `sendReceiptToEmail( ${ JSON.stringify(val) }, "shop" , this)` });
-            $("#send_receipt_to_customer").attr({ onclick: `sendReceiptToEmail( ${ JSON.stringify(val) }, "customer", this )` });
-            $("#send_receipt_to_slack").attr({ onclick: `sendReceiptToSlack( ${ JSON.stringify(val) }, this )` });
-            $("#send_note_to_customer").attr({ onclick: `sendNote( ${ JSON.stringify(val) }, 'customer', this )` });
-            $("#send_note_to_shop").attr({ onclick: `sendNote( ${ JSON.stringify(val) }, 'shop', this )` });
-
-        }
-
-    }).fail( err => console.log(err) );
-
-};
 
 let getFormattedDate = function() {
     let date = new Date();
@@ -413,43 +213,39 @@ let deleteMeFromStages = function( elem, _id, key, stageId ) {
 
 let sendReceiptToSlack = function(elem) {
 
-    console.log("send this receipt to the slack channel");
-
     let val = JSON.parse( localStorage.getItem("val") );
-
-    console.log(val);
 
     let meta = JSON.parse(val.order.meta);
     
     let items = meta.reduce( (total, val, key) => {
 
-        return total += `${val.quantity} x ${val.product.name} (${val.size.label}) with item Cost of  PKR ${val.product.sale_price ? val.product.sale_price : val.product.price} \n`;
+        return total += `${val.quantity} x ${val.product.name} (${val.size.label}) with item cost of  pkr ${val.product.sale_price ? val.product.sale_price : val.product.price} \n`;
 
     }, "" );
 
     let data = {
         msg: `
-*Receipt shared manually from Dashboard!*
+*receipt shared manually from dashboard!*
 
-Order No = ${val.order.ser}
-Status = ${val.order.status}
-Day/Time = ${ getDateTime(val.order._id) }
+order no = ${val.order.ser}
+status = ${val.order.status}
+day/time = ${ getdatetime(val.order._id) }
 
-Customer
-Name = ${val.order.name}
-Address = ${val.order.address}
-Email = ${val.order.email}
-Mobile = ${val.order.mobile}
+customer
+name = ${val.order.name}
+address = ${val.order.address}
+email = ${val.order.email}
+mobile = ${val.order.mobile}
 
-Order 
+order 
 ${items}
 
-Total Amount
-*PKR ${val.order.cost}*
+total amount
+*pkr ${val.order.cost}*
 
-View Receipt at : ${urlParams().origin}/${urlParams().brand}/gen/email/receipt/n?ser=${val.order.ser}&email=${val.order.email}
+view receipt at : ${urlparams().origin}/${urlparams().brand}/gen/email/receipt/n?ser=${val.order.ser}&email=${val.order.email}
 
-Receipt sent by ${val.owner.person.name} (${val.owner.person.email}).`
+receipt sent by ${val.owner.person.name} (${val.owner.person.email}).`
 
     }
 
@@ -686,6 +482,7 @@ Note sent by ${val.owner.person.name} (${val.owner.person.email}).`
 
 let generateAlarm = function(elem) {
 
+    $(elem).find(".fa").addClass("d-none");
     $(elem).find(".fa-circle-notch").removeClass("d-none");
     $(elem).find(".error, .success").remove();
 
@@ -899,7 +696,7 @@ let addPaymentDetails = function(type, elem ) {
             time: getFormattedDate(),
             hdg: msg.hdg,
             msg: msg.text,
-            type: "note"
+            type: "payment"
         }
     };
 
@@ -1009,4 +806,82 @@ let resetActionsOverlay = function(val) {
     $(".actions-page").find("div.open.xtoggle").find(".btn").html("Send");
     $(".actions-page").find(".error, .success").remove();
     $(".actions-page").addClass("d-none");
+};
+
+let editOrder = function(elem) {
+
+    $(elem).find(".fa").addClass("d-none");
+    $(elem).find(".fa-circle-notch").removeClass("d-none");
+    $(elem).find(".error, .success").remove();
+
+    let val = JSON.parse( localStorage.getItem("val") );
+
+    console.log(val);
+
+    let msg = {}, 
+        order = val.order, 
+        meta = val.meta;
+
+    let items = meta.reduce( (total, val, key) => {
+
+        return total += `<p>
+                             <strong> <span> ${val.quantity} x ${val.product.name} (Size: ${val.size.label}) </strong>;  item cost is <strong>PKR ${val.product.sale_price ? val.product.sale_price : val.product.price}</strong>
+                     </p>`;
+    }, "" );
+
+    msg.text = `<h3><strong>Old Order:-</strong></h3>
+                <p><strong>Customer</strong></p>
+                <p>${order.name} - ${order.email} - ${order.mobile}</p>
+                <p>${order.address}</p>
+                <hr>
+                <p><strong>Items</strong></p>
+                <p>${items}</p>
+                <hr>
+                <p><strong>Total Cost</strong></p>
+                <p>PKR ${order.cost}</p>
+                <hr>
+                <p><strong>Payment</strong></p>
+                <p>${order.payment}</p>
+                <p> 
+                    <small>
+                        Order editing started by <strong>${val.owner.person.name}</strong>.
+                    </small>
+                </p>`;
+
+
+    msg.hdg = `Order is being changed`;
+
+    let data = {
+        _id: order._id, 
+        key : "stages",
+        item : {
+            id : Date.now().toString(36) + Math.random().toString(36).substr(2),
+            time: getFormattedDate(),
+            hdg: msg.hdg,
+            msg: msg.text,
+            type: "email"
+        }
+    };
+
+    $.ajax({
+        url: `/${urlParams().brand}/gen/data/saveItemInArray/${urlParams().brand}-orders`,
+        data: data,
+        method: "POST",
+        success: val => {
+            console.log(val);
+            $(elem).find(".fa").addClass("d-none");
+            $(elem).find(".fa-check").removeClass("d-none");
+            $(elem).append("<p class='success'>Stage Added. Redirecting to edit page...</p>");
+
+            window.location.href=`/${ urlParams().brand }/admin/page/editOrder/${order._id}`;
+            return;
+        },
+    }).fail( err => {
+        console.log(err);
+        $(elem).find(".fa").addClass("d-none");
+        $(elem).find(".fa-warning").removeClass("d-none");
+        let responseTxt = err.responseText == "{}" ? "Error. Invalid request." : err.responseText;
+        $(elem).append(`<p class='error'>${responseTxt}</p>`);
+    });
+
 };

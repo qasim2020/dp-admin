@@ -9,24 +9,28 @@
         }
 
         .btn-webEdit {
-            background: white;
-            border: 0px;
-            margin: 0px;
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            background: red;
+            border: 2px solid black;
+            color: white;
             border-radius: 0px;
-            width: 100%;
+            z-index: 100000;
         }
 
         .cards {
             position: fixed;
-            top: 57px;
-            left: 10px;
             z-index: 100000;
             background: white;
             border: 2px solid black;
             max-height: 500px;
             overflow: scroll;
             width: 500px;
+            padding: 7px 5px;
             max-width: 95vw;
+            top: 57px;
+            left: 10px;
         }
 
         .cards > div {
@@ -44,7 +48,6 @@
             border: transparent;
             background: white;
             position: sticky;
-            top: 40px;
             padding: 0px;
             margin: 0px 7px 0 0;
             width: 18%;
@@ -100,8 +103,13 @@
 
         </style>
 
-        <div class="cards" id="draggable">
-            <button class="btn-webEdit" onclick="$('.cards > div').toggleClass('d-none')">TOGGLE WEBEDITOR</button>
+        <button class="btn-webEdit" onclick="runWebEdit(this)">
+            <i class="fa fa-plus d-none"></i>
+            <i class="fa fa-minus"></i>
+        </button>
+
+        <div class="cards webEdit" id="draggable">
+
             <div class="buttons">
                 
                 <p><span>Banner</span></p>
@@ -113,11 +121,8 @@
 
             </div>
 
-            <div class="inputs">
+            <div class="inputs"> </div>
 
-                
-
-            </div>
         </div>
 
         <div class="placeholders d-none">
@@ -146,8 +151,7 @@
 
         </div>
 
-        ey<script src="/root/codemirror/js/codemirror.js"></script>
-        <script src="/root/codemirror/js/xml.js"></script>
+        <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
 
     `;
     
@@ -160,11 +164,8 @@
     }).get();
 
     let sideBtns = $("[we-ser]").get().reduce( (total, val) => {
-
-        total += `<p connection="${ $(val).attr("we-ser") }" onclick="openConnection(this)"><span>${ $(val).attr("we-label") }</span></p>`;
-
+        total += `<p connection="${ $(val).attr("we-ser") }" onclick="openConnection(this)" ><span>${ $(val).attr("we-label") }</span></p>`;
         return total;
-
     }, "");
 
     let cards = webEdits.reduce( (total,val) => {
@@ -195,38 +196,7 @@
 
         return total;
 
-//         let string = '';
-// 
-//         switch (true) {
-//             case (tagName == "a"):
-//                 string = `
-//                     <label>${ $(val).attr("e-label") }</label>
-//                     <input type='text' value='${ $(val).html().trim().toString() }' connection="${ $(val).attr("e-ser") }" onkeyup="updateHTML(this)">
-//                     <label>LINK</label>
-//                     <input type='text' value='${ $(val).attr("href") }' connection="${ $(val).attr("e-ser") }" onkeyup="updateHTML(this)">
-//                 `;
-//                 total = total + `<div> ${string} </div>`;
-//                 break;
-//             case (tagName == "img"):
-//                 string = `
-//                     <label>${ $(val).attr("e-label") }</label>
-//                     <input type='text' value='${ $(val).attr("src") }' connection="${ $(val).attr("e-ser") }" onkeyup="updateHTML(this)">
-//                 `;
-//                 total = total + `<div> ${string} </div>`;
-//                 break;
-//             default:
-//                 string = `
-//                     <label>${ $(val).attr("e-label") }</label>
-//                     <input type='text' value='${ $(val).html().trim().toString() }' connection="${ $(val).attr("e-ser") }" onkeyup="updateHTML(this)">
-//                 `;
-//                 total = total + `<div class="" connection="${ $(val).attr("e-ser") }"> ${string} </div>`;
-//                 break;
-//         }
-// 
-//         return total;
-// 
     },"");
-
 
     $(".cards > .buttons").html( sideBtns );
     $(".cards > .inputs").html( cards + "<button onclick='storeHTML(this)'>Save</button>");
@@ -242,6 +212,11 @@ let openConnection = function(elem) {
     $(`.cards > .inputs > div[parentConnection=${ connection }]`).removeClass("d-none");
     $(`.cards > .inputs > button`).html("Save");
 
+    $('html, body').animate({
+      scrollTop: $( `[we-ser='${ $(elem).attr("connection") }']`).offset().top
+    }, 'slow');
+    $( `[we-ser='${ $(elem).attr("connection") }']` ).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+
 };
 
 $(".cards > .buttons > *:eq(0)").trigger("click");
@@ -250,16 +225,10 @@ let updateHTML = function(elem, attr) {
 
     let e = $(elem).attr("connection");
 
-    console.log( attr );
-
     if (attr == "html") {
-
         $(`[e-ser=${e}]`).html( $(elem).val() );
-
     } else {
-      
         $(`[e-ser=${e}]`).attr( attr , $(elem).val() );
-
     };
 
     return;
@@ -319,7 +288,6 @@ let readURL = function (elem) {
         $(elem).closest(".webEditor").attr({lock: "false"});
         saveSlide( $(elem).closest(".webEditor") );
         $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image – Done. Saving – Done.").removeClass("d-none");
-        // inputChanged( $(elem).closest(".webEditor").find('input[type="text"]') );
 
     };
 
@@ -328,12 +296,9 @@ let readURL = function (elem) {
         let data = {
             public_id: $(elem).closest('.placeholder').prev().attr("public_id"),
             img: img,
-            // width: $(elem).closest('.placeholder').prev().css('width').match(/\d+/g)[0],
-            // height: $(elem).closest('.placeholder').prev().css('height').match(/\d+/g)[0],
             };
 
         $(elem).closest(".placeholder").prev().attr({ src : img });
-        // $(".btn.saving").html("UPLOADING IMAGE...").removeClass("d-none");
         $(elem).closest(".placeholder").find("p.error.two").html("Uploading Image...").removeClass("d-none");
         console.log(data);
 
@@ -481,13 +446,6 @@ let editable = function(elem) {
 
 };
 
-var editor = CodeMirror(document.getElementById("editor"),{
-    lineNumbers: true,
-    lineWrapping: true,
-    mode: "xml",
-    htmlMode: true,
-});
-
 let toggleMode = function(elem) {
 
     $(elem).closest(".slide-editor").find(".placeholder").remove();
@@ -504,3 +462,21 @@ let toggleMode = function(elem) {
 
 };
 
+let runWebEdit = function(elem) {
+
+    if ( $(".webEdit").hasClass("d-none") ) {
+        $(elem).find(".fa").addClass("d-none");
+        $(elem).find(".fa-minus").removeClass("d-none");
+        $(".webEdit").removeClass("d-none");
+    } else {
+        $(elem).find(".fa").addClass("d-none");
+        $(elem).find(".fa-plus").removeClass("d-none");
+        $(".webEdit").addClass("d-none");
+    };
+
+};
+
+let jump = function(elem) {
+
+
+};

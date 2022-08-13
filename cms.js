@@ -434,87 +434,107 @@ var myFuncs = {
     respond: async function(data,req,res) {
         console.log( chalk.bold.yellow('sending data to page') ); 
         if( data && data.hasOwnProperty("error")) {
-            // console.log(data);
             return res.status(data.status).send(data.error);
         };
 
         let getOwnerContactDetails = async function(req,res) {
 
-            if (req.session && req.session.person == undefined) return console.log("this is a gen request owner not found");
 
             let model = await myFuncs.createModel("myapp-themes");
             let model2 = await myFuncs.createModel("myapp-users");
 
-            let output = {
-                brand: await model.findOne({brand: req.params.brand}).lean(),
-                person : await model2.aggregate([
-                    {
-                        $match: {
-                            "email": req.session.person.email,
-                        }
-                    },{
-                        $addFields: {
-                            "brands" : {
-                                $split: ["$brand", ","]
+            let output = {},
+                result = {};
+            output.brand = await model.findOne({brand: req.params.brand}).lean();
+             
+
+            if (req.session && req.session.person == undefined) {
+
+                result = {
+                    brand: output.brand && output.brand.name,
+                    brandName: output.brand && output.brand.brandName,
+                    brandWebsite: output.brand && output.brand.brandWebsite,
+                    brandLogo: output.brand && output.brand.brandLogo, 
+                    mobile: output.brand && output.brand.brandMobile,
+                    email: output.brand && output.brand.brandEmail,
+                    loc: output.brand && output.brand.brandGooglePin,
+                    brandDesc: output.brand && output.brand.brandDesc,
+                    brandMetaImg: output.brand && output.brand.brandMetaImg
+                };
+
+            } else {
+
+                output.person = await model2.aggregate([
+                        {
+                            $match: {
+                                "email": req.session && req.session.person && req.session.person.email,
                             }
-                        }
-                    },{
-                        $unwind: "$brands"
-                    },{
-                        $addFields: {
-                            brands: {
-                                $trim: {
-                                    input: "$brands"
+                        },{
+                            $addFields: {
+                                "brands" : {
+                                    $split: ["$brand", ","]
                                 }
                             }
-                        }
-                    },{
-                        $lookup: {
-                            from: "myapp-themes",
-                            localField: 'brands',
-                            foreignField: 'brand',
-                            as: 'brands'
-                        }
-                    },{
-                        $group: {
-                            _id: {
-                                "_id": "$_id",
-                                "name" : "$name",
-                                "email" : "$email",
-                                "mobile" : "$mobile",
-                                "role" : "$role",
-                                "brand" : "$brand"
-                            },
-                            brands: {
-                                $addToSet: "$brands"
+                        },{
+                            $unwind: "$brands"
+                        },{
+                            $addFields: {
+                                brands: {
+                                    $trim: {
+                                        input: "$brands"
+                                    }
+                                }
+                            }
+                        },{
+                            $lookup: {
+                                from: "myapp-themes",
+                                localField: 'brands',
+                                foreignField: 'brand',
+                                as: 'brands'
+                            }
+                        },{
+                            $group: {
+                                _id: {
+                                    "_id": "$_id",
+                                    "name" : "$name",
+                                    "email" : "$email",
+                                    "mobile" : "$mobile",
+                                    "role" : "$role",
+                                    "brand" : "$brand"
+                                },
+                                brands: {
+                                    $addToSet: "$brands"
+                                }
+                            }
+                        },{
+                            $project: {
+                                "name" : "$_id.name",
+                                "email" : "$_id.email",
+                                "mobile" : "$_id.mobile",
+                                "role" : "$_id.role",
+                                "brandsString" : "$_id.brand",
+                                "brands" : "$brands",
+                                "_id" : "$_id._id",
                             }
                         }
-                    },{
-                        $project: {
-                            "name" : "$_id.name",
-                            "email" : "$_id.email",
-                            "mobile" : "$_id.mobile",
-                            "role" : "$_id.role",
-                            "brandsString" : "$_id.brand",
-                            "brands" : "$brands",
-                            "_id" : "$_id._id",
-                        }
-                    }
-                ])
+                    ]);
+
+                result = {
+                    person: output.person[0],
+                    brand: output.brand && output.brand.name,
+                    brandName: output.brand && output.brand.brandName,
+                    brandWebsite: output.brand && output.brand.brandWebsite,
+                    brandLogo: output.brand && output.brand.brandLogo, 
+                    mobile: output.brand && output.brand.brandMobile,
+                    email: output.brand && output.brand.brandEmail,
+                    loc: output.brand && output.brand.brandGooglePin,
+                    brandDesc: output.brand && output.brand.brandDesc,
+                    brandMetaImg: output.brand && output.brand.brandMetaImg
+                };
+
             };
 
-            return {
-                person: output.person[0],
-                brand: output.brand && output.brand.name,
-                brandName: output.brand && output.brand.brandName,
-                brandWebsite: output.brand && output.brand.brandWebsite,
-                brandLogo: output.brand && output.brand.brandLogo, 
-                mobile: output.brand && output.brand.brandMobile,
-                email: output.brand && output.brand.brandEmail,
-                loc: output.brand && output.brand.brandGooglePin,
-                brandDesc: output.brand && output.brand.brandDesc,
-                brandMetaImg: output.brand && output.brand.brandMetaImg
-            };
+            return result;
 
         };
 
@@ -528,13 +548,6 @@ var myFuncs = {
                 requiredType: req.params.requiredType,
                 theme: await this.getThemeName(req.params.brand),
             });
-
-            if ( (/admin|auth/g).test(req.params.permit)  == false ) {
-
-                console.log("deleting the person because this is not auth or admin");
-                delete data.owner.person;
-
-            }
 
         } catch(e) {
             console.log(e)
@@ -560,6 +573,7 @@ var myFuncs = {
 
 
         // console.log(JSON.stringify(data, 0, 2));
+        // 
         console.log(data);
         // sending data to page
         switch(true) {
@@ -685,6 +699,7 @@ var myFuncs = {
         deleteItemInArray: "gen",
         receipt: "gen",
 
+        kallesShop: "gen", 
         kallesQuickView: "gen",
         kallesCartUpdate: "gen",
         kallesRemoveCartItem: "gen",
@@ -694,13 +709,14 @@ var myFuncs = {
         kallesCartReplaceItem: "gen",
         kallesLoadMore: "gen",
         kallesPlaceOrder: "gen",
+        kallesUpdateOrder: "admin",
         kallesSendNote: "gen", 
         
         showReceipt: "gen", 
         showOrder: "admin",
         editOrder: "admin", 
-        sendReceiptToEmail: "admin",
-        sendMsgToEmail: "admin", 
+        sendReceiptToEmail: "gen",
+        sendMsgToEmail: "gen", 
         saveSlackAPI: "admin",
         sendReceiptToSlack: "admin", 
         testPlaceOrder: "admin"
@@ -4671,6 +4687,7 @@ var myFuncs = {
 
         let theme = req.params.theme;
         req.params.theme = 'root';
+        req.params.module = "webEdit";
 
         let file;
         let readHBSFile = async function(path) {
@@ -6056,107 +6073,109 @@ var myFuncs = {
     kallesQuickView: async function(req,res) {
 
         try {
-        let model = await this.createModel(`${req.params.brand}-products`);
-        let product = await model.findOne({_id : mongoose.mongo.ObjectID( req.params.input ) }).lean();
-        let sizes = await model.aggregate([ 
-            {
-                '$match': {
-                    '_id': mongoose.mongo.ObjectID( req.params.input )
-                }
-            }, {
-                '$project': {
-                    'category': {
-                        '$toLower': '$category'
-                    }, 
-                    'items': 1
-                }
-            },{
-                '$lookup': {
-                    'from': `${req.params.brand}-sizes`, 
-                    'localField': 'category', 
-                    'foreignField': 'category', 
-                    'as': 'sizes'
-                }
-            }, {
-                '$unwind': '$sizes'
-            }, {
-                '$unwind': '$items'
-            }, {
-                '$lookup': {
-                    'from': `${req.params.brand}-items`, 
-                    'let': {
-                        'mySlug': '$items.slug', 
-                        'mySize': '$sizes.slug'
-                    }, 
-                    'pipeline': [
-                        {
-                            '$match': {
-                                '$expr': {
-                                    '$and': [
-                                        {
-                                            '$eq': [
-                                                '$slug', '$$mySlug'
-                                            ]
-                                        }, {
-                                            '$eq': [
-                                                '$size', '$$mySize'
-                                            ]
-                                        }
-                                    ]
+            let model = await this.createModel(`${req.params.brand}-products`);
+            console.log(req.params);
+            let product = await model.findOne({_id : mongoose.mongo.ObjectID( req.params.input ) }).lean();
+            console.log(product);
+            let sizes = await model.aggregate([ 
+                {
+                    '$match': {
+                        '_id': mongoose.mongo.ObjectID( req.params.input )
+                    }
+                }, {
+                    '$project': {
+                        'category': {
+                            '$toLower': '$category'
+                        }, 
+                        'items': 1
+                    }
+                },{
+                    '$lookup': {
+                        'from': `${req.params.brand}-sizes`, 
+                        'localField': 'category', 
+                        'foreignField': 'category', 
+                        'as': 'sizes'
+                    }
+                }, {
+                    '$unwind': '$sizes'
+                }, {
+                    '$unwind': '$items'
+                }, {
+                    '$lookup': {
+                        'from': `${req.params.brand}-items`, 
+                        'let': {
+                            'mySlug': '$items.slug', 
+                            'mySize': '$sizes.slug'
+                        }, 
+                        'pipeline': [
+                            {
+                                '$match': {
+                                    '$expr': {
+                                        '$and': [
+                                            {
+                                                '$eq': [
+                                                    '$slug', '$$mySlug'
+                                                ]
+                                            }, {
+                                                '$eq': [
+                                                    '$size', '$$mySize'
+                                                ]
+                                            }
+                                        ]
+                                    }
                                 }
                             }
-                        }
-                    ], 
-                    'as': 'stock'
-                }
-            }, {
-                '$unwind': {
-                    'path': '$stock',
-                    'preserveNullAndEmptyArrays': true
-                }
-            }, {
-                '$group': {
-                    '_id': {
-                        'stock': '$sizes.slug',
-                        'label': '$sizes.label',
-                        'ser': '$sizes.ser'
-                    },
-                    'items': {
-                        '$addToSet': '$stock'
+                        ], 
+                        'as': 'stock'
                     }
-                }
-            }, {
-                '$project': {
-                    'size': '$_id.stock',
-                    'label': '$_id.label',
-                    'ser': {
-                        '$toInt': '$_id.ser'
-                    },
-                    'stock': {
-                        '$cond': {
-                            'if': {
-                                '$isArray': '$items'
-                            },
-                            'then': {
-                                '$size': '$items'
-                            },
-                            'else': 'NA'
-                        }
-                    },
-                    'items': '$items',
-                    '_id': 0
-                }
                 }, {
-                    '$sort': {
-                        'ser': 1
+                    '$unwind': {
+                        'path': '$stock',
+                        'preserveNullAndEmptyArrays': true
                     }
-                }
-        ]);
+                }, {
+                    '$group': {
+                        '_id': {
+                            'stock': '$sizes.slug',
+                            'label': '$sizes.label',
+                            'ser': '$sizes.ser'
+                        },
+                        'items': {
+                            '$addToSet': '$stock'
+                        }
+                    }
+                }, {
+                    '$project': {
+                        'size': '$_id.stock',
+                        'label': '$_id.label',
+                        'ser': {
+                            '$toInt': '$_id.ser'
+                        },
+                        'stock': {
+                            '$cond': {
+                                'if': {
+                                    '$isArray': '$items'
+                                },
+                                'then': {
+                                    '$size': '$items'
+                                },
+                                'else': 'NA'
+                            }
+                        },
+                        'items': '$items',
+                        '_id': 0
+                    }
+                    }, {
+                        '$sort': {
+                            'ser': 1
+                        }
+                    }
+            ]);
 
-        return {
-            product: product,
-            sizes: sizes
-        };
+            return {
+                product: product,
+                sizes: sizes
+            };
 
         } catch(e) {
             console.log(e);
@@ -6323,6 +6342,55 @@ var myFuncs = {
 
     },
 
+    updateDocWithArr: async function(collection, model, data) {
+
+        let props = ( await Collections.findOne({name: collection}).lean() ).properties;
+        let arrays = [], items = [];
+        delete props.noClone;
+        delete props.fixed;
+
+        Object.entries(props).forEach( owl =>  {
+            console.log("Reading foreach - ", owl[0]);
+            let key = owl[0],
+                value = owl[1];
+
+            if (value.type == "Array" && data[key] && data[key].length > 0) {
+                console.log("this is array - ", key );
+                data[key].forEach( val => arrays.push({_id: data._id, key: key, val: val}) );
+                delete data[key];
+            }
+
+            return 0;
+        });
+
+        let order = await model.findOneAndUpdate({_id: data._id}, { $set: data }, { new: true });
+
+        await Promise.all( arrays.map( val => {
+
+            return model.findOneAndUpdate({_id: val._id},{
+                $push: {
+                    [ val.key ] : val.val
+                }
+            });
+        }));
+
+        return order;
+
+    },
+
+    kallesUpdateOrder: async function(req, res) {
+
+        let model = await this.createModel(`${req.params.brand}-orders`);
+        let store = await this.updateDocWithArr(`${req.params.brand}-orders`, model, req.body);
+
+        this.sendOrderAlerts(req, res, store);
+
+        return {
+            order: store
+        };
+
+    }, 
+
     kallesPlaceOrder: async function(req,res) {
 
         let model = await this.createModel( `${req.params.brand}-orders` );
@@ -6344,7 +6412,7 @@ var myFuncs = {
         req.body.ser = (ser[0] ? Number(ser[0].numSer) : Number(0)) + 1;
         let store = await this.createDocWithArr(`${req.params.brand}-orders`, model , req.body);
 
-        this.createNewOrder(req, res, store); //place necessary stages
+        this.sendOrderAlerts(req, res, store); //place necessary stages
 
         return {
             order: store
@@ -6352,7 +6420,7 @@ var myFuncs = {
 
     },
 
-    createNewOrder: async function(req, res, order) {
+    sendOrderAlerts: async function(req, res, order) {
 
         let getDateTime = function(objectId) {
             let date = objectId != undefined ? new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000) : new Date();
@@ -6501,6 +6569,8 @@ Receipt sent by Server.`;
 
         try {
 
+            console.log(req.body);
+
             req.query = {
                 ser: req.body.orderSer,
                 email: req.body.orderEmail
@@ -6511,7 +6581,7 @@ Receipt sent by Server.`;
             let mail  = await this.sendMail({ 
                 template: "receipt", 
                 context: receipt, 
-                toemail: req.body.toemail, 
+                toEmail: req.body.toEmail, 
                 subject: "receipt", 
                 brand: req.params.brand
             });
@@ -6579,6 +6649,16 @@ Receipt sent by Server.`;
         return {
             cart: req.session.cart != undefined ? req.session.cart : [],
             editOrder: req.session.editOrder , 
+        }
+
+    }, 
+    
+    kallesShop: async function(req, res) {
+
+        req.params.module = "shop";
+
+        return {
+            success: true
         }
 
     }, 

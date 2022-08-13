@@ -382,9 +382,9 @@ let sendNote = function( type, elem ) {
 
 
         if (type == "customer") {
-            msg.hdg = "Special Note from Shop";
+            msg.hdg = "Note from Shop";
         } else if ( type == "shop" ) {
-            msg.hdg = "General Remarks";
+            msg.hdg = "Note from Customer";
         }
 
         let data = {

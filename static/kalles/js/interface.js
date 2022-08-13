@@ -1925,10 +1925,14 @@
 
             let myId = $(this).closest(".product").attr("myId");
 
+            console.log({myId});
+
             $.ajax({
                 url: `/${urlParams().brand}/gen/data/kallesQuickView/${ myId }`,
                 method: "GET",
                 success: val => {
+
+                    console.log(val);
 
                     let photos = val.product.photos.reduce( (total, photo) => {
                         total += `
@@ -3352,13 +3356,6 @@
             $(this).html("Placing order...").removeClass("bg-red");
 
 
-            if ( $(this).attr("editOrder") != "" ) {
-
-                return console.log("edit this order");
-
-            };
-            
-            return;
             let unfilled = [], items = [], stages = [], meta = [];
 
             let data = 
@@ -3433,7 +3430,6 @@
                 meta: JSON.stringify( meta )
             });
 
-
             if ( unfilled.length > 0 ) {
                 unfilled.forEach( val => $(`#${val}`).addClass("border-red") );
                 $(this).html("Fill all required fields").addClass("bg-red");
@@ -3442,20 +3438,45 @@
 
             delete data.transactionId;
 
-            $.ajax({
-                url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,
-                data: data,
-                method: "POST",
-                success: val => {
-                    console.log(val);
-                    window.location.href = `/${urlParams().brand}/gen/page/showReceipt/${val.order._id}`;
-                    return console.log("redirected");
-                }
-            }).fail( err => {
-                console.log(err);
-                alert(err);
-            });
+            if ( $(this).attr("editOrder") != "" ) {
 
+                Object.assign( data, {
+                    _id: $(this).attr("editOrder")
+                });
+
+                $.ajax({
+                    url: `/${urlParams().brand}/admin/data/kallesUpdateOrder/n`,
+                    data: data,
+                    method: "POST",
+                    success: val => {
+                        console.log(val);
+                        window.location.href = `/${urlParams().brand}/gen/page/showReceipt/${val.order._id}`;
+                        return console.log("redirected");
+                    }
+                }).fail( err => {
+                    console.log(err);
+                    alert(err);
+                });
+                return console.log("edit this order");
+
+            } else { 
+
+                $.ajax({
+                    url: `/${urlParams().brand}/gen/data/kallesPlaceOrder/n`,
+                    data: data,
+                    method: "POST",
+                    success: val => {
+                        console.log(val);
+                        window.location.href = `/${urlParams().brand}/gen/page/showReceipt/${val.order._id}`;
+                        return console.log("redirected");
+                    }
+                }).fail( err => {
+                    console.log(err);
+                    alert(err);
+                });
+
+            };
+            
         });
 
         /**********************************************

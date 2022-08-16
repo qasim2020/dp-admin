@@ -4683,11 +4683,20 @@ var myFuncs = {
 
     },
 
+
     editWeb: async function(req,res) {
 
         let theme = req.params.theme;
         req.params.theme = 'root';
-        req.params.module = "webEdit";
+
+        console.log("create fake sessions for this theme like order and all to make sure all pages open just fine");
+
+        return {
+            msg: 'hello world',
+            brand: req.params.brand,
+            manualInput: req.query.hasOwnProperty("manualInput") ? req.query.manualInput : "n",
+            pageName: req.params.input,
+        };
 
         let file;
         let readHBSFile = async function(path) {

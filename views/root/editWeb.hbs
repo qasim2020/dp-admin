@@ -4,472 +4,340 @@
 <head>
     <meta charset="UTF-8">
     <title>Editing · {{data.pageName}}</title>
-<style>
 
-body {
-    padding: 0;
-    margin: 0;
-}
+    <style>
 
-.editors {
-    width: 100vw;
-    height: 100vh;
-    border: 10px solid red;
-    box-sizing: border-box;
-    display: flex;
-}
+        body {
+            font-family: "Roboto";
+            padding: 10px;
+            margin: 0px;
+            background: whitesmoke;
+        }
 
-.editors > * {
-    box-sizing: border-box;
-    padding: 4px;
-    overflow: hidden;
-    width: 25%;
-}
+        .d-none {
+            display: none !important;
+        }
 
-.editors > .html {
-    border: 4px solid #27AE60;
-}
+        .d-block {
+            display: block !important;
+            width: fit-content;
+        }
 
-.editors > .css {
-    border: 4px solid orange;
-}
+        .btn {
+            padding: 7px 8px;
+            border: 2px solid black;
+            display: inline-block;
+            margin-bottom: 4px;
+            text-decoration: none;
+            color: black;
+            font-size: 15px;
+            background: #f2f2f2;
+            height: 37px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
 
-.editors > .js {
-    border: 4px solid blue;
-}
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-.editors > .fullScreen {
-    width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-    position: absolute;
-    background: white;
-}
+        .nav > p {
+            font-size: 12px;
+        }
 
-.editors > .fullScreen > .editor {
-    width: 99vw;
-    height: 89vh;
-    box-sizing: border-box;
-}
+        .nav > p > span {
+            padding: 2px 5px;
+        }
 
-.dev > * {
-    width: 100%;
-    border: 0px;
-}
+        .nav > p > span.link {
+            font-weight: bold;
+            color: black;
+            background: antiquewhite;
+        }
 
-.dev > p {
-    font-size: 14px;
-    font-weight: bold;
-    padding: 8px 10px;
-    background: white;
-    position: relative;
-    display: inline-block;
-    width: initial;
-    border-radius: 5px;
-    font-family: system-ui;
-    color: lightseagreen;
-    line-height: 1.5;
-    margin-top: 0px;
-}
+        .nav > p > span.link > a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-.dev > textarea {
-    background: whitesmoke;
-    border-radius: 5px;
-    padding: 10px;
-    font-family: monospace;
-}
+        .nav > p > span.link:hover {
+            background: white;
+            cursor: pointer;
+            opacity: 0.6;
+        }
 
-.dev > .top-bar {
-    display: flex;
-    align-items: center;
-    line-height: 0;
-    box-sizing: border-box;
-    max-width: 100%;
-}
+        .shadow {
+            box-shadow: 0px 0px 10px rgb(0 0 0 / 18%);
+        }
 
-.dev > .top-bar > input {
-    background: #f2f2f2;
-    border: 1px solid #f2f2f2;
-    padding: 4px 5px;
-    box-sizing: border-box;
-    width: 100%;
-}
+        .container {
+            display: flex;
+            height: 98vh;
+            box-sizing: border-box;
+        }
 
-.dev > .top-bar > p {
-    line-height: 0;
-    padding: 0;
-    margin: 0;
-    margin-left: 4px;
-    box-sizing: border-box;
-}
+        .left {
+            width: 25%;
+            box-sizing: border-box;
+            background: white;
+            padding: 5px 1rem;
+            border-radius: 10px;
+            overflow: scroll;
+        }
 
-.dev > .editor {
-    position: relative;
-    margin-top: 10px;
-    margin-bottom: 8px;
-    height: 500px;
-}
+        .right {
+            flex-grow: 1;
+            box-sizing: border-box;
+            max-width: 72%;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
 
-.dev > .editor > * {
-    height: 100%;
-    width: 100%;
-}
+        .right > iframe {
+            width: 100%;
+            box-sizing: border-box;
+            height: 100%;
+            border-radius: 10px;
+        }
 
-.dev > .save-button {
-    background: whitesmoke;
-    border: 1px solid whitesmoke;
-    padding: 8px 8px;
-    font-weight: bold;
-    width: fit-content;
-}
+        .right > .top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
 
-.minimize {
-    display: none;
-}
+        .right > .top > p {
+            padding: 0px 4px;
+            margin: 0px;
+        }
 
-.bottom_buttons {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    z-index: 100;
-}
+        .right > .top button {
+            background: white;
+            border: 0px solid white;
+            padding: 10px;
+            border-radius: 5px;
+        }
 
-.bottom_buttons > button {
-    padding: 9px;
-    font-weight: bold;
-    color: #333333;
-}
+        .right > .top button.active {
+            background: black;
+            color: white;
+        }
 
-.bottom_buttons > [block="html"] {
-    border: 1px solid #6FCF97;
-    background: #6FCF97;
-}
+        .fa {
+            color: inherit;
+        }
 
-.bottom_buttons > [block="css"] {
-    border: 1px solid #F2994A;
-    background: #F2994A;
-}
+        .bar.header > p  {
+            text-align: right;
+            cursor: pointer;
 
-.bottom_buttons > [block="js"] {
-    border: 1px solid #2D9CDB;
-    background: #2D9CDB;
-}
+        }
 
-    #shortCut:focus, 
-    #shortCut:active,
-    #shortCut:focus-within, 
-    #shortCut:focus-visible {
-        outline: none !important;
-    }
+        .toggleable {
+            margin-bottom: 10px;
+            border: 3px solid whitesmoke;
+        }
+        
+        .toggleable .fa {
+            font-size: 12px;
+        }
 
-    .inputOverlay {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 20px;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-    }
+        .head {
+            cursor: pointer;
+            background: whitesmoke;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    .d-none {
-        display: none;
-    }
+        .head > div {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .head > div > h3 {
+            padding-left: 10px;
+        }
+
+        .open > div {
+            padding: 14px 10px;
+            background: white;
+        }
+
+        .open a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .open a.active {
+            font-weight: bold;
+        }
+
+        .open label {
+            display: block;
+            font-weight: bold;
+        }
+
+        .open input {
+            padding: 15px 10px;
+            border: 2px solid whitesmoke;
+            width: 100%;
+            box-sizing: border-box;
+            background: whitesmoke;
+            font-size: 15px;
+            margin-top: 10px;
+        }
 
 
-    .inputOverlay > input {
-        padding: 8px;
-        background: whitesmoke;
-        border: 1px solid whitesmoke;
-        border-radius: 5px;
-        color: dimgrey;
-        font-size: 27px;
-    }
+    </style>
 
-    .inputOverlay > button {
-        position: absolute;
-        right: 0;
-        transform: translate(-50%);
-        padding: 8px;
-    }
-
-    .CodeMirror {
-        height: 100%;
-    }
-
-</style>
 </head>
 <body>
 
-    <div class="editors">
+    <div class="container">
 
-        {{#if data.file}}
+        <div class="left shadow">
 
-            <iframe id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
-
-        {{else}}
-
-            <iframe src="" frameborder="0"></iframe>
-
-        {{/if}}
-
-        <div class="dev html" id="draggable">
-
+            <div class="nav">
             
-            <div class="top-bar">
-                <input type="text" placeholder="Search an html tag in File">
-                <p onclick=minimize(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="25" height="26" fill="#F2F2F2"/>
-                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                    </svg>
+                <p>
+                    <span class="link"> <a href="/{{data.brand}}/admin/page/newDashboard/settings">Dashboard</a></span>
+                    /
+                    <span class="black">Edit Page</span>
                 </p>
-                <p onclick=goFull(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="25" height="26" fill="#F2F2F2"/>
-                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                    </svg>
-                </p>
+
+                <div class="actions">
+                </div>
+            
             </div>
-            <div class="editor" id="editor" value="{{data.file}}"></div>
-            <button class="save-button" onclick=saveFile()>Save</button>
+
+            <div class="fields collapseToggles">
+
+                <div class="bar header">
+
+                    <p onclick="collapseToggle(this)" class="closed">
+
+                        <span>Expand All</span>
+                        <span class="d-none">Collapse All</span>
+                    
+                    </p>
+
+                </div>
+
+                <div class="bar toggleable closed">
+
+                    <div class="head closed" onclick="smallCollapseToggle(this)">
+
+                        <div>
+                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-minus d-none"></i>
+                            <h3>Page</h3>
+                        </div>
+
+                    </div>
+
+                    <div class="open d-none">
+                        <div>
+                            <a href="/{{data.brand}}/admin/page/editWeb/kallesNavbar">Navbar</a>
+                        </div>
+                        <div>
+                            <a class="active" href="/{{data.brand}}/admin/page/editWeb/landingPage">Landing Page</a>
+                        </div>
+                        <div>
+                            <a href="/{{data.brand}}/admin/page/editWeb/kallesShoppingCart">Shopping Cart</a>
+                        </div>
+                        <div>
+                            <a href="/{{data.brand}}/admin/page/editWeb/kallesShop">Shop</a>
+                        </div>
+                        <div>
+                            <a href="/{{data.brand}}/admin/page/editWeb/kallesCheckOut">Checkout Page</a>
+                        </div>
+                        <div>
+                            <a href="/{{data.brand}}/admin/page/editWeb/kallesFooter">Footer</a>
+                        </div>
+                    </div>
+                
+                </div>
+
+
+                <div class="bar toggleable closed">
+
+                    <div class="head closed" onclick="smallCollapseToggle(this)">
+
+                        <div>
+                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-minus d-none"></i>
+                            <h3>Slide 1</h3>
+                        </div>
+
+                        <div class="icons">
+                            <i class="fa fa-check d-none"></i>
+                            <i class="d-none fa fa-circle-notch spin"></i>
+                            <i class="d-none fa fa-exclamation"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="open d-none">
+
+                        <div>
+                            <label for="">Caption 1</label>
+                            <input type="" placeholder="">
+                        </div>
+
+                        <div>
+                            <label for="">Caption 2</label>
+                            <input type="" placeholder="">
+                        </div>
+
+                        <div>
+                            <label for="">Button</label>
+                            <input type="" placeholder="link">
+                            <input type="" placeholder="title">
+                        </div>
+
+                        <div>
+                            <button class="btn">Save</button>
+                        </div>
+                
+                    </div>
+
+                </div>
             
-        </div>
-        
-        <div class="dev css" id="draggableCSS">
-            
-            <div class="top-bar">
-                <input type="text" placeholder="Search a css tag in File">
-                <p onclick=minimize(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="25" height="26" fill="#F2F2F2"/>
-                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                    </svg>
-                </p>
-                <p onclick=goFull(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="25" height="26" fill="#F2F2F2"/>
-                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                    </svg>
-                </p>
             </div>
-            <div class="editor" id="editorCSS" value="{{data.file}}"></div>
-            <button class="save-button" onclick=saveFile()>Save</button>
-            
+
         </div>
-        
-        <div class="dev js" id="draggableJS">
+
+        <div class="right">
+
+            <div class="top">
+
+                <p><button class="active"><i class="fa fa-laptop"></i></button></p>
+                <p><button><i class="fa fa-tablet"></i></button></p>
+                <p><button><i class="fa fa-mobile"></i></button></p>
             
-            <div class="top-bar">
-                <input type="text" placeholder="Search a css tag in File">
-                <p onclick=minimize(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="25" height="26" fill="#F2F2F2"/>
-                    <path d="M17.9131 13.6348H7.79834V11.9062H17.9131V13.6348Z" fill="black"/>
-                    </svg>
-                </p>
-                <p onclick=goFull(this)>
-                    <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="25" height="26" fill="#F2F2F2"/>
-                        <rect x="1" y="-1" width="10" height="10" transform="matrix(1 0 0 -1 7 17)" stroke="#333333" stroke-width="2"/>
-                    </svg>
-                </p>
             </div>
-            <div class="editor" id="editorJS" value="{{data.file}}"></div>
-            <button class="save-button" onclick=saveFile()>Save</button>
-            
+
+            <iframe class="shadow" id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
+
         </div>
-    
+
     </div>
 
-
-    <div class="inputOverlay d-none">
-
-        <input type="number" id="shortCut" class="">
-        <button onclick="changeLayout()">Enter</button>
-    
-    </div>
-
-
-    <div class="bottom_buttons">
-        <button onclick=maximize(this) block="html" class="active">HTML</button>
-        <button onclick=maximize(this) block="css">CSS</button>
-        <button onclick=maximize(this) block="js">JS</button>
-    </div>
-    
+    <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/root/collapseToggles.js"></script>
 
-    <link rel="stylesheet" href="/root/codemirror/css/codemirror.css">
-    <link rel="stylesheet" href="/root/codemirror/css/neo.css">
-    <script src="/root/codemirror/js/codemirror.js"></script>
-    <script src="/root/codemirror/js/xml.js"></script>
-
-    <script>
-
-        $(document).ready(function() {
-
-            unwrapHTML();
-
-        });
-
-        let unwrapHTML = function() {
-
-            let html = $("#editor").attr("value");
-
-            console.log(html);
-            console.log("unwrap the html and place values in each box");
-
-        };
-
-        var editor = CodeMirror(document.getElementById("editor"),{
-            lineNumbers: true,
-            lineWrapping: true,
-            mode: "xml",
-            htmlMode: true,
-            value: $("#editor").attr("value"),
-        });
-
-
-        var editorCSS = CodeMirror(document.getElementById("editorCSS"),{
-            lineNumbers: true,
-            lineWrapping: true,
-            mode: "xml",
-            htmlMode: true,
-            value: $("#editorCSS").attr("value"),
-        });
-
-        
-        var editorJS = CodeMirror(document.getElementById("editorJS"),{
-            lineNumbers: true,
-            lineWrapping: true,
-            mode: "xml",
-            htmlMode: true,
-            value: $("#editorJS").attr("value"),
-        });
-
-        let changeLayout = function() {
-
-            let value = $(".inputOverlay > input").val();
-            console.log(value);
-
-            if (value.length != 4) return alert("please enter a value in range");
-
-                    let sum = value.split('').reduce( (total, val, index) => {
-                                total += Number(val);
-                                return total;
-                            },0);
-
-                    value = value.split('').map( val => val/sum*100 );
-
-                    console.log(sum, value);
-
-            console.log(value[1]);
-            $('.editors > *').eq(0).attr({style: `width: ${value[0]}%`}); 
-            $('.editors > *').eq(1).attr({style: `width: ${value[1]}%`}); 
-            $('.editors > *').eq(2).attr({style: `width: ${value[2]}%`}); 
-            $('.editors > *').eq(3).attr({style: `width: ${value[3]}%`}); 
-
-        }
-
-        $( "body" ).keyup(function( event ) {
-
-            if (event.keyCode == 27) {
-                console.log('hiding the input fields');
-                $(".inputOverlay")
-                    .addClass('d-none');
-                return;
-            }
-
-            if (event.keyCode == 13 && $(".inputOverlay").hasClass('d-none') == false) {
-                console.log('change layout as per entered parameters');
-                $(".inputOverlay > button")
-                    .trigger("click");
-                var e = $.Event( "keyup", { keyCode: 27 } );
-                $('body').trigger(e);
-                return;
-            }
-
-            if ( event.keyCode != 186 ) {
-                console.log(event.keyCode);
-                return;
-            }
-
-            
-            console.log('semicolon pressed — open the keyboard');
-            $(".inputOverlay")
-                .removeClass("d-none")
-                .find('input')
-                .focus();
-
-        });
-
-        let goSmall = function(elem) {
-            let editors = $(elem).closest('.dev');
-            let lastPosn = editors.attr('lastPosn');
-            editors.removeClass('fullScreen').attr({
-                    style: lastPosn + "; z-index: 10",
-                });   
-            $(elem).attr({
-                onclick: "goFull(this)"
-            })
-            // startEditor();
-            console.log('went Small screen bro');
-        }
-    
-        let goFull = function(elem) {
-            let editors = $(elem).closest('.dev');
-            let lastPosn = editors.attr('style');
-            editors.addClass('fullScreen').attr({
-                    style: "left: 0px; top: 0px; z-index: 90",
-                    lastPosn: lastPosn,
-                });   
-            $(elem).attr({
-                onclick: "goSmall(this)"
-            })
-            // startEditor();
-            console.log('went Full screen bro');
-        }
-
-        let minimize = function(elem) {
-            $(elem).closest(".dev").addClass('minimize');
-            console.log('down bro');
-        }
-         
-        let maximize = function(elem) {
-            let className = $(elem).attr("block");
-            $(`.${className}`).toggleClass('minimize');
-            console.log('maximized bro');
-        }
-
-        $( function() {
-            //$( "#draggable" ).draggable();
-            //$( "#draggableCSS" ).draggable();
-            //$( "#draggableJS" ).draggable();
-        } );
-
-        let saveFile = function() {
-
-            let data = {
-                html: editorHTML.getSession().getValue(),
-            };
-
-            $.ajax({
-                url: "/{{data.brand}}/admin/data/saveWeb/{{data.pageName}}",
-                method: "POST",
-                data: data,
-                success: (done) => {
-                 $( '#iframe' ).attr( 'src', function ( i, val ) { return val; });
-                 console.log(done);
-                },
-            }).fail( err => console.log(err) );
-
-        };
-
-
-
-    </script>
+    <script></script>
 </body>
 </html>
 

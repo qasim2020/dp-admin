@@ -475,8 +475,3 @@ let runWebEdit = function(elem) {
     };
 
 };
-
-let jump = function(elem) {
-
-
-};

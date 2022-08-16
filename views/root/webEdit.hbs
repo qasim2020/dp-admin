@@ -11,5 +11,168 @@
     
     </div>
     <iframe id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
+
+    <script>
+    
+        $(document).ready(function() {
+
+            unwrapHTML();
+
+        });
+
+        let unwrapHTML = function() {
+
+            let html = $("#editor").attr("value");
+
+            console.log(html);
+            console.log("unwrap the html and place values in each box");
+
+        };
+
+        var editor = CodeMirror(document.getElementById("editor"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editor").attr("value"),
+        });
+
+
+        var editorCSS = CodeMirror(document.getElementById("editorCSS"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editorCSS").attr("value"),
+        });
+
+        
+        var editorJS = CodeMirror(document.getElementById("editorJS"),{
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "xml",
+            htmlMode: true,
+            value: $("#editorJS").attr("value"),
+        });
+
+        let changeLayout = function() {
+
+            let value = $(".inputOverlay > input").val();
+            console.log(value);
+
+            if (value.length != 4) return alert("please enter a value in range");
+
+                    let sum = value.split('').reduce( (total, val, index) => {
+                                total += Number(val);
+                                return total;
+                            },0);
+
+                    value = value.split('').map( val => val/sum*100 );
+
+                    console.log(sum, value);
+
+            console.log(value[1]);
+            $('.editors > *').eq(0).attr({style: `width: ${value[0]}%`}); 
+            $('.editors > *').eq(1).attr({style: `width: ${value[1]}%`}); 
+            $('.editors > *').eq(2).attr({style: `width: ${value[2]}%`}); 
+            $('.editors > *').eq(3).attr({style: `width: ${value[3]}%`}); 
+
+        }
+
+        $( "body" ).keyup(function( event ) {
+
+            if (event.keyCode == 27) {
+                console.log('hiding the input fields');
+                $(".inputOverlay")
+                    .addClass('d-none');
+                return;
+            }
+
+            if (event.keyCode == 13 && $(".inputOverlay").hasClass('d-none') == false) {
+                console.log('change layout as per entered parameters');
+                $(".inputOverlay > button")
+                    .trigger("click");
+                var e = $.Event( "keyup", { keyCode: 27 } );
+                $('body').trigger(e);
+                return;
+            }
+
+            if ( event.keyCode != 186 ) {
+                console.log(event.keyCode);
+                return;
+            }
+
+            
+            console.log('semicolon pressed — open the keyboard');
+            $(".inputOverlay")
+                .removeClass("d-none")
+                .find('input')
+                .focus();
+
+        });
+
+        let goSmall = function(elem) {
+            let editors = $(elem).closest('.dev');
+            let lastPosn = editors.attr('lastPosn');
+            editors.removeClass('fullScreen').attr({
+                    style: lastPosn + "; z-index: 10",
+                });   
+            $(elem).attr({
+                onclick: "goFull(this)"
+            })
+            // startEditor();
+            console.log('went Small screen bro');
+        }
+    
+        let goFull = function(elem) {
+            let editors = $(elem).closest('.dev');
+            let lastPosn = editors.attr('style');
+            editors.addClass('fullScreen').attr({
+                    style: "left: 0px; top: 0px; z-index: 90",
+                    lastPosn: lastPosn,
+                });   
+            $(elem).attr({
+                onclick: "goSmall(this)"
+            })
+            // startEditor();
+            console.log('went Full screen bro');
+        }
+
+        let minimize = function(elem) {
+            $(elem).closest(".dev").addClass('minimize');
+            console.log('down bro');
+        }
+         
+        let maximize = function(elem) {
+            let className = $(elem).attr("block");
+            $(`.${className}`).toggleClass('minimize');
+            console.log('maximized bro');
+        }
+
+        $( function() {
+            //$( "#draggable" ).draggable();
+            //$( "#draggableCSS" ).draggable();
+            //$( "#draggableJS" ).draggable();
+        } );
+
+        let saveFile = function() {
+
+            let data = {
+                html: editorHTML.getSession().getValue(),
+            };
+
+            $.ajax({
+                url: "/{{data.brand}}/admin/data/saveWeb/{{data.pageName}}",
+                method: "POST",
+                data: data,
+                success: (done) => {
+                 $( '#iframe' ).attr( 'src', function ( i, val ) { return val; });
+                 console.log(done);
+                },
+            }).fail( err => console.log(err) );
+
+        };
+
+    </script>
 </body>
 </html>

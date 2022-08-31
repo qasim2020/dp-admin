@@ -158,6 +158,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
 
         .head:hover {
@@ -175,9 +176,19 @@
             padding-left: 10px;
         }
 
-        .open > div {
+        .head > .fields {
+            width: 100%;
+            display: block;
+
+        }
+
+        .open > div:not(.bar) {
             padding: 14px 10px;
             background: white;
+        }
+
+        .open > .bar {
+            margin-bottom: 0px;
         }
 
         .open label {
@@ -195,7 +206,7 @@
             margin-top: 10px;
         }
 
-        .open > .block {
+        .open .block {
             border-bottom: 3px dashed black;
             background: white;
         }
@@ -237,13 +248,6 @@
 
                 <div class="bar header">
 
-                    <p onclick="collapseToggle(this)" class="closed">
-
-                        <span>Expand All</span>
-                        <span class="d-none">Collapse All</span>
-                    
-                    </p>
-
                 </div>
 
             </div>
@@ -260,7 +264,7 @@
             
             </div>
 
-            <iframe onload="iframeLoaded(this)" class="shadow" id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
+            <iframe onload="loadAjax(this)"class="shadow" id="iframe" src="/{{data.brand}}/admin/page/{{data.pageName}}/{{data.manualInput}}" frameborder="0"></iframe>
 
         </div>
 
@@ -273,66 +277,121 @@
 
     <script>
 
-        let iframeLoaded = function(elem) {
+        let loadAjax = function(elem) {
 
-            let getEditBlock = function(val) {
+            $.ajax({
+                url: `/{{data.brand}}/admin/data/getJSONFile/{{data.input}}`, 
+                method: "GET",
+                success: val => iframeLoaded(val), 
+            }).fail( err => console.log(err) );
 
-                let block = $(val).find("[e-ser]").get().reduce( ( sum, item, no ) => {
+        };
 
-                    let inputs = $(item).attr("e-attr").split(",").reduce( (total,val2, key) => {
+        let iframeLoaded = function(data) {
+
+            console.log("iframe loaded");
+
+            let contents = data.json.contents;
+
+            let createInputs = function(item) {
+
+                if (item.tags) {
+
+                    let html = item.tags.split(",").reduce( (total, val, key) => {
+
+                        // console.log(val.trim());
+                        // console.log($("iframe").contents().find(item.selector));
                         let string;
-                        if (val2.trim() == "html") {
+                        if (val.trim() == "html") {
                             string = `
-                                <label>${ val2.trim() }</label>
-                                <input type='text' value='${ $(item).html().trim() }' connection="${ $(item).attr("e-ser") }" onkeyup="updateHTML(this, '${ val2.trim() }')" >
+                                <label>${val.trim().toUpperCase()}</label>
+                                <input type='text' value='${ $("iframe").contents().find(item.selector).html().trim() }' connection="${item.selector}" onkeyup="updateHTML(this, '${ val.trim() }')" >
                                 `;
                         } else {
                             string = `
-                                <label>${ val2.trim() }</label>
-                                <input type=text' value='${ $(item).attr(val2.trim()) }' connection="${ $(item).attr("e-ser") }" onkeyup="updateHTML(this, '${ val2.trim() }')" >
+                                <label>${ val.trim().toUpperCase() }</label>
+                                <input type=text' value='${ $("iframe").contents().find(item.selector).attr(val.trim()) }' connection="${item.selector}" onkeyup="updateHTML(this, '${ val.trim() }')" >
                                 `;
                         };
+
                         return total += string;
-                    },"");
+                    }, "");
 
-                    return sum += `<div class="block">
-                           <label for="">${ $(item).attr("e-label") }</label>
-                           <div class="content">
-                            ${inputs}
-                           </div>
-                           </div>`;
+                    return  `<div class="block">
+                       <label for="">${item.label}</label>
+                       <div class="content">
+                        ${html}
+                       </div>
+                       </div>`;
 
-                },"");
-
-                return block;
+                } else {
+                    return "";
+                }
 
             };
+            
+            let getBlock = function( val ) {
 
-            let html = $(elem).contents().find("[we-ser]").get().reduce( (total, val, key) => {
+                let str = "";
+                val.forEach( item  => {
 
-                let block = "";
+                    if (item.contents && item.contents.length > 0) {
 
-                console.log( $(val).find("[e-ser]").get() );
-                console.log( $(val).find("[e-ser]").get().length > 0 );
+                        console.log("head - " + item.label);
+                        let innerBlock = getBlock(item.contents) || "";
+                        str += `
+                            <div class="bar toggleable closed" connection="">
+                                <div class="head closed" onclick="smallCollapseToggle(this)">
 
-                switch (true) {
-                    case ( $(val).find("[e-sectionn]").get().length > 0 ) : 
-                        block = getBlock(val);
-                        break;
-                    case ( $(val).find("[e-ser]").get().length > 0 ) :
-                        block = getEditBlock(val);
-                        break;
-                };
+                                    <div>
+                                        <i class="fa fa-plus"></i>
+                                        <i class="fa fa-minus d-none"></i>
+                                       <h3>${item.label}</h3>
+                                    </div>
 
-                return total += `
-                <div class="bar toggleable closed" connection="${ $(val).attr('we-ser') }">
+                                    <div class="icons">
+                                        <i class="fa fa-check d-none"></i>
+                                        <i class="d-none fa fa-circle-notch spin"></i>
+                                        <i class="d-none fa fa-exclamation"></i>
+                                    </div>
+
+                                </div>
+
+                                <div class="open d-none">
+                                    ${createInputs(item)}
+                                    ${innerBlock}
+                               </div>
+                           </div>
+                       `;
+
+                        // str = getBlock(item.contents, head + (str || "") );
+
+                        console.log("close head");
+
+                    } else {
+
+
+                        console.log("body - " + item.label);
+                        console.log("close body");
+
+                        str += createInputs(item);
+                                
+                    }
+
+                });
+                return str;
+            };
+
+            let html = contents.reduce( (total, val, key) => {
+                let str = `
+                <div class="bar toggleable closed" connection="${val.selector}">
 
                     <div class="head closed" onclick="smallCollapseToggle(this)">
 
                         <div>
                             <i class="fa fa-plus"></i>
                             <i class="fa fa-minus d-none"></i>
-                           <h3>${ $(val).attr("we-label") }</h3>
+                           <h3>${val.label}</h3>
                         </div>
 
                         <div class="icons">
@@ -342,19 +401,29 @@
                         </div>
 
                     </div>
+                `;
 
-                    <div class="open d-none">
+                let checkDepth = val.contents.some( data => data.hasOwnProperty("contents") );
 
-                        ${block}
+                if (checkDepth) {
 
-                        <div>
-                            <button class="btn">Save</button>
-                        </div>
-                
-                    </div>
+                    str += `<div class="open d-none">`;
+                    str += getBlock(val.contents) ;
+                    str += `</div></div>`;
 
-                </div>
-               `;
+                } else {
+
+                    str += `<div class="open d-none">`;
+
+                    val.contents.forEach( item => {
+                         str += createInputs(item);
+                    });
+
+                    str += `</div></div>`;
+
+                };
+
+                return total += str;
 
             }, "");
 
@@ -364,10 +433,13 @@
 
         };
 
-        $(document).on("mouseenter", ".bar.toggleable > .head ", function(event) {
-            $("iframe").contents().find(`[we-ser='${ $(this).closest(".bar.toggleable").attr("connection") }']`).click();
-            return;
 
+        $(document).on("mouseenter", ".bar.toggleable > .head ", function(event) {
+            $("iframe").contents()
+                .find( $(this).closest("[connection]").attr("connection") )
+                .attr({"we-ser" : "blabla"})
+                .click();
+            return;
         });
 
         let updateHTML = function(elem, attr) {

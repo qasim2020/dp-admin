@@ -43,9 +43,14 @@
         if ($(elem).hasClass("opened")) {
 
             $(elem).closest(".toggleable").addClass("closed").removeClass("opened");
-            $(elem).closest(".toggleable").find(".open").addClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-minus, .icon > .fa-minus, .head .fa-minus").addClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-plus, .icon > .fa-plus, .head .fa-plus").removeClass("d-none");
+            $(elem).closest(".toggleable").children(".open").addClass("d-none");
+
+            $(elem).closest(".toggleable").
+                children(".head").
+                find("h3 > .fa-minus, .icon > .fa-minus, .fa-minus")
+                .addClass("d-none");
+
+            $(elem).closest(".toggleable").children(".head").find("h3 > .fa-plus, .icon > .fa-plus, .fa-plus").removeClass("d-none");
 
             $(elem).addClass("closed");
             $(elem).removeClass("opened");
@@ -53,9 +58,9 @@
         } else {
 
             $(elem).closest(".toggleable").addClass("opened").removeClass("closed");
-            $(elem).closest(".toggleable").find(".open").removeClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-minus, .icon > .fa-minus, .head .fa-minus").removeClass("d-none");
-            $(elem).closest(".toggleable").find("h3 > .fa-plus, .icon > .fa-plus, .head .fa-plus").addClass("d-none");
+            $(elem).closest(".toggleable").children(".open").removeClass("d-none");
+            $(elem).closest(".toggleable").children(".head").find("h3 > .fa-minus, .icon > .fa-minus, .fa-minus").removeClass("d-none");
+            $(elem).closest(".toggleable").children(".head").find("h3 > .fa-plus, .icon > .fa-plus, .fa-plus").addClass("d-none");
 
             $(elem).removeClass("closed");
             $(elem).addClass("opened");

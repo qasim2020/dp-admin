@@ -383,7 +383,7 @@ let replyFunction = async (req,res) => {
         let data = await myFuncs[req.params.module](req,res);
         myFuncs.respond(data,req,res);
     } catch(e) {
-        //console.log(e);
+        console.log(e);
         res.status(e.status || 400).send(e);
     }
 
@@ -432,13 +432,14 @@ app.get(  '/', async (req,res) => {
 var myFuncs = {
 
     respond: async function(data,req,res) {
+
         console.log( chalk.bold.yellow('sending data to page') ); 
+
         if( data && data.hasOwnProperty("error")) {
             return res.status(data.status).send(data.error);
         };
 
         let getOwnerContactDetails = async function(req,res) {
-
 
             let model = await myFuncs.createModel("myapp-themes");
             let model2 = await myFuncs.createModel("myapp-users");
@@ -447,7 +448,6 @@ var myFuncs = {
                 result = {};
             output.brand = await model.findOne({brand: req.params.brand}).lean();
              
-
             if (req.session && req.session.person == undefined) {
 
                 result = {
@@ -571,10 +571,9 @@ var myFuncs = {
 
         };
 
-
-        // console.log(JSON.stringify(data, 0, 2));
-        // 
+        console.log("sending data to the page");
         console.log(data);
+        
         // sending data to page
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -719,7 +718,10 @@ var myFuncs = {
         sendMsgToEmail: "gen", 
         saveSlackAPI: "admin",
         sendReceiptToSlack: "admin", 
-        testPlaceOrder: "admin"
+        testPlaceOrder: "admin", 
+
+        readFromJSON: "admin", 
+        getJSONFile: "admin", 
 
     },
 
@@ -4683,6 +4685,67 @@ var myFuncs = {
 
     },
 
+    getJSONFile: async function(req, res) {
+
+        console.log("get JSON file");
+
+        let readJSONFile = async function(path) {
+
+            let file = await new Promise( (resolve, reject) => {
+
+                fs.readFile(path, 'utf8', (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    }
+                    resolve( data );
+                });
+
+            }); 
+
+            return file;
+
+        };
+
+        let file;
+
+        if (req.params.input == 'n') {
+            file = false;
+        } else {
+            file = JSON.parse(await readJSONFile(`./static/${req.params.theme}/${req.params.input}.json`)) ;
+        };
+
+        console.log(file);
+        console.log("xxxxxxxxxx");
+
+        return {
+            json: file
+        }
+
+    }, 
+
+    readFromJSON: async function(req,res) {
+
+        try {
+            let theme = req.params.theme;
+
+            console.log("create fake sessions for this theme like order and all to make sure all pages open just fine");
+
+            req.params.theme = 'root';
+
+            return {
+                msg: 'hello world',
+                brand: req.params.brand,
+                manualInput: req.query.hasOwnProperty("manualInput") ? req.query.manualInput : "n",
+                pageName: req.params.input,
+            };
+
+
+        } catch(e) {
+            console.log(e);
+        }
+
+    }, 
 
     editWeb: async function(req,res) {
 

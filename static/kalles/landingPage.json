@@ -1,0 +1,143 @@
+{
+    "contents": [
+        {
+            "label": "Top Banner",
+            "selector": "#top_banner",
+            "contents": [
+                {
+                    "label": "Sentence",
+                    "selector": "#top_banner > span:eq(0)",
+                    "tags": "html"
+                },
+                {
+                    "label": "Deal Percentage",
+                    "selector": "#top_banner > strong:eq(0)",
+                    "tags": "html"
+                },
+                {
+                    "label": "Sentence", 
+                    "selector": "#top_banner > span:eq(1)",
+                    "tags": "html"
+                },
+                {
+                    "label": "Until YYYY/MM/DD",
+                    "selector": "#top_banner > strong:eq(1)",
+                    "tags": "html"
+                },
+                {
+                    "label": "Sentence",
+                    "selector": "#top_banner > span:eq(2)",
+                    "tags": "html"
+                }
+            ]
+        },
+        {
+            "label": "Top Banner 2",
+            "selector" : "#header_banner",
+            "contents": [
+                {
+                    "label": "Sentence",
+                    "selector": "#header_banner > span:eq(0)",
+                    "tags": "html"
+                },
+                {
+                    "label": "Link", 
+                    "selector": "#header_banner > a",
+                    "tags": "html, href"
+                }
+            ]
+        }, 
+        {
+            "label": "Nav Menu", 
+            "selector": "#navbar",
+            "contents": [
+                {
+                    "label": "1st Nav",
+                    "subtitle": "4 Column Navigation Menu",
+                    "selector": "#four_col_nav > a", 
+                    "tags": "html, href",
+                    "contents": [
+                        {
+                            "label": "Heading 1",
+                            "selector": "#1st_nav_1st_menu > a",
+                            "tags": "html, href",
+                            "module": "clone1stContent", 
+                            "contents": [
+                                {
+                                    "label": "Place",
+                                    "selector": "#1st_nav_1st_menu > ul > li > a > span:eq(0)",
+                                    "tags": "html, href", 
+                                    "module": "selectASpan"
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Heading 2",
+                            "selector": "#1st_nav_2nd_menu > a",
+                            "tags": "html, href",
+                            "module": "clone1stContent", 
+                            "contents": [
+                                {
+                                    "label": "Place",
+                                    "selector": "#1st_nav_2nd_menu > ul > li > a > span:eq(0)",
+                                    "tags": "html, href", 
+                                    "module": "selectASpan"
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Heading 3",
+                            "selector": "#1st_nav_3rd_menu > a",
+                            "tags": "html, href",
+                            "module": "clone1stContent", 
+                            "contents": [
+                                {
+                                    "label": "Place",
+                                    "selector": "#1st_nav_3rd_menu > ul > li > a > span:eq(0)",
+                                    "tags": "html, href", 
+                                    "module": "selectASpan"
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Heading 4",
+                            "selector": "#1st_nav_4th_menu > a",
+                            "tags": "html, href",
+                            "module": "clone1stContent", 
+                            "contents": [
+                                {
+                                    "label": "Place",
+                                    "selector": "#1st_nav_4th_menu > ul > li > a > span:eq(0)",
+                                    "tags": "html, href", 
+                                    "module": "selectASpan"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "label": "2nd Nav",
+                    "subtitle": "3 Column Navigation Menu with two picture categories",
+                    "selector": "#three_col_nav > a",
+                    "tags": "html, href",
+                    "contents": [
+                        {
+                            "label": "2nd Nav Heading 1",
+                            "selector": "#1st_nav_4th_menu > a",
+                            "tags": "html, href",
+                            "module": "clone1stContent", 
+                            "contents": [
+                                {
+                                    "label": "Place",
+                                    "selector": "#1st_nav_4th_menu > ul > li > a > span:eq(0)",
+                                    "tags": "html, href", 
+                                    "module": "selectASpan"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

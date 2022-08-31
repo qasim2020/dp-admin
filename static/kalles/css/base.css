@@ -7446,3 +7446,7 @@ input[type="checkbox"] {
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.editing {
+    border: 4px solid red;
+}

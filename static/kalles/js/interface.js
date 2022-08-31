@@ -3495,7 +3495,28 @@
              * Reinstall slides
              * ********************************************/
             setTimeout( () => $( '.flickity-enabled' ).kallesDisableNavSlider(), 3000 );
+
         } );
+
+        // call for webEdit
+
+        $("[we-ser] [e-ser]").get().forEach( (val, key) => { 
+            $(val).attr({"e-ser": key});
+        });
+
+        $(document).on("click", "[we-ser]", function(e) {
+
+            if ( $(this).closest("iframe") ) {
+                var offTop 
+                offTop = $(this).offset().top - 100;
+                $('html, body').scrollTop(offTop);
+                $("[we-ser]").removeClass("editing");
+                $(this).fadeOut(100).fadeIn(100).addClass("editing");
+                return;
+
+            };
+
+        });
     }
 )
 ( window.jQuery );

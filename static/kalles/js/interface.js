@@ -1,4 +1,4 @@
-// 706 - kallesSwatches
+// select size - kallesSwatches
 // quick shop - the bigger overlay of shop
 // quick view - the small overlay of item placing into the cart
 // trigger quick view or trigger quick shop - the event listeners to open the models
@@ -6,10 +6,29 @@
 // remove from cart - the delete button on each cart item
 // load more - in featured collection on landing page
 // checkout button
+// filter clicked
+// triggerpjax
+// pagination
 
 ( 
 
     function ( $ ) {
+
+
+        $(document).pjax('a[data-pjax]', '#pjax-container');
+        $.pjax.defaults.scrollTo = false;
+        $.pjax.defaults.timeout = false;
+        let card_class = "";
+        $('#pjax-container')
+          .on('pjax:start', function() { 
+                  card_class = $(".product:eq(0)").get().length > 0 ? $(".product:eq(0)").attr("class") : card_class;
+              } 
+          )
+          .on('pjax:end',   function() {
+                  if (card_class) $(".product").removeAttr("class").attr({ "class": card_class });
+              } 
+          );
+
 
 
         let urlParams = function() {
@@ -20,6 +39,7 @@
                 requiredType: window.location.pathname.split("/")[3],
                 module: window.location.pathname.split("/")[4],
                 input: window.location.pathname.split("/")[5],
+                origin: window.location.origin
             };
 
             return url;
@@ -711,6 +731,7 @@
             }
         };
 
+        // select size
         $.fn.kallesSwatches = function () {
             if ( $( this ).length ) {
                 body.on( 'click', '.swatch_pr_item:not(.is-selected)', function ( evt ) {
@@ -722,8 +743,7 @@
                     if ( $this.data( 'escape' ) ) {
                         $this.closest( '.kalles_swatch_js' ).find( '.user_choose_js,.nt_name_current' ).text( $this.data( 'escape' ) );
                         let size = JSON.parse( $this.closest(".swatch_pr_item").attr('my-data') );
-                        // console.log(details, product);
-                        $this.closest(".product-quickview, .kalles-quick-shop").find(".quantity > .qty_pr_js").attr({max : size.stock }).val(1);
+                        $this.closest(".product-quickview, .kalles-quick-shop, .product-selected").find(".quantity > .qty_pr_js").attr({max : size.stock }).val(1);
                     }
 
                     if ( $this.data( 'index' ) ) {
@@ -732,6 +752,7 @@
                             $main_slide.flickity().flickity( 'select', $this.data( 'index' ) );
                         }
                     }
+
                     if ( $this.data( 'filter' ) ) {
                         let $p_thumb  = $this.closest( '.container_cat' ).find( '.p-thumb' ),
                             $p_nav    = $this.closest( '.container_cat' ).find( '.p-nav' ),
@@ -1592,9 +1613,40 @@
                     if ( $holder.hasClass( 'js_isotope' ) ) {
                         $holder.isotope( 'layout' );
                     }
+
+                    card_class = $(".product:eq(0)").attr("class");
+
                 } );
             }
         };
+
+        //triggerpjax
+        let triggerPJAX = function(attach_at_the_end) {
+
+            let url = urlParams().origin + `/${urlParams().brand}/gen/pjax/kallesShop/n?`;
+
+            $(".section_nt_filter").find(".widget").get().forEach( val => {
+
+                if ( $(val).find(".active").length > 0 ) {
+
+                    let attr = $(val).attr("data");
+                    
+                    let array = $(val).find(".active").get().map( val2 => {
+                        return $(val2).find("a").html();
+                    });
+
+                    url += attr + "__in=" + array.toString() + "&"
+
+                }
+
+            });
+
+            url += "&__limit=12" + $(".kalles_dropdown_options > a.selected").attr("sort_by") + ( attach_at_the_end == undefined ? "" : attach_at_the_end );
+
+            $(".pjax_shop_fake_btn").attr({href: url}).click();
+
+        };
+
 
         $.fn.KallesInitSidebarFilter = function () {
             if ( $( this ).length ) {
@@ -1613,6 +1665,7 @@
                     }
                 } );
 
+                // filter clicked
                 body.on( 'click', '.nt_filter_block li', function ( e ) {
                     e.preventDefault();
                     let $this           = $( this ),
@@ -1630,6 +1683,9 @@
 
                 if ( $cleanFilterButton.length ) {
                     body.on( 'change-filter-condition', function () {
+                        console.log("filter clicked");
+                        triggerPJAX();
+                        // read the function and create url to trigger pjax
                         let $optionFilterActive = $( '.nt_filter_block>li.active' );
                         if ( $optionFilterActive.length > 0 ) {
                             if ( !$cleanFilterButton.parent().is( ":visible" ) ) {
@@ -1645,6 +1701,7 @@
                     body.on( 'click', '.clear_filter_js', function ( e ) {
                         e.preventDefault();
                         $( '.nt_filter_block>li.active' ).removeClass( 'active' );
+                        triggerPJAX();
                         $( this ).parent().slideUp( 300 );
                     } )
                 }
@@ -2448,11 +2505,13 @@
             e.preventDefault();
             e.stopPropagation();
 
+            console.log("add to cart clicked");
+
             let mini_cart_block$ = $( '#nt_cart_canvas' ),
                 btn$             = $( this ),
-                quantity = btn$.closest(".product-quickview, .kalles-quick-shop").find(".quantity").find("input").val(),
-                product = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop").find(".swatch_pr_item.is-selected").attr("my-product") ),
-                size = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop").find(".swatch_pr_item.is-selected").attr("my-data") );
+                quantity = btn$.closest(".product-quickview, .kalles-quick-shop, .product-selected").find(".quantity").find("input").val(),
+                product = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop, .product-selected").find(".swatch_pr_item.is-selected").attr("my-product") ),
+                size = JSON.parse( btn$.closest(".product-quickview, .kalles-quick-shop, .product-selected").find(".swatch_pr_item.is-selected").attr("my-data") );
 
             let drawPop = function() {
 
@@ -3479,6 +3538,46 @@
             
         });
 
+        // pagination
+        body.on( 'click', '.page-numbers', function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+            let current_page = "",
+                attacher = "";
+
+            if ( $(e.target).hasClass("current") ) return console.log("this is current page");
+
+            if ( $(e.target).hasClass("next") || $(e.target).hasClass("prev") ) {
+
+                current_page = $(e.target).closest(".pagination-page").find(".current").html();
+
+                if ( $(e.target).hasClass("prev") ) {
+                    attacher = `&__skip=${ ( Number(current_page) - 1 - 1) * 12}`;
+                } else {
+                    attacher = `&__skip=${ ( Number(current_page) - 1 + 1) * 12}`;
+                }
+
+            } else {
+                current_page = $(e.target).html();
+                attacher = `&__skip=${ ( Number(current_page) - 1 ) * 12}`;
+            }
+
+            triggerPJAX(attacher);
+            
+        });
+    
+        // dropdown options
+        body.on("click", ".kalles_dropdown_options > a", function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+            $(e.target).siblings().removeClass("selected");
+            $(e.target).addClass("selected");
+            triggerPJAX();
+
+        });
+
         /**********************************************
          * Settings when window resize
          * ********************************************/
@@ -3498,25 +3597,25 @@
 
         } );
 
-        // call for webEdit
+//         // call for webEdit
+// 
+//         $("[we-ser] [e-ser]").get().forEach( (val, key) => { 
+//             $(val).attr({"e-ser": key});
+//         });
+// 
+//         $(document).on("click", "[we-ser]", function(e) {
+// 
+//             if ( $(this).closest("iframe") ) {
+//                 var offTop 
+//                 offTop = $(this).offset().top - 100;
+//                 $('html, body').scrollTop(offTop);
+//                 $(this).fadeOut(100).fadeIn(100).addClass("editing");
+//                 return;
+// 
+//             };
+// 
+//         });
 
-        $("[we-ser] [e-ser]").get().forEach( (val, key) => { 
-            $(val).attr({"e-ser": key});
-        });
-
-        $(document).on("click", "[we-ser]", function(e) {
-
-            if ( $(this).closest("iframe") ) {
-                var offTop 
-                offTop = $(this).offset().top - 100;
-                $('html, body').scrollTop(offTop);
-                $("[we-ser]").removeClass("editing");
-                $(this).fadeOut(100).fadeIn(100).addClass("editing");
-                return;
-
-            };
-
-        });
     }
 )
 ( window.jQuery );

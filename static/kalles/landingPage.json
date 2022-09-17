@@ -22,7 +22,7 @@
                 {
                     "label": "Until YYYY/MM/DD",
                     "selector": "#top_banner > strong:eq(1)",
-                    "tags": "html"
+                    "tags": "data-date"
                 },
                 {
                     "label": "Sentence",
@@ -54,20 +54,46 @@
                 {
                     "label": "1st Nav",
                     "subtitle": "4 Column Navigation Menu",
-                    "selector": "#four_col_nav > a", 
-                    "tags": "html, href",
+                    "selector": "#four_col_nav", 
+                    "options": {
+                        "liveLabel" : {
+                            "selector": "#four_col_nav > a"
+                        },
+                        "hoverMe": true
+                    }, 
                     "contents": [
+                        {
+                            "selector": "#four_col_nav > a",
+                            "tags": "html, href"
+                        },
                         {
                             "label": "Heading 1",
                             "selector": "#1st_nav_1st_menu > a",
                             "tags": "html, href",
-                            "module": "clone1stContent", 
+                            "options": {
+                                "clone1stContent" : {
+                                    "selector": "#1st_nav_1st_menu > ul > li:eq(0)"
+                                }
+                            }, 
                             "contents": [
                                 {
                                     "label": "Place",
-                                    "selector": "#1st_nav_1st_menu > ul > li > a > span:eq(0)",
-                                    "tags": "html, href", 
-                                    "module": "selectASpan"
+                                    "selector": "#1st_nav_1st_menu > ul > li:eq(0)",
+                                    "options": {
+                                        "selectSpan": {
+                                            "visible": "#four_col_nav > div",
+                                            "hide": "#navbar .cus.sub-menu.calc_pos"
+                                    },
+                                    "contents": [
+                                        {
+                                            "selector": "#1st_nav_1st_menu > ul > li:eq(0) > a",
+                                            "tags": "href"
+                                        },
+                                        {
+                                            "selector": "#1st_nav_1st_menu > ul > li:eq(0) > a span:eq(0)",
+                                            "tags": "html"
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -75,13 +101,24 @@
                             "label": "Heading 2",
                             "selector": "#1st_nav_2nd_menu > a",
                             "tags": "html, href",
-                            "module": "clone1stContent", 
+                            "options": {
+                                "clone1stContent" : {
+                                    "selector": "#1st_nav_2nd_menu > ul > li:eq(0)"
+                                }
+                            }, 
                             "contents": [
                                 {
                                     "label": "Place",
-                                    "selector": "#1st_nav_2nd_menu > ul > li > a > span:eq(0)",
-                                    "tags": "html, href", 
-                                    "module": "selectASpan"
+                                    "contents": [
+                                        {
+                                            "selector": "1st_nav_2nd_menu > ul > li:eq(0) > a",
+                                            "tags": "href"
+                                        },
+                                        {
+                                            "selector": "1st_nav_2nd_menu > ul > li:eq(0) > a > span",
+                                            "tags": "html"
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -89,13 +126,24 @@
                             "label": "Heading 3",
                             "selector": "#1st_nav_3rd_menu > a",
                             "tags": "html, href",
-                            "module": "clone1stContent", 
+                            "options": {
+                                "clone1stContent" : {
+                                    "selector": "#1st_nav_3rd_menu > ul > li:eq(0)"
+                                }
+                            }, 
                             "contents": [
                                 {
                                     "label": "Place",
-                                    "selector": "#1st_nav_3rd_menu > ul > li > a > span:eq(0)",
-                                    "tags": "html, href", 
-                                    "module": "selectASpan"
+                                    "contents": [
+                                        {
+                                            "selector": "1st_nav_3rd_menu > ul > li:eq(0) > a",
+                                            "tags": "href"
+                                        },
+                                        {
+                                            "selector": "1st_nav_3rd_menu > ul > li:eq(0) > a > span",
+                                            "tags": "html"
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -103,13 +151,24 @@
                             "label": "Heading 4",
                             "selector": "#1st_nav_4th_menu > a",
                             "tags": "html, href",
-                            "module": "clone1stContent", 
+                            "options": {
+                                "clone1stContent" : {
+                                    "selector": "#1st_nav_4th_menu > ul > li:eq(0)"
+                                }
+                            }, 
                             "contents": [
                                 {
                                     "label": "Place",
-                                    "selector": "#1st_nav_4th_menu > ul > li > a > span:eq(0)",
-                                    "tags": "html, href", 
-                                    "module": "selectASpan"
+                                    "contents": [
+                                        {
+                                            "selector": "1st_nav_4th_menu > ul > li:eq(0) > a",
+                                            "tags": "href"
+                                        },
+                                        {
+                                            "selector": "1st_nav_4th_menu > ul > li:eq(0) > a > span",
+                                            "tags": "html"
+                                        }
+                                    ]
                                 }
                             ]
                         }
@@ -120,12 +179,17 @@
                     "subtitle": "3 Column Navigation Menu with two picture categories",
                     "selector": "#three_col_nav > a",
                     "tags": "html, href",
+                    "options": {
+                        "liveLabel" : true
+                    }, 
                     "contents": [
                         {
                             "label": "2nd Nav Heading 1",
                             "selector": "#1st_nav_4th_menu > a",
                             "tags": "html, href",
-                            "module": "clone1stContent", 
+                            "options": {
+                                "clone1stContent" : true
+                            }, 
                             "contents": [
                                 {
                                     "label": "Place",
@@ -135,6 +199,26 @@
                                 }
                             ]
                         }
+                    ]
+                }
+            ]
+        },
+        {
+            "label" : "Mobile Navbar",
+            "selector": "#mobilenavbar",
+            "contents": [
+                {
+                    "label": "Menu",
+                    "selector": "#mobile_main_menu > div:nth-child(1) > span",
+                    "tags": "html",
+                    "contents": [
+                    ]
+                },
+                {
+                    "label": "Categories",
+                    "selector": "#mobile_main_menu > div:nth-child(2) > span",
+                    "tags": "html",
+                    "contents": [
                     ]
                 }
             ]

@@ -145,7 +145,7 @@
         }
 
         .toggleable.opened {
-            border: 3px solid black;
+            border: 3px solid #880e4f;
         }
         
         .toggleable .fa {
@@ -183,7 +183,7 @@
         }
 
         .open > div:not(.bar) {
-            padding: 14px 10px;
+            padding: 4px 10px 14px 10px; 
             background: white;
         }
 
@@ -207,12 +207,7 @@
         }
 
         .open .block {
-            border-bottom: 3px dashed black;
             background: white;
-        }
-
-        .open > .block:nth-last-child(1) {
-            border-bottom: 3px solid transparent;
         }
 
         .open > .block > .content > label {
@@ -222,9 +217,20 @@
             margin-top: 10px;
         }
 
+        .open > div > button {
+            width: 100%;
+            padding: 16px 10px;
+            background: whitesmoke;
+            border-radius: 5px;
+            border: 1px solid black;
+            font-size: 100%;
+            cursor: pointer;
+        }
+
     </style>
 
 </head>
+
 <body>
 
     <div class="container">
@@ -289,8 +295,6 @@
 
         let iframeLoaded = function(data) {
 
-            console.log("iframe loaded");
-
             let contents = data.json.contents;
 
             let createInputs = function(item) {
@@ -299,13 +303,11 @@
 
                     let html = item.tags.split(",").reduce( (total, val, key) => {
 
-                        // console.log(val.trim());
-                        // console.log($("iframe").contents().find(item.selector));
                         let string;
                         if (val.trim() == "html") {
                             string = `
                                 <label>${val.trim().toUpperCase()}</label>
-                                <input type='text' value='${ $("iframe").contents().find(item.selector).html().trim() }' connection="${item.selector}" onkeyup="updateHTML(this, '${ val.trim() }')" >
+                                <input type='text' value='${ $("iframe").contents().find(item.selector).html() }' connection="${item.selector}" onkeyup="updateHTML(this, '${ val.trim() }')" >
                                 `;
                         } else {
                             string = `
@@ -317,11 +319,11 @@
                         return total += string;
                     }, "");
 
-                    return  `<div class="block">
-                       <label for="">${item.label}</label>
-                       <div class="content">
-                        ${html}
-                       </div>
+                    return  `
+                        <div class="block" item-selector="${item.options && item.options.clone1stContent && item.options.clone1stContent.selector}">
+                           <div class="content">
+                            ${html}
+                           </div>
                        </div>`;
 
                 } else {
@@ -329,24 +331,47 @@
                 }
 
             };
-            
+
+            // temp writing modules here
+
             let getBlock = function( val ) {
 
                 let str = "";
+
                 val.forEach( item  => {
 
                     if (item.contents && item.contents.length > 0) {
 
-                        console.log("head - " + item.label);
                         let innerBlock = getBlock(item.contents) || "";
+
+                        let label = 
+                            item.options && item.options.hasOwnProperty("liveLabel") ? 
+                            $("iframe").contents().find(item.options.liveLabel.selector).html() : 
+                            item.label;
+
+                        let clone1stBtn = 
+                            item.options && item.options.hasOwnProperty("clone1stContent") ?
+                            `<div>
+                               <button onclick="clone1stContent(this)"> 
+                                    Add a place
+                               </button>
+                            </div>` :
+                            "";
+
+                        let hoverMe = 
+                            item.options && item.options.hasOwnProperty("hoverMe") ?
+                            `hover=true` : "";
+
+                        let connection = item.selector;
+
                         str += `
-                            <div class="bar toggleable closed" connection="">
+                            <div class="bar toggleable closed" connection="${connection}" ${hoverMe}>
                                 <div class="head closed" onclick="smallCollapseToggle(this)">
 
                                     <div>
                                         <i class="fa fa-plus"></i>
                                         <i class="fa fa-minus d-none"></i>
-                                       <h3>${item.label}</h3>
+                                       <h3>${label}</h3>
                                     </div>
 
                                     <div class="icons">
@@ -360,19 +385,15 @@
                                 <div class="open d-none">
                                     ${createInputs(item)}
                                     ${innerBlock}
+                                    ${clone1stBtn}
                                </div>
                            </div>
                        `;
 
                         // str = getBlock(item.contents, head + (str || "") );
 
-                        console.log("close head");
-
                     } else {
 
-
-                        console.log("body - " + item.label);
-                        console.log("close body");
 
                         str += createInputs(item);
                                 
@@ -435,8 +456,22 @@
 
 
         $(document).on("mouseenter", ".bar.toggleable > .head ", function(event) {
+
+            let connection = $(this).closest("[connection]").attr("connection");
+
+            if ( $(this).closest("[hover]") ) {
+
+                $("iframe").contents().find(connection);
+
+            }
+
             $("iframe").contents()
-                .find( $(this).closest("[connection]").attr("connection") )
+                .find("[we-ser]")
+                .removeAttr("we-ser")
+                .removeClass("editing");
+
+            $("iframe").contents()
+                .find(connection)
                 .attr({"we-ser" : "blabla"})
                 .click();
             return;
@@ -446,13 +481,10 @@
 
             let e = $(elem).attr("connection");
 
-            console.log(e);
-
             if (attr == "html") {
-                $("iframe").contents().find(`[e-ser=${e}]`).html( $(elem).val() );
+                $("iframe").contents().find(e).html( $(elem).val() );
             } else {
-                $(`[e-ser=${e}]`).attr( attr , $(elem).val() );
-                $("iframe").contents().find(`[e-ser=${e}]`).attr( attr, $(elem).val() );
+                $("iframe").contents().find(e).attr( attr, $(elem).val() );
             };
 
             return;
@@ -490,6 +522,40 @@
                     $(elem).html("Error while saving, try again.").attr({disabled: false});
                 }
             });
+
+        };
+
+        let clone1stContent = function(elem) {
+
+            let place = $(elem).closest(".open").children("*:eq(1)").clone();
+
+            $(elem).closest(".open").children("*:eq(-2)").after( place );
+
+            let selector = $(elem).closest(".open").children(".block:eq(0)").attr("item-selector");
+
+            $(elem).closest(".open").children("*").not("*:eq(0), *:eq(-1)").get().forEach( (val, key) => {
+
+                let str = selector.replace(/(eq\(0\))/g, `eq(${key})`);
+
+                $(val).attr({connection: str});
+
+                $(val).find("[connection]").get().forEach( val => {
+
+                    let inner_str = $(val).attr("connection");
+
+                    let new_str = inner_str.split(selector).join(str);
+
+                    console.log({inner_str, new_str});
+
+                    $(val).attr({connection: new_str});
+
+                });
+
+            } );
+
+            let content = $("iframe").contents().find(selector).clone();
+
+            $("iframe").contents().find(selector).after(content);
 
         };
 

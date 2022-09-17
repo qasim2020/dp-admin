@@ -202,7 +202,7 @@ hbs.registerHelper('json', function(context) {
 
 hbs.registerHelper('matchValues', (val1,val2) => {
     try {
-        return val1.toLowerCase()  == val2.toLowerCase();
+        return val1.toString().toLowerCase()  == val2.toString().toLowerCase();
     } catch(e) {
         return false;
     }
@@ -710,6 +710,7 @@ var myFuncs = {
         kallesPlaceOrder: "gen",
         kallesUpdateOrder: "admin",
         kallesSendNote: "gen", 
+        kallesProduct: "gen",
         
         showReceipt: "gen", 
         showOrder: "admin",
@@ -6146,9 +6147,7 @@ var myFuncs = {
 
         try {
             let model = await this.createModel(`${req.params.brand}-products`);
-            console.log(req.params);
             let product = await model.findOne({_id : mongoose.mongo.ObjectID( req.params.input ) }).lean();
-            console.log(product);
             let sizes = await model.aggregate([ 
                 {
                     '$match': {
@@ -6724,16 +6723,161 @@ Receipt sent by Server.`;
         }
 
     }, 
+
+    getPagination: function(count, skip, limit) {
+
+            let array = [];
+            
+            skip = skip || 0;
+            limit = limit || 12;
+
+            let pages = Math.ceil( Number(count) / Number(limit) );
+            let current_page_no = ( ( Number(skip) ) / Number(limit) ) + 1;
+
+        console.log( { count, skip, limit } );
+            for ( i = 0; i < pages ; i++ ) {
+
+                array.push({
+                    pageNo: i + 1,
+                    current: current_page_no == i + 1,
+                });
+
+            };
+
+            return {
+                array,
+                next: current_page_no != pages,
+                prev: current_page_no != 1
+            };
+
+    },
     
     kallesShop: async function(req, res) {
 
+        let findMatchInFilter = function(array, filter, cat) {
+            
+            return array.map( val => {
+                return {
+                    value: val,
+                    active: filter[cat] && filter[cat]["$in"] ?  filter[cat] && filter[cat]["$in"].some( match => match == val ) : filter[cat] == val
+                }
+            });
+
+        };
+
         req.params.module = "shop";
+        req.query = processQuery(req.query, {price: { dataType: "string" } });
+        if (req.query && req.query.filter && req.query.filter._pjax) delete req.query.filter._pjax;
+
+        let model = await this.createModel(`${req.params.brand}-products`);
+        let output = await model.find(req.query.filter).sort(req.query.sort).skip(req.query.skip).limit(req.query.limit).lean();
+        let count = await model.countDocuments(req.query.filter).lean();
+        let filters = {
+            schools: findMatchInFilter( await model.find().distinct("school").lean(), req.query.filter, "school" ), 
+            category: findMatchInFilter( await model.find().distinct("category").lean(), req.query.filter, "category"),
+            type: findMatchInFilter(await model.find().distinct("type").lean(), req.query.filter , "type" ), 
+            gender: findMatchInFilter( await model.find().distinct("gender").lean(), req.query.filter, "gender" )
+        };
 
         return {
-            success: true
+            products: output,
+            filters: filters,
+            clearFilters: req.query.filter && Object.keys(req.query.filter).length === 0 && Object.getPrototypeOf(req.query.filter) === Object.prototype,
+            pages: this.getPagination(count, req.query.skip, req.query.limit)
         }
 
     }, 
+
+    kallesProduct: async function(req, res) {
+
+        req.params.module = "product-detail-full-width-atc";
+        let model = await this.createModel(`${req.params.brand}-products`);
+        let product = await model.findOne({_id: req.params.input}).lean();
+        let school_products = await model.find({school: product.school}).lean();
+
+        let getSiblings = function(product, allProducts) {
+
+            let indexing = allProducts.map( (val, index) => {
+                return {
+                    product: val,
+                    match: val.ser == product.ser,
+                    index: index
+                }
+            } );
+
+            let this_product = indexing.find( val => val.match == true );
+
+            indexing.forEach( ( val , key )=> {
+                Object.assign( val, {
+                    distance: val.index - this_product.index,
+                    last: indexing[key + 1] == undefined ? true : false,
+                    first: indexing[key - 1] == undefined ? true : false
+                });
+            });
+
+            let siblings = [];
+
+            console.log( allProducts.length )
+            if (allProducts.length > 2 ) {
+                if (this_product.first) {
+                    siblings = [
+                        indexing[ indexing.length - 1 ],
+                        this_product,
+                        indexing[ this_product.index + 1 ]
+                    ]
+                } else if (this_product.last) {
+                    siblings = [
+                        indexing[ this_product.index - 1 ],
+                        this_product,
+                        indexing[0]
+                    ]
+                } else {
+                    siblings = [
+                        indexing[ this_product.index - 1 ],
+                        this_product,
+                        indexing[ this_product.index + 1 ],
+                    ]
+                }
+            } else if ( allProducts.length == 2 ) {
+
+                        
+                if (this_product.first) {
+                    siblings = [
+                        indexing[ this_product.index + 1 ],
+                        this_product,
+                        indexing[ this_product.index + 1 ]
+                    ]
+                } else if (this_product.last) {
+                    siblings = [
+                        indexing[ this_product.index - 1 ],
+                        this_product,
+                        indexing[ this_product.index - 1 ]
+                    ]
+                }
+
+            } else {
+                siblings = false
+            }
+            
+
+            return siblings;
+
+        };
+
+        let product_details = await this.kallesQuickView(req,res) 
+
+        // -- first available size
+        let first_aval_size = product_details.sizes.find( val => val.stock > 0 );
+
+        return {
+            siblings: getSiblings(product, school_products),
+            product: product_details.product,
+            sizes: product_details.sizes,
+            avalSize: first_aval_size 
+        }
+        
+
+    },
 
 };
 

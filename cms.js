@@ -663,6 +663,7 @@ var myFuncs = {
         downloadCSVFile: 'gen',
         blogStreak: 'gen',
         blogs: 'gen',
+        services: "gen",
         fetchAirtable: 'gen',
         updateManyByKey: "admin",
         roadMap: 'gen',
@@ -2494,6 +2495,12 @@ var myFuncs = {
         let output = await this.getBlogs(req,res);
         return {
             blogs: output,
+        }
+    },
+
+    services: async function(req,res) {
+        return {
+            success: true
         }
     },
 

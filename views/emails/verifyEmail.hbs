@@ -17,7 +17,7 @@
 	word-break: break-word;
     ">You just attempted to subscribe to my mailing list. Please click below to confirm it was you.</p>
 
-    <a href="{{data.url}}" style="
+    <a href="{{data.verifyUrl}}" style="
         font-size: 13px;
         line-height: 1.5;
         font-weight: bold;
@@ -36,7 +36,9 @@
         line-height: 1.5;
         font-weight: bold;
         color: black;
-    ">{{data.url}}</a>
+        ">
+        {{data.verifyUrl}}
+    </a>
 
     <p style="
 	font-size: 17px;
@@ -52,7 +54,7 @@
 	word-break: break-word;
     ">Best Regards, Qasim</p>
     
-	{{> footer url=data.url}}
+	{{> footer}}
 
 </body>
 </html>

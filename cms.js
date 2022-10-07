@@ -1,3 +1,5 @@
+// life - portfolio website
+
 const DatauriParser=require("datauri/parser");
 const parser = new DatauriParser();
 const fileUpload = require('express-fileupload');
@@ -201,6 +203,7 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
+    console.log(val1, val2);
     try {
         return val1.toString().toLowerCase()  == val2.toString().toLowerCase();
     } catch(e) {
@@ -651,6 +654,8 @@ var myFuncs = {
         challenges: 'auth',
         profile: 'auth',
         openChallenge: 'auth',
+        
+        // life - portfolio
         dashboardBlogs: 'admin',
         addNewBlog: 'admin',
         saveBlog: 'admin',
@@ -664,11 +669,14 @@ var myFuncs = {
         blogStreak: 'gen',
         blogs: 'gen',
         services: "gen",
+        vlogs: "gen",
         fetchAirtable: 'gen',
         updateManyByKey: "admin",
         roadMap: 'gen',
         newsletters: 'gen',
 	listenToWebhook: 'gen',
+        subscribe: "gen", 
+
         editWeb: 'admin',
         emptyFile: 'admin',
         showAll: 'auth',
@@ -2000,6 +2008,7 @@ var myFuncs = {
 
     mergeDataIntoCollection : async function(req,res) {
 
+        console.log( req.body.results); 
         try {
 
             let model = await this.createModel(req.params.input);
@@ -2448,15 +2457,31 @@ var myFuncs = {
         return difference;
     },
 
+
+    // life - portfolio website
+
     life: async function(req,res) {
 
-        let output = await this.getBlogs(req,res);
+        let model = await this.createModel(`${req.params.brand}-services`);
+        let output = await model.find().lean();
+
         return {
-            pjaxId: req.params.input,
-            brand: req.params.brand,
-            blogs: output,
-        };
+            freelance: await model.find({type: "freelance"}).lean(),
+            service: await model.find({type: "service"}).lean()
+        }
     },
+    
+    newsletters: async function( req,res) {
+        return {
+            success: true
+        }
+    }, 
+
+    subscribe: async function( req, res) {
+        return {
+            success: true
+        }
+    }, 
 
     getBlogs: async function(req,res) {
 
@@ -2499,14 +2524,42 @@ var myFuncs = {
     },
 
     services: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-services`);
+        let output = await model.find().lean();
+
         return {
-            success: true
+            freelance: await model.find({type: "freelance"}).lean(),
+            service: await model.find({type: "service"}).lean()
         }
     },
 
     vlogs: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-vlogs`);
+        let output = await model.aggregate(
+            [
+                {
+                    $addFields: {
+                        intSer: {
+                            $toInt: "$ser"
+                        }
+                    }
+                },{
+                    $sort: {
+                        intSer: 1
+                    }
+                }
+            ]);
+        output = output.map( val => {
+            Object.assign( val , {
+                video_id: val.link.split("https://youtu.be/")[1]
+            });
+            return val;
+        });
+        output.reverse();
+
         return {
-            msg: "vlogs show up here"
+            vlogs: output
         }
     },
 
@@ -4299,14 +4352,23 @@ var myFuncs = {
         // Send an Email to the customer saying "Please click on this link to verify your subscription request"
         let url = '';
 
+        console.log("context of subscribe customer");
+
+        console.log(output);
+
         url = process.env.url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
         let mailResponse = await this.sendMail({
             from: `Qasim Ali<${process.env.zoho}>`,
             template: 'verifyEmail', 
-            context: {url : url}, 
+            context: {
+                verifyUrl : url,
+                Id: output._id, 
+                email: output.email,
+            }, 
             toEmail: req.body.email, 
-            subject: 'Verify Email'
+            subject: 'Verify Email', 
+            brand: req.params.brand
         });
 
         return {
@@ -4317,10 +4379,12 @@ var myFuncs = {
 
     sendMail: async function({template, context, toEmail, subject, brand, msg}) { 
 
-        console.log({ toEmail });
+        console.log({ brand, toEmail });
 
         let model = await this.createModel(`myapp-themes`);
         let output = await model.findOne({brand: brand}).lean();
+
+        console.log(output);
 
         let transporter = nodemailer.createTransport({
           host: output.brandEmailServerLoc.trim(), 
@@ -4541,7 +4605,8 @@ var myFuncs = {
                     url: process.env.url, 
                 },
                 toEmail: val.email,
-                subject: letter.subject
+                subject: letter.subject, 
+                brand: req.params.brand
             });
 
         });
@@ -4559,6 +4624,9 @@ var myFuncs = {
         if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
 
+        console.log("subscribe");
+        console.log(subscriber);
+
         let sentMails = await this.sendMail(
             {
                 from: `Qasim Ali<${process.env.zoho}>`,
@@ -4568,26 +4636,21 @@ var myFuncs = {
                     Id: subscriber._id,
                     email: subscriber.email ,
                     url: process.env.url, 
+                    unsubscribeUrl: process.env.url+`/life/gen/page/unsubscribeMe/n?email=${subscriber.email}&Id=${subscriber._id}`
                 }, 
                 toEmail: subscriber.email, 
-                subject: output.subject
+                subject: output.subject,
+                brand: brand
             }
         );
     },
 
     unsubscribeMe: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-subscribers`);
-        let output = await model.findOneAndUpdate({
-            _id: req.query.Id,
-            email: req.query.email,
-            validation: true
-        },{
-            isUnsubscribed: true
-        },{
-            new: true
-        }).lean();
+        let output = await model.deleteOne({_id: req.query.Id, email: req.query.email}).lean();
 
-        // //console.log(output);
+        console.log("... after unscribing");
+        console.log(output);
 
         if (output != null) {
             return {

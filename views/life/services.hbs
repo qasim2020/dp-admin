@@ -1,10 +1,10 @@
 {{> life/header}}
 
-    {{> life/nav page='services'}}
+    {{> life/nav}}
 
     <div class="container">
 
-        <div class="content services">
+        <div class="content">
 
             <div class="icon"> ⛑ </div>
 
@@ -20,23 +20,17 @@
 
             <ul>
                 {{#each data.freelance}}
-                <li onclick="selectJob(this)">
-                    <i class="fa fa-check text-white"></i>
-                    <span> {{this.description}} </span>
-                </li>
+                <li>{{this.description}}</li>
                 {{/each}}
             </ul>
 
             <hr>
 
-            <h3>Services offered in Rawalpindi and Islamabad Only. I tried to link up with few friends, if I bring them clients, they will give me a commission. Let me know if I can be of service. </h3>
+            <h3>Services offered in Rawalpindi and Islamabad Only</h3>
 
             <ul>
                 {{#each data.service}}
-                <li onclick="selectJob(this)">
-                    <i class="fa fa-check text-white"></i>
-                    <span> {{this.description}} </span>
-                </li>
+                <li>{{this.description}}</li>
                 {{/each}}
             </ul>
         

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {{> analyticsLife}}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Welcome — </title>
+
+    <meta name="title" content="Portfolio - Qasim">
+    <meta name="description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://qasimali.xyz">
+    <meta property="og:title" content="Portfolio - Qasim">
+    <meta property="og:description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+    <meta property="og:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1618731614/zakatlists/qasimali-xyz.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://qasimali.xyz">
+    <meta property="twitter:title" content="Portfolio - Qasim">
+    <meta property="twitter:description" content="Pakistan, Rawalpindi, Awesome Mountains, and Coca Cola">
+    <meta property="twitter:image" content="https://res.cloudinary.com/miscellaneous/image/upload/v1618731614/zakatlists/qasimali-xyz.png">
+
+
+    <!-- <link rel=icon href=/favicon.png> -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700,900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+
+    <style media="screen">
+
+    .container > h1 {
+      font-family: 'Merriweather', serif;
+    }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0px;
+    }
+
+    .container {
+        margin: 8px; 
+    }
+
+    .nav {
+        margin: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 43px;
+        width: 100%;
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        box-sizing: border-box;
+        background: white;
+        z-index: 100;
+     }
+
+     .nav > .logo {
+        padding-left: 7px;
+     }
+
+     .nav > div > ul {
+        display: flex;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+     }
+
+     .nav > div > ul > li > *, 
+     .nav > div > a  {
+        text-decoration: none;
+        color: #333333;
+        font-size: 14px;
+        border: 0px;
+        cursor: pointer;
+        display: contents;
+        display: block;
+        background: whitesmoke;
+        padding: 2px 6px;
+        margin-right: 4px;
+        border: 2px solid whitesmoke;
+        border-radius: 4px;
+     }
+
+     .nav > div > ul > li.active > * {
+        font-weight: bold;
+        border: 2px solid black;
+     } 
+
+     .nav > div > ul > li.checkout > * {
+        border: 2px solid black;
+        background: black;
+     }
+
+     .nav > div > ul > li.checkout.is-selected > button , 
+     .nav > div > ul > li.checkout.is-selected {
+         background: lightseagreen;
+     }
+
+     .nav > div > ul > li.checkout > button {
+        background: #333333;
+        color: white;
+        font-weight: bold;
+     }
+
+     .container {
+          padding: 0 20px;
+          display: flex;
+          margin-top: 4.5rem;
+     }
+
+    .content {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 20px;
+        height: fit-content;
+    }
+
+    .services > .icon {
+        font-size: 5.5rem;
+    }
+
+    .services > p {
+        line-height: 1.7;
+    }
+
+    .services > ul {
+        padding-left: 0px;
+        margin-top: -11px;
+    }
+
+    .services > ul > li {
+        padding: 10px 0px;
+        padding-bottom: 4px;
+        margin: 0px;
+        display: flex;
+        align-items: center;
+    }
+
+    .services > ul > li:hover {
+        cursor: pointer;
+        opacity: 0.7;
+        color: deeppink;
+        font-weight: bold;
+    }
+
+    .services > ul > li > i.fa {
+        font-size: 10px;
+        padding: 3px;
+        margin-right: 10px;
+    }
+
+    i.fa.text-white {
+        color: white;
+        border: 1px solid black;
+    }
+
+    .services > ul > li.is-selected {
+        color: lightseagreen;
+    }
+
+    .services > ul > li.is-selected > i.fa {
+        color: lightseagreen;
+        border: 1px solid lightseagreen;
+    }
+
+    .content > .blogs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card {
+        font-size: 80%;
+        min-width: 150px;
+        padding: 15px;
+        box-sizing: border-box;
+        word-break: break-word;
+        background: whitesmoke;
+        margin: 5px;
+        border-radius: 5px;
+        font-family: "Roboto";
+        display: flex;
+        flex-direction: column;
+    }
+
+    .letter {
+        border: 1px dashed orange;
+    }
+
+    .card:hover {
+        background: white;
+        cursor: pointer;
+    }
+
+    .card > h4 {
+        color: #4F4F4F;
+        margin: 12px 0;
+    }
+
+    .card > h1 {
+        margin-bottom: auto;
+        color: #4F4F4F;
+        background: #219653;
+        box-sizing: border-box;
+        transform: rotate( -1deg );
+        color: white;
+        padding: 8px;
+    }
+
+    .letter > h1 {
+        background: orange;
+    }
+
+    .vlog > h1 {
+        background: #3f51b5;
+    }
+
+    .vlog > img {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card > h5 {
+        padding: 2px 4px;
+        margin-top: 22px;
+        margin-bottom: 0px;
+        font-weight: 300;
+    }
+
+    .card > p {
+        padding: 7px 4px 2px 4px;
+        margin-top: 0;
+        font-weight: bold;
+        font-size: 14px;
+        color: #4F4F4F;
+    }
+
+    .right-part {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-rows: repeat(auto,100px);
+    }
+
+    .right-part > span {
+      background: #F2F2F2;
+      border: 1px solid #E0E0E0;
+      height: 100px;
+
+      font-family: Roboto;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 30px;
+      line-height: 157.9%;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #BDBDBD;
+
+    }
+
+    .right-part > span.active {
+      background: #219653;
+      color: white;
+      border: 1px solid #E0E0E0;
+      cursor: pointer;
+    }
+
+    .right-part > span.active:hover {
+      background: green;
+    }
+
+    .left-part > a:hover {
+      background: #f2f2f2;
+    }
+
+    .left-part > a > svg {
+      margin-top: -5px;
+      padding-left: 13px;
+    }
+
+    .left-part > a > span {
+      width: 70%;
+      margin: auto;
+    }
+
+    .locked {
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .note {
+      padding: 24px;
+      background: #323232;
+      color: white;
+      max-width: 1400px;
+      margin: auto;
+      margin-bottom: 1rem;
+    }
+
+    .note > p {
+      color: lightgrey;
+      line-height: 1.5;
+      font-size: 18px;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    .hireForm {
+        margin: 0px;
+        padding: 0px;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .hireForm > form {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 2px solid white;
+    }
+
+    .hireForm > form > label {
+        text-transform: uppercase;
+        font-size: 12px;
+        padding: 10px;
+        padding-top: 20px;
+    }
+
+    .hireForm > form > textarea {
+        padding: 10px;
+        background: #0d47a1;
+        border: 0px;
+        font-size: 18px;
+        font-family: inherit;
+        color: white;
+    }
+
+    .hireForm > div {
+        padding: 10px;
+        margin: 0px;
+        margin-top: 10px;
+    }
+
+    .hireForm > div:nth-last-child(1) {
+        border-bottom: 0px;
+        margin-top: 0px;
+        border: 2px solid white;
+    }
+
+    .hireForm > div.action-button {
+        background: whitesmoke;
+        border: 2px solid whitesmoke;
+    }
+
+    .hireForm > div.action-button:hover {
+        cursor: pointer;
+        border: 2px solid black;
+    }
+
+
+    .hireForm > div > p.small {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .hireForm > div > button {
+        padding: 6px 10px;
+        font-size: 15px;
+        border: 2px solid black;
+        cursor: pointer;
+    }
+
+    .hireForm > div.whatsapp > p.small {
+        font-size: 12px;
+        line-height: 1;
+        margin: 0px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    
+    .hireForm > div.whatsapp > button {
+        background: #075E54;
+        color: white;
+    }
+
+    .hireForm > div.email > button {
+        background: #3f51b5;
+        color: white;
+    }
+
+    .mobile, .nav-mobile {
+        display: none;
+    }
+
+    @media (max-width:799px) {
+      .container {
+        display: block;
+      }
+
+      .content {
+          padding: 0;
+      }
+
+      .right-part {
+        padding: 0;
+        width: auto;
+      }
+
+      .desktop, .nav {
+          display: none;
+      }
+
+      .nav {
+          display: none;
+      }
+
+      .nav-mobile {
+          padding: 0px 13px;
+          position: fixed;
+          width: 100%;
+          left: 0px;
+          top: 0px;
+          box-sizing: border-box;
+          background: white;
+          z-index: 100;
+      }
+
+      .nav-mobile, .mobile {
+          display: block
+      }
+
+      .nav-mobile > .menu {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px;
+      }
+
+      .nav-mobile > .menu a {
+          text-decoration: none;
+          font-size: 15px;
+          color: black;
+      }
+
+      .nav-mobile > .menu .hireMe {
+          background: #333333;
+          color: white;
+          font-weight: bold;
+          margin-right: 6px;
+          border: 1px solid black;
+          padding-top: 2px;
+      }
+
+      .nav-mobile > .menu > .right {
+          display: flex;
+          align-items: stretch;
+      }
+
+      .svg>svg:nth-child(1) {
+          display: none;
+      }
+
+      .svg>svg:nth-child(2) {
+          display: inline-block;
+          border: 1px solid black;
+          box-sizing: border-box;
+      }
+
+      .svg {
+          display: inline-block;
+          margin: 0px;
+          padding: 0px;
+          margin-bottom: -4px;
+      }
+
+      .close.svg>svg:nth-child(2) {
+          display: none;
+      }
+
+      .close.svg>svg:nth-child(1) {
+          display: inline-block;
+          box-sizing: border-box;
+      }
+
+
+    }
+
+    @media (max-width: 375px) {
+
+    }
+
+    </style>
+
+    <title>Qasim Ali</title>
+
+  </head>
+<body>

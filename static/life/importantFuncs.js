@@ -31,6 +31,7 @@ $(document).on('click', '.subscribe>.submit', function() {
     $(this).html('Subscribed');
     $('.subscribe>.success').removeClass('d-none');
   }).fail((e) => {
+    console.log(e);
     $(this).html('Subscribe');
     $('.error').removeClass('d-none').html(e.responseText);
     console.log(e.responseText);

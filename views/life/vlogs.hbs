@@ -1,0 +1,28 @@
+{{> life/header}}
+
+    {{> life/nav page='vlogs'}}
+
+    <div class="container">
+
+        <div class="content">
+        
+            <div class="blogs">
+            
+            {{#each data.vlogs}}
+            <div class="card vlog" slug="{{slug}}" onclick="openVlog('{{link}}')">
+
+                    <h4>{{ser}}</h4>
+                    <img src="https://img.youtube.com/vi/{{video_id}}/mqdefault.jpg" alt="">
+                    <h1>{{title}}</h1>
+                    <h5>PUBLISHED ON</h5>
+                    <p>{{date}}</p>
+                
+                </div>
+            {{/each}}
+
+            </div>
+        </div>
+
+    </div>
+
+{{> life/footer}}

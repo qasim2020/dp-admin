@@ -1,0 +1,57 @@
+<div class="nav">
+    
+    <div class="logo">
+        <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+    </div>
+
+    <div>
+        <ul>
+            <li class="selector {{#if (matchValues page 'services')}} active {{/if}}"> <a id="services" href="/{{data.brand}}/gen/page/landingPage/n">Services</a> </li>
+            <li class="selector {{#if (matchValues page 'blogs')}} active {{/if}}" > <a id="showBlogs"  href="/{{data.brand}}/gen/page/blogs/n">Blogs</a> </li>
+            <li class="selector {{#if (matchValues page 'vlogs')}} active {{/if}}" > <a id="showVlogs"  href="/{{data.brand}}/gen/page/vlogs/n">Vlogs</a> </li>
+            <li class="selector {{#if (matchValues page 'newsletters')}} active {{/if}}"> <a id="newsletters" href="/{{data.brand}}/gen/page/newsletters/n">Newsletters</a> </li>
+            <li class="selector"> <button onclick="showModel()">Subscribe</button> </li>
+            <li class="checkout" onclick="openLayer('.hireForm', 'body > *')"><button>Hire Me</button></li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="nav-mobile">
+    
+    <div class="menu">
+        <div class="left">
+            <a href="/{{data.brand}}/gen/page/landingPage/n">Home</a>
+        </div>
+
+        <div class="right">
+            <button class="hireMe" onclick="openLayer('.hireForm', 'body > *')">Hire Me</button>
+            <div class="close svg" onclick="toggleClass(this, 'close')">
+              <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0.5" y="0.5" width="26" height="26" fill="#F2F2F2"></rect>
+                <line x1="6.5" y1="9" x2="20.5" y2="9" stroke="#333333"></line>
+                <line x1="6.5" y1="13" x2="20.5" y2="13" stroke="#333333"></line>
+                <line x1="6.5" y1="17" x2="20.5" y2="17" stroke="#333333"></line>
+                <rect x="0.5" y="0.5" width="26" height="26" stroke="#333333"></rect>
+              </svg>
+              <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0.5" y="0.5" width="26" height="26" fill="#333333"></rect>
+                <line x1="8.55037" y1="7.29289" x2="19.8641" y2="18.6066" stroke="#F2F2F2" stroke-width="2"></line>
+                <line x1="7.13615" y1="18.2929" x2="18.4499" y2="6.97919" stroke="#F2F2F2" stroke-width="2"></line>
+                <rect x="0.5" y="0.5" width="26" height="26" stroke="#333333"></rect>
+              </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-toggle d-none">
+        <ul>
+            <li class="selector {{#if (matchValues page 'services')}} active {{/if}}"> <a id="services" href="/{{data.brand}}/gen/page/landingPage/n">Services</a> </li>
+            <li class="selector {{#if (matchValues page 'blogs')}} active {{/if}}" > <a id="showBlogs"  href="/{{data.brand}}/gen/page/blogs/n">Blogs</a> </li>
+            <li class="selector {{#if (matchValues page 'vlogs')}} active {{/if}}" > <a id="showVlogs"  href="/{{data.brand}}/gen/page/vlogs/n">Vlogs</a> </li>
+            <li class="selector {{#if (matchValues page 'newsletters')}} active {{/if}}"> <a id="newsletters" href="/{{data.brand}}/gen/page/newsletters/n">Newsletters</a> </li>
+            <li class="selector"> <button onclick="showModel()">Subscribe</button> </li>
+        </ul>
+    </div>
+
+</div>

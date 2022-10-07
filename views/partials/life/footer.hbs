@@ -1,0 +1,197 @@
+
+    <div class="hireForm d-none">
+
+        <form action="">
+
+            <label for="message">Please write down the issue below:-</label>
+            <textarea id="" name="message" cols="30" rows="5">Hi Qasim, you available? Need some help.
+
+[your-name]
+[your-contact-email or your-contact-number]
+            </textarea>
+
+        </form>
+
+        <div class="action-button whatsapp" onclick="openWhatsApp()" >
+            <button>WhatsApp</button>
+            <p class="small">Tap to open WhatsApp Chat window.</p>
+        </div>
+
+        <div class="action-button email" onclick="sendMail()">
+            <button >Email</button>
+            <p class="small">Please make sure you have listed your email or some contact detail before pressing this button.</p>
+        </div>
+    
+        <div>
+            <button class="desktop" onclick="openLayer('.nav, .container', '.hireForm')">Close</button>
+            <button class="mobile" onclick="openLayer('.nav-mobile, .container', '.hireForm')">Close</button>
+        </div>
+
+    </div>
+
+    {{> subscribeModel}}
+
+    <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/life/importantFuncs.js"></script>
+    <script src="/root/pjax.js"></script>
+    <script type="text/javascript">
+
+        let urlParams = function() {
+
+            let url = {
+                brand: window.location.pathname.split("/")[1],
+                permit: window.location.pathname.split("/")[2],
+                requiredType: window.location.pathname.split("/")[3],
+                module: window.location.pathname.split("/")[4],
+                input: window.location.pathname.split("/")[5],
+                origin: window.location.origin
+            };
+
+            return url;
+
+        };
+
+
+        $(document).pjax('a[data-pjax]', '#pjax-container');
+        $(document).ready( () => {
+
+            console.log('Home Loaded — end of pjax I think'); 
+
+            if ("{{data.pjaxId}}" == "n") return console.log('Home loaded');
+
+        })
+
+        $.pjax.defaults.scrollTo = false;
+        $.pjax.defaults.timeout = 10000000;
+
+        let openBlog = function(elem) {
+
+            console.log('opening the blog post');
+            window.location.href = `/life/gen/page/openBlog/${$(elem).attr('slug')}`;
+
+        }
+
+        let openVlog = function(url) {
+
+            window.open(url , '_blank');
+
+        }
+
+        let openNewsletter = function(elem) {
+
+            console.log('opening the newsletter page ');
+            window.location.href = `/life/gen/page/showNewsletter/${$(elem).attr('slug')}`;
+
+        }
+
+        $('[data-pjax]').on('click', function() {
+            $(".selector").removeClass('active');
+            $(this).closest('.selector').addClass('active');
+        });
+
+        $('#searchBlog').on('keyup', function(event) {
+            console.log( 'typed a thing');
+            let value = $(this).val();
+            let string = '';
+            console.log(value);
+            if (value == '') {
+                string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
+                $('#showBlogs').attr({href: string}).trigger('click');
+                return console.log('Value is null');  
+            } 
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode != '13') return console.log('Let user press enter');
+            string = "/{{data.brand}}/gen/pjax/blogs/landingPage?keyWord="+value; 
+            $('#showBlogs').attr({href: string}).trigger('click');
+        });
+
+        let selectJob = function(elem) {
+
+            $(elem).toggleClass("is-selected");
+            let total_selected = $(".services").find("li.is-selected").length;
+
+            if (total_selected > 0 ) {
+                $(".checkout").addClass("is-selected").find("button").html(`Hire Me (${total_selected})`);
+            } else {
+                $(".checkout").removeClass("is-selected").find("button").html(`Hire Me`);
+            }
+
+            let text = $(".services").find("li.is-selected").get().reduce( (total, val, key)  => {
+                return total += `- ${$(val).find("span").html()}
+`;
+            }, "" );
+
+            text = `Hi Qasim, are you available for following job(s):-
+
+${ text }
+
+[your-name]
+[your-contact-number or email]
+       
+`;
+
+            let rows = text.split("\n").length;
+            $(".hireForm").find("textarea").attr({rows: rows}).html( text );
+
+        };
+
+        let openLayer = function(open, close) {
+
+            $(close).addClass("d-none");
+            $(open).removeClass("d-none");
+
+        }
+
+        let openWhatsApp = function(elem) {
+
+            let msg = $(".hireForm").find('form').find('textarea').val();
+            let url = `https://api.whatsapp.com/send/?phone={{data.owner.mobile}}&text=${encodeURIComponent(msg)}`;
+
+            window.open(
+              url,
+              '_blank' 
+            );
+
+        };
+
+        let sendMail = function(elem) {
+
+            let msg = $(".hireForm").find('form').find('textarea').val();
+
+            msg = msg.split("\n").reduce( (total, val) => {
+
+                return total += `<p>${val}</p>`;
+
+            }, "" );
+
+            let data = {
+                msgText: msg,
+                toEmail: "{{data.owner.email}}",
+                subject: "New Request on Portfolio",
+                brand: "{{data.brand}}"
+            }
+
+            $(".hireForm").find(".email").children("button").html("Sending email...");
+
+            $.ajax({
+                url: "/{{data.brand}}/gen/data/sendMsgToEmail/n",
+                method: "POST",
+                data: data,
+                success: val => $(".hireForm").find(".email").children("button").html("Email sent. I will get back to you. Thanks.!")
+            }).fail( err => $(".hireForm").find(".email").children(button).html( JSON.stringify(err.responseText) ) );
+
+        };
+
+        let toggleClass = function(elem, name) {
+
+            $(elem).toggleClass(name);
+
+        }
+
+
+    </script>
+  </body>
+</html>
+

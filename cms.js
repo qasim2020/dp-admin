@@ -134,7 +134,6 @@ let schema = {
 
 let Collections = mongoose.model('collections', new mongoose.Schema(schema));
 
-
 hbs.registerPartials(__dirname + '/views/partials');
 
 hbs.registerHelper('desiPrice', (val) => {
@@ -2187,7 +2186,13 @@ var myFuncs = {
             brand: req.params.brand
         };
 
+        console.log(req.params.input);
         let inputCollection = await Collections.findOne({name: req.params.input}).lean();
+
+        console.log(JSON.stringify( Collections, 0, 2) );
+        console.log(Collections);
+
+        console.log(inputCollection);
 
         if (
             inputCollection.hasOwnProperty('redirect') && 
@@ -5917,7 +5922,7 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-slides`);
         let output = {
-            sliders: await model.find({style: { $ne : "Footer" } }).sort({sequence: 1}).lean(),
+            sliders: await model.find({style: { $ne : "Footer" } }).sort({ser: 1}).lean(),
             footer: await model.findOne({style: "Footer"}).lean(),
         }
 

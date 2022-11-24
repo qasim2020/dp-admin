@@ -406,6 +406,8 @@
     @media (max-width:799px) {
       .container {
         display: block;
+        padding: 0;
+        margin-top: 3rem;
       }
 
       .content {
@@ -426,7 +428,6 @@
       }
 
       .nav-mobile {
-          padding: 0px 13px;
           position: fixed;
           width: 100%;
           left: 0px;
@@ -441,10 +442,16 @@
       }
 
       .nav-mobile > .menu {
+          position: fixed;
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 10px;
+          padding-left: 20px;
+          z-index: 100;
+          width: 100%;
+          box-sizing: border-box;
+          background: white;
       }
 
       .nav-mobile > .menu a {
@@ -460,6 +467,13 @@
           margin-right: 6px;
           border: 1px solid black;
           padding-top: 2px;
+      }
+
+      .nav-mobile > .menu .hireMe > button {
+          border: 0px solid transparent;
+          background: inherit;
+          color: white;
+          font-weight: bold;
       }
 
       .nav-mobile > .menu > .right {
@@ -493,6 +507,53 @@
           box-sizing: border-box;
       }
 
+      .nav-mobile > .menu-toggle {
+          position: fixed;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    background: white;
+    z-index: 1;
+    box-sizing: border-box;
+    border: 2px solid white;
+      }
+
+      .nav-mobile > .menu-toggle > ul {
+          margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    height: 100vh;
+    min-height: 375px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+      }
+
+      .nav-mobile > .menu-toggle > ul > li.selector {
+          list-style: none;
+    border: 1px solid white;
+    padding: 6px 0px;
+      }
+
+      .nav-mobile > .menu-toggle > ul > li.selector > button,
+      .nav-mobile > .menu-toggle > ul > li.selector > a {
+          text-decoration: none;
+    color: #333333;
+    font-size: 2rem;
+    padding-right: 1rem;
+    background: none;
+    display: block;
+    border: 4px solid white;
+    text-align: right;
+      }
+
+      .nav-mobile > .menu-toggle > ul > li.selector > button {
+          width: 100%;
+      }
+
+      .nav-mobile > .menu-toggle > ul > li.selector.active > a {
+          font-weight: bold;
+      }
 
     }
 

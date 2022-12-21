@@ -21,6 +21,10 @@ let urlParams = function() {
         origin: window.location.origin
     };
 
+    if (/7am/g.test(url.origin)) {
+        url.brand = "7am"
+    };
+
     console.log(url);
 
     return url;

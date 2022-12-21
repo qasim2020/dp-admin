@@ -10,6 +10,23 @@
 // triggerpjax
 // pagination
 
+let urlParams = function() {
+
+    let url = {
+        brand: window.location.pathname.split("/")[1],
+        permit: window.location.pathname.split("/")[2],
+        requiredType: window.location.pathname.split("/")[3],
+        module: window.location.pathname.split("/")[4],
+        input: window.location.pathname.split("/")[5],
+        origin: window.location.origin
+    };
+
+    console.log(url);
+
+    return url;
+
+};
+
 ( 
 
     function ( $ ) {
@@ -30,21 +47,6 @@
           );
 
 
-
-        let urlParams = function() {
-
-            let url = {
-                brand: window.location.pathname.split("/")[1],
-                permit: window.location.pathname.split("/")[2],
-                requiredType: window.location.pathname.split("/")[3],
-                module: window.location.pathname.split("/")[4],
-                input: window.location.pathname.split("/")[5],
-                origin: window.location.origin
-            };
-
-            return url;
-
-        };
 
         'use strict';
         const body           = $( 'body' ),

@@ -202,7 +202,7 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    console.log(val1, val2);
+    // console.log(val1, val2);
     try {
         return val1.toString().toLowerCase()  == val2.toString().toLowerCase();
     } catch(e) {
@@ -267,7 +267,7 @@ hbs.registerHelper('split', (val) => {
 });
 
 hbs.registerHelper('splitComma', (val) => {
-    console.log({val});
+    // console.log({val});
     let output = val.split(',').map(val => val.trim() );
     return output;
 });
@@ -352,7 +352,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
 
     if (checkCollectionExists) {
-        console.log(req.params.requiredType)
+        // console.log(req.params.requiredType)
         if (req.params.requiredType != "page" && req.params.requiredType != "pjax") return res.status(404).send("sign in is required or may be module does not exist");
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
@@ -362,7 +362,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     if (checkCollectionExists) {
         return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
     };
-    //console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
+    // console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
 });
 
@@ -382,10 +382,11 @@ let replyFunction = async (req,res) => {
 
     try {
         req.params.theme = await myFuncs.getThemeName(req.params.brand);
+        // console.log({module: req.params.module});
         let data = await myFuncs[req.params.module](req,res);
         myFuncs.respond(data,req,res);
     } catch(e) {
-        console.log(e);
+        // console.log(e);
         res.status(e.status || 400).send(e);
     }
 
@@ -552,7 +553,7 @@ var myFuncs = {
             });
 
         } catch(e) {
-            console.log(e)
+            // console.log(e)
         }
 
         let storeThisFileInSession = async function() {
@@ -574,7 +575,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        console.log(data);
+        // console.log(data);
         
         // sending data to page
         switch(true) {
@@ -588,8 +589,8 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
-            console.log("sending pjax at the below link");
-            console.log(`${req.params.theme}/pjax/${req.params.module}.hbs`);
+            // console.log("sending pjax at the below link");
+            // console.log(`${req.params.theme}/pjax/${req.params.module}.hbs`);
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
@@ -732,6 +733,8 @@ var myFuncs = {
         readFromJSON: "admin", 
         getJSONFile: "admin", 
 
+        telegramBot: "gen", 
+
     },
 
     newDashboard: async function(req,res) {
@@ -836,7 +839,7 @@ var myFuncs = {
 
                     }
 
-                    console.log( val.ser , val.ser == 1 );
+                    // console.log( val.ser , val.ser == 1 );
 
                     return {
 
@@ -2213,6 +2216,8 @@ var myFuncs = {
 
         req.params.input = req.params.input == 'n' ? `${req.params.brand}-users` : req.params.input;
 
+        console.log( collectionsTable );
+
         let collectionHeadings = Object.keys(collectionsTable.find(val => val.name == req.params.input).properties);
 
         collectionHeadings.unshift('_id');
@@ -2312,14 +2317,18 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
-        // //console.log('checking signin');
-        let model = await this.createModel(`${req.params.brand}-users`);
-        let output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        // if 7am does not have this user look into myapp. it can be an brand. 
-        if (!output) {
-            model = await this.createModel('myapp-users');
-            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        };
+        // console.log('checking signin');
+        let model, output;
+        try {
+                model = await this.createModel(`${req.params.brand}-users`);
+                output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+                // if 7am does not have this user look into myapp. it can be an brand. 
+                if (!output) throw new Error("no user found");
+        } catch(e) {
+                console.log(e);
+                model = await this.createModel('myapp-users');
+                output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+        }
 
         // If still no user found , return mismatch
         if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
@@ -2623,6 +2632,13 @@ var myFuncs = {
             success: true
         }
     },
+
+    svenska: async function(req, res) {
+        console.log("sending svenska");
+        return {
+            success: true
+        }
+    }, 
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);
@@ -6953,6 +6969,16 @@ Receipt sent by Server.`;
         
 
     },
+
+    telegramBot: async function(req, res) {
+
+        console.log("this is a telegram bot");
+
+        return {
+            msg: "got it bro"
+        }
+
+    }, 
 
 };
 

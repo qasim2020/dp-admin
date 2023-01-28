@@ -2477,10 +2477,27 @@ var myFuncs = {
     life: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-services`);
-        let output = await model.find().lean();
+        // let output = await model.find().lean();
 
+        let freelance = await model.aggregate([
+                {
+                    $match: {
+                        type: "freelance"
+                    }
+                },{ 
+                    $addFields: {
+                        intSer: {
+                            $toInt: "$ser"
+                        }
+                    }
+                },{
+                    $sort: {
+                        intSer: 1
+                    }
+                }
+            ]);
         return {
-            freelance: await model.find({type: "freelance"}).lean(),
+            freelance: freelance, 
             service: await model.find({type: "service"}).lean()
         }
     },

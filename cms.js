@@ -13,6 +13,7 @@ const hbs = require('hbs')
 const app = express();
 const flash = require('connect-flash');
 const session = require('express-session');
+const { ServerApiVersion } = require('mongodb');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
@@ -90,16 +91,17 @@ app.use(
 );
 
 mongoose.Promise = global.Promise;
+mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: false,
-  useCreateIndex: true,
-  useFindAndModify: false
+  useUnifiedTopology: true, 
+  serverApi: ServerApiVersion.v1
 }, function(err) {
-  if (err) {
-    //console.log('Unable to connect to the server. Please start the server.');
+  if (err) { 
+      console.log(err);
+    console.log('Unable to connect to the server. Please start the server.');
   } else {
-    //console.log('Connected to Server successfully!');
+    console.log('Connected to Server successfully!');
   }
 });
 
@@ -398,6 +400,7 @@ app.get(  '/:brand', openBrand);
 app.get(  '/:brand/admin', openAdmin);
 app.get(  '/', async (req,res) => {
     // HERE ADD THE NEW APP YOU ARE WORKING ON
+    console.log("MY APP - WELCOME");
     return res.status(200).render('root/showApps.hbs',{
         apps: [
             {
@@ -419,6 +422,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: 'life',
                 url: 'life'
+            },
+            {
+                name: 'tech',
+                url: 'tech',
             },
             {
                 name: 'richpakistan',
@@ -447,8 +454,8 @@ var myFuncs = {
             let model = await myFuncs.createModel("myapp-themes");
             let model2 = await myFuncs.createModel("myapp-users");
 
-            let output = {},
-                result = {};
+            let output = {}, result = {};
+
             output.brand = await model.findOne({brand: req.params.brand}).lean();
              
             if (req.session && req.session.person == undefined) {
@@ -1349,14 +1356,14 @@ var myFuncs = {
 
             try {
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
-                let schemaExistsAlready = Object.keys(mongoose.modelSchemas).some(val => val == modelName);
+                let schemaExistsAlready = mongoose.modelSchemas && Object.keys(mongoose.modelSchemas).some(val => val == modelName);
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
                 let schema = await Collections.findOne({name: modelName}).lean();
                 return mongoose.models[modelName] || mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
             } catch(e) {
-                console.log( chalk.blue.bold( 'Failed to create Model' + ':' + modelName ) );
+                console.log( chalk.red.bold( 'Failed to create Model' + ':' + modelName ) );
 	        console.log(e);
                 return e;
             }
@@ -1364,7 +1371,7 @@ var myFuncs = {
         },
 
         airtableSync: async function(req,res) {
-                req.params.theme = 'root';
+            req.params.theme = 'root';
             let output = await Collections.findOne({name: req.params.input}).lean();
             return {
                 modelName: req.params.input,
@@ -2652,6 +2659,13 @@ var myFuncs = {
 
     svenska: async function(req, res) {
         console.log("sending svenska");
+        return {
+            success: true
+        }
+    }, 
+
+    rhythm: async function(req,res) {
+        console.log("sending tech");
         return {
             success: true
         }

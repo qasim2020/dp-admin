@@ -95,7 +95,7 @@ mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true, 
-  serverApi: ServerApiVersion.v1
+  // serverApi: ServerApiVersion.v1
 }, function(err) {
   if (err) { 
       console.log(err);

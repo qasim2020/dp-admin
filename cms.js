@@ -13,7 +13,6 @@ const hbs = require('hbs')
 const app = express();
 const flash = require('connect-flash');
 const session = require('express-session');
-const { ServerApiVersion } = require('mongodb');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
@@ -95,7 +94,6 @@ mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true, 
-  // serverApi: ServerApiVersion.v1
 }, function(err) {
   if (err) { 
       console.log(err);
@@ -608,6 +606,7 @@ var myFuncs = {
             return res.status(200).render(`emails/${req.params.module}.hbs`,{data});
             break;
           default:
+            console.log(data);
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
         }
@@ -2253,6 +2252,7 @@ var myFuncs = {
 
 
         // STATIC THEME OF ROOT WHEN SHOWCOLLECTION IS USED
+        console.log("set theme to root, this is showCollection");
         req.params.theme = 'root';
 
         model = await this.createModel(`${req.params.brand}-notifications`);
@@ -2665,9 +2665,12 @@ var myFuncs = {
     }, 
 
     rhythm: async function(req,res) {
-        console.log("sending tech");
+        let model = await this.createModel(`${req.params.brand}-projects`);
+        let projects = await model.find().lean();
+        let types = await model.distinct("type").lean();
         return {
-            success: true
+            projects,
+            types
         }
     }, 
 

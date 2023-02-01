@@ -432,6 +432,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: 'chodhry',
                 url: 'chodhry'
+            },
+            {
+                name: "natural_therapy",
+                url: "natural_therapy"
             }
         ]
     });
@@ -2673,6 +2677,12 @@ var myFuncs = {
             types
         }
     }, 
+
+    natural_therapy: async function (req,res) {
+        return {
+            success: true
+        }
+    },
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);

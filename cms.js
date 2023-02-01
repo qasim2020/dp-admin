@@ -2722,8 +2722,10 @@ var myFuncs = {
     },
 
     natural_therapy: async function (req,res) {
-        let model = await this.createModel(`${req.params.brand}-sheetData`);
+        let model = await this.createModel(`${req.params.brand}-sheetdatas`);
+	    console.log(model);
         let output = await model.findOne({status: "live"}).lean();
+	    console.log(output);
         let returned = this.language_data(req, output);
         return {
             content: returned 

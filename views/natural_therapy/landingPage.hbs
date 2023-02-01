@@ -1,10 +1,2052 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-    <p>Hello world I am going live very soon in'sha'Allah.</p>
-</body>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Therapy</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700&display=swap" rel="stylesheet">
+    <style media="screen">
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+    	margin: 0;
+    	padding: 0;
+    	border: 0;
+    	font-size: 100%;
+    	font: inherit;
+    	vertical-align: baseline;
+    }
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+    	display: block;
+    }
+    body {
+    	line-height: 1;
+    }
+    ol, ul {
+    	list-style: none;
+    }
+    blockquote, q {
+    	quotes: none;
+    }
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+    	content: '';
+    	content: none;
+    }
+    table {
+    	border-collapse: collapse;
+    	border-spacing: 0;
+    }
+
+    section {
+      min-height: 690px;
+      overflow: hidden !important;
+    }
+
+    #landing-page {
+        display: grid;
+        height: 100vh;
+        width: 100vw;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        background: url(/natural_therapy/landing-image.png) center center fixed no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+    }
+
+    #landing-page > div:nth-child(1) {
+      grid-column: 1/2;
+      grid-row: 1/2;
+
+      font-family: Roboto;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 15px;
+      line-height: 18px;
+      color: #6FCF97;
+      padding: 2rem;
+
+      margin-right: -15rem;
+    }
+
+    #landing-page > div:nth-child(2) {
+      grid-column: 2/-1;
+      grid-row: 1/2;
+      background: #6FCF97;
+      height: fit-content;
+      margin-left: auto;
+      padding: 1rem 2rem;
+      margin-right: 2rem;
+      margin-top: 2rem;
+      border-radius: 34px;
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 20px;
+      line-height: 29px;
+      text-align: center;
+      color: #251e1e;
+
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #landing-page > div:nth-child(2):hover {
+      background: #6FCF87;
+    }
+
+    .cta > svg {
+      margin: 1rem 0;
+    }
+
+    .sliders {
+      padding-left: 2rem;
+      position: fixed;
+      top: 50%;
+      left: 0%;
+      transform: translate(0, -50%);
+      z-index: 200;
+    }
+
+    .sliders > svg {
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    #landing-page > div:nth-child(4) {
+      grid-column: 2/3;
+      grid-row: 2/3;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      line-height: 60px;
+      text-align: center;
+      color: #E0E0E0;
+
+      white-space: nowrap;
+
+    }
+
+    #landing-page > div:nth-child(5) {
+      grid-column: 3/-1;
+      grid-row: 2/3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: auto;
+      margin-right: 2rem;
+      align-items: center;
+    }
+
+    .social-media-icons > div {
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    #landing-page > div:nth-child(6) {
+      grid-column: 1/2;
+      grid-row: 3/-1;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 2rem;
+      padding-left: 2rem;
+
+      margin-right: -15rem;
+
+    }
+
+    .photo-credits > p {
+      transform-origin: left;
+      transform: rotate(270deg);
+      /* Photo by David Monje on Unsplash */
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 9px;
+      line-height: 11px;
+
+      /* Gray 4 */
+      color: #BDBDBD;
+
+    }
+
+
+    #landing-page > div:nth-child(7) {
+      grid-column: 2/3;
+      grid-row: 3/-1;
+
+      display: flex;
+      justify-content: flex-end;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 2rem;
+    }
+
+    #landing-page > div:nth-child(8) {
+      grid-column: 3/-1;
+      grid-row: 3/-1;
+
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 2rem 2rem 0;
+      margin-left: -20rem;
+    }
+
+    .menu-items > li{
+      align-self: flex-end;
+      list-style-type: none;
+      padding: 2px 8px;
+      border: 1px solid transparent;
+      /* Services */
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 17px;
+
+  /* Gray 5 */
+      color: #E0E0E0;
+
+    }
+
+    .menu-items a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .menu-items > li:hover {
+      color: white;
+      cursor: pointer;
+      border: 1px solid white;
+    }
+
+    .d-flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .welcome-text > p:nth-child(1) {
+      /* Welcome to */
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 49px;
+      line-height: 60px;
+      /* identical to box height */
+      text-align: center;
+
+      /* Gray 5 */
+      color: #E0E0E0;
+
+    }
+
+    .welcome-text > p:nth-child(2) {
+      /* NLP! */
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 141px;
+      line-height: 172px;
+
+      /* Gray 5 */
+      color: #E0E0E0;
+
+    }
+
+    .welcome-text > small {
+      /* a guarenteed chance to a happier life */
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 27px;
+
+      /* Gray 5 */
+      color: #E0E0E0;
+
+    }
+
+    .welcome-text br {
+      display: none;
+    }
+
+    .menu-items > div {
+      display: none;
+    }
+
+    .d-none {
+      display: none !important;
+    }
+
+    @media (max-width: 800px) {
+      #landing-page > div:nth-child(1) {
+          grid-column: 1/2;
+          padding: 1rem;
+      }
+
+      #landing-page > div:nth-child(2) {
+          grid-column: 2/-1;
+          margin: 1rem 1rem auto auto;
+          white-space: nowrap;
+          font-size: 15px;
+          line-height: 146.4%;
+      }
+
+      .sliders {
+        padding-left: 1rem;
+      }
+
+      #landing-page > div:nth-child(5) {
+        margin-right: 1rem;
+      }
+
+      .social-media-icons > div {
+        margin: -3px 0;
+        transform: scale(0.7);
+      }
+
+      #landing-page > div:nth-child(6) {
+        padding-left: 21px;
+        padding-bottom: 1rem;
+      }
+
+      #landing-page > div:nth-child(7) {
+        padding-bottom: 1rem;
+      }
+
+      #landing-page > div:nth-child(8) {
+        padding: 0 1rem 1rem 0;
+      }
+
+      .welcome-text > p:nth-child(1) {
+
+        font-size: 24px;
+        line-height: 29px;
+
+      }
+
+      .welcome-text > p:nth-child(2) {
+        /* NLP! */
+        font-size: 61px;
+        line-height: 74px;
+      }
+
+      .welcome-text > small {
+        font-size: 15px;
+        line-height: 155.4%;
+        font-weight: normal;
+      }
+
+      .menu-items > li {
+        display: none;
+      }
+
+      .menu-items > div {
+        display: block;
+        align-self: flex-end;
+      }
+
+      .welcome-text br {
+        display: block;
+      }
+
+    }
+
+    .flag.inactive > svg:nth-child(2){
+      display: none;
+    }
+
+    .flag.active > svg:nth-child(1) {
+      display: none;
+    }
+
+    .welcome-text > a {
+      text-decoration: none;
+      color: #f2f2f2;
+
+      padding: 2px 8px;
+      margin: 8px 8px;
+      border-radius: 2px;
+      background: #333333;
+
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 100;
+      font-size: 13px;
+      line-height: 211.9%;
+    }
+
+    </style>
+  </head>
+  <body>
+    <div class="sliders d-flex flex-col">
+
+      <svg id="active_slider" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="5" r="5" fill="#F2F2F2"/>
+      </svg>
+
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="5" r="4.5" stroke="#F2F2F2"/>
+      </svg>
+
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="5" r="4.5" stroke="#F2F2F2"/>
+      </svg>
+
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="5" r="4.5" stroke="#F2F2F2"/>
+      </svg>
+
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="5" r="4.5" stroke="#F2F2F2"/>
+      </svg>
+
+    </div>
+
+    <section id="landing-page" class="">
+
+      <div class="logo">{{data.content.data.content.LandingPage.Logo.[0]}}</div>
+      <!-- <div class=""> -->
+      <div class="toggle_custom_container cta d-flex flex-col">
+          <p>{{data.content.data.content.LandingPage.Booking.[0]}} <br> {{data.content.data.content.LandingPage.Booking.[1]}}</p>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 8L14.59 6.59L9 12.17V0H7V12.17L1.42 6.58L0 8L8 16L16 8Z" fill="#251e1e"/>
+          </svg>
+          <p>{{data.content.LandingPage.Booking.[2]}}</p>
+        </div>
+      <!-- </div> -->
+      <div class=""></div>
+      <div class="welcome-text">
+        <p class="welcome">{{data.content.LandingPage.Welcome.[0]}}</p>
+        <p class="nlp">{{data.content.LandingPage.Welcome.[1]}}</p>
+        <small><b>{{data.content.LandingPage.Welcome.[2]}} <br class=""> {{data.content.LandingPage.Welcome.[3]}}</b></small>
+        <a href="/documentation#page_intro">Learn More</a>
+      </div>
+      <div class="social-media-icons d-flex flex-col">
+
+        <div class="flag {{data.content.urdu_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=ur">
+          <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M0 15C0 20.6856 3.16342 25.6321 7.82607 28.1761V1.82385C3.16342 4.36793 0 9.31435 0 15Z" fill="#F0F0F0"/>
+          <path d="M15 0C12.4013 0 9.95716 0.661113 7.82605 1.82385V28.1761C9.95716 29.3389 12.4013 30 15 30C23.2842 30 30 23.2842 30 15C30 6.71578 23.2842 0 15 0Z" fill="#4F4F4F"/>
+          <path d="M21.4133 17.4807C19.5156 18.8519 16.8656 18.4251 15.4945 16.5274C14.1233 14.6297 14.5502 11.9798 16.4478 10.6087C17.0395 10.1812 17.7043 9.92851 18.3807 9.84067C17.0795 9.64608 15.704 9.93929 14.5534 10.7707C12.2178 12.4583 11.6924 15.7197 13.38 18.0553C15.0675 20.3908 18.329 20.9163 20.6647 19.2286C21.8154 18.3972 22.5256 17.1835 22.7493 15.8869C22.4536 16.5013 22.005 17.0532 21.4133 17.4807Z" fill="#F0F0F0"/>
+          <path d="M21.332 9.78275L22.401 10.9348L23.8269 10.2743L23.0615 11.6468L24.1304 12.7989L22.5885 12.4951L21.8231 13.8677L21.6356 12.3074L20.0936 12.0036L21.5196 11.3431L21.332 9.78275Z" fill="#F0F0F0"/>
+          </svg>
+
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M0 15C0 20.6856 3.16342 25.6321 7.82607 28.1761V1.82385C3.16342 4.36793 0 9.31435 0 15Z" fill="#F0F0F0"/>
+          <path d="M15 0C12.4013 0 9.95716 0.661113 7.82605 1.82385V28.1761C9.95716 29.3389 12.4013 30 15 30C23.2842 30 30 23.2842 30 15C30 6.71578 23.2842 0 15 0Z" fill="#496E2D"/>
+          <path d="M21.4133 17.4807C19.5156 18.8519 16.8656 18.4251 15.4945 16.5274C14.1233 14.6297 14.5502 11.9798 16.4478 10.6087C17.0395 10.1812 17.7043 9.92851 18.3807 9.84067C17.0795 9.64608 15.704 9.93929 14.5534 10.7707C12.2178 12.4583 11.6924 15.7197 13.38 18.0553C15.0675 20.3908 18.329 20.9163 20.6647 19.2286C21.8154 18.3972 22.5256 17.1835 22.7493 15.8869C22.4536 16.5013 22.005 17.0532 21.4133 17.4807Z" fill="#F0F0F0"/>
+          <path d="M21.332 9.78275L22.401 10.9348L23.8269 10.2743L23.0615 11.6468L24.1304 12.7989L22.5885 12.4951L21.8231 13.8677L21.6356 12.3074L20.0936 12.0036L21.5196 11.3431L21.332 9.78275Z" fill="#F0F0F0"/>
+          </svg>
+
+        </div>
+        <div class="flag {{data.content.nok_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=nok">
+          <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M0.516724 18.9131C1.38461 22.1333 3.29741 24.9244 5.86956 26.9007V18.9131H0.516724Z" fill="#4F4F4F"/>
+          <path d="M13.6956 29.9429C14.1256 29.98 14.5604 30 15 30C21.9304 30 27.762 25.2995 29.4832 18.9131H13.6956V29.9429Z" fill="#4F4F4F"/>
+          <path d="M29.4832 11.0869C27.762 4.70045 21.9304 0 15 0C14.5604 0 14.1256 0.0200391 13.6956 0.0570703V11.0869H29.4832V11.0869Z" fill="#4F4F4F"/>
+          <path d="M5.86956 3.09931C3.29741 5.07568 1.38461 7.86668 0.516724 11.0869H5.86956V3.09931Z" fill="#4F4F4F"/>
+          <path d="M29.873 13.0435H11.7392H11.7391V0.356537C10.3529 0.66392 9.03873 1.16214 7.82607 1.82384V13.0434V13.0434H0.126973C0.0434766 13.6839 0 14.3369 0 15C0 15.6631 0.0434766 16.3161 0.126973 16.9565H7.82602H7.82607V28.1761C9.03873 28.8377 10.3529 29.3361 11.7391 29.6434V16.9567V16.9566H29.873C29.9564 16.3161 30 15.6631 30 15C30 14.3369 29.9564 13.6839 29.873 13.0435Z" fill="#4F4F4F"/>
+          </svg>
+
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M0.516724 18.9131C1.38461 22.1333 3.29741 24.9244 5.86956 26.9007V18.9131H0.516724Z" fill="#D80027"/>
+          <path d="M13.6956 29.9429C14.1256 29.98 14.5604 30 15 30C21.9304 30 27.762 25.2995 29.4832 18.9131H13.6956V29.9429Z" fill="#D80027"/>
+          <path d="M29.4832 11.0869C27.762 4.70045 21.9304 0 15 0C14.5604 0 14.1256 0.0200391 13.6956 0.0570703V11.0869H29.4832Z" fill="#D80027"/>
+          <path d="M5.86956 3.09931C3.29741 5.07568 1.38461 7.86668 0.516724 11.0869H5.86956V3.09931Z" fill="#D80027"/>
+          <path d="M29.873 13.0435H11.7392H11.7391V0.356537C10.3529 0.66392 9.03873 1.16214 7.82607 1.82384V13.0434V13.0434H0.126973C0.0434766 13.6839 0 14.3369 0 15C0 15.6631 0.0434766 16.3161 0.126973 16.9565H7.82602H7.82607V28.1761C9.03873 28.8377 10.3529 29.3361 11.7391 29.6434V16.9567V16.9566H29.873C29.9564 16.3161 30 15.6631 30 15C30 14.3369 29.9564 13.6839 29.873 13.0435Z" fill="#0052B4"/>
+          </svg>
+
+        </div>
+        <div class="flag {{data.content.eng_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=en">
+          <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0)">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M14.3478 15H30C30 13.6461 29.8195 12.3346 29.4833 11.0869H14.3478V15Z" fill="#D80027"/>
+          <path d="M14.3478 7.17392H27.7984C26.8802 5.67556 25.7061 4.35117 24.3373 3.26086H14.3478V7.17392Z" fill="#D80027"/>
+          <path d="M15 30C18.5302 30 21.775 28.7798 24.3373 26.7391H5.66272C8.22503 28.7798 11.4698 30 15 30Z" fill="#D80027"/>
+          <path d="M2.20159 22.8261H27.7984C28.5356 21.6232 29.1073 20.3083 29.4832 18.913H0.516724C0.89272 20.3083 1.46442 21.6232 2.20159 22.8261Z" fill="#D80027"/>
+          <path d="M6.94828 2.34246H8.31521L7.04373 3.26619L7.52941 4.76086L6.25799 3.83713L4.98656 4.76086L5.40609 3.46963C4.2866 4.40215 3.30539 5.49469 2.4968 6.71203H2.93479L2.12543 7.30002C1.99934 7.51037 1.8784 7.72406 1.7625 7.94092L2.14898 9.13043L1.42793 8.60654C1.24869 8.98629 1.08475 9.37459 0.937383 9.77098L1.36318 11.0816H2.93479L1.6633 12.0053L2.14898 13.5L0.877559 12.5763L0.115957 13.1296C0.0397266 13.7424 0 14.3665 0 15H15C15 6.71578 15 5.73914 15 0C12.0368 0 9.27451 0.85957 6.94828 2.34246ZM7.52941 13.5L6.25799 12.5763L4.98656 13.5L5.47225 12.0053L4.20076 11.0816H5.77236L6.25799 9.58693L6.74361 11.0816H8.31521L7.04373 12.0053L7.52941 13.5ZM7.04373 7.63576L7.52941 9.13043L6.25799 8.2067L4.98656 9.13043L5.47225 7.63576L4.20076 6.71203H5.77236L6.25799 5.21736L6.74361 6.71203H8.31521L7.04373 7.63576ZM12.9098 13.5L11.6384 12.5763L10.367 13.5L10.8527 12.0053L9.58119 11.0816H11.1528L11.6384 9.58693L12.124 11.0816H13.6956L12.4242 12.0053L12.9098 13.5ZM12.4242 7.63576L12.9098 9.13043L11.6384 8.2067L10.367 9.13043L10.8527 7.63576L9.58119 6.71203H11.1528L11.6384 5.21736L12.124 6.71203H13.6956L12.4242 7.63576ZM12.4242 3.26619L12.9098 4.76086L11.6384 3.83713L10.367 4.76086L10.8527 3.26619L9.58119 2.34246H11.1528L11.6384 0.847793L12.124 2.34246H13.6956L12.4242 3.26619Z" fill="#0052B4"/>
+          <path d="M14.3478 15H30C30 13.6461 29.8195 12.3346 29.4833 11.0869H14.3478V15Z" fill="#4F4F4F"/>
+          <path d="M14.3478 7.17392H27.7984C26.8802 5.67556 25.7061 4.35117 24.3373 3.26086H14.3478V7.17392Z" fill="#4F4F4F"/>
+          <path d="M15 30C18.5302 30 21.775 28.7798 24.3373 26.7391H5.66272C8.22503 28.7798 11.4698 30 15 30Z" fill="#4F4F4F"/>
+          <path d="M2.20159 22.8261H27.7984C28.5356 21.6232 29.1073 20.3083 29.4832 18.913H0.516724C0.89272 20.3083 1.46442 21.6232 2.20159 22.8261Z" fill="#4F4F4F"/>
+          <path d="M6.94828 2.34246H8.31521L7.04373 3.26619L7.52941 4.76086L6.25799 3.83713L4.98656 4.76086L5.40609 3.46963C4.2866 4.40215 3.30539 5.49469 2.4968 6.71203H2.93479L2.12543 7.30002C1.99934 7.51037 1.8784 7.72406 1.7625 7.94092L2.14898 9.13043L1.42793 8.60654C1.24869 8.98629 1.08475 9.37459 0.937383 9.77098L1.36318 11.0816H2.93479L1.6633 12.0053L2.14898 13.5L0.877559 12.5763L0.115957 13.1296C0.0397266 13.7424 0 14.3665 0 15H15C15 6.71578 15 5.73914 15 0C12.0368 0 9.27451 0.85957 6.94828 2.34246ZM7.52941 13.5L6.25799 12.5763L4.98656 13.5L5.47225 12.0053L4.20076 11.0816H5.77236L6.25799 9.58693L6.74361 11.0816H8.31521L7.04373 12.0053L7.52941 13.5ZM7.04373 7.63576L7.52941 9.13043L6.25799 8.2067L4.98656 9.13043L5.47225 7.63576L4.20076 6.71203H5.77236L6.25799 5.21736L6.74361 6.71203H8.31521L7.04373 7.63576ZM12.9098 13.5L11.6384 12.5763L10.367 13.5L10.8527 12.0053L9.58119 11.0816H11.1528L11.6384 9.58693L12.124 11.0816H13.6956L12.4242 12.0053L12.9098 13.5ZM12.4242 7.63576L12.9098 9.13043L11.6384 8.2067L10.367 9.13043L10.8527 7.63576L9.58119 6.71203H11.1528L11.6384 5.21736L12.124 6.71203H13.6956L12.4242 7.63576ZM12.4242 3.26619L12.9098 4.76086L11.6384 3.83713L10.367 4.76086L10.8527 3.26619L9.58119 2.34246H11.1528L11.6384 0.847793L12.124 2.34246H13.6956L12.4242 3.26619Z" fill="#4F4F4F"/>
+          </g>
+          <defs>
+          <clipPath id="clip0">
+          <rect width="30" height="30" fill="white"/>
+          </clipPath>
+          </defs>
+          </svg>
+
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0)">
+          <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
+          <path d="M14.3478 15H30C30 13.6461 29.8195 12.3346 29.4833 11.0869H14.3478V15Z" fill="#D80027"/>
+          <path d="M14.3478 7.17392H27.7984C26.8802 5.67556 25.7061 4.35117 24.3373 3.26086H14.3478V7.17392Z" fill="#D80027"/>
+          <path d="M15 30C18.5302 30 21.775 28.7798 24.3373 26.7391H5.66272C8.22503 28.7798 11.4698 30 15 30Z" fill="#D80027"/>
+          <path d="M2.20159 22.8261H27.7984C28.5356 21.6232 29.1073 20.3083 29.4832 18.913H0.516724C0.89272 20.3083 1.46442 21.6232 2.20159 22.8261Z" fill="#D80027"/>
+          <path d="M6.94828 2.34246H8.31521L7.04373 3.26619L7.52941 4.76086L6.25799 3.83713L4.98656 4.76086L5.40609 3.46963C4.2866 4.40215 3.30539 5.49469 2.4968 6.71203H2.93479L2.12543 7.30002C1.99934 7.51037 1.8784 7.72406 1.7625 7.94092L2.14898 9.13043L1.42793 8.60654C1.24869 8.98629 1.08475 9.37459 0.937383 9.77098L1.36318 11.0816H2.93479L1.6633 12.0053L2.14898 13.5L0.877559 12.5763L0.115957 13.1296C0.0397266 13.7424 0 14.3665 0 15H15C15 6.71578 15 5.73914 15 0C12.0368 0 9.27451 0.85957 6.94828 2.34246ZM7.52941 13.5L6.25799 12.5763L4.98656 13.5L5.47225 12.0053L4.20076 11.0816H5.77236L6.25799 9.58693L6.74361 11.0816H8.31521L7.04373 12.0053L7.52941 13.5ZM7.04373 7.63576L7.52941 9.13043L6.25799 8.2067L4.98656 9.13043L5.47225 7.63576L4.20076 6.71203H5.77236L6.25799 5.21736L6.74361 6.71203H8.31521L7.04373 7.63576ZM12.9098 13.5L11.6384 12.5763L10.367 13.5L10.8527 12.0053L9.58119 11.0816H11.1528L11.6384 9.58693L12.124 11.0816H13.6956L12.4242 12.0053L12.9098 13.5ZM12.4242 7.63576L12.9098 9.13043L11.6384 8.2067L10.367 9.13043L10.8527 7.63576L9.58119 6.71203H11.1528L11.6384 5.21736L12.124 6.71203H13.6956L12.4242 7.63576ZM12.4242 3.26619L12.9098 4.76086L11.6384 3.83713L10.367 4.76086L10.8527 3.26619L9.58119 2.34246H11.1528L11.6384 0.847793L12.124 2.34246H13.6956L12.4242 3.26619Z" fill="#0052B4"/>
+          <path d="M14.3478 15H30C30 13.6461 29.8195 12.3346 29.4833 11.0869H14.3478V15Z" fill="#D80027"/>
+          <path d="M14.3478 7.17392H27.7984C26.8802 5.67556 25.7061 4.35117 24.3373 3.26086H14.3478V7.17392Z" fill="#D80027"/>
+          <path d="M15 30C18.5302 30 21.775 28.7798 24.3373 26.7391H5.66272C8.22503 28.7798 11.4698 30 15 30Z" fill="#D80027"/>
+          <path d="M2.20159 22.8261H27.7984C28.5356 21.6232 29.1073 20.3083 29.4832 18.913H0.516724C0.89272 20.3083 1.46442 21.6232 2.20159 22.8261Z" fill="#D80027"/>
+          <path d="M6.94828 2.34246H8.31521L7.04373 3.26619L7.52941 4.76086L6.25799 3.83713L4.98656 4.76086L5.40609 3.46963C4.2866 4.40215 3.30539 5.49469 2.4968 6.71203H2.93479L2.12543 7.30002C1.99934 7.51037 1.8784 7.72406 1.7625 7.94092L2.14898 9.13043L1.42793 8.60654C1.24869 8.98629 1.08475 9.37459 0.937383 9.77098L1.36318 11.0816H2.93479L1.6633 12.0053L2.14898 13.5L0.877559 12.5763L0.115957 13.1296C0.0397266 13.7424 0 14.3665 0 15H15C15 6.71578 15 5.73914 15 0C12.0368 0 9.27451 0.85957 6.94828 2.34246ZM7.52941 13.5L6.25799 12.5763L4.98656 13.5L5.47225 12.0053L4.20076 11.0816H5.77236L6.25799 9.58693L6.74361 11.0816H8.31521L7.04373 12.0053L7.52941 13.5ZM7.04373 7.63576L7.52941 9.13043L6.25799 8.2067L4.98656 9.13043L5.47225 7.63576L4.20076 6.71203H5.77236L6.25799 5.21736L6.74361 6.71203H8.31521L7.04373 7.63576ZM12.9098 13.5L11.6384 12.5763L10.367 13.5L10.8527 12.0053L9.58119 11.0816H11.1528L11.6384 9.58693L12.124 11.0816H13.6956L12.4242 12.0053L12.9098 13.5ZM12.4242 7.63576L12.9098 9.13043L11.6384 8.2067L10.367 9.13043L10.8527 7.63576L9.58119 6.71203H11.1528L11.6384 5.21736L12.124 6.71203H13.6956L12.4242 7.63576ZM12.4242 3.26619L12.9098 4.76086L11.6384 3.83713L10.367 4.76086L10.8527 3.26619L9.58119 2.34246H11.1528L11.6384 0.847793L12.124 2.34246H13.6956L12.4242 3.26619Z" fill="#0052B4"/>
+          </g>
+          <defs>
+          <clipPath id="clip0">
+          <rect width="30" height="30" fill="white"/>
+          </clipPath>
+          </defs>
+          </svg>
+
+        </div>
+
+      </div>
+      <div class="photo-credits">
+        <p>{{data.content.LandingPage.PhotoCredits}}</p>
+      </div>
+      <div class="down-arrow">
+        <svg width="16" height="9" viewBox="0 0 16 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 1L8.04651 7L14.6744 1" stroke="#E0E0E0" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="menu-items">
+        {{#each data.content.MenuBtns}}
+        <li class=""><a class="{{this.[2]}}" href="{{this.[1]}}">{{this.[0]}}</a></li>
+        {{/each}}
+        <div class="">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 12H18V10H0V12ZM0 7H18V5H0V7ZM0 0V2H18V0H0Z" fill="#E0E0E0"/>
+          </svg>
+        </div>
+      </div>
+
+      <style media="screen">
+      .custom-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        margin: auto;
+        height: 100vh;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 27px;
+
+        /* Gray 5 */
+        color: #E0E0E0;
+
+        z-index: 300;
+        background: #6FCF97;
+      }
+
+      .custom-container > .overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        font-weight: bold;
+        /* opacity: 0.6; */
+        /* padding: 2rem; */
+        pointer-events: none;
+        /* z-index: -10; */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .custom-container > textarea:focus{
+          outline: 0;
+      }
+
+      .custom-container > textarea {
+        outline: 0px none transparent;
+        height: 100%;
+        border: none;
+        width: 95%;
+        padding: 1rem;
+        font-size: 400%;
+        font-weight: bold;
+        z-index: 0;
+        background: none;
+        resize: none;
+        color: darkslategrey;
+      }
+
+      .custom-container > textarea::placeholder {
+        color: darkslategrey;
+      }
+
+      .rt-bottom {
+        position: absolute;
+        right: 2rem;
+        bottom: 2rem;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .button-press {
+        background: #6FCF97;
+        position: relative;
+        color: darkslategray;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 2px;
+        padding: 1rem 5px;
+        opacity: 0.8;
+      }
+
+      .button-press:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05) !important;
+      }
+
+      .button-press > .counter {
+        font-weight: 900;
+        font-size: 300%;
+        margin-bottom: 7px;
+      }
+
+      .button-press > .btn-query {
+        font-size: 150%;
+        font-weight: bold;
+        margin-top: 0rem;
+        padding: 6px 12px;
+      }
+
+      .button-press > small {
+        /* margin-top: -1rem; */
+      }
+
+      .button-press > hr {
+        border: 1px solid darkslategray;
+      }
+
+      .shadow {
+        box-shadow: 0 0rem 1rem rgba(0, 0, 0, 0.1);
+      }
+
+      .t-general {
+        padding: 1rem;
+        margin: 3px 5px;
+        color: darkslategray;
+        text-align: center;
+      }
+
+      *:focus {
+        outline: 0;
+      }
+
+      .custom-container > svg {
+        position: absolute;
+        right: 2rem;
+        top: 2rem;
+        opacity: 0.5;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+
+      .rt-bottom .error, .rt-bottom .success {
+        color: darkslategray;
+        padding: 6px 10px;
+        box-shadow: 0 0rem 1rem rgba(0, 0, 0, 0.1);
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        margin-bottom: 1rem;
+        border-radius: 2px;
+      }
+
+      .rt-bottom svg {
+        padding: 0 1rem;
+      }
+
+      @media (max-width: 600px) {
+
+        .custom-container > textarea {
+          font-size: 200%;
+        }
+
+        .custom-container > textarea::placeholder {
+          font-size: 50%;
+        }
+      }
+
+      </style>
+
+    </section>
+
+    <div class="custom-container d-none">
+
+      <div class="overlay">
+        <p class="t-general t-4 shadow" >Please include your name and email !</p>
+        <p class="t-general t-1 shadow" >Type everything you need help with. </p>
+        <p class="t-general t-2 shadow" >Be open it is secure and private. </p>
+        <p class="t-general t-4 shadow" >Just ask !</p>
+      </div>
+
+      <textarea name="name" rows="8" placeholder="Write here..."></textarea>
+
+      <div class="rt-bottom">
+        <div class="error d-none" style="background: lightcoral;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 13H11V15H9V13ZM9 5H11V11H9V5ZM9.99 0C4.47 0 0 4.48 0 10C0 15.52 4.47 20 9.99 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 9.99 0ZM10 18C5.58 18 2 14.42 2 10C2 5.58 5.58 2 10 2C14.42 2 18 5.58 18 10C18 14.42 14.42 18 10 18Z" fill="#4F4F4F"/>
+          </svg>
+
+          <p style="max-width:80vw; text-align: left; overflow: hidden">asdfasdfasdf</p>
+        </div>
+
+        <div class="success d-none" style="background: #6FCF97;">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.6 10.6L1.4 6.4L0 7.8L5.6 13.4L17.6 1.4L16.2 0L5.6 10.6Z" fill="#4F4F4F"/>
+          </svg>
+
+          <p style="max-width:80vw; text-align: left">asdfasdfasdf</p>
+        </div>
+        <div class="button-press shadow">
+          <p class="counter">218</p>
+          <small>words left</small>
+          <hr width="50%">
+          <p class="btn-query" >Ask Now !</p>
+        </div>
+      </div>
+
+      <svg class="toggle_custom_container" width="84" height="84" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="42" cy="42" r="42" fill="#6FCF97"/>
+        <path d="M25 25L59 60" stroke="#2F4F4F"/>
+        <path d="M60 24L25 60.0294" stroke="#2F4F4F"/>
+      </svg>
+
+    </div>
+
+    <style media="screen">
+      body {
+        background: #E0E0E0;
+      }
+
+      #services {
+
+        position: relative;
+
+        display: grid;
+        grid-template-columns: minmax(295px, 380px) minmax(295px, 380px) minmax(295px, 380px);
+        grid-template-rows: 1fr minmax(188px, 576px) 1fr;
+
+        max-width: 2240px;
+        margin: auto;
+        justify-content: center;
+
+        grid-gap: 3rem;
+
+        background: url(/natural_therapy/services-bg.svg) center center fixed no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+      }
+
+      #services > div:nth-child(1) {
+        grid-row: 1/2;
+        grid-column: 1/-1;
+        align-self: center;
+        padding-top: 2rem;
+      }
+
+      #services > div:nth-child(2) {
+        grid-row: 2/3;
+        grid-column: 1/2;
+
+        /* max-height: 576px; */
+        /* max-width: 380px; */
+        background: url(/natural_therapy/eft-bg-image.png);
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.55);
+        border: 1px solid black;
+
+      }
+
+      #services > div:nth-child(3) {
+        grid-row: 2/3;
+        grid-column: 2/3;
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.55);
+        border: 1px solid black;
+
+        background: url(/natural_therapy/dht-bg.png);
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+      }
+
+      #services > div:nth-child(4) {
+        grid-row: 2/3;
+        grid-column: 3/-1;
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.55);
+        border: 1px solid black;
+
+        background: url(/natural_therapy/nlp-bg-image.png);
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+      }
+
+      #services > div:nth-child(5) {
+        grid-row: 3/4;
+        grid-column: 1/-1;
+        /* Costs listed are inclusive of all taxes */
+        font-family: Montserrat;
+        font-style: italic;
+        font-weight: 300;
+        font-size: 16px;
+        line-height: 170.4%;
+
+        color: #000000;
+
+        text-align: center;
+        align-self: center;
+        padding-bottom: 2rem;
+      }
+
+      #services > div {
+        /* border: 1px solid darkcyan; */
+      }
+
+      .section-heading > p {
+        /* Services */
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 32px;
+        line-height: 39px;
+        /* identical to box height */
+        text-align: center;
+
+        /* Gray 2 */
+        color: #4F4F4F;
+
+      }
+
+      .section-heading > hr {
+        /* Line */
+        width: 58px;
+        height: 0px;
+
+        /* Gray 1 */
+        border: 3px solid #4F4F4F;
+
+      }
+
+      .servicesCard {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: 2fr 1fr;
+      }
+
+      .servicesCard > p:nth-child(1) {
+        grid-column: 1/2;
+        grid-row: 1/2;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 200;
+        line-height: 37px;
+        color: #E0E0E0;
+        font-size: 130%;
+        padding: 2rem;
+
+      }
+
+      .servicesCard > p:nth-child(2) {
+        grid-column: 2/3;
+        grid-row: 1/2;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 35px;
+        line-height: 43px;
+
+        /* Gray 5 */
+        color: #E0E0E0;
+
+        transform-origin: right top;
+        transform: rotate(90deg);
+        height: fit-content;
+        margin-top: 25rem;
+        margin-right: 1rem;
+        margin-left: -16rem;
+
+      }
+
+      .servicesCard > div {
+        grid-column: 1/3;
+        grid-row: 2/3;
+
+        margin-top: -2rem;
+        margin-left: auto;
+        padding-right: 2rem;
+      }
+
+      .servicesCardbtnarea > p {
+        /* 58 NOK / Week */
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 500;
+        font-size: 27px;
+        line-height: 33px;
+
+        /* Gray 5 */
+        color: white;
+        margin-bottom: 14px;
+
+      }
+
+      .servicesCardbtnarea > button {
+        border: 1px solid #E0E0E0;
+        padding: 2px 8px;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 22px;
+        line-height: 37px;
+        display: flex;
+        align-items: center;
+
+        /* Gray 4 */
+        color: #BDBDBD;
+        background: transparent;
+        margin-left: auto;
+
+      }
+
+      @media (max-width: 1024px) {
+        #services {
+          grid-gap: 1rem;
+          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-rows: 1fr minmax(188px, 576px) 1fr;
+          padding: 0 1rem;
+        }
+
+        .servicesCard {
+          grid-template-columns: auto 21px;
+        }
+
+        .servicesCard > div {
+          margin-top: 0;
+          align-self: end;
+          padding-right: 1rem;
+          padding-bottom: 1rem;
+        }
+
+        .servicesCard > p:nth-child(1) {
+          padding: 17px;
+          padding-right: 2rem;
+        }
+
+        .servicesCard > p:nth-child(2) {
+          margin-right: -29rem;
+          transform-origin: left top;
+          margin-top: 21px;
+          transform: rotate(90deg);
+          margin-left: 13px;
+          font-size: 25px;
+        }
+
+        .servicesCardbtnarea > p {
+          font-size: 21px;
+        }
+      }
+
+      @media (max-width: 700px) {
+
+        .sliders {
+          display: none;
+        }
+
+        .section-heading > p {
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 18px;
+          line-height: 22px;
+        }
+
+        .section-heading hr {
+          /* Gray 1 */
+          border: 1px solid #333333;
+
+        }
+
+        #services {
+          grid-gap: 0rem;
+          grid-template-columns: minmax(160px, 380px) minmax(160px, 380px);
+          grid-template-rows: 10vh repeat(2, minmax(188px, 45vh));
+          padding: 0;
+        }
+
+        #services > div:nth-child(1) {
+          padding: 1rem;
+        }
+
+        #services > div:nth-child(4) {
+          grid-column: 1/-1;
+          grid-row: 3/4;
+        }
+
+        #services > div:nth-child(4) > p:nth-child(1) {
+          padding-left: 52vw;
+        }
+
+        #services > div:nth-child(5) {
+          position: absolute;
+          bottom: 9px;
+          left: 1rem;
+          width: 45vw;
+          text-align: left;
+
+          font-family: Montserrat;
+          font-style: italic;
+          font-weight: 300;
+          font-size: 12px;
+          line-height: 170.4%;
+          color: #828282;
+
+          padding-bottom: 0px;
+
+        }
+
+        .servicesCard {
+          grid-template-columns: auto 21px;
+        }
+
+        .servicesCard > p:nth-child(1) {
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: 300;
+          font-size: 12px;
+          line-height: 170.4%;
+          padding: 9px;
+          margin-right: 3rem;
+        }
+
+        .servicesCard > p:nth-child(2) {
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 17px;
+          line-height: 21px;
+
+          margin-right: -12rem;
+          transform-origin: left top;
+          margin-top: 12px;
+          transform: rotate(90deg);
+          margin-left: 13px;
+        }
+
+        .servicesCard > div {
+          margin-top: 0;
+          padding-right: 0;
+          align-self: end;
+          padding-bottom: 12px;
+          padding-right: 13px;
+        }
+
+        .servicesCardbtnarea > p {
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: 300;
+          font-size: 15px;
+          line-height: 18px;
+
+          margin-bottom: 8px;
+        }
+
+        .servicesCardbtnarea > button {
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: 300;
+          font-size: 15px;
+          line-height: 170.4%;
+
+        }
+
+
+
+      }
+
+      @media (max-height: 600px) {
+
+        .servicesCard > p:nth-child(1) {
+          display: none;
+        }
+
+        .servicesCard > p:nth-child(2) {
+          grid-column: 1/-1;
+          max-width: 100%;
+          width: min-content;
+          transform: none;
+        }
+
+        .servicesCard:nth-child(4) {
+          padding-left: 50vw;
+        }
+      }
+    </style>
+
+    <section id="services" class="">
+      <div class="section-heading">
+        <p>{{data.content.ServicesPage.heading.[0]}}</p>
+        <hr width="10px">
+      </div>
+
+      <div class="servicesCard">
+        <p>{{data.content.ServicesPage.service1.[1]}}</p>
+        <p>{{data.content.ServicesPage.service1.[0]}}</p>
+        <div class="servicesCardbtnarea">
+          <p>{{data.content.ServicesPage.service1.[2]}}</p>
+          <button type="button" name="button" onclick="window.location = '/documentation#page_service_1'">Learn More</button>
+        </div>
+      </div>
+
+      <div class="servicesCard">
+        <p>{{data.content.ServicesPage.service2.[1]}}</p>
+        <p>{{data.content.ServicesPage.service2.[0]}}</p>
+        <div class="servicesCardbtnarea">
+          <p>{{data.content.ServicesPage.service2.[2]}}</p>
+          <button type="button" name="button" onclick="window.location = '/documentation#page_service_2'">Learn More</button>
+        </div>
+      </div>
+
+      <div class="servicesCard">
+        <p>{{data.content.ServicesPage.service3.[1]}}</p>
+        <p>{{data.content.ServicesPage.service3.[0]}}</p>
+        <div class="servicesCardbtnarea">
+          <p>{{data.content.ServicesPage.service3.[2]}}</p>
+          <button type="button" name="button" onclick="window.location = '/documentation#page_service_3'">Learn More</button>
+        </div>
+      </div>
+
+
+      <div class="">
+        <p>{{data.content.ServicesPage.condition.[0]}}</p>
+      </div>
+    </section>
+
+    <style media="screen">
+
+      #aboutme {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        grid-template-rows: 1fr;
+        height: 100vh;
+        width: 100vw;
+        background: #F2F2F2;
+
+        height: auto;
+      }
+
+      #aboutme > div:nth-child(1) {
+        grid-column: 1/2;
+        grid-row: 1/2;
+        background: url(/natural_therapy/aboutmebg.png) center center no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        overflow: hidden;
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+      }
+
+      #aboutme > div:nth-child(2) {
+        grid-column: 2/3;
+        grid-row: 1/2;
+        align-self: center;
+        /* Rectangle 4 */
+        padding: 0 2rem;
+        max-width: 538px;
+        margin: auto;
+
+        color: #4F4F4F;
+      }
+
+      .aboutmetext {
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 37px;
+
+        /* Gray 2 */
+        text-align: center;
+      }
+
+      .aboutmeheading hr {
+        margin: 1rem auto;
+        border: 1px solid #333333;
+        width: 43px;
+      }
+
+      .aboutmeheading p {
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 22px;
+        line-height: 39px;
+        /* identical to box height */
+        text-align: center;
+
+        /* Gray 2 */
+        font-size: 22px;
+      }
+
+      @media (max-width: 768px) {
+
+        #aboutme {
+          grid-template-columns: 1fr;
+          background: url(/natural_therapy/aboutmebgmobile.png) center center no-repeat;
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+          overflow: hidden;
+          box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        }
+
+        #aboutme > div:nth-child(1) {
+          display: none;
+
+        }
+
+        #aboutme > div:nth-child(2) {
+          color: #F2F2F2;
+          z-index: 100;
+          margin: 2rem auto;
+          align-self: auto;
+          grid-column: 1/-1;
+        }
+
+        #aboutme .aboutmeheading {
+          /* display: none; */
+        }
+
+        .aboutmeheading p {
+          /* Gray 2 */
+          font-size: 18px;
+        }
+
+        .aboutmeheading hr {
+          /* Gray 2 */
+          border: 1px solid #F2F2F2;
+        }
+
+        .aboutmetext {
+
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: 300;
+          font-size: 15px;
+          line-height: 211.9%;
+
+        }
+
+      }
+
+      .links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0;
+
+        color: #f2f2f2;
+      }
+
+      .links > * {
+        text-decoration: none;
+        color: inherit;
+
+        padding: 2px 8px;
+        margin: 0 8px;
+        border-radius: 2px;
+        background: #333333;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 100;
+        font-size: 13px;
+        line-height: 211.9%;
+      }
+    </style>
+
+    <section id="aboutme" class="">
+      <div class=""></div>
+      <div class="">
+        <div class="aboutmeheading">
+          <p>{{data.content.AboutPage.heading.[0]}}</p>
+          <hr>
+        </div>
+        <p class="aboutmetext">{{data.content.AboutPage.headingtext.[0]}}</p>
+        <div class="links">
+          <a href="/documentation#page_about">Read More</a>
+          <a href="/documentation#page_cert">View Certifications</a>
+        </div>
+      </div>
+    </section>
+
+    <style media="screen">
+
+      #testimonials {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        max-width: 1400px;
+        margin: auto;
+      }
+
+      #testimonials > div {
+        align-self: start;
+      }
+
+      #testimonials > .aboutmeheading {
+        padding-top: 2rem;
+        color: #4F4F4F;
+      }
+
+      #testimonials > div:nth-child(1) {
+        grid-column: 1/-1;
+        grid-row: 1/2;
+      }
+
+      #testimonials > div:nth-child(2) {
+        grid-column: 1/2;
+        grid-row: 2/3;
+        margin-left: 5rem;
+        margin-right: -8rem;
+        margin-top: -3rem;
+        max-width: 600px;
+      }
+
+      #testimonials > div:nth-child(3) {
+        grid-column: 2/3;
+        grid-row: 2/3;
+        margin-top: 7rem;
+        max-width: 606px;
+      }
+
+      #testimonials > div:nth-child(4) {
+        grid-column: 1/3;
+        grid-row: 3/4;
+        max-width: 800px;
+        margin-left: 8rem;
+        margin-right: -4rem;
+        margin-top: -3rem;
+        z-index: -1;
+      }
+
+      .test-card {
+        display: grid;
+        grid-template-rows: 0.6fr 1.4fr;
+        background: #E0E0E0;
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+      }
+
+      .test-card > svg {
+        position: absolute;
+        left: 2rem;
+        top: 2rem;
+      }
+
+      .test-card > h5 {
+        grid-row: 1/2;
+        grid-column: 1/-1;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 22px;
+        line-height: 37px;
+
+        /* Gray 2 */
+        color: #4F4F4F;
+        text-align: center;
+        padding: 1.6rem 1rem 1rem 1rem;
+
+      }
+
+      .test-card > p {
+        grid-row: 2/3;
+        grid-column: 1/-1;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 37px;
+        /* Gray 2 */
+        color: #4F4F4F;
+        text-align: center;
+        padding: 1rem;
+
+      }
+
+      .bg-overlay {
+        position: absolute;
+        z-index: -10;
+        width: 100vw;
+        height: 100vh;
+        background: url(/natural_therapy/happyclientsbg.svg) center center fixed no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        left: 0;
+        top: 0;
+      }
+
+      @media (max-width: 1024px) {
+        #testimonials {
+          display: flex;
+          grid-template-rows: min-content;
+          overflow: scroll;
+          padding: 0 1rem;
+          flex-direction: column;
+          justify-content: start;
+        }
+
+        #testimonials > div {
+          align-self: center;
+        }
+
+        #testimonials > .aboutmeheading {
+          padding-top: 2rem;
+        }
+
+        #testimonials hr {
+          border: 1px solid #333333;
+        }
+
+        #testimonials > div:nth-child(1) {
+          grid-column: 1/-1;
+          grid-row: 1/2;
+        }
+
+        #testimonials > div:nth-child(2) {
+          grid-column: 1/-1;
+          grid-row: 2/3;
+          margin-left: 0rem;
+          margin-right:  0rem;
+          margin-top:  0rem;
+          margin: 1rem 0;
+        }
+
+        #testimonials > div:nth-child(3) {
+          grid-column: 1/-1;
+          grid-row: 3/4;
+          padding-top: 0rem;
+          margin: 1rem 0;
+        }
+
+        #testimonials > div:nth-child(4) {
+          grid-column: 1/3;
+          grid-row: 4/5;
+          margin-left: 0rem;
+          margin-right:  0rem;
+          margin-top:  0rem;
+          z-index: auto;
+          margin: 1rem 0;
+          margin-bottom: 3rem;
+        }
+
+        .test-card {
+          display: grid;
+          grid-template-rows: 0.6fr 1.4fr;
+          background: #E0E0E0;
+          box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+          cursor: pointer;
+        }
+
+        .test-card > svg {
+          left: 1.2rem;
+          top: 1.2rem;
+          width: 15.41px;
+          height: 11px;
+        }
+
+        .test-card > h5 {
+          padding: 0.5rem 0 0 0;
+          font-size: 15px;
+        }
+
+        .test-card > p {
+          grid-row: 2/3;
+          grid-column: 1/-1;
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: 300;
+          font-size: 15px;
+          line-height: 170.4%;
+          padding: 0.5rem;
+        }
+
+        #testimonials > .bg-dark-overlay {
+          background: black;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          opacity: 0.9;
+          z-index: 5;
+          cursor: pointer;
+        }
+
+        #testimonials > .active {
+          z-index: 10 !important;
+          /* transition: all 0.25s ease; */
+        }
+      }
+
+    </style>
+
+    <section id="testimonials" class="">
+      <div class="aboutmeheading">
+        <p class="mt-3">{{data.content.TestimonialPage.heading.[0]}}</p>
+        <hr>
+      </div>
+    {{#each data.content.TestimonialPage}}
+      {{#if this.[2]}}
+      <div class="test-card" style="transform: rotate({{this.[2]}});">
+        <svg width="34" height="25" viewBox="0 0 34 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.35649 24.2578L9.42604 24.4206L14.3563 15.1073L14.6821 0.974579L0.542969 0.648926L0.217169 14.7817L7.28672 14.9445L2.35649 24.2578ZM21.2086 24.692L28.2782 24.8548L33.2084 15.5415L33.5342 1.40878L19.3951 1.08313L19.0693 15.2159L26.1389 15.3787L21.2086 24.692Z" fill="{{this.[3]}}"/>
+        </svg>
+        <h5>{{this.[0]}}</h5>
+        <p original="{{this.[1]}}">{{this.[1]}}</p>
+      </div>
+      {{/if}}
+    {{/each}}
+      <span class="bg-overlay"></span>
+      <span class="bg-dark-overlay d-none"></span>
+    </section>
+
+    <style media="screen">
+      #footer {
+        display: flex;
+        flex-direction: column;
+        background: url(/natural_therapy/subbg.svg) center center fixed no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+
+      #footer > .aboutmeheading {
+        margin-top: 0px;
+      }
+
+      #footer > .subarea {
+        flex-grow: 1;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .subarea > *:nth-child(1) {
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 37px;
+        /* Gray 1 */
+        color: #333333;
+      }
+
+      .subarea > *:nth-child(2) {
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 37px;
+
+        /* Gray 1 */
+        color: #333333;
+      }
+
+      .subarea > *:nth-child(3) {
+        /* Gray 5 */
+        background: white;
+        /* shadow-card */
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        -webkit-box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        -moz-box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        min-width: 521px;
+        min-height: 44px;
+        border: none;
+        border-radius: 0px;
+        text-align: center;
+
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 22px;
+        line-height: 37px;
+        /* Gray 3 */
+        color: #333333;
+      }
+
+      #footer input::placeholder {
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 37px;
+        /* Gray 3 */
+        color: #828282;
+
+      }
+
+      .subarea > *:nth-child(4) {
+        height: 45px;
+        margin-top: 1rem;
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 18px;
+        line-height: 37px;
+
+        /* Gray 3 */
+        box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        -webkit-box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        -moz-box-shadow: 0px 0px 86px rgba(0, 0, 0, 0.546);
+        border: none;
+        background: #E0E0E0;
+        padding: 0 2rem;
+      }
+
+      #footer > .darkfooter {
+        height: 180px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+        background: #333333;
+        position: relative;
+      }
+
+      .darkfooter > ul {
+        display: flex;
+        /* Services */
+        font-family: Montserrat;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 17px;
+
+        /* Gray 5 */
+        color: #E0E0E0;
+      }
+
+      .darkfooter li {
+        padding: 2px 8px;
+        border: 1px solid transparent;
+      }
+
+      .darkfooter li:hover {
+        color: white;
+        cursor: pointer;
+        border: 1px solid white;
+      }
+
+      #footer .logo {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 15px;
+        line-height: 18px;
+        color: #6FCF97;
+        padding: 2rem;
+
+        position: absolute;
+        bottom: 1px;
+        left: 50%;
+        transform: translate(-50%,0%);
+      }
+
+      #footer a {
+        text-decoration: none;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        #footer {
+          background: url(/natural_therapy/subbgmob.svg) center center fixed no-repeat;
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+        }
+
+        .subarea > *:nth-child(1) {
+          font-size: 15px;
+        }
+
+        .subarea > *:nth-child(2) {
+          font-size: 15px;
+        }
+
+        .subarea > *:nth-child(3) {
+          min-width: 90vw;
+          font-size: 15px;
+        }
+
+        #footer input::placeholder {
+          font-size: 15px;
+        }
+
+        .subarea > *:nth-child(4) {
+          font-size: 15px;
+        }
+
+        #footer > .darkfooter {
+          height: 292px;
+          background: url(/natural_therapy/footerbg.svg);
+          background-repeat: no-repeat;
+          /* background: url(/footerbg.svg) center center fixed no-repeat; */
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+
+          flex-direction: column;
+          justify-content: center;
+          align-items: start;
+        }
+
+        .darkfooter > .icons {
+          order: 2;
+        }
+
+        .darkfooter > ul {
+          flex-direction: column;
+          order: 1;
+          margin-bottom: 10px;
+        }
+
+        .darkfooter li {
+          padding: 0;
+          margin: 7px 0;
+        }
+
+        .darkfooter li:hover {
+
+        }
+
+        #footer .logo {
+          white-space: nowrap;
+          right: 0;
+          transform: translate(-9px, -17px);
+          text-align: right;
+        }
+
+        #footer hr {
+          border: 1px solid #333333;
+        }
+      }
+    </style>
+
+    <section id="footer">
+      <div class="aboutmeheading">
+        <hr>
+        <p>{{data.content.SubscribePage.heading.[0]}}</p>
+      </div>
+      <div class="subarea">
+        <p>{{data.content.SubscribePage.inputheading.[0]}}</p>
+        <p>{{data.content.SubscribePage.inputheading.[1]}}</p>
+        <input type="text" name="" value="" placeholder="email@hotmail.com">
+        <button type="button" name="button">{{data.content.SubscribePage.submitbutton.[0]}}</button>
+      </div>
+      <div class="darkfooter">
+
+        <div class="icons">
+          <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="17.5" cy="17.5" r="17" stroke="#C0C1C5"/>
+          <path d="M22.3447 19.1206L22.8632 15.8644H19.621V13.7514C19.621 12.8606 20.0739 11.9923 21.526 11.9923H23V9.21998C23 9.21998 21.6624 9 20.3835 9C17.7134 9 15.9681 10.5596 15.9681 13.3828V15.8644H13V19.1206H15.9681V26.9922H19.621V19.1206H22.3447Z" fill="#C0C1C5"/>
+          </svg>
+
+
+          <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="17.5" cy="17.5" r="17" stroke="#C0C1C5"/>
+          <path d="M25.1498 13.7366C25.1612 13.9005 25.1612 14.0646 25.1612 14.2285C25.1612 19.2301 21.4493 24.9932 14.665 24.9932C12.5749 24.9932 10.6333 24.3723 9 23.2947C9.29697 23.3299 9.58247 23.3416 9.89086 23.3416C11.6155 23.3416 13.2031 22.7442 14.4708 21.7251C12.849 21.69 11.4898 20.6006 11.0216 19.1013C11.25 19.1364 11.4784 19.1599 11.7183 19.1599C12.0495 19.1599 12.3807 19.113 12.6891 19.031C10.9987 18.6796 9.73094 17.1569 9.73094 15.3179V15.271C10.222 15.5522 10.7932 15.7279 11.3984 15.7513C10.4048 15.0719 9.75379 13.9123 9.75379 12.6004C9.75379 11.8976 9.9365 11.2533 10.2563 10.6911C12.0723 12.9869 14.802 14.4862 17.8629 14.6502C17.8058 14.3691 17.7716 14.0763 17.7716 13.7834C17.7716 11.6984 19.4162 10 21.4607 10C22.5228 10 23.4822 10.4568 24.1561 11.1948C24.9898 11.0308 25.7893 10.7145 26.4975 10.2811C26.2233 11.1596 25.6409 11.8976 24.8756 12.3661C25.618 12.2841 26.3376 12.0733 27 11.7805C26.4975 12.5301 25.8693 13.1977 25.1498 13.7366Z" fill="#C0C1C5"/>
+          </svg>
+        </div>
+
+        <ul>
+          {{#each data.content.MenuBtns}}
+          <li class=""><a class="{{this.[2]}}" href="{{this.[1]}}">{{this.[0]}}</a></li>
+          {{/each}}
+        </ul>
+
+        <p class="logo">{{data.content.LandingPage.Logo.[0]}}</p>
+
+      </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
+    <script src="/natural_therapy/reload/reload.js"></script>
+    <script type="text/javascript">
+
+    $(document).ready( function() {
+      $('.custom-container').height(window.innerHeight);
+      if (window.innerHeight < 690) {
+        $('section').css('min-height',window.innerHeight);
+        $('section').removeClass('d-none');
+      } else if (window.innerWidth < 700) {
+        $('section').css('min-height',window.innerHeight);
+        $('section').removeClass('d-none');
+      } else {
+        $('section').css('height',window.innerHeight);
+        $('section').not(':eq(0)').addClass('d-none');
+      }
+
+    })
+
+    window.onresize = function() {
+
+        $(document).trigger('ready');
+
+    }
+
+
+    let info = {};
+
+    var ts;
+    $('*').on('touchstart', function (e){
+      return;
+       ts = e.originalEvent.touches[0].clientY;
+       info.current = $(e.target).closest('section').attr('id');
+       // console.log(info.current);
+    });
+
+    $('*').on('touchend', function (e){
+      return;
+       var te = e.originalEvent.changedTouches[0].clientY;
+       console.log(ts,te);
+       if(ts > te+50){
+         info.didScroll = true
+         info.up = false;
+       } else if(ts < te-50){
+         info.didScroll = true
+         info.up = true;
+       }
+    });
+
+    $('*').on('mousewheel',function(event){
+      // var pageX = (event.type.toLowerCase() === 'mousewheel') ? event.pageX : event.originalEvent.touches[0].pageX;
+      console.log('mousewhee;');
+      if ($(this).closest('section').attr('id')) info.current = $(this).closest('section').attr('id');
+      info.didScroll = true;
+      console.log(info.current);
+      info.up = event.originalEvent.wheelDelta / 120 > 0;
+    });
+
+    setInterval(function() {
+        if (window.innerHeight < 690) return console.log('returning');
+
+        if ( info.didScroll ) {
+            info.didScroll = false;
+            console.log(info);
+            // if (info.current == info.oldcurrent) return console.log('dont scroll yet');
+            if (info.up) {
+              if (!$(`#${info.current}`).prevAll('section:eq(0)').length) return console.log('no more content up there');
+              $(`#${info.current}`).addClass('d-none');
+              $(`#${info.current}`).prevAll('section:eq(0)').removeClass('d-none');
+              let index = $( "section" ).index( $(`#${info.current}`).prevAll('section:eq(0)') );
+              $('#active_slider').insertBefore( $(`.sliders > svg:eq(${index})`) );
+            }
+            else {
+              if (!$(`#${info.current}`).nextAll('section:eq(0)').length) return console.log('no more content down there');
+              $(`#${info.current}`).addClass('d-none');
+              $(`#${info.current}`).nextAll('section:eq(0)').removeClass('d-none');
+              let index = $( "section" ).index( $(`#${info.current}`).nextAll('section:eq(0)') );
+              $('#active_slider').insertAfter( $(`.sliders > svg:eq(${index})`) );
+            }
+            info.oldcurrent = info.current;
+        }
+    }, 10);
+
+    function trimTestimonialsCard() {
+      var string;
+      var length = 70;
+      var trimmedString;
+      $.each($('.test-card > p'),(key,val) => {
+        string = $(val).html();
+        trimmedString = string.substring(0,length);
+        $(val).html(trimmedString+'...');
+      })
+    }
+
+    function orignalTestimonialCard() {
+      var string;
+      $.each($('.test-card > p'),(key,val) => {
+        string = $(val).attr('original');
+        $(val).html(string);
+      })
+    }
+
+    $(document).on('click','.test-card',function() {
+      // if (window.innerWidth > 1024) return;
+      // string = $(this).find('p').attr('original');
+      // $(this).addClass('active').find('p').html(string);
+      // $('.bg-dark-overlay').removeClass('d-none');
+    })
+
+    $(document).on('click','.bg-dark-overlay',function() {
+      // $('.bg-dark-overlay').addClass('d-none');
+      // $('.test-card').removeClass('active');
+      // window.onresize(); // called to initially set the height.
+    })
+
+    $('.custom-container > textarea').on('keydown',function(){
+      $('.custom-container > .overlay').css({opacity: 0});
+    });
+
+    $('.custom-container > textarea').trigger('keyup');
+
+    $('.custom-container > textarea').on('keyup',function(){
+      if ($(this).val().length < 1) $('.overlay').css({opacity:1});
+      $('.custom-container .error').addClass('d-none');
+      $('.custom-container .success').addClass('d-none');
+      $('.custom-container .counter').html(`${218 - $(this).val().length}`);
+    });
+
+    $('.button-press').on('click',function() {
+      console.log('btn pressed');
+      $('.custom-container .error').addClass('d-none');
+      $('.custom-container .success').addClass('d-none');
+
+      if ($('.custom-container > textarea').val() == '') {
+        return $('.custom-container .error').removeClass('d-none').find('p').html('Please write your message and then click this button !');
+      } else if ($('.custom-container > textarea').val().length > 218) {
+        return $('.custom-container .error').removeClass('d-none').find('p').html('Please keep your message concise to save time so that I can get back to you quick !');
+      }
+
+      let data = {
+        browser_location: browser_location,
+        value : $('.custom-container > textarea').val(),
+      };
+
+      data = JSON.stringify(data);
+
+      $.ajax({
+        url: '/contacted',
+        type: 'post',
+        data: data,
+        headers: {
+          "content-type": "application/json"
+        }
+      }).done(msg => {
+        console.log(msg);
+        return $('.custom-container .success').removeClass('d-none').find('p').html('Great ! As soon as I find time I will get back to you. Please make sure you included your contact details in this message. If not go ahead and submit your message again with your contact details. Happy Day :)');
+      }).fail(e => {
+        console.log('failed',e);
+        return $('.custom-container .error').removeClass('d-none').find('p').html(e.responseText);
+      })
+    })
+
+    let browser_location = {};
+
+    $.ajax({
+      url: 'https://json.geoiplookup.io/',
+      type: 'get'
+    }).done(res => {
+      console.log(res);
+      browser_location = res;
+    }).fail(e => {
+      console.log(e);
+      return $('.custom-container .error').removeClass('d-none').find('p').html(e.responseText);
+    })
+
+    $('.toggle_custom_container').on('click', function(e) {
+      e.preventDefault();
+      $('.custom-container').toggleClass('d-none');
+    })
+
+    $('li > a').on('click',function() {
+      console.log($(this).attr('href'));
+      let id = $(this).attr('href');
+      if (!id) return;
+      let index = parseInt($( "section" ).index( $(id) )) + 1;
+      $('#active_slider').insertBefore( $(`.sliders > svg:eq(${index})`) );
+
+      if (window.innerHeight < 690) return console.log('returning');
+
+      $(id).removeClass('d-none');
+      $('section').not(id).addClass('d-none');
+    })
+
+    $('.flag').on('click',function() {
+      console.log('flag clicked');
+      location.assign($(this).attr('link'));
+    })
+
+    </script>
+
+  </body>
 </html>

@@ -745,6 +745,8 @@ var myFuncs = {
 
         telegramBot: "gen", 
 
+        change_lang: "gen", 
+
     },
 
     newDashboard: async function(req,res) {
@@ -2678,9 +2680,53 @@ var myFuncs = {
         }
     }, 
 
+    change_lang: async function(req,res) {
+
+          req.session.lang = req.query.lang;
+          req.params.module = "landingPage";
+          return this.natural_therapy(req,res);
+
+    },
+
+    language_data: function(req, returned) {
+
+        let language_obj = {};
+
+        req.session.lang = req.session && req.session.hasOwnProperty("lang") ? req.session.lang : "en"
+
+        if (req.session.lang == 'en') {
+            Object.assign( returned.en, {
+                urdu_flag: 'inactive',
+                nok_flag: 'inactive',
+                eng_flag: 'active',
+                stylesheet: 'english'
+            });
+            return returned.en;
+        } else if (req.session.lang == 'ur') {
+            Object.assign( returned.ur, {
+                urdu_flag: 'active',
+                nok_flag: 'inactive',
+                eng_flag: 'inactive',
+                stylesheet: 'urdu'
+            });
+            return returned.ur;
+        } else {
+            Object.assign( returned.nok, {
+                urdu_flag: 'inactive',
+                nok_flag: 'active',
+                eng_flag: 'inactive',
+                stylesheet: 'english'
+            });
+            return returned.nok;
+        }
+    },
+
     natural_therapy: async function (req,res) {
+        let model = await this.createModel(`${req.params.brand}-sheetData`);
+        let output = await model.findOne({status: "live"}).lean();
+        let returned = this.language_data(req, output);
         return {
-            success: true
+            content: returned 
         }
     },
 

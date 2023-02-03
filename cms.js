@@ -436,6 +436,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: "natural_therapy",
                 url: "natural_therapy"
+            },
+            {
+                name: "easy_heal",
+                url: "easy_heal"
             }
         ]
     });
@@ -2729,6 +2733,12 @@ var myFuncs = {
         let returned = this.language_data(req, output);
         return {
             content: returned 
+        }
+    },
+
+    easy_heal: async function(req,res) {
+        return {
+            success: true
         }
     },
 

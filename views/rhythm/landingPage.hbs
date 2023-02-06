@@ -436,10 +436,10 @@ You can find the code of your language here - https://www.w3schools.com/tags/ref
                             {{#each data.projects}}
                             <!-- Work Item (Lightbox) -->
                             <li class="work-item mix {{this.type}}">
-                                <a href="" class="work-lightbox-link mfp-image">
+                                <a href="{{this.ext_link}}" class="work-ext-link">
                                     <div class="work-img">
                                         <div class="work-img-bg wow-p scalexIn"></div>
-                                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_scale,w_719,h_416/v1675094947/tech/{{this.slug}}.png" alt="Work Description" class="wow-p fadeIn" data-wow-delay="1s" />
+                                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_scale,w_719,h_416/v1675094947/tech/thumbnails/{{this.slug}}.png" alt="Work Description" class="wow-p fadeIn" data-wow-delay="1s" />
                                     </div>
                                     <div class="work-intro">
                                         <h3 class="work-title">{{this.name}}</h3>

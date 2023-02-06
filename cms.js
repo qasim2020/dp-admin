@@ -1,3 +1,4 @@
+// tech-portfolio
 // life - portfolio website
 
 const DatauriParser=require("datauri/parser");
@@ -588,7 +589,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        // console.log(data);
+        console.log(data);
         
         // sending data to page
         switch(true) {
@@ -750,6 +751,9 @@ var myFuncs = {
         telegramBot: "gen", 
 
         change_lang: "gen", 
+
+        // tech-portfolio
+        portfolio: "gen",
 
     },
 
@@ -2673,6 +2677,19 @@ var myFuncs = {
             success: true
         }
     }, 
+
+    //tech-portfolio
+    portfolio: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-projects`);
+        let output = await model.findOne({slug: req.params.input}).lean();
+        output.pictures = output.pictures.split(",");
+        // let models = await        Promise.all( model.map((val) => this.createModel(val.collectionName) ));
+        let related_projects = await Promise.all( output.related_projects.split(",").map( val => model.findOne({slug:val}).lean() ) );
+        return {
+            project: output,
+            related_projects
+        }
+    },
 
     rhythm: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-projects`);

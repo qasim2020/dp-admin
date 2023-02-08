@@ -450,11 +450,11 @@
         <p class="welcome">{{data.content.LandingPage.Welcome.[0]}}</p>
         <p class="nlp">{{data.content.LandingPage.Welcome.[1]}}</p>
         <small><b>{{data.content.LandingPage.Welcome.[2]}} <br class=""> {{data.content.LandingPage.Welcome.[3]}}</b></small>
-        <a href="/documentation#page_intro">Learn More</a>
+        <a href="/natural_therapy/gen/page/documentation/n#page_intro">Learn More</a>
       </div>
       <div class="social-media-icons d-flex flex-col">
 
-        <div class="flag {{data.content.urdu_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=ur">
+        <div class="flag {{data.content.urdu_flag}}" link="/natural_therapy/gen/page/change_lang/landingPage?lang=ur">
           <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
           <path d="M0 15C0 20.6856 3.16342 25.6321 7.82607 28.1761V1.82385C3.16342 4.36793 0 9.31435 0 15Z" fill="#F0F0F0"/>
@@ -472,7 +472,7 @@
           </svg>
 
         </div>
-        <div class="flag {{data.content.nok_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=nok">
+        <div class="flag {{data.content.nok_flag}}" link="/natural_therapy/gen/page/change_lang/landingPage?lang=nok">
           <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
           <path d="M0.516724 18.9131C1.38461 22.1333 3.29741 24.9244 5.86956 26.9007V18.9131H0.516724Z" fill="#4F4F4F"/>
@@ -492,7 +492,7 @@
           </svg>
 
         </div>
-        <div class="flag {{data.content.eng_flag}}" link="/natural_therapy/gen/page/change_lang/n?lang=en">
+        <div class="flag {{data.content.eng_flag}}" link="/natural_therapy/gen/page/change_lang/landingPage?lang=en">
           <svg class="" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0)">
           <path d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30Z" fill="#F0F0F0"/>
@@ -1987,15 +1987,29 @@
         return $('.custom-container .error').removeClass('d-none').find('p').html('Please keep your message concise to save time so that I can get back to you quick !');
       }
 
+      let msg = `
+Browser Location: ${JSON.stringify(browser_location)}
+
+${ $('.custom-container > textarea').val() }
+      `;
+
+      msg = msg.split("\n").reduce( (total, val) => {
+
+          return total += `<p>${val}</p>`;
+
+      }, "" );
+
       let data = {
-        browser_location: browser_location,
-        value : $('.custom-container > textarea').val(),
-      };
+          msgText: msg,
+          toEmail: "qasimali24@gmail.com", 
+          msgSubject: "nt.qasim.tech",
+          brand: "natural_therapy"
+      }
 
       data = JSON.stringify(data);
 
       $.ajax({
-        url: '/contacted',
+        url: "/natural_therapy/gen/data/sendMsgToEmail/n",
         type: 'post',
         data: data,
         headers: {

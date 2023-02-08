@@ -1,3 +1,4 @@
+// natural_therapy
 // tech-portfolio
 // life - portfolio website
 
@@ -754,6 +755,8 @@ var myFuncs = {
 
         // tech-portfolio
         portfolio: "gen",
+        // natural_therapy
+        documentation: "gen"
 
     },
 
@@ -2704,8 +2707,16 @@ var myFuncs = {
     change_lang: async function(req,res) {
 
           req.session.lang = req.query.lang;
-          req.params.module = "landingPage";
+          req.params.module = req.params.input;
           return this.natural_therapy(req,res);
+
+    },
+
+    // natural_therapy
+    documentation: function(req,res) {
+
+        req.params.module = "documentation";
+        return this.natural_therapy(req,res);
 
     },
 
@@ -4519,6 +4530,7 @@ var myFuncs = {
 
     sendMail: async function({template, context, toEmail, subject, brand, msg}) { 
 
+        console.log("sendMail");
         console.log({ brand, toEmail });
 
         let model = await this.createModel(`myapp-themes`);
@@ -6904,12 +6916,16 @@ Receipt sent by Server.`;
 
     sendMsgToEmail: async function(req, res) {
 
+        console.log("sending email");
+
         let mail  = await this.sendMail({ 
                 msg: req.body.msgText, 
                 toEmail: req.body.toEmail, 
                 subject: req.body.msgSubject, 
                 brand: req.params.brand
             });
+
+        console.log(mail);
 
         return {
             success: true

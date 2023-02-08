@@ -67,7 +67,7 @@
           <li><a href="#about" class="smoothScroll"><span>About</span></a></li>
           <li><a href="#gallery" class="smoothScroll"><span>Projects</span></a></li>
           <li><a href="#pricing" class="smoothScroll"><span>Pricing</span></a></li>
-          <li><a href="/easy_heal/gen/page/safety/n" class="smoothScroll"><span>Terms & Conditions</span></a></li>
+          <li><a href="/easy_heal/safety.html" class="smoothScroll"><span>Terms & Conditions</span></a></li>
           <li><a href="#contact" class="smoothScroll"><span>Contact</span></a></li>
         </ul>
      </div>
@@ -85,8 +85,8 @@
 
       <div class="col-md-offset-1 col-md-10 col-sm-12 wow fadeInUp" data-wow-delay="0.3s">
         <h1 class="wow fadeInUp" data-wow-delay="0.6s">Welcome to easy heal</h1>
-        <p class="wow fadeInUp" data-wow-delay="0.9s">We offer light healing therapy to cure the human body out of suffering through advanced and proven therapies; <a href="/easy_heal/gen/page/eft/n">EFT</a> and <a href="/easy_heal/gen/page/distancehealing/n">Distance healing</a>.</p>
-        <a href="/easy_heal/gen/page/umore/n" class="smoothScroll btn btn-success btn-lg wow fadeInUp" data-wow-delay="1.2s">Understand More</a>
+        <p class="wow fadeInUp" data-wow-delay="0.9s">We offer light healing therapy to cure the human body out of suffering through advanced and proven therapies; <a href="/easy_heal/eft.html">EFT</a> and <a href="/easy_heal/distancehealing.html">Distance healing</a>.</p>
+        <a href="/easy_heal/umore.html" class="smoothScroll btn btn-success btn-lg wow fadeInUp" data-wow-delay="1.2s">Understand More</a>
       </div>
 
     </div>
@@ -139,7 +139,7 @@
         <div class="about-thumb">
           <h1>About Me</h1>
           <p>Salam, Hi, I am abida bano, a devoted wife, proud mum and a carer. I work as a therapist and this is my story.  I was born and raised in a remote village of Pakistan...<br> </p>
-          <a href="/easy_heal/gen/page/aboutme/n" class="smoothScroll btn btn-success btn-lg wow fadeInUp">Read More</a>
+          <a href="/easy_heal/aboutme.html" class="smoothScroll btn btn-success btn-lg wow fadeInUp">Read More</a>
         </div>
       </div>
 
@@ -178,7 +178,7 @@
 
 				<div class="section-title">
 					<h1>Projects</h1>
-					<p>Take a moment to go through expected <a href="/distancehealing.html#reactions">reactions</a> you may experience after undergoing these therapies.</p>
+					<p>Take a moment to go through expected <a href="/easy_heal/distancehealing.html#reactions">reactions</a> you may experience after undergoing these therapies.</p>
 				</div>
 
 			<div class="video-header">Tips and Therapies</div>
@@ -419,10 +419,9 @@
         </form>
 
       </div>
-			<div class="clearfix"></div>
-			<p id="showStatus" class="d-none">Please fill all fields with valid information.</p>
-
-    </div>
+          <div class="clearfix"></div>
+          <p id="showStatus" class="d-none">Please fill all fields with valid information.</p>
+      </div>
   </div>
 </section>
 
@@ -438,15 +437,11 @@
 
                 <ul class="social-icon">
                     <li><a target="_blank" href="https://www.facebook.com/easyheal" class="fa fa-facebook wow fadeInUp" data-wow-delay="0.2s"></a></li>
-                    <li><a href="#" class="fa fa-twitter wow fadeInUp" data-wow-delay="0.4s"></a></li>
-                    <li><a href="#" class="fa fa-linkedin wow fadeInUp" data-wow-delay="0.6s"></a></li>
-                    <li><a href="#" class="fa fa-instagram wow fadeInUp" data-wow-delay="0.8s"></a></li>
-                    <li><a href="#" class="fa fa-google-plus wow fadeInUp" data-wow-delay="1.0s"></a></li>
                 </ul>
 
-				<p class="wow fadeInUp"  data-wow-delay="1s" >Copyright &copy; 2019 Easyheal</p>
+                    <p class="wow fadeInUp"  data-wow-delay="1s" >Copyright &copy; 2018 Easyheal</p>
 
-			</div>
+                </div>
 
 		</div>
 
@@ -485,17 +480,29 @@
 			return $('#showStatus').toggleClass('d-none d-block').addClass('text-danger');
 		}
 
-		var data = {
-                        subject: "new request on eh.qasim.tech",
-			toEmail: "qasimali24@gmail.com",
-                        brand: "easy_heal",
-			msg: `
+                let msg = `
+
 ${message}
 
-from,
+---
 ${name}
 ${email}
-                        `
+
+                `;
+
+                msg = msg.split("\n").reduce( (total, val) => {
+
+                    return total += `<p>${val}</p>`;
+
+                }, "" );
+
+                // console.log(msg);
+
+		var data = {
+                    msgSubject: `eh.qasim.tech - ${email}`,
+                    toEmail: "qasimali24@gmail.com",
+                    brand: "easy_heal",
+                    msgText: msg
 		};
 
 		var data = JSON.stringify(data);

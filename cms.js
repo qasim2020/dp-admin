@@ -1371,12 +1371,20 @@ var myFuncs = {
         createModel: async function(modelName) {
 
             try {
+                console.log("-----");
+                console.log(modelName);
+                console.log(mongoose.models);
+                console.log(mongoose.modelSchemas);
+                console.log( Collections );
+                console.log("-----");
+                
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = mongoose.modelSchemas && Object.keys(mongoose.modelSchemas).some(val => val == modelName);
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
                 let schema = await Collections.findOne({name: modelName}).lean();
+                console.log(schema);
                 return mongoose.models[modelName] || mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
             } catch(e) {
                 console.log( chalk.red.bold( 'Failed to create Model' + ':' + modelName ) );

@@ -6918,6 +6918,11 @@ Receipt sent by Server.`;
 
         console.log("sending email");
 
+        if ( !( req.body.msgText && req.body.toEmail && req.body.msgSubject ) ) return {
+            status: 404, 
+            error: "Sorry you missed some fields."
+        };
+
         let mail  = await this.sendMail({ 
                 msg: req.body.msgText, 
                 toEmail: req.body.toEmail, 

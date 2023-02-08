@@ -400,7 +400,7 @@
 
         <div class="col-lg-offset-1 col-lg-10 section-title wow fadeInUp" data-wow-delay="0.4s">
           <h1>Send a message</h1>
-          <p>I will never share your details with anyone without your permission.</p>
+          <p>Your data is safe here.</p>
         </div>
 
         <form action="#" method="post" class="wow fadeInUp" data-wow-delay="0.8s">
@@ -475,7 +475,7 @@
 		let email = $('#email').val();
 		let message = $('#message').val();
 
-		if (name.length < 3 || email.length < 3 || message.length < 3) {
+		if (name.length < 1 || email.length < 1 || message.length < 1) {
 			console.log("incomplete fields");
 			return $('#showStatus').toggleClass('d-none d-block').addClass('text-danger');
 		}
@@ -518,11 +518,14 @@ ${email}
 		  "data": data
 		}
 
+                $("#submitEmail").attr({value: "SENDING..."});
 		$.ajax(settings).done(function (response) {
-		  console.log(response);
-			return $('#showStatus').toggleClass('d-none d-block').addClass('text-success').html('Your message was sent successfully ! We will contact you soon.');
+		    console.log(response);
+                    $("#submitEmail").attr({value: "SEND MESSAGE"});
+                    return $('#showStatus').toggleClass('d-none d-block').addClass('text-success').html('Your message was sent successfully ! We will contact you soon.');
 		}).fail((xhr,status,code) => {
 			console.log(xhr,status,code);
+                        $("#submitEmail").attr({value: "SEND MESSAGE"});
 			return $('#showStatus').toggleClass('d-none d-block').addClass('text-danger').html('Sorry, email server did not respond, please email me at abidabano1024@gmail.com');
 		});
 

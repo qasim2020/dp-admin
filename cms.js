@@ -1371,13 +1371,6 @@ var myFuncs = {
         createModel: async function(modelName) {
 
             try {
-                console.log("-----");
-                console.log(modelName);
-                console.log(mongoose.models);
-                console.log(mongoose.modelSchemas);
-                console.log( Collections );
-                console.log("-----");
-                
                 let modelExistsAlready = Object.keys(mongoose.models).some(val => val == modelName);
                 let schemaExistsAlready = mongoose.modelSchemas && Object.keys(mongoose.modelSchemas).some(val => val == modelName);
                 if (modelExistsAlready || schemaExistsAlready) { return mongoose.models[modelName] };
@@ -2549,25 +2542,30 @@ var myFuncs = {
     getBlogs: async function(req,res) {
 
         let model = await this.createModel(`life-blogs`);
-        let exp = new RegExp(req.query.keyWord,'i');
-        let output = await model.aggregate(
-            [
-                {
-                    $match: {
-                        body: exp
-                    }
-                },{
-                    $addFields: {
-                        intSer: {
-                            $toInt: "$ser"
-                        }
-                    }
-                },{
-                    $sort: {
-                        intSer: -1
-                    }
-                }
-            ]);
+        let output = await model.find(req.query.filter)
+            .sort({ser: -1})
+            .collation({locale: "en_US", numericOrdering: true})
+            .skip(req.query.skip).limit(req.query.limit).lean()
+        // let output = await model.aggregate(
+        //     [
+        //         {
+        //             $match: {
+        //                 body: exp
+        //             }
+        //         },{
+        //             $addFields: {
+        //                 intSer: {
+        //                     $toInt: "$ser"
+        //                 }
+        //             }
+        //         },{
+        //             $sort: {
+        //                 intSer: -1
+        //             }
+        //         },{
+        //             $limit: req.query.limit || 12
+        //         }
+        //     ]);
         output = output.map( (val,index) => {
             val.index = output.length - index;
             val.date = this.dateBlogHeader(val.date);
@@ -2580,9 +2578,18 @@ var myFuncs = {
 
     blogs: async function(req,res) {
 
+        req.query = processQuery(req.query, {price: { dataType: "string" } });
+        console.log("here is your query");
+        console.log(req.query);
+        console.log("----");
+        req.query.limit = 12;
         let output = await this.getBlogs(req,res);
+        let model = await this.createModel(`life-blogs`);
+        let count = await model.countDocuments(req.query.filter).lean();
+
         return {
             blogs: output,
+            pages: this.getPagination(count, req.query.skip, 12)
         }
     },
 
@@ -6926,6 +6933,7 @@ Receipt sent by Server.`;
 
         console.log("sending email");
 
+        console.log(req.body);
         if ( !( req.body.msgText && req.body.toEmail && req.body.msgSubject ) ) return {
             status: 404, 
             error: "Sorry you missed some fields."
@@ -6973,7 +6981,8 @@ Receipt sent by Server.`;
             let pages = Math.ceil( Number(count) / Number(limit) );
             let current_page_no = ( ( Number(skip) ) / Number(limit) ) + 1;
 
-        console.log( { count, skip, limit } );
+            console.log( { count, skip, limit } );
+
             for ( i = 0; i < pages ; i++ ) {
 
                 array.push({
@@ -6994,14 +7003,12 @@ Receipt sent by Server.`;
     kallesShop: async function(req, res) {
 
         let findMatchInFilter = function(array, filter, cat) {
-            
             return array.map( val => {
                 return {
                     value: val,
                     active: filter[cat] && filter[cat]["$in"] ?  filter[cat] && filter[cat]["$in"].some( match => match == val ) : filter[cat] == val
                 }
             });
-
         };
 
         req.params.module = "shop";
@@ -7022,7 +7029,7 @@ Receipt sent by Server.`;
             products: output,
             filters: filters,
             clearFilters: req.query.filter && Object.keys(req.query.filter).length === 0 && Object.getPrototypeOf(req.query.filter) === Object.prototype,
-            pages: this.getPagination(count, req.query.skip, req.query.limit)
+            pages: this.getPagination(count, req.query.skip, 12)
         }
 
     }, 

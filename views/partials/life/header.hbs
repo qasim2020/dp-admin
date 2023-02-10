@@ -42,12 +42,7 @@
         margin: 0px;
     }
 
-    .container {
-        margin: 8px; 
-    }
-
     .nav {
-        margin: 0 8px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -109,9 +104,13 @@
      }
 
      .container {
+         max-width: 900px;
+          margin-left: auto;
+          margin-right: auto;
+          margin-bottom: 8px;
           padding: 0 20px;
           display: flex;
-          margin-top: 4.5rem;
+          margin-top: 20px; 
      }
 
     .content {
@@ -119,6 +118,7 @@
         box-sizing: border-box;
         padding: 0 20px;
         height: fit-content;
+        margin-top: 3.5rem;
     }
 
     .services > .icon {
@@ -127,6 +127,11 @@
 
     .services > p {
         line-height: 1.7;
+    }
+    
+    .services > p > a {
+        text-decoration: none;
+        font-weight: bold;
     }
 
     .services > ul {
@@ -173,6 +178,40 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
+
+    .content .pagination {
+        grid-column: 1/-1;
+    }
+
+    .content .pagination > ul {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        padding: 0px;
+    }
+
+    .content .pagination > ul > li {
+        list-style: none;
+        padding: 0px;
+        margin-bottom: 7px;
+    }
+
+    .content .pagination > ul > li > a {
+        text-decoration: none;
+        padding: 3px 6px;
+        background: whitesmoke;
+        margin-right: 2px;
+        color: darkgrey;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .content .pagination > ul > li > a.current {
+        background: #229654;
+        color: whitesmoke;
+    }
+
 
     .card {
         font-size: 80%;
@@ -404,10 +443,31 @@
         display: none;
     }
 
+    .banner {
+        padding-top: 76px;
+        background: hsl(146deg 63% 36%);
+        padding-bottom: 10px;
+        color: hsl(0deg 0% 100%);
+    }
+
+    .banner p {
+        line-height: 1.5;
+        font-size: 18px;
+        font-weight: 100;
+    }
+
+    .m-900 {
+        max-width: 644px;
+        margin: auto;
+        padding: 0 20px;
+    }
+
+    
+
     @media (max-width:799px) {
       .container {
         display: block;
-        padding: 0;
+        padding: 0 20px;
         margin-top: 3rem;
       }
 

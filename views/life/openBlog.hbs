@@ -747,23 +747,18 @@
         </p>
 
         <div class="">
-          <a href="https://twitter.com/share?text='{{../data.Content.0.msg}}' --- https://www.zakatlists.com/blogpost?serialNo={{../data.Ser}}" class="twitter-share-button" data-show-count="false" target="_blank">
+            <a onclick="showGreenSVG(this)" href="https://twitter.com/share?text=https://qasimali.xyz/life/gen/page/openBlog/{{../data.output.slug}}" class="twitter-share-button" data-show-count="false" target="_blank">
 
-            <svg width="29" height="29" class="q" fill="#4f4f4f">
-              <path
-                d="M22.05 7.54a4.47 4.47 0 0 0-3.3-1.46 4.53 4.53 0 0 0-4.53 4.53c0 .35.04.7.08 1.05A12.9 12.9 0 0 1 5 6.89a5.1 5.1 0 0 0-.65 2.26c.03 1.6.83 2.99 2.02 3.79a4.3 4.3 0 0 1-2.02-.57v.08a4.55 4.55 0 0 0 3.63 4.44c-.4.08-.8.13-1.21.16l-.81-.08a4.54 4.54 0 0 0 4.2 3.15 9.56 9.56 0 0 1-5.66 1.94l-1.05-.08c2 1.27 4.38 2.02 6.94 2.02 8.3 0 12.86-6.9 12.84-12.85.02-.24 0-.43 0-.65a8.68 8.68 0 0 0 2.26-2.34c-.82.38-1.7.62-2.6.72a4.37 4.37 0 0 0 1.95-2.51c-.84.53-1.81.9-2.83 1.13z">
-              </path>
-            </svg>
+                <svg width="29" height="29" class="q" fill="#4f4f4f">
+                  <path
+                    d="M22.05 7.54a4.47 4.47 0 0 0-3.3-1.46 4.53 4.53 0 0 0-4.53 4.53c0 .35.04.7.08 1.05A12.9 12.9 0 0 1 5 6.89a5.1 5.1 0 0 0-.65 2.26c.03 1.6.83 2.99 2.02 3.79a4.3 4.3 0 0 1-2.02-.57v.08a4.55 4.55 0 0 0 3.63 4.44c-.4.08-.8.13-1.21.16l-.81-.08a4.54 4.54 0 0 0 4.2 3.15 9.56 9.56 0 0 1-5.66 1.94l-1.05-.08c2 1.27 4.38 2.02 6.94 2.02 8.3 0 12.86-6.9 12.84-12.85.02-.24 0-.43 0-.65a8.68 8.68 0 0 0 2.26-2.34c-.82.38-1.7.62-2.6.72a4.37 4.37 0 0 0 1.95-2.51c-.84.53-1.81.9-2.83 1.13z">
+                  </path>
+                </svg>
+              </a>
 
+          <a href="#" onclick="copyTextToClipboard(this)" >
+              <svg style="margin-bottom:1px" width=28 height=29 viewBox="0 0 24 24" fill="#4f4f4f" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15.4306 7.70172C7.55045 7.99826 3.43929 15.232 2.17021 19.3956C2.07701 19.7014 2.31139 20 2.63107 20C2.82491 20 3.0008 19.8828 3.08334 19.7074C6.04179 13.4211 12.7066 12.3152 15.514 12.5639C15.7583 12.5856 15.9333 12.7956 15.9333 13.0409V15.1247C15.9333 15.5667 16.4648 15.7913 16.7818 15.4833L20.6976 11.6784C20.8723 11.5087 20.8993 11.2378 20.7615 11.037L16.8456 5.32965C16.5677 4.92457 15.9333 5.12126 15.9333 5.61253V7.19231C15.9333 7.46845 15.7065 7.69133 15.4306 7.70172Z" fill="#4f4f4f" stroke="#4f4f4f" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 
-          </a>
-
-          <a href="https://www.facebook.com/dialog/share?app_id=177485573697078&display=popup&href=https://www.zakatlists.com/blogpost?serialNo={{../data.Ser}}&redirect_uri=https://www.zakatlists.com" target="_blank">
-            <svg width="29" height="29" class="q" fill="#4f4f4f">
-              <path
-                d="M23.2 5H5.8a.8.8 0 0 0-.8.8V23.2c0 .44.35.8.8.8h9.3v-7.13h-2.38V13.9h2.38v-2.38c0-2.45 1.55-3.66 3.74-3.66 1.05 0 1.95.08 2.2.11v2.57h-1.5c-1.2 0-1.48.57-1.48 1.4v1.96h2.97l-.6 2.97h-2.37l.05 7.12h5.1a.8.8 0 0 0 .79-.8V5.8a.8.8 0 0 0-.8-.79">
-              </path>
-            </svg>
           </a>
 
         </div>
@@ -915,6 +910,22 @@
         console.log(e.responseText);
       });
     }
+
+    //copy text to clipboard
+    let copyTextToClipboard = function(elem) {
+        navigator.clipboard.writeText(`https://qasimali.xyz/life/gen/page/openBlog/{{data.output.slug}}`).then(function(x) {
+            alert(`URL copied to your clipboard:- https://qasimali.xyz/life/gen/page/openBlog/{{data.output.slug}}`);
+            showGreenSVG(elem);
+        });
+    };
+
+    let showGreenSVG = function(elem) {
+        $(elem).find("svg").addClass("d-none");
+        let greenSVG = `
+              <svg width=29 height=29 class="greenSVG" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 2C6.49 2 2 6.49 2 12C2 17.51 6.49 22 12 22C17.51 22 22 17.51 22 12C22 6.49 17.51 2 12 2ZM16.78 9.7L11.11 15.37C10.97 15.51 10.78 15.59 10.58 15.59C10.38 15.59 10.19 15.51 10.05 15.37L7.22 12.54C6.93 12.25 6.93 11.77 7.22 11.48C7.51 11.19 7.99 11.19 8.28 11.48L10.58 13.78L15.72 8.64C16.01 8.35 16.49 8.35 16.78 8.64C17.07 8.93 17.07 9.4 16.78 9.7Z" fill="#29a32b"></path> </g></svg>
+`;
+        $(elem).append(greenSVG);
+    };
 
   </script>
 

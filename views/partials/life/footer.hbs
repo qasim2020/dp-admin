@@ -13,12 +13,12 @@
         </form>
 
         <div class="action-button whatsapp" onclick="openWhatsApp()" >
-            <button>WhatsApp</button>
+            <button>Send on WhatsApp</button>
             <p class="small">Tap to open WhatsApp Chat window.</p>
         </div>
 
         <div class="action-button email" onclick="sendMail()">
-            <button >Email</button>
+            <button >Send on Email</button>
             <p class="small">Please make sure you have listed your email or some contact detail before pressing this button.</p>
         </div>
     
@@ -169,7 +169,7 @@ ${ text }
             let data = {
                 msgText: msg,
                 toEmail: "{{data.owner.email}}",
-                subject: "New Request on Portfolio",
+                msgSubject: "New Request on Portfolio",
                 brand: "{{data.brand}}"
             }
 
@@ -179,8 +179,14 @@ ${ text }
                 url: "/{{data.brand}}/gen/data/sendMsgToEmail/n",
                 method: "POST",
                 data: data,
-                success: val => $(".hireForm").find(".email").children("button").html("Email sent. I will get back to you. Thanks.!")
-            }).fail( err => $(".hireForm").find(".email").children(button).html( JSON.stringify(err.responseText) ) );
+                success: val => {
+                    console.log(val);
+                    $(".hireForm").find(".email").children("button").html("Email sent. I will get back to you. Thanks.!");
+                }
+            }).fail( err => {
+                console.log(err);
+                $(".hireForm").find(".email").children(button).html( JSON.stringify(err.responseText) ) 
+            });
 
         };
 
@@ -195,6 +201,38 @@ ${ text }
             $(".menu-toggle").toggleClass("d-none");
         }
 
+        //pagination code
+        $(document).on( 'click', '.page-numbers', function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+            let current_page = "",
+                attacher = "";
+
+            if ( $(e.target).hasClass("current") ) return console.log("this is current page");
+
+            if ( $(e.target).hasClass("next") || $(e.target).hasClass("prev") ) {
+
+                current_page = $(e.target).closest(".pagination").find(".current").html();
+
+                if ( $(e.target).hasClass("prev") ) {
+                    attacher = `&__skip=${ ( Number(current_page) - 1 - 1) * 12}`;
+                } else {
+                    attacher = `&__skip=${ ( Number(current_page) - 1 + 1) * 12}`;
+                }
+
+            } else {
+                current_page = $(e.target).html();
+                attacher = `&__skip=${ ( Number(current_page) - 1 ) * 12}`;
+            }
+
+            console.log( $(e.target), $(e.target).hasClass("next")  , $(e.target).hasClass("prev") ) 
+            console.log(attacher);
+
+            window.location.href = `/life/gen/page/blogs/n?${attacher}`;
+            
+        });
+        //pagination code ends here
 
     </script>
 

@@ -62,7 +62,7 @@ $(".subscribe").validate({
 $(document).ready( () => {
 
 
-    return console.log("do not show stuff that looks bad for the user");
+    return; 
 
     console.log({subscriptionNotLogged: localStorage.getItem("subscriptionNotLogged") });
 

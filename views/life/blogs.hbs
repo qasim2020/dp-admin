@@ -2,6 +2,8 @@
 
     {{> life/nav page='blogs'}}
 
+    {{> life/bannerNew heading="Blogs" subtitle="I love writing my heart out. It might keep me humble."}}
+
     <div class="container">
 
         <div class="content">
@@ -12,7 +14,7 @@
 
                     <div class="card" slug="{{slug}}" onclick="openBlog(this)">
 
-                        <h4>{{index}}</h4>
+                        <h4>ID · {{this.ser}}</h4>
                         <img src="https://res.cloudinary.com/miscellaneous/image/upload/w_278,h_146,c_scale/v1592022597/qurandaily/{{slug}}.png" alt="">
                         <h1>{{body.0.msg}}</h1>
                         <h5>PUBLISHED ON</h5>
@@ -22,6 +24,16 @@
 
                 {{/each}}
            
+                <div class="pagination">
+                    <ul class="page-numbers">
+                        <li {{#unless data.pages.prev}} class="d-none" {{/unless}} ><a class="prev page-numbers" href="">Prev</a></li>
+                        {{#each data.pages.array}}
+                        <li><a class="page-numbers {{#if this.current}} current {{/if}}" href="">{{this.pageNo}}</a></li>
+                        {{/each}}
+                        <li {{#unless data.pages.next}} class="d-none" {{/unless}} ><a class="next page-numbers" href="">Next</a></li>
+                    </ul>
+                </div>
+
             </div>
 
         </div>

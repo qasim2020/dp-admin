@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/png" href="/kalles/images/k_favicon_32x.png">
-    <title>Kalle's shop page</title>
+    <title>7am | Shop</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:300,300i,400,400i,500,500i&display=swap" rel="stylesheet">
@@ -51,18 +51,6 @@
     <div id="nt_content">
 
         <!--category menu-->
-        <div class="kalles-section cat-shop pr tc">
-            <a href="#" class="has_icon cat_nav_js dib">Categories<i class="facl facl-angle-down"></i></a>
-            <div class="dn" id="cat_kalles">
-                <ul class="cat_lv_0">
-                    <li class="cat-item"><a class="cat_link dib" href="n?category=pant">Uniforms</a></li>
-                    <li class="cat-item"><a class="cat_link dib" href="n?category=shirt">Shirts</a></li>
-                    <li class="cat-item"><a class="cat_link dib" href="n?category=tie">Tie</a></li>
-                    <li class="cat-item"><a class="cat_link dib" href="n?category=blouse">Blouse</a></li>
-                    <li class="cat-item"><a class="cat_link dib" href="n?category=shalwar qameez">Shalwar Qameez</a></li>
-                </ul>
-            </div>
-        </div>
         <!--end category menu-->
 
         <!--shop banner-->
@@ -70,8 +58,8 @@
             <div class="page-head tc pr oh cat_bg_img page_head_">
                 <div class="parallax-inner nt_parallax_false lazyload nt_bg_lz pa t__0 l__0 r__0 b__0" data-bgset="/kalles/images/shop/shop-banner.jpg"></div>
                 <div class="container pr z_100">
-                    <h1 class="mb__5 cw">Women</h1>
-                    <p class="mg__0">Shop through our latest selection of Women’s Clothing and Accessories.</p>
+                    <h1 class="mb__5 cw">Welcome to our shop!</h1>
+                    <p class="mg__0">Shop through our latest selection of Uniforms, Books and Accessories.</p>
                 </div>
             </div>
         </div>
@@ -878,50 +866,7 @@
 <!-- end login box -->
 
 <!-- mobile toolbar -->
-<div id="kalles-section-toolbar_mobile" class="kalles-section">
-    <div class="kalles_toolbar kalles_toolbar_label_true ntpf r__0 l__0 b__0 flex fl_between al_center">
-        <div class="type_toolbar_shop kalles_toolbar_item">
-            <a href="shop-filter-options.html">
-                <span class="toolbar_icon"></span>
-                <span class="kalles_toolbar_label">Shop</span>
-            </a>
-        </div>
-        <div class="type_toolbar_filter kalles_toolbar_item dn">
-            <a class="dt_trigger_cl" href="#" data-trigger=".btn_filter">
-                <span class="toolbar_icon"></span>
-                <span class="kalles_toolbar_label">Filter</span>
-            </a>
-        </div>
-        <div class="type_toolbar_wish kalles_toolbar_item">
-            <a class="js_link_wis" href="wishlist.html">
-				<span class="toolbar_icon">
-					<span class="jswcount toolbar_count">3</span>
-				</span>
-                <span class="kalles_toolbar_label">Wishlist</span>
-            </a>
-        </div>
-        <div class="type_toolbar_cart kalles_toolbar_item">
-            <a href="#" class="push_side" data-id="#nt_cart_canvas">
-				<span class="toolbar_icon">
-					<span class="jsccount toolbar_count">5</span>
-				</span>
-                <span class="kalles_toolbar_label">Cart</span>
-            </a>
-        </div>
-        <div class="type_toolbar_account kalles_toolbar_item">
-            <a href="#" class="push_side" data-id="#nt_login_canvas">
-                <span class="toolbar_icon"></span>
-                <span class="kalles_toolbar_label">Account</span>
-            </a>
-        </div>
-        <div class="type_toolbar_search kalles_toolbar_item">
-            <a href="#" class="push_side" data-id="#nt_search_canvas">
-                <span class="toolbar_icon"></span>
-                <span class="kalles_toolbar_label">Search</span>
-            </a>
-        </div>
-    </div>
-</div>
+{{> kalles/mobiletoolbar}}
 <!-- end mobile toolbar -->
 
 <!-- mobile menu -->
@@ -935,24 +880,5 @@
 <!-- back to top button-->
 <a id="nt_backtop" class="pf br__50 z__100 des_bt1" href="#"><span class="tc br__50 db cw"><i class="pr pegk pe-7s-angle-up"></i></span></a>
 
-<script src="/kalles/js/jquery-3.5.1.min.js"></script>
-<script src="/kalles/js/nouislider.min.js"></script>
-<script src="/kalles/js/jarallax.min.js"></script>
-<script src="/kalles/js/packery.pkgd.min.js"></script>
-<script src="/kalles/js/jquery.hoverIntent.min.js"></script>
-<script src="/kalles/js/magnific-popup.min.js"></script>
-<script src="/kalles/js/flickity.pkgd.min.js"></script>
-<script src="/kalles/js/lazysizes.min.js"></script>
-<script src="/kalles/js/js-cookie.min.js"></script>
-<script src="/kalles/js/jquery.countdown.min.js"></script>
-<script src="/kalles/js/photoswipe.min.js"></script>
-<script src="/kalles/js/photoswipe-ui-default.min.js"></script>
-<script src="/kalles/js/drift.min.js"></script>
-<script src="/kalles/js/isotope.pkgd.min.js"></script>
-<script src="/kalles/js/resize-sensor.min.js"></script>
-<script src="/kalles/js/theia-sticky-sidebar.min.js"></script>
-<script src="/root/pjax.js"></script>
-<script src="/kalles/js/interface.js"></script>
-<script src="/kalles/js/custom.js"></script>
-</body>
-</html>
+{{> kalles/bottom}}
+

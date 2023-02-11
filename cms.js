@@ -736,6 +736,9 @@ var myFuncs = {
         kallesUpdateOrder: "admin",
         kallesSendNote: "gen", 
         kallesProduct: "gen",
+        kallesBlogs: "gen",
+        kallesBlog: "gen",
+        kallesFindOrder: "gen",
         
         showReceipt: "gen", 
         showOrder: "admin",
@@ -3177,6 +3180,14 @@ var myFuncs = {
             sessionId: req.sessionID
         }
         return output;
+    },
+
+    kallesFindOrder: async function( req,res){
+        req.params.module = "findOrderPage";
+        return {
+            success: true,
+            cart: req.session.cart != undefined ? req.session.cart : []
+        }
     },
 
     findOrderPage: async function(req,res) {
@@ -7015,6 +7026,7 @@ Receipt sent by Server.`;
         req.query = processQuery(req.query, {price: { dataType: "string" } });
         if (req.query && req.query.filter && req.query.filter._pjax) delete req.query.filter._pjax;
 
+        req.query.limit = 12;
         let model = await this.createModel(`${req.params.brand}-products`);
         let output = await model.find(req.query.filter).sort(req.query.sort).skip(req.query.skip).limit(req.query.limit).lean();
         let count = await model.countDocuments(req.query.filter).lean();
@@ -7123,6 +7135,20 @@ Receipt sent by Server.`;
         }
         
 
+    },
+
+    kallesBlogs: async function(req,res) {
+        req.params.module = "blog-grid";
+        return {
+            success: true
+        }
+    },
+
+    kallesBlog: async function(req,res) {
+        req.params.module = "blog-post-with-instagram-shop";
+        return {
+            success: true
+        }
     },
 
     telegramBot: async function(req, res) {

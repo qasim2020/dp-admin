@@ -1647,7 +1647,9 @@ let urlParams = function() {
 
             });
 
-            url += "&__limit=12" + $(".kalles_dropdown_options > a.selected").attr("sort_by") + ( attach_at_the_end == undefined ? "" : attach_at_the_end );
+            url += "&__limit=12" +  // limit is 12
+                ( $(".kalles_dropdown_options > a.selected").attr("sort_by") || "" ) // sort by Featured or what
+                + ( attach_at_the_end == undefined ? "" : attach_at_the_end ); // attach at the end from before
 
             $(".pjax_shop_fake_btn").attr({href: url}).click();
 

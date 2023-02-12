@@ -306,14 +306,16 @@
       color: darkcyan;
     }
 
-    .subscribe>input {
+    .subscribe>input ,
+    .comment-form > input,
+    .comment-form > textarea {
       box-sizing: border-box;
       height: 3rem;
       font-family: Roboto;
       font-style: italic;
       font-weight: 300;
       font-size: 22px;
-      color: #828282;
+      color: black;
       border: 1px solid #d4d4d4;
       padding: 0 26px;
     }
@@ -327,10 +329,11 @@
       font-size: 22px;
     }
 
-    .subscribe>button {
+    .subscribe>button ,
+    .comment-form > button {
       display: block;
       height: 3rem;
-      background: #f7f7f7;
+      background: #4f4f4f;
       border: 0px solid transparent;
       box-sizing: border-box;
       padding: 8px 27px;
@@ -338,18 +341,20 @@
       font-style: italic;
       font-weight: 300;
       font-size: 20px;
-      color: #717171;
+      color: white;
       margin-top: 1rem;
     }
 
-    .subscribe>.success {
+    .subscribe>.success ,
+    .comment-form > .success {
       font-weight: normal;
       font-size: 17px;
       font-style: italic;
       color: darkcyan;
     }
 
-    .subscribe>.error {
+    .subscribe>.error ,
+    .comment-form > .error {
       font-weight: normal;
       font-size: 17px;
       font-style: italic;
@@ -570,8 +575,8 @@
 
     p.bullet::before {
         content: '— ';
-    display: inline-block;
-    margin-right: 10px;
+        display: inline-block;
+        margin-right: 10px;
     }
 
     p.bullet.first {
@@ -581,9 +586,100 @@
 
     p.bullet.last {
         padding-bottom: 15px;
-    border-radius: 0px 0px 5px 5px;
-    margin-bottom: 40px;
+        border-radius: 0px 0px 5px 5px;
+        margin-bottom: 40px;
     }
+
+    .post {
+        background: #4f4f4f;
+        border: 2px solid #4f4f4f;
+        margin-bottom: 10px;
+    }
+
+    .post > button {
+        width: 100%;
+        padding: 3px;
+        margin-bottom: 4px;
+        background: black;
+        border: 2px solid black;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .post > p.small {
+        display: inline-block;
+        padding: 8px 7px 3px 7px;
+        font-size: 11px;
+        margin-top: 1px;
+        margin-left: 1px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .post > h3 {
+        font-size: 20px;
+        margin-top: 0px;
+        padding-left: 7px;
+        color: white;
+    }
+
+    .post > p:nth-last-child(1) {
+        margin: 0px;
+        padding: 10px;
+        background: white;
+    }
+
+    .comment-form ,
+    .subscribe {
+        background: whitesmoke;
+        padding: 0px 9px;
+        padding-bottom: 10px;
+        font-style: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        box-sizing: border-box;
+    }
+
+    .comment-form > * {
+        box-sizing: border-box;
+    }
+
+    .comment-form > label {
+        font-family: 'Roboto';
+        padding: 10px 0;
+        color: #080808;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .comment-form > input, 
+    .comment-form > textarea {
+        padding-left: 7px;
+        font-size: 18px;
+    }
+
+    .comment-form > textarea {
+        padding-top: 7px;
+        height: auto;
+    }
+
+    .comment-form > button {
+        background: #4f4f4f;
+        color: white;
+        width: inherit;
+    }
+
+    .comment-form > h2,
+    .subscribe > h2 {
+        font-family: roboto;
+        font-weight: 200;
+        padding-bottom: 6px;
+        border-bottom: 1px solid black;
+        width: 100%;
+    }
+
 
     @media (max-width: 799px) {
 
@@ -618,7 +714,8 @@
         padding-bottom: 1rem;
       }
 
-      .subscribe>input {
+      .subscribe>input,
+      .comment-form > input {
         height: 2.5rem;
         font-size: 18px;
       }
@@ -628,22 +725,25 @@
         font-size: 18px;
       }
 
-      .subscribe>button {
+      .subscribe>button ,
+      .comment-form > button {
         height: 2.5rem;
-        background: #f1f1f1;
+        background: #4f4f4f;
         font-size: 18px;
-        color: #717171;
+        color: white;
         margin-top: 1rem;
       }
 
-      .subscribe>.success {
+      .subscribe>.success ,
+      .comment-form > .success {
         font-weight: normal;
         font-size: 16px;
         font-style: italic;
         color: darkcyan;
       }
 
-      .subscribe>.error {
+      .subscribe>.error ,
+      .comment-form > .error {
         font-weight: normal;
         font-size: 17px;
         font-style: italic;
@@ -854,7 +954,47 @@
 
     {{/each}}
 
+    <hr style="border:2px solid black; margin: 56px auto;">
+
+    <div class="comments">
+
+        {{#each data.comments}}
+        <div class="post" id="{{this._id}}">
+
+            {{#if (matchValues ../data.person 'qasimali24@gmail.com')}}
+            <button onclick="deleteComment(this)">Delete</button>
+            {{/if}}
+
+            <p class="small">{{getFormattedDateTimeMongoId this._id}}</p>
+            <h3>{{this.name}}</h3>
+            <p>{{this.comment}}</p>
+
+        </div>
+        {{/each}}
+
+        <div class="comment-form">
+
+            <h2 class="width-m-half">LEAVE A COMMENT</h2>
+
+            <label for="name">Name</label>
+            <input class="width-m-half" name="name" type="text">
+
+            <label for="email">Email</label>
+            <input class="width-m-half" name="email" type="email">
+
+            <label for="comment">Comment</label>
+            <textarea class="width-m-half" id="" name="comment" cols="30" rows="10"></textarea>
+
+            <button onclick="postComment(this)">Post Comment</button>
+            <p class="success d-none"></p>
+            <p class="error d-none"></p>
+        
+        </div>
+    
+    </div>
+
     <form class="subscribe">
+      <h2>SUBSCRIBE TO MY NEWSLETTER</h2>
       <input class="width-m-half" type="email" id="subscribe-input" name="email" value="" placeholder="youremail@email.com">
       <button type="button" class="submit" name="button">Subscribe</button>
       <p class="success d-none">Thank you. Please check your email to verify your subscription.</p>
@@ -926,6 +1066,101 @@
 `;
         $(elem).append(greenSVG);
     };
+
+    // comment feature
+
+    let deleteComment = function(elem) {
+
+        $(elem).html("Deleting...");
+
+        $.ajax({
+            url: `/life/gen/data/deleteComment/${ $(elem).closest(".post").attr("id") }`,
+            method: "GET",
+            success: val => {
+                console.log(val);
+                $(elem).closest(".post").remove();
+            }
+        }).fail( err => {
+            console.log(err);
+            $(elem).html(err.responseText);
+        });
+
+    };
+
+    let dateFormatter = function(objectId) {
+        if ( objectId == null ) return null;
+        let date = new Date(parseInt(objectId.toString().substring(0, 8), 16) * 1000);
+        let dtg = date.toString().split(" ");
+        let obj = {
+            time: dtg[4],
+            date: dtg[2],
+            month: dtg[1],
+            yr: dtg[3]
+        }
+        let time = obj.time.split(":");
+        obj.time = time[0]+time[1]+ " hrs";
+        return `${obj.time} · ${obj.date} ${obj.month} ${obj.yr.slice(2,4)}`;
+
+    };
+
+    let postComment = function(elem) {
+
+        let attachComment = function(val) {
+            console.log(val);
+            let html = `
+                <div class="post" id="${val.success._id}">
+
+                    <p class="small">${dateFormatter(val.success._id)}</p>
+                    <h3>${val.success.name}</h3>
+                    <p>${val.success.comment}</p>
+                
+                </div>
+            `;
+
+            $(html).insertBefore(".comment-form");
+            console.log("Comment attached");
+
+        };
+
+        $(elem).closest(".comment-form").find(".success, .error").addClass("d-none");
+        
+        let form = {
+            name: $(elem).closest(".comment-form").find("[name=name]").val(),
+            email: $(elem).closest(".comment-form").find("[name=email]").val(),
+            comment: $(elem).closest(".comment-form").find("[name=comment]").val(),
+            slug: "{{data.output.slug}}"
+        };
+
+        console.log("error");
+
+        if ( !(form.name && form.email && form.comment) ) {
+            $(elem).html("Post Comment");
+            console.log("error");
+            return $(elem).closest(".comment-form").find(".error").removeClass("d-none").html("Please fill all the fields above.");
+        };
+
+        $(elem).html("Posting...");
+
+        $.ajax({
+            url: "/life/gen/data/postComment/n",
+            method: "POST",
+            data: form,
+            success: val => {
+                console.log(val);
+                $(elem).html("Post Comment");
+                $(elem).closest(".comment-form").find(".success").removeClass("d-none").html("Comment posted successfully!");
+                attachComment(val);
+            },
+        }).fail( err => {
+            console.log(err);
+            $(elem).html("Post Comment");
+            return $(elem).closest(".comment-form").find(".error").removeClass("d-none").html(err.responseText);
+        });
+
+
+
+    };
+
 
   </script>
 

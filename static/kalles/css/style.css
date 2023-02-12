@@ -531,6 +531,12 @@
     margin: 5px;
 }
 
+#nt_search_canvas .nt_label.new {
+    width: 32px;
+    height: 32px;
+    font-size: 0.6rem;
+}
+
 .label_style_rounded .nt_label {
     height: 30px;
     width: 30px;

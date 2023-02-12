@@ -320,7 +320,8 @@ input.button.btn_back,
 
 .nt_label.new,
 .lb_new {
-    background-color: #109533
+    background-color: #109533;
+    color: hwb(120deg 94% 0%);
 }
 
 h3.product-title,

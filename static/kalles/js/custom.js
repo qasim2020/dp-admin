@@ -1,3 +1,5 @@
+
+
 //form should have email, password
 $('form').on('submit',function(e) {
     e.preventDefault();
@@ -18,3 +20,10 @@ $('form').on('submit',function(e) {
         $('#signInSubmit').attr({value: err.responseText});
     });
 });
+
+
+let searchItems = function(elem) {
+
+    console.log("build this feature after comments feature");
+
+};

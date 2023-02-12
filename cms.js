@@ -204,7 +204,7 @@ hbs.registerHelper('json', function(context) {
 });
 
 hbs.registerHelper('matchValues', (val1,val2) => {
-    // console.log(val1, val2);
+    console.log(val1, val2);
     try {
         return val1.toString().toLowerCase()  == val2.toString().toLowerCase();
     } catch(e) {
@@ -616,7 +616,7 @@ var myFuncs = {
             return res.status(200).render(`emails/${req.params.module}.hbs`,{data});
             break;
           default:
-            console.log(data);
+            // console.log(data);
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
         }
@@ -692,6 +692,8 @@ var myFuncs = {
         newsletters: 'gen',
 	listenToWebhook: 'gen',
         subscribe: "gen", 
+        postComment: "gen",
+        deleteComment: "gen",
 
         editWeb: 'admin',
         emptyFile: 'admin',
@@ -2066,7 +2068,6 @@ var myFuncs = {
         try {
             const doc = new model(data);
             let output = await doc.save();
-            console.log(output);
             return {success: 'Done'};
         } catch(e) {
             console.log(e);
@@ -2678,6 +2679,44 @@ var myFuncs = {
         return {
             letters: output
         };
+    },
+
+    postComment: async function(req,res) {
+
+        console.log("posting comment");
+        let model = await this.createModel(`${req.params.brand}-comments`);
+        console.log("model created");
+        let output = await model.create({
+            name: req.body.name,
+            email: req.body.email,
+            comment: req.body.comment,
+            slug: req.body.slug
+        });
+        console.log(output);
+
+        return {
+            success: output
+        }
+
+    },
+
+    deleteComment: async function(req,res) {
+
+        console.log("");
+        console.log("");
+        console.log("deleting comment");
+        if ( !(req.session.person && req.session.person.email) ) return {
+            status: 404,
+            error: "Sorry unauthorised request. Please log in to delete comments."
+        };
+
+        let model = await this.createModel(`${req.params.brand}-comments`);
+        let output = await model.deleteOne({_id: req.params.input});
+
+        return {
+            success: output
+        }
+
     },
 
     challenge: async function(req,res) {
@@ -4488,13 +4527,16 @@ var myFuncs = {
 
     openBlog: async function(req,res) {
         let model = await this.createModel('life-blogs');
+        let modelComments = await this.createModel('life-comments');
         let output = await model.findOne({slug: req.params.input}).lean();
         let body = this.convertStringToArticle(output.body);
         output.date = this.dateBlogHeader(output.date);
         return {
             output: output,
             body: body,
-            tags: output.tags.split(',')
+            tags: output.tags.split(','),
+            person: req.session.person && req.session.person.email,
+            comments: await modelComments.find({slug: output.slug}).lean()
         };
     },
 
@@ -6359,13 +6401,15 @@ var myFuncs = {
     kalles: async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-products`);
-        let trending = await model.find({trending: "true"}).limit(8).lean();
-        let sale = await model.find({sale: { $exists: true} }).limit(8).lean();
-        let newProducts = await model.find({new: "true"}).limit(8).lean();
+
         return {
-            products: trending,
-            newProducts, 
-            sale: sale,
+            products: await model.find({trending: "true"}).limit(8).lean(),
+            newProducts: await model.find({new: "true"}).limit(8).lean(),
+            sale: await model.find({sale: { $exists: true} }).limit(8).lean(),
+            categories: await model.distinct("category").lean(),
+            randomProducts: await model.aggregate([
+                                { $sample: { size: 5 } }
+                            ]),
             cart: req.session.cart != undefined ? req.session.cart : []
         }
     },

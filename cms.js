@@ -443,6 +443,10 @@ app.get(  '/', async (req,res) => {
             {
                 name: "easy_heal",
                 url: "easy_heal"
+            },
+            {
+                name: "duty",
+                url: "duty"
             }
         ]
     });
@@ -762,7 +766,9 @@ var myFuncs = {
         // tech-portfolio
         portfolio: "gen",
         // natural_therapy
-        documentation: "gen"
+        documentation: "gen",
+        // duty
+        dutyDashboard: "auth",
 
     },
 
@@ -2823,6 +2829,22 @@ var myFuncs = {
     },
 
     easy_heal: async function(req,res) {
+        return {
+            success: true
+        }
+    },
+
+    dutyDashboard: async function(req,res) {
+
+        req.params.module = "dashboard";
+        let model = await this.createModel("duty-tasks");
+        return {
+            tasks: await model.find({email: req.session.person.email}).lean()
+        }
+
+    },
+
+    duty: async function(req,res) {
         return {
             success: true
         }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    
+    <div class="profile">
+
+        <div>{{data.profile.name}}</div>
+        <button>Log Out</button>
+
+    </div>
+
+    <div class="tasks">
+
+        {{#each data.tasks}}
+        <div>
+            <p>{{this.date}} | {{this.time}}</p>
+            <p>{{this.subject}}</p>
+            <p>{{this.comment}}</p>
+            <p>{{this.notify}}</p>
+        </div>
+        {{/each}}
+
+    </div>
+
+    <div class="notify">
+
+        <label for="token">Your telegram token</label>
+        <input type="text" placeholder="telegram token">
+        <button>Test trigger a notification</button>
+
+        <label for="time">Time of day you receive the notification</label>
+        <input type="time">
+
+        <button>Submit</button>
+
+    </div>
+    
+</body>
+</html>

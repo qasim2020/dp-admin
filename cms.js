@@ -403,51 +403,18 @@ app.get(  '/', async (req,res) => {
     // HERE ADD THE NEW APP YOU ARE WORKING ON
     console.log("MY APP - WELCOME");
     return res.status(200).render('root/showApps.hbs',{
-        apps: [
-            {
-                name: 'My App',
-                url: 'myapp'
-            },
-            {
-                name: '7am',
-                url: '7am',
-            },
-            {
-                name: 'trends',
-                url: 'trends',
-            },
-            {
-                name: '30 Days Challenge',
-                url: 'challenge',
-            },
-            {
-                name: 'life',
-                url: 'life'
-            },
-            {
-                name: 'tech',
-                url: 'tech',
-            },
-            {
-                name: 'richpakistan',
-                url: 'richpakistan'
-            },
-            {
-                name: 'chodhry',
-                url: 'chodhry'
-            },
-            {
-                name: "natural_therapy",
-                url: "natural_therapy"
-            },
-            {
-                name: "easy_heal",
-                url: "easy_heal"
-            },
-            {
-                name: "duty",
-                url: "duty"
-            }
+        apps: [ 
+            { name: 'My App', url: 'myapp' },
+            { name: '7am', url: '7am', },
+            { name: 'trends', url: 'trends', },
+            { name: '30 Days Challenge', url: 'challenge', },
+            { name: 'life', url: 'life' },
+            { name: 'tech', url: 'tech', },
+            { name: 'richpakistan', url: 'richpakistan' },
+            { name: 'chodhry', url: 'chodhry' },
+            { name: "natural_therapy", url: "natural_therapy" },
+            { name: "easy_heal", url: "easy_heal" },
+            { name: "duty", url: "duty" }
         ]
     });
 });
@@ -1389,7 +1356,6 @@ var myFuncs = {
                 if (modelExistsAlready) { delete mongoose.models[modelName] };
                 if (schemaExistsAlready) { delete mongoose.modelSchemas[modelName] };
                 let schema = await Collections.findOne({name: modelName}).lean();
-                console.log(schema);
                 return mongoose.models[modelName] || mongoose.model(modelName, new mongoose.Schema(schema.properties, { timestamps: { createdAt: 'created_at' } }));
             } catch(e) {
                 console.log( chalk.red.bold( 'Failed to create Model' + ':' + modelName ) );
@@ -2303,6 +2269,7 @@ var myFuncs = {
 
     destroySession: function(req,res) {
         req.session.destroy();
+        req.query.redirect = req.query.redirect || req.params.input;
         return {
             status: 200,
             redirect: req.params.input,
@@ -2356,14 +2323,14 @@ var myFuncs = {
         // console.log('checking signin');
         let model, output;
         try {
-                model = await this.createModel(`${req.params.brand}-users`);
-                output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-                // if 7am does not have this user look into myapp. it can be an brand. 
-                if (!output) throw new Error("no user found");
+            model = await this.createModel(`${req.params.brand}-users`);
+            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+            // if 7am does not have this user look into myapp. it can be an brand. 
+            if (!output) throw new Error("no user found");
         } catch(e) {
-                console.log(e);
-                model = await this.createModel('myapp-users');
-                output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+            console.log(e);
+            model = await this.createModel('myapp-users');
+            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         }
 
         // If still no user found , return mismatch
@@ -2839,7 +2806,13 @@ var myFuncs = {
         req.params.module = "dashboard";
         let model = await this.createModel("duty-tasks");
         return {
-            tasks: await model.find({email: req.session.person.email}).lean()
+            tasks: await model.find({email: req.session.person.email}).lean(),
+            user: {
+                name:  req.session.person.name,
+                email: req.session.person.email,
+                role:  req.session.person.role,
+                mobile:req.session.person.mobile,
+            }
         }
 
     },

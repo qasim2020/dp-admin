@@ -3,17 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <style>
+        .d-none {
+            display: none;
+        }
+        .tasks > div {
+            border: 2px solid black;
+            margin-bottom: 2px;
+            padding: 10px;
+            margin-top: 2px;
+        }
+    </style>
 </head>
 <body>
-    
-    <div class="profile">
 
-        <div>{{data.profile.name}}</div>
-        <button>Log Out</button>
+    <nav>
+
+        <button onclick="openLayer('.profile')">Profile</button>
+        <button onclick="openLayer('.tasks')">Tasks</button>
+        <button onclick="openLayer('.notify')">Notify</button>
+
+    </nav>
+    
+    <div class="layer profile d-none">
+
+        <div>{{data.user.name}}</div>
+        <div>{{data.user.email}}</div>
+        <div>{{data.user.mobile}}</div>
+        <div>{{data.user.role}}</div>
+        <a href="/duty/auth/page/destroySession/landingPage">Log Out</a>
 
     </div>
 
-    <div class="tasks">
+    <div class="layer tasks d-none">
 
         {{#each data.tasks}}
         <div>
@@ -26,18 +48,33 @@
 
     </div>
 
-    <div class="notify">
+    <div class="layer notify d-none">
 
-        <label for="token">Your telegram token</label>
-        <input type="text" placeholder="telegram token">
-        <button>Test trigger a notification</button>
+        <div>
+            <label for="token">Your telegram token</label>
+            <input type="text" name="token">
+            <button>Test trigger a notification</button>
+        </div>
 
-        <label for="time">Time of day you receive the notification</label>
-        <input type="time">
-
-        <button>Submit</button>
+        <div>
+            <label for="time">Time of day you receive the notification</label>
+            <input type="time" name="time">
+            <button>Submit</button>
+        </div>
 
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
+    <script>
+
+        let openLayer = function (elem) {
+
+            $(".layer").addClass("d-none");
+            $(elem).removeClass("d-none");
+
+        };
+
+    </script>
     
 </body>
 </html>

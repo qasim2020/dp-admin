@@ -7,11 +7,37 @@
         .d-none {
             display: none;
         }
-        .tasks > div {
-            border: 2px solid black;
-            margin-bottom: 2px;
-            padding: 10px;
-            margin-top: 2px;
+        .tasks > .grid {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(77px, auto)) minmax(138px,auto) minmax(155px, 900px) minmax(104px, auto);
+            grid-gap: 2px;
+            margin: 0px;
+            padding: 0px;
+            border: 2px solid darkcyan;
+        }
+
+        .tasks > .grid > button {
+
+        }
+
+        .tasks > .grid > p {
+            background: lightcyan;
+            margin: 0px;
+            margin-bottom: 3px;
+            padding: 3px;
+        }
+        .tasks > .grid > .text-center {
+            text-align: center;
+        }
+        .summary > table {
+            margin: auto;
+            width: 100%;
+            max-width: 600px;
+        }
+        .summary > table th, 
+        .summary > table td {
+            padding: 2px 4px;
+            text-align: center;
         }
     </style>
 </head>
@@ -21,6 +47,7 @@
 
         <button onclick="openLayer('.profile')">Profile</button>
         <button onclick="openLayer('.tasks')">Tasks</button>
+        <button onclick="openLayer('.summary')">Summary</button>
         <button onclick="openLayer('.notify')">Notify</button>
 
     </nav>
@@ -35,17 +62,36 @@
 
     </div>
 
-    <div class="layer tasks d-none">
+    <div class="layer tasks">
 
+        <button onclick="addTasks()">Add tasks</button>
+        <button class="saving d-none"></button>
         {{#each data.tasks}}
-        <div>
-            <p>{{this.date}} | {{this.time}}</p>
-            <p>{{this.subject}}</p>
-            <p>{{this.comment}}</p>
-            <p>{{this.notify}}</p>
+        <div class="grid" id="{{this._id}}">
+            <button onclick="deleteMe(this)">Delete</button>
+            <p my_name="date" editable class="text-center" contenteditable=true>{{this.date}}</p>
+            <p my_name="time" editable class="text-center" contenteditable=true>{{this.time}}</p>
+            <p my_name="subject" editable class="text-center" contenteditable=true>{{this.subject}}</p>
+            <p my_name="comment" editable contenteditable=true>{{this.comment}}</p>
+            <p my_name="notify" editable class="text-center" contenteditable=true>{{this.notify}}</p>
         </div>
         {{/each}}
 
+    </div>
+
+    <div class="layer summary d-none">
+        <table>
+            <tr>
+                <th>Task</th>
+                <th>Last executed</th>
+            </tr>
+            {{#each data.summary}}
+            <tr>
+                <td>{{this.subject}}</td>
+                <td>{{this.diff}} days ago</td>
+            </tr>
+            {{/each}}
+        </table>
     </div>
 
     <div class="layer notify d-none">
@@ -71,6 +117,82 @@
 
             $(".layer").addClass("d-none");
             $(elem).removeClass("d-none");
+
+        };
+
+        let addTasks = function() {
+
+            let html = `
+                <div class="grid no_mongo_id">
+                    <button onclick="deleteMe(this)">Delete</button>
+                    <p my_name="date" editable class="text-center" contenteditable=true>Date</p>
+                    <p my_name="time" editable class="text-center" contenteditable=true>Time</p>
+                    <p my_name="subject" editable class="text-center" contenteditable=true>Subject</p>
+                    <p my_name="comment" editable contenteditable=true>Commennt</p>
+                    <p my_name="notify" editable class="text-center" contenteditable=true>Notify</p>
+                </div>
+            `;
+
+            $(html).insertAfter(".layer.tasks > .saving");
+
+            $(".saving").removeClass("d-none").html("Fetching a new mongo Id");
+
+            $.get("/${urlParams().brand}/admin/data/getMongoId/n", function( data, status ){
+                if (status != "success") return alert("could not get the id");
+                console.log(data, status);
+                $(".saving").addClass("d-none").html("");
+                $(".no_mongo_id").attr({id: data}).removeClass("no_mongo_id");
+            });
+
+        };
+
+        $(document).on("keyup", "[editable]", function(e) {
+
+            $(".saving").removeClass("d-none").html("Saving...");
+            let _id = $(e.target).closest(".grid").attr("id");
+
+            if (_id == undefined) {
+                $(".saving").html("Couldn't find the document id. Waiting for an Id...");
+                return ;
+            };
+
+            let data = {
+                [$(e.target).attr("my_name")]: $(e.target).html()
+            };
+
+            console.log({data});
+
+            $.ajax({
+                url: `/duty/auth/data/updateDocumentAuth/tasks?_id=${_id}`,
+                method: "POST",
+                data: data,
+                success: val => {
+                    console.log(val);
+                    $(".saving").addClass("d-none");
+                },
+            }).fail( val => {
+                console.log(val);
+                $(".saving").html("Error while Saving");
+            }); 
+
+        });
+
+        let deleteMe = function(elem) {
+
+            let _id = $(elem).closest(".grid").attr("id");
+
+            $.ajax({
+                url: `/duty/auth/data/deleteDocumentAuth/tasks?_id=${_id}`,
+                method: "GET",
+                success: val => {
+                    console.log(val);
+                    $(".saving").html("Document deleted");
+                    $(elem).closest(".grid").remove();
+                }
+            }).fail( err => {
+                console.log(err);
+                $(".saving").html("Error while deleting");
+            });
 
         };
 

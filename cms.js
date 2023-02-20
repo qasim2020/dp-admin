@@ -562,7 +562,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        console.log(data);
+        // console.log(data);
         
         // sending data to page
         switch(true) {
@@ -687,6 +687,7 @@ var myFuncs = {
         changeSlideSequence: 'auth',
         uploadCloudinary: "auth",
         updateDocument: "admin",
+        updateDocumentAuth: "auth",
         importAndMerge: "auth",
         storeHTML: "admin",
         fetchCollectionData: "admin",
@@ -736,6 +737,7 @@ var myFuncs = {
         documentation: "gen",
         // duty
         dutyDashboard: "auth",
+        getSummaryOfTasks: "gen", 
 
     },
 
@@ -2801,12 +2803,121 @@ var myFuncs = {
         }
     },
 
+    updateDocumentAuth : async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
+
+        let output = await model.findOneAndUpdate({
+            _id : req.query._id, 
+            email: req.session.person.email
+        }, { $set: req.body }, {upsert: true, new: true});
+
+        return output;
+
+    },
+
+    getSummaryOfTasks: async function(req, res) {
+
+        let model = await this.createModel("duty-tasks");
+        if (!(req.session.person)) {
+            return {
+                error: "You are not logged in", 
+                status: 400
+            };
+        }
+        let subjects = await model.distinct("subject", {email: req.session.person.email}).lean();
+
+        let docs = await Promise.all( subjects.map((val) => {
+
+            return model.aggregate(
+                [
+                  {
+                    $match: {
+                      subject: val
+                    },
+                  },
+                  {
+                    $addFields:
+                      {
+                        newDate: {
+                          $concat: ["$date", "T", "$time"],
+                        },
+                      },
+                  },
+                  {
+                    $addFields: {
+                      newDate: {
+                        $dateFromString: {
+                          dateString: "$newDate",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $sort: {
+                      newDate: -1,
+                    },
+                  },
+                  {
+                    $limit: 1,
+                  },
+                ]
+            );
+
+        }));
+
+        docs = docs.map( val => {
+            const diffInMs   = new Date() - new Date(val[0].newDate)
+            const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            return {
+                dtg: val[0].newDate,
+                subject: val[0].subject,
+                diff: diffInDays.toPrecision(3)
+            }
+        }).sort( (a,b) => Number(b.diff) - Number(a.diff) );
+
+        // console.log(docs);
+
+        return docs;
+
+    },
+
     dutyDashboard: async function(req,res) {
 
         req.params.module = "dashboard";
         let model = await this.createModel("duty-tasks");
+        let output = await model.aggregate([
+          {
+            $match: {
+                email: req.session.person.email
+            }
+          },
+          {
+            $addFields:
+              {
+                newDate: {
+                  $concat: ["$date", "T", "$time"],
+                },
+              },
+          },
+          {
+            $addFields: {
+              newDate: {
+                $dateFromString: {
+                  dateString: "$newDate",
+                },
+              },
+            },
+          },
+          {
+            $sort: {
+                newDate: -1
+            }
+          }
+        ]);
         return {
-            tasks: await model.find({email: req.session.person.email}).lean(),
+            tasks: output, 
+            summary: await this.getSummaryOfTasks(req,res), 
             user: {
                 name:  req.session.person.name,
                 email: req.session.person.email,
@@ -6190,11 +6301,9 @@ var myFuncs = {
     },
 
     updateDocument : async function(req,res) {
-        console.log(req.body);
 
         let model = await this.createModel(req.params.input);
         let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});
-
         return output;
 
     },

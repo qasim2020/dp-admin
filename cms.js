@@ -743,6 +743,8 @@ var myFuncs = {
         userSignedUp: "gen",
         userChangedPw: "gen", 
         sendRecoveryCode: "gen", 
+        storeTelegramId: "auth", 
+        sendDutySummaryOnTelegram: "auth",
     },
 
     newDashboard: async function(req,res) {
@@ -2887,6 +2889,48 @@ var myFuncs = {
 
     },
 
+
+    storeTelegramId: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.findOneAndUpdate({
+            email: req.session.person.email
+        },{
+            $set: {
+                telegramId: req.body.telegramId
+            }
+        },{
+            new: true
+        });
+        req.session.person = output;
+        if (!(output)) return {
+            error: "No user found",
+            status: 400
+        }
+        else return {
+            success: true
+        };
+    }, 
+
+    sendDutySummaryOnTelegram: async function(req,res) {
+        let model = await this.createModel(`myapp-themes`);
+        let brandInfo = await model.findOne({brand: "duty"}).lean();
+        let summary = await this.getSummaryOfTasks(req,res);
+        let data = summary.reduce( (total, val, key) => {
+            return total += `Last ${val.subject} - ${val.diff} days ago \n`
+        },"");
+        console.log(brandInfo);
+        console.log(req.session.person);
+        let output = await this.axiosRequest({
+            method: "POST",
+            URL: `https://api.telegram.org/bot${brandInfo.telegramToken}/sendMessage?chat_id=${req.session.person.telegramId}&text=${data}`
+        });
+        console.log(output);
+        return {
+            status: output.status,
+            statusText: output.statusText
+        }
+    }, 
+
     dutyDashboard: async function(req,res) {
 
         req.params.module = "dashboard";
@@ -2928,6 +2972,7 @@ var myFuncs = {
                 email: req.session.person.email,
                 role:  req.session.person.role,
                 mobile:req.session.person.mobile,
+                telegramId: req.session.person.telegramId
             }
         }
 

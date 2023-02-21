@@ -149,6 +149,7 @@
             box-sizing: border-box;
         }
 
+        form > .looksBtn, 
         form > button {
             padding: 11px 5px;
             border: 1px solid black;
@@ -158,6 +159,8 @@
             width: 100%;
             font-weight: bold;
             margin-top: 20px;
+            text-align: center;
+            box-sizing: border-box;
         }
         @media only screen and (max-width: 600px) {
             .tasks > .grid {
@@ -231,18 +234,19 @@
 
     <div class="layer notify d-none" body="black">
 
-        <form action="">
-            <h1>Telegram token</h1>
-            <label for="token">Your telegram token</label>
-            <input type="text" name="token">
-            <button>Test trigger a notification</button>
+        <form action="" class="telegram-id-form">
+            <h1>Telegram Id</h1>
+            <label for="telegramId">Your telegramId</label>
+            <input required type="text" name="telegramId" value="{{data.user.telegramId}}">
+            <button type="submit">Submit</button>
+            <p class="looksBtn" onclick="triggerTelegramNotification(this)">Test trigger a notification</p>
         </form>
 
         <form action="">
             <h1>Trigger</h1>
             <label for="time">Time of day you receive the notification</label>
-            <input type="time" name="time">
-            <button>Submit</button>
+            <input required type="time" name="time">
+            <button type="submit">Submit</button>
         </form>
 
     </div>
@@ -362,6 +366,39 @@
                 $(".saving").html("Error while deleting");
             });
 
+        };
+
+        $('.telegram-id-form').on('submit',function(e) {
+            $(this).find('[type="submit"]').html("Sending...");
+            e.preventDefault();
+            console.log ( $(this).serialize() );
+            $.ajax({
+                method: "POST",
+                url: '/duty/gen/data/storeTelegramId/n',
+                data: $(this).serialize(),
+                success: val => {
+                    console.log(val);
+                    $(this).find('[type="submit"]').html("Id stored.");
+                }
+            }).fail( err => {
+                console.log(err);
+                $(this).find('[type="submit"]').html(err.responseText);
+            });
+        });
+
+        let triggerTelegramNotification = function(elem) {
+            $.ajax({
+                method: "GET",
+                url: '/duty/gen/data/sendDutySummaryOnTelegram/n',
+                success: val => {
+                    console.log(val);
+                    $(elem).html("Notification sent to your telegram app.");
+                }
+            }).fail( err => {
+                console.log(err);
+                $(elem).html(err.responseText);
+            });
+            
         };
 
     </script>

@@ -2961,11 +2961,14 @@ var myFuncs = {
 
     userSignedUp: async function(req,res) {
 
+        let length = 10000000000000000000000000000000000;
+        let code = (Math.floor(Math.random() * length) + length).toString().substring(1);
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.create({
             name: req.body.name,
             email: req.body.email,
             password: req.body.password,
+            code: code,
             role: "auth"
         });
         req.session.person = output;

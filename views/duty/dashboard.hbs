@@ -137,7 +137,7 @@
 
             $(".saving").removeClass("d-none").html("Fetching a new mongo Id");
 
-            $.get("/${urlParams().brand}/admin/data/getMongoId/n", function( data, status ){
+            $.get("/duty/auth/data/getMongoId/n", function( data, status ){
                 if (status != "success") return alert("could not get the id");
                 console.log(data, status);
                 $(".saving").addClass("d-none").html("");

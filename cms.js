@@ -537,10 +537,11 @@ var myFuncs = {
                 owner: await getOwnerContactDetails(req,res),
                 requiredType: req.params.requiredType,
                 theme: await this.getThemeName(req.params.brand),
+                query: req.query
             });
 
         } catch(e) {
-            // console.log(e)
+            console.log(e)
         }
 
         let storeThisFileInSession = async function() {
@@ -562,7 +563,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        // console.log(data);
+        console.log(data);
         
         // sending data to page
         switch(true) {
@@ -738,7 +739,9 @@ var myFuncs = {
         // duty
         dutyDashboard: "auth",
         getSummaryOfTasks: "gen", 
-
+        userSignedUp: "gen",
+        userChangedPw: "gen", 
+        sendRecoveryCode: "gen", 
     },
 
     newDashboard: async function(req,res) {
@@ -2928,6 +2931,48 @@ var myFuncs = {
 
     },
 
+    userChangedPw: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+        console.log(req.body);
+        let output = await model.findOneAndUpdate({
+            email: req.body.email, 
+            code: req.body.code,
+        },{
+            $set: {
+                password: req.body.password
+            }
+        }).lean();
+
+        console.log(output);
+
+        if (!(output)) return {
+                status: 400,
+                error: "Bad request. Try reseting password again."
+            } 
+        else return {
+                success: "Password changed!"
+            }
+        
+
+    }, 
+
+    userSignedUp: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.create({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            role: "auth"
+        });
+        req.session.person = output;
+        req.session.person.brand = output.brand || req.params.brand;
+
+        return output;
+
+    }, 
+
     duty: async function(req,res) {
         return {
             success: true
@@ -4710,8 +4755,6 @@ var myFuncs = {
 
         let model = await this.createModel(`myapp-themes`);
         let output = await model.findOne({brand: brand}).lean();
-
-        console.log(output);
 
         let transporter = nodemailer.createTransport({
           host: output.brandEmailServerLoc.trim(), 
@@ -7089,11 +7132,49 @@ Receipt sent by Server.`;
 
     },
 
+    sendRecoveryCode: async function(req,res) {
+
+        let length = 10000000;
+        let code = (Math.floor(Math.random() * length) + length).toString().substring(1);
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let user = await model.findOneAndUpdate({email: req.body.email},{
+            $set: {
+                code: code
+            }
+        },{
+            new: true
+        });
+
+        if (!(user)) return {
+            error: "Please sign up. This email does not exist!",
+            status: 400
+        };
+
+        req.body = {
+            msgText: `
+<p>Hi ${user.name}, </p>
+<p> Your verification code is ${code}. Please enter this code in the form where you requested code or click on below link to reset your password.  </p>
+<p> ${process.env.url}/duty/gen/page/landingPage/rp?email=${user.email}&code=${code} </p>
+<p> — duty </p>
+            `,
+            toEmail: user.email,
+            msgSubject: "Recover password to Duty",
+            brand: req.params.brand
+        };
+
+        let output = await this.sendMsgToEmail(req,res);
+
+        return {
+            mail: output,
+            userEmail: user.email
+        };
+
+    }, 
+
     sendMsgToEmail: async function(req, res) {
 
         console.log("sending email");
 
-        console.log(req.body);
         if ( !( req.body.msgText && req.body.toEmail && req.body.msgSubject ) ) return {
             status: 404, 
             error: "Sorry you missed some fields."

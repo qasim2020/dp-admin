@@ -78,8 +78,37 @@
 <body>
 
     <div class="container">
+        
 
-        <form action="" method="post">
+        <form class="form-sign-in" action="" method="post">
+
+            <h1>Sign In to {{data.brand}}</h1>
+
+            <label for="email">Email</label>
+            <input name="email" type="email" value="" required=true>
+            
+            <label for="password">Password</label>
+            <input name="password" type="password" id="password" placeholder="Write your password here" required=true>
+
+            <button id="submitButton" type="submit">Submit</button>
+
+        </form>
+
+        <form class="form-sign-up d-none" action="" method="post">
+
+            <h1>Sign In to {{data.brand}}</h1>
+
+            <label for="email">Email</label>
+            <input name="email" type="email" value="" required=true>
+            
+            <label for="password">Password</label>
+            <input name="password" type="password" id="password" placeholder="Write your password here" required=true>
+
+            <button id="submitButton" type="submit">Submit</button>
+
+        </form>
+
+        <form class="form-fp d-none" action="" method="post">
 
             <h1>Sign In to {{data.brand}}</h1>
 
@@ -99,7 +128,7 @@
 
     <script>
 
-        $('form').on('submit',function(e) {
+        $('.form-sign-in').on('submit',function(e) {
             e.preventDefault();
             console.log($(this).serialize());
             $.ajax({

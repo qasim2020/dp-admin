@@ -2916,16 +2916,21 @@ var myFuncs = {
         let brandInfo = await model.findOne({brand: "duty"}).lean();
         let summary = await this.getSummaryOfTasks(req,res);
         let data = summary.reduce( (total, val, key) => {
-            return total += `Last ${val.subject} - ${val.diff} days ago \n`
+            return total += `${val.subject} : ${val.diff} days ago \n`
         },"");
-        console.log(brandInfo);
-        console.log(req.session.person);
+       // console.log(brandInfo);
+       // console.log(req.session.person);
+       // console.log(`https://api.telegram.org/bot${brandInfo.telegramToken}/sendMessage?chat_id=${req.session.person.telegramId}&text=${data}`);
         let output = await this.axiosRequest({
             method: "POST",
             URL: `https://api.telegram.org/bot${brandInfo.telegramToken}/sendMessage?chat_id=${req.session.person.telegramId}&text=${data}`
         });
-        console.log(output);
-        return {
+        // console.log(output);
+        if (output.ok == false) return {
+            status: 404,
+            error: output.description
+        } 
+        else return { 
             status: output.status,
             statusText: output.statusText
         }

@@ -387,6 +387,7 @@
         });
 
         let triggerTelegramNotification = function(elem) {
+	    $(elem).html("Sending...");
             $.ajax({
                 method: "GET",
                 url: '/duty/gen/data/sendDutySummaryOnTelegram/n',

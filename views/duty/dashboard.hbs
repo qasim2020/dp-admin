@@ -5,13 +5,51 @@
     <title>Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        * {
+            font-family: "arial";
+        }
+        body.black {
+            background: black;
+        }
+        body.white {
+            background: white;
+        }
         .d-none {
             display: none;
         }
-        button {
+        button,
+        nav > a {
+            cursor: pointer;
             background: white;
             border: 2px solid black;
-            padding: 4px 8px;
+            padding: 8px;
+            display: block;
+            font-size: 13px;
+            text-decoration: none;
+            color: black;
+            font-family: "arial";
+        }
+        nav > button {
+            border-right: 1px solid black;
+        }
+        .grid > button:hover {
+            opacity: 0.6;
+        }
+        .grid > button {
+            background: #e0fffe;
+            border-color: #e0fffe;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button.active {
+            background: black;
+            font-weight: bold;
+            color: white;
+        }
+        nav > a {
+            border-right: 2px solid black;
+            background: #fbe9e7;
+            color: #bf360c;
         }
         nav {
             display: flex;
@@ -19,9 +57,26 @@
             justify-content: center;
             margin-bottom: 10px;
         }
+        .layer.profile > .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            font-size: 2rem;
+            display: flex;
+            color: white;
+            background: black;
+        }
+        .layer.notify {
+            background: black;
+            height: 90vh;
+            max-height: 100%;
+            padding-top: 4px;
+        }
         .tasks > .grid {
             display: grid;
-            grid-template-columns: repeat(3,minmax(77px, auto)) minmax(138px,auto) minmax(155px, 900px) minmax(104px, auto);
+            grid-template-columns: repeat(3,minmax(77px, auto)) minmax(170px,auto) minmax(155px, 900px) minmax(104px, auto);
             grid-gap: 2px;
             margin: 0px;
             padding: 0px;
@@ -33,16 +88,14 @@
             justify-content: center;
             margin: 10px 0;
         }
-        .tasks > .bar > p {
-            line-height: 0;
-            margin: 0;
-            padding: 0;
-            padding-left: 10px;
+        .tasks > .bar > button {
+            max-width: 600px;
+            width: 100%;
         }
         .tasks > .grid > p {
             background: lightcyan;
             margin: 0px;
-            padding: 3px;
+            padding: 10px;
         }
         .tasks > .grid > .text-center {
             display: flex;
@@ -51,19 +104,72 @@
         }
         .summary > table {
             margin: auto;
-            width: 100%;
-            max-width: 600px;
+            max-width: 98%;
+            width: 600px;
+            background: black;
         }
         .summary > table th, 
         .summary > table td {
-            padding: 2px 4px;
             text-align: center;
+            background: white;
+            padding: 10px;
+        }
+        form {
+            max-width: 90vw;
+            width: 600px;
+            padding: 30px 20px;
+            border: 2px solid black;
+            background: white;
+            border-radius: 5px;
+            margin: auto;
+            margin-bottom: 6px;
+        }
+
+        form > * {
+            display: block;
+            margin-bottom: 10px;
+            padding: 5px 0px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        form > h1 {
+            font-size: 20px;
+            text-align: center;
+            margin: 0px;
+            margin-bottom: 19px;
+        }
+
+        form > input {
+            padding: 11px 5px;
+            background: white;
+            border: 1px solid black;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        form > button {
+            padding: 11px 5px;
+            border: 1px solid black;
+            background: black;
+            color: white;
+            font-size: 15px;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 20px;
         }
         @media only screen and (max-width: 600px) {
             .tasks > .grid {
                 grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
                 margin-bottom: 4px;
                 border: 2px solid black;
+            }
+            .grid > button {
+                background: black;
+                border-color: black;
+                cursor: pointer;
+                font-weight: bold;
+                color: white;
             }
         }
     </style>
@@ -72,28 +178,29 @@
 
     <nav>
 
-        <button onclick="openLayer('.profile')">Profile</button>
-        <button onclick="openLayer('.tasks')">Tasks</button>
-        <button onclick="openLayer('.summary')">Summary</button>
-        <button onclick="openLayer('.notify')">Notify</button>
+        <button trigger="profile" onclick="openLayer('.profile', this)">Profile</button>
+        <button trigger="tasks" onclick="openLayer('.tasks', this)" class="active">Tasks</button>
+        <button trigger="summary" onclick="openLayer('.summary', this)">Summary</button>
+        <button trigger="notify" onclick="openLayer('.notify', this)">Notify</button>
+        <a href="/duty/auth/page/destroySession/landingPage">Log Out</a>
 
     </nav>
     
-    <div class="layer profile d-none">
+    <div class="layer profile d-none" body="black">
 
-        <div>{{data.user.name}}</div>
-        <div>{{data.user.email}}</div>
-        <div>{{data.user.mobile}}</div>
-        <div>{{data.user.role}}</div>
-        <a href="/duty/auth/page/destroySession/landingPage">Log Out</a>
+        <div class="flex-center">
+            <div>{{data.user.name}}</div>
+            <div>{{data.user.email}}</div>
+            <div>{{data.user.mobile}}</div>
+            <div>{{data.user.role}}</div>
+        </div>
 
     </div>
 
-    <div class="layer tasks">
+    <div class="layer tasks" body="white">
 
         <div class="bar">
-            <button onclick="addTasks()">Add tasks</button>
-            <p class="saving d-none">Saving...</p>
+            <button class="saving" onclick="addTasks()">Add tasks</button>
         </div>
         {{#each data.tasks}}
         <div class="grid" id="{{this._id}}">
@@ -108,7 +215,7 @@
 
     </div>
 
-    <div class="layer summary d-none">
+    <div class="layer summary d-none" body="white">
         <table>
             <tr>
                 <th>Task</th>
@@ -123,29 +230,62 @@
         </table>
     </div>
 
-    <div class="layer notify d-none">
+    <div class="layer notify d-none" body="black">
 
-        <div>
+        <form action="">
+            <h1>Telegram token</h1>
             <label for="token">Your telegram token</label>
             <input type="text" name="token">
             <button>Test trigger a notification</button>
-        </div>
+        </form>
 
-        <div>
+        <form action="">
+            <h1>Trigger</h1>
             <label for="time">Time of day you receive the notification</label>
             <input type="time" name="time">
             <button>Submit</button>
-        </div>
+        </form>
 
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="  crossorigin="anonymous"></script>
     <script>
+        let urlParams = function() {
 
-        let openLayer = function (elem) {
+            let url = {
+                origin: window.location.origin, 
+                brand: window.location.pathname.split("/")[1],
+                permit: window.location.pathname.split("/")[2],
+                requiredType: window.location.pathname.split("/")[3],
+                module: window.location.pathname.split("/")[4],
+                input: window.location.pathname.split("/")[5],
+            };
+
+            return url;
+
+        };
+
+        $(".layer").addClass("d-none");
+        $(`.${urlParams().input}`).removeClass("d-none");
+        $(`[trigger=${urlParams().input}]`).addClass("active").siblings().removeClass("active");
+        $("body").removeAttr("class").addClass( $(`.${urlParams().input}`).attr("body") );
+
+        let openLayer = function (elem, me) {
 
             $(".layer").addClass("d-none");
+            $(me).siblings().removeClass("active");
+            $(me).addClass("active");
             $(elem).removeClass("d-none");
+            if (history.pushState) {
+                let firstPart = window.location.pathname.split("/dutyDashboard/")[0];
+                let lastPart = "/dutyDashboard/" + elem.replace(".","");
+                let newurl = 
+                    window.location.origin +
+                    firstPart +
+                    lastPart;
+                window.history.pushState({path:newurl},'',newurl);
+            }
+            $("body").removeAttr("class").addClass( $(elem).attr("body") );
 
         };
 
@@ -164,12 +304,12 @@
 
             $(html).insertAfter(".layer.tasks > .bar");
 
-            $(".saving").removeClass("d-none").html("Fetching a new mongo Id");
+            $(".saving").html("Fetching a new mongo Id");
 
             $.get("/duty/auth/data/getMongoId/n", function( data, status ){
                 if (status != "success") return alert("could not get the id");
                 console.log(data, status);
-                $(".saving").addClass("d-none").html("");
+                $(".saving").html("Add tasks");
                 $(".no_mongo_id").attr({id: data}).removeClass("no_mongo_id");
             });
 
@@ -177,7 +317,7 @@
 
         $(document).on("keyup", "[editable]", function(e) {
 
-            $(".saving").removeClass("d-none").html("Saving...");
+            $(".saving").html("Saving...");
             let _id = $(e.target).closest(".grid").attr("id");
 
             if (_id == undefined) {
@@ -197,11 +337,11 @@
                 data: data,
                 success: val => {
                     console.log(val);
-                    $(".saving").addClass("d-none");
+                    $(".saving").html("Add tasks");
                 },
-            }).fail( val => {
-                console.log(val);
-                $(".saving").html("Error while Saving");
+            }).fail( err => {
+                console.log(err);
+                $(".saving").html(err.responseText);
             }); 
 
         });
@@ -209,13 +349,13 @@
         let deleteMe = function(elem) {
 
             let _id = $(elem).closest(".grid").attr("id");
-
+            $(".saving").html("Deleting...");
             $.ajax({
                 url: `/duty/auth/data/deleteDocumentAuth/tasks?_id=${_id}`,
                 method: "GET",
                 success: val => {
                     console.log(val);
-                    $(".saving").html("Document deleted");
+                    $(".saving").html("Add tasks");
                     $(elem).closest(".grid").remove();
                 }
             }).fail( err => {

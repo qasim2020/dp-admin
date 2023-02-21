@@ -355,15 +355,14 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
     let checkCollectionExists = await myFuncs.checkCollectionExists(`${req.params.brand}-users`);
 
     if (checkCollectionExists) {
-        // console.log(req.params.requiredType)
         if (req.params.requiredType != "page" && req.params.requiredType != "pjax") return res.status(404).send("sign in is required or may be module does not exist");
-        return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
+        return res.redirect(`/${req.params.brand}/gen/page/landingPage/n/`);
     };
     
     checkCollectionExists = await myFuncs.checkCollectionExists(`myapp-users`);
 
     if (checkCollectionExists) {
-        return res.redirect(`/${req.params.brand}/gen/page/signin/home/`);
+        return res.redirect(`/${req.params.brand}/gen/page/landingPage/n/`);
     };
     // console.log(chalk.bold.yellow('All checks completed moving to admin route!'));
     next();
@@ -378,18 +377,17 @@ let openBrand = async (req,res) => {
 };
 
 let openAdmin = async (req,res) => {
-    return res.redirect(`/${req.params.brand}/admin/page/signin/n`);
+    return res.redirect(`/${req.params.brand}/admin/page/landingPage/n`);
 };
 
 let replyFunction = async (req,res) => {
 
     try {
         req.params.theme = await myFuncs.getThemeName(req.params.brand);
-        // console.log({module: req.params.module});
         let data = await myFuncs[req.params.module](req,res);
         myFuncs.respond(data,req,res);
     } catch(e) {
-        // console.log(e);
+        console.log(e);
         res.status(e.status || 400).send(e);
     }
 
@@ -563,12 +561,15 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        console.log(data);
+        // console.log(data);
         
         // sending data to page
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
-            return res.redirect(`/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}?msg=${data.msg}`);
+            let url = 
+            `/${req.params.brand}/${req.params.permit}/${req.params.requiredType}/${req.query.redirect}/${req.query.redirectInput}`;
+            if (data.msg && data.msg.length > 0) url += `?msg=${data.msg}`;
+            return res.redirect(url);
             break;
           case (req.params.requiredType == 'data'):
             return res.status(200).send(data);
@@ -2275,6 +2276,7 @@ var myFuncs = {
     destroySession: function(req,res) {
         req.session.destroy();
         req.query.redirect = req.query.redirect || req.params.input;
+        req.query.redirectInput = req.query.redirectInput || "n";
         return {
             status: 200,
             redirect: req.params.input,

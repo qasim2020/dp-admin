@@ -3,9 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .d-none {
             display: none;
+        }
+        button {
+            background: white;
+            border: 2px solid black;
+            padding: 4px 8px;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
         }
         .tasks > .grid {
             display: grid;
@@ -13,21 +25,29 @@
             grid-gap: 2px;
             margin: 0px;
             padding: 0px;
-            border: 2px solid darkcyan;
+            margin-bottom: 3px;
         }
-
-        .tasks > .grid > button {
-
+        .tasks > .bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
         }
-
+        .tasks > .bar > p {
+            line-height: 0;
+            margin: 0;
+            padding: 0;
+            padding-left: 10px;
+        }
         .tasks > .grid > p {
             background: lightcyan;
             margin: 0px;
-            margin-bottom: 3px;
             padding: 3px;
         }
         .tasks > .grid > .text-center {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .summary > table {
             margin: auto;
@@ -38,6 +58,13 @@
         .summary > table td {
             padding: 2px 4px;
             text-align: center;
+        }
+        @media only screen and (max-width: 600px) {
+            .tasks > .grid {
+                grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+                margin-bottom: 4px;
+                border: 2px solid black;
+            }
         }
     </style>
 </head>
@@ -64,8 +91,10 @@
 
     <div class="layer tasks">
 
-        <button onclick="addTasks()">Add tasks</button>
-        <button class="saving d-none"></button>
+        <div class="bar">
+            <button onclick="addTasks()">Add tasks</button>
+            <p class="saving d-none">Saving...</p>
+        </div>
         {{#each data.tasks}}
         <div class="grid" id="{{this._id}}">
             <button onclick="deleteMe(this)">Delete</button>
@@ -133,7 +162,7 @@
                 </div>
             `;
 
-            $(html).insertAfter(".layer.tasks > .saving");
+            $(html).insertAfter(".layer.tasks > .bar");
 
             $(".saving").removeClass("d-none").html("Fetching a new mongo Id");
 

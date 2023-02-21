@@ -7155,11 +7155,17 @@ Receipt sent by Server.`;
             status: 400
         };
 
+//   console.log(req.headers);
+  //   let test = Object.values(req.headers).some( val => (/dt.qasim.tech/g).test(val) );
+  //   console.log(test);
+
+  //   if (test) req.session.url = "https://dt.qasim.tech";
+
         req.body = {
             msgText: `
 <p>Hi ${user.name}, </p>
 <p> Your verification code is ${code}. Please enter this code in the form where you requested code or click on below link to reset your password.  </p>
-<p> ${process.env.url}/duty/gen/page/landingPage/rp?email=${user.email}&code=${code} </p>
+<p> ${req.headers.origin}/duty/gen/page/landingPage/rp?email=${user.email}&code=${code} </p>
 <p> — duty </p>
             `,
             toEmail: user.email,

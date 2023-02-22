@@ -1,5 +1,5 @@
 # Introduction
-Playground is my server side nodejs code that is serving following websites. This means that a single droplet on Digital Ocean can be used to serve multiple projects. It is only Nodejs, MongoDB, Handlebars and Pjax. There is no React or similar framework.
+Playground is my server side nodejs code that is serving following websites. This means that a single droplet on Digital Ocean can be used to serve multiple websites. It is only Nodejs, MongoDB, Handlebars and Pjax. There is no React or similar framework.
 - [7amuniforms.com](https://7amuniforms.com)
 - [defence-properties.com](https://defence-properties.com)
 - [nt.qasim.tech](https://nth.qasim.tech)

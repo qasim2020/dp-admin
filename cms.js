@@ -327,10 +327,27 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
             case (myFuncs.moduleRole[req.params.module] == 'auth'):
                 return next();
             // Admin == Admin && root == root
-            case (myFuncs.moduleRole[req.params.module] == 'admin' && req.session.person.role == 'auth'): 
+            case (myFuncs["moduleRole"][req.params.module] == 'admin' && req.session.person.role == 'auth'): 
                 return res.send('you are trying to access admin page while your role is auth only');
                 break;
-            case (req.session.person.role == req.params.permit && req.session.person.brand.split(",").some( val => val.trim() == req.params.brand ) ) :
+            // Auth is accessing an auth role
+            case (
+                req.session.person.role == "auth", 
+                req.params.permit == "auth", 
+                myFuncs["moduleRole"][req.params.module] == "auth"
+            ) :
+                console.log(`
+                request type = ${req.params.permit}
+                user role = ${req.session.person.role}
+                module role = ${myFuncs["moduleRole"][req.params.module]}
+                `);
+                return next();
+                break;
+            // Admin is accessing and it is his own brand
+            case (
+                req.session.person.role == req.params.permit && 
+                req.session.person.brand.split(",").some( val => val.trim() == req.params.brand ) 
+            ) :
                 return next();
                 break;
             // 'Auth' role tries to access 'Admin' Module
@@ -745,6 +762,7 @@ var myFuncs = {
         sendRecoveryCode: "gen", 
         storeTelegramId: "auth", 
         sendDutySummaryOnTelegram: "auth",
+        deleteMyAccount: "auth",
     },
 
     newDashboard: async function(req,res) {
@@ -2911,6 +2929,17 @@ var myFuncs = {
         };
     }, 
 
+    deleteMyAccount: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.deleteOne({email: req.session.person.email});
+        req.params.module = "landingPage";
+        return {
+            success: true
+        }
+
+    },
+
     sendDutySummaryOnTelegram: async function(req,res) {
         let model = await this.createModel(`myapp-themes`);
         let brandInfo = await model.findOne({brand: "duty"}).lean();
@@ -3014,6 +3043,12 @@ var myFuncs = {
         let length = 10000000000000000000000000000000000;
         let code = (Math.floor(Math.random() * length) + length).toString().substring(1);
         let model = await this.createModel(`${req.params.brand}-users`);
+        let checkUserExists = await model.count({email: req.body.email}).lean();
+        if (checkUserExists.length > 0) return {
+            error: "404",
+            status: "User already exists. Try resetting your password"
+        };
+
         let output = await model.create({
             name: req.body.name,
             email: req.body.email,

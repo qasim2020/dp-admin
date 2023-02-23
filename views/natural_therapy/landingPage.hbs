@@ -1980,6 +1980,7 @@
       console.log('btn pressed');
       $('.custom-container .error').addClass('d-none');
       $('.custom-container .success').addClass('d-none');
+      $(".button-press .btn-query").html("Sending...");
 
       if ($('.custom-container > textarea').val() == '') {
         return $('.custom-container .error').removeClass('d-none').find('p').html('Please write your message and then click this button !');
@@ -2017,9 +2018,11 @@ ${ $('.custom-container > textarea').val() }
         }
       }).done(msg => {
         console.log(msg);
+        $(".button-press .btn-query").html("Done!");
         return $('.custom-container .success').removeClass('d-none').find('p').html('Great ! As soon as I find time I will get back to you. Please make sure you included your contact details in this message. If not go ahead and submit your message again with your contact details. Happy Day :)');
       }).fail(e => {
-        console.log('failed',e);
+        console.log(e);
+        $(".button-press .btn-query").html("Error.");
         return $('.custom-container .error').removeClass('d-none').find('p').html(e.responseText);
       })
     })

@@ -7422,7 +7422,8 @@ Receipt sent by Server.`;
             siblings: getSiblings(product, school_products),
             product: product_details.product,
             sizes: product_details.sizes,
-            avalSize: first_aval_size 
+            avalSize: first_aval_size,
+            cart: req.session.cart != undefined ? req.session.cart : []
         }
         
 

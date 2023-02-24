@@ -225,6 +225,19 @@ hbs.registerHelper('match', function(val1,val2) {
   return val1.toUpperCase() == val2.toUpperCase() ? true : false;
 })
 
+hbs.registerHelper('getDateForInput', function(val) {
+    let date = new Date(val);
+    let formatted = 
+        date.getFullYear() + '-' + 
+        ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + 
+        ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+    return formatted;
+});
+
+hbs.registerHelper('getTimeForInput', function(val) {
+    return val.match(/.{2}/g).join(":");
+});
+
 hbs.registerHelper('getDatePickerValue', function(val) {
     let date = new Date(val);
     let formatted = 

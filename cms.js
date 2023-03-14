@@ -442,7 +442,8 @@ app.get(  '/', async (req,res) => {
             { name: 'chodhry', url: 'chodhry' },
             { name: "natural_therapy", url: "natural_therapy" },
             { name: "easy_heal", url: "easy_heal" },
-            { name: "duty", url: "duty" }
+            { name: "duty", url: "duty" },
+            { name: "dedicated_parents", url: "dedicated_parents"}
         ]
     });
 });
@@ -3081,6 +3082,14 @@ var myFuncs = {
             success: true
         }
     },
+
+    dedicated_parents: async function(req, res) {
+
+        return {
+            success: true
+        }
+
+    }, 
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);

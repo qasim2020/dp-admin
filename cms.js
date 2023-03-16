@@ -3084,12 +3084,67 @@ var myFuncs = {
     },
 
     dedicated_parents: async function(req, res) {
-
+        req.params.module = req.query.lang || "en";
         return {
             success: true
         }
-
     }, 
+
+    d_pblogs: async function(req,res) {
+        req.params.module = "blogs";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pblog: async function(req,res) {
+        req.params.module = "blog";
+        return {
+            success: true
+        }
+    },
+
+    d_pevents: async function(req,res) {
+        req.params.module = "events";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pevent: async function(req,res) {
+        req.params.module = "event";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pstaffs: async function(req,res) {
+        req.params.module = "staffs";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pstaff: async function(req,res) {
+        req.params.module = "staff";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pcauses: async function(req,res) {
+        req.params.module = "causes";
+        return {
+            success: true
+        }
+    }, 
+
+    d_pcause: async function(req,res) {
+        req.params.module = "cause";
+        return {
+            success: true
+        }
+    },
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);

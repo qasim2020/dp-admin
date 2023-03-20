@@ -2,6 +2,7 @@
 // tech-portfolio
 // life - portfolio website
 // testing change
+// dedicatedparents
 
 const DatauriParser=require("datauri/parser");
 const parser = new DatauriParser();
@@ -777,6 +778,19 @@ var myFuncs = {
         storeTelegramId: "auth", 
         sendDutySummaryOnTelegram: "auth",
         deleteMyAccount: "auth",
+
+        // dedicatedparents
+        d_pevents: "gen",
+        d_pevent: "gen",
+        d_pstaffs: "gen",
+        d_pstaff: "gen",
+        d_pcauses: "gen",
+        d_pcause: "gen",
+        d_pblogs: "gen",
+        d_pblog: "gen",
+        d_ppages: "gen",
+        d_ppage: "gen",
+        d_pcontact: "gen",
     },
 
     newDashboard: async function(req,res) {
@@ -3090,6 +3104,20 @@ var myFuncs = {
         }
     }, 
 
+    d_ppages: async function(req,res) {
+        req.params.module = "blogs";
+        return {
+            success: true
+        }
+    }, 
+
+    d_ppage: async function(req,res) {
+        req.params.module = "blog";
+        return {
+            success: true
+        }
+    }, 
+
     d_pblogs: async function(req,res) {
         req.params.module = "blogs";
         return {
@@ -3141,6 +3169,13 @@ var myFuncs = {
 
     d_pcause: async function(req,res) {
         req.params.module = "cause";
+        return {
+            success: true
+        }
+    },
+
+    d_pcontact: async function(req,res) {
+        req.params.module = "contact";
         return {
             success: true
         }

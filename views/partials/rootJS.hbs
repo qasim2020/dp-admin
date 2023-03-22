@@ -692,7 +692,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
     let addNewRow = function(cloneMe, elem, type) {
         
         console.log("add new row clicked");
-        $.get("/${urlParams().brand}/gen/data/getMongoId/n", function( data, status ){
+        $.get(`/${urlParams().brand}/gen/data/getMongoId/n`, function( data, status ){
             if (status != "success") return alert("could not get the id");
             console.log(data, status);
             $(elem).closest("tr")

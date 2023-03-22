@@ -451,6 +451,8 @@
         <div class="container" id="pjax-container">
             {{#if data.dataRows}}
             {{> rootTable schema=data.schema dataRows=data.dataRows}} 
+            {{else}}
+            {{> rootTable schema=data.schema}} 
             {{/if}}
             
             {{#if data.slides}}

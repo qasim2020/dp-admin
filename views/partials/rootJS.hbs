@@ -461,7 +461,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let saveInput = function(elem, _id, type, optData) {
 
-        console.log( {elem, _id, type, optData } );
+        // console.log( {elem, _id, type, optData } );
 
         $(".listedPhotos").addClass("d-none");
 
@@ -535,6 +535,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             _id = $(elem).closest("tr").find("[index=col0]").html();
         }
 
+        console.log("saving");
         $(".btn.saving").html("Saving...").removeClass("d-none");
 
         $.ajax({
@@ -690,12 +691,15 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let addNewRow = function(cloneMe, elem, type) {
         
-        $.get("/${urlParams().brand}/admin/data/getMongoId/n", function( data, status ){
+        console.log("add new row clicked");
+        $.get("/${urlParams().brand}/gen/data/getMongoId/n", function( data, status ){
             if (status != "success") return alert("could not get the id");
+            console.log(data, status);
             $(elem).closest("tr")
                 .clone()
                 .attr({id: "row" + ( $("tr").get().length - 1 )})
                 .appendTo("tbody")
+                .removeClass("d-none")
                 .find("td:eq(0)").html(`
                     <a class="icon" onclick="deleteMe(this)"><i class="fas fa-trash" aria-hidden="true"></i></a>
                     <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt" aria-hidden="true"></i></a>

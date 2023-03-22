@@ -644,7 +644,7 @@ var myFuncs = {
         createNewCollection: 'admin',
         saveSequence: 'auth',
         updateSequence: 'auth',
-        newDashboard: 'admin',
+        newDashboard: 'auth',
         showCollection: 'admin',
         destroySession: 'auth',
         checkAdmin: 'admin',

@@ -218,7 +218,7 @@
                 console.log(data);
                 $(this).find('[type="submit"]').html(data.error || data.success);
                 if (data.error) return 'Click on show collections to go home';
-                window.location.href = `/duty/auth/page/dutyDashboard/tasks`;
+                window.location.href = `/{{data.brand}}/auth/page/dutyDashboard/tasks`;
               }
             }).fail( err => {
                 console.log(err);
@@ -236,7 +236,7 @@
               success: (data) => {
                 console.log(data);
                 $(this).find('[type="submit"]').html(data.error || data.success);
-                window.location.href = `/duty/auth/page/dutyDashboard/tasks`;
+                window.location.href = `/{{data.brand}}/auth/page/dutyDashboard/tasks`;
               }
             }).fail( err => {
                 console.log(err);

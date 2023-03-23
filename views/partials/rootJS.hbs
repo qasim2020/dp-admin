@@ -1,12 +1,5 @@
 <script>
 
-// let socket = io();
-// 
-// socket.on(`{{data.brand}}newOrder`, (data) => {
-//     console.log(data);
-// });
-// 
-
 let urlParams = function() {
 
     let url = {
@@ -16,6 +9,9 @@ let urlParams = function() {
         requiredType: window.location.pathname.split("/")[3],
         module: window.location.pathname.split("/")[4],
         input: window.location.pathname.split("/")[5],
+        collection: window.location.pathname.split("/")[5].length > 0 ? 
+                    window.location.pathname.split("/")[5].split("-")[1] :
+                    window.location.pathname.split("/")
     };
 
     return url;
@@ -77,7 +73,7 @@ let calcOrder = function(elem, key) {
     };
 
     $.ajax({
-        url: `/${urlParams().brand}/admin/data/calcOrder/n`,
+        url: `/${urlParams().brand}/auth/data/calcOrder/n`,
         method: "POST",
         data: data,
         success: val => refreshData(val)
@@ -406,7 +402,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                 .create( document.querySelector( "#editor" ) ,{
                     simpleUpload: {
                         // The URL that the images are uploaded to.
-                        uploadUrl: '/${urlParams().brand}/admin/data/uploadImage/n',
+                        uploadUrl: '/${urlParams().brand}/auth/data/uploadImage/n',
 
                         // Enable the XMLHttpRequest.withCredentials property.
                         withCredentials: true,
@@ -539,7 +535,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         $(".btn.saving").html("Saving...").removeClass("d-none");
 
         $.ajax({
-            url: `/${urlParams().brand}/admin/data/updateDocument/${urlParams().input}?_id=${_id}`,
+            url: `/${urlParams().brand}/auth/data/updateDocument/${urlParams().collection}?_id=${_id}`,
             method: "POST",
             data: data,
             success: val => {
@@ -599,7 +595,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                        };
                            
                        $.ajax({
-                           url: `/${urlParams().brand}/${urlParams().permit}/data/saveImgInArray/${urlParams().input}`,
+                           url: `/${urlParams().brand}/auth/data/saveImgInArray/${urlParams().collection}`,
                            method: "POST",
                            data: data,
                            success: val => console.log(" img saved in DB"),
@@ -621,7 +617,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                        console.log( data );
                            
                        $.ajax({
-                           url: `/${urlParams().brand}/${urlParams().permit}/data/saveItemInArray/${urlParams().input}`,
+                           url: `/${urlParams().brand}/${urlParams().permit}/data/saveItemInArray/${urlParams().collection}`,
                            method: "POST",
                            data: data,
                            success: val => console.log(" item saved in DB"),
@@ -715,7 +711,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         let _id = $(elem).closest("tr").find("[index=col0]").attr("mydata");
 
-        $.get(`/${urlParams().brand}/admin/data/deleteDocument/${urlParams().input}?_id=${_id}`, function( data, status ) {
+        $.get(`/${urlParams().brand}/auth/data/deleteDocumentAuth/${urlParams().collection}?_id=${_id}`, function( data, status ) {
 
             if (status != "success") return alert("could not get the id"); 
             $(elem).closest("tr").remove();
@@ -752,7 +748,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             $(elem).html("Testing Values...");
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/saveAirtableURLs/${urlParams().input}`,
+                url: `/${urlParams().brand}/auth/data/saveAirtableURLs/${urlParams().collection}`,
                 method: "POST",
                 data: data,
                 success: val => {
@@ -772,7 +768,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         $(elem).html("Importing & Merging...");
 
         $.ajax({
-            url: `/${urlParams().brand}/${urlParams().permit}/data/importAndMerge/${input}`,
+            url: `/${urlParams().brand}/auth/data/importAndMerge/${urlParams().collection}`,
             method: "GET",
             success: val => {
                 $(elem).html(val.success);
@@ -1009,7 +1005,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         } else {
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/fetchCollectionData/${FK}`,
+                url: `/${urlParams().brand}/auth/data/fetchCollectionData/${FK}`,
                 method: "get",
                 success: val => {
                     localStorage.setItem(`${FK}`, JSON.stringify(val));
@@ -1053,7 +1049,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         } else {
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/fetchCollectionData/${FK}`,
+                url: `/${urlParams().brand}/auth/data/fetchCollectionData/${FK}`,
                 method: "get",
                 success: val => {
                     localStorage.setItem(`${FK}`, JSON.stringify(val));
@@ -1193,7 +1189,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             };
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/saveImgInArray/${urlParams().input}`,
+                url: `/${urlParams().brand}/auth/data/saveImgInArray/${urlParams().collection}`,
                 method: "POST",
                 data: data,
                 success: val => finishUpload(val),
@@ -1209,7 +1205,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             };
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/uploadCloudinary/n`,
+                url: `/${urlParams().brand}/auth/data/uploadCloudinary/n`,
                 method: "POST",
                 data: data,
                 success: val => afterCloudinary(val, imgId),
@@ -1297,7 +1293,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             };
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/deleteImgInArray/${urlParams().input}`,
+                url: `/${urlParams().brand}/auth/data/deleteImgInArray/${urlParams().collection}`,
                 method: "POST",
                 data: data,
                 success: val => finishUpload(val), 
@@ -1307,7 +1303,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         };
 
         $.ajax({
-            url: `/${urlParams().brand}/${urlParams().permit}/data/deleteImgInCloudinary/${urlParams().input}`,
+            url: `/${urlParams().brand}/auth/data/deleteImgInCloudinary/n`,
             method: "POST",
             data: data,
             success: val => deleteInImgArray(val),
@@ -1388,7 +1384,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         };
 
         $.ajax({
-            url: `/${urlParams().brand}/admin/data/saveItemInArray/${urlParams().input}`,
+            url: `/${urlParams().brand}/auth/data/saveItemInArray/${urlParams().collection}`,
             method: "POST",
             data: data,
             success: val => {
@@ -1413,7 +1409,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         console.log(data);
 
         $.ajax({
-            url: `/${urlParams().brand}/admin/data/deleteItemInArray/${urlParams().input}`,
+            url: `/${urlParams().brand}/auth/data/deleteItemInArray/${urlParams().collection}`,
             method: "post",
             data: data,
             success: val => { 
@@ -1566,7 +1562,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         $(elem).closest(".bar.toggleable").find(".fa-exclamation").addClass("d-none");
 
         $.ajax({
-            url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+            url: `/${urlParams().brand}/auth/data/updateDocument/${urlParams().collection}?_id=${_id}`,
             method: "POST",
             data: data,
             success: val => {
@@ -1589,7 +1585,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             let d2 = {};
             d2.brandSlackURL = $("[name='brandSlackURL']").val()
             $.ajax({
-                url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+                url: `/${urlParams().brand}/auth/data/updateDocument/${urlParams().collection}?_id=${_id}`,
                 method: "POST",
                 data: d2,
                 success: val => {
@@ -1619,7 +1615,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         console.log(data);
 
         $.ajax({
-            url: `/${urlParams().brand}/admin/data/saveSlackAPI/${collection}?_id=${_id}`,
+            url: `/${urlParams().brand}/auth/data/saveSlackAPI/${urlParams().collection}?_id=${_id}`,
             method: "POST",
             data: data,
             success: val => {
@@ -1666,7 +1662,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             };
 
             $.ajax({
-                url: `/${urlParams().brand}/admin/data/updateDocument/${collection}?_id=${_id}`,
+                url: `/${urlParams().brand}/auth/data/updateDocument/${urlParams().collection}?_id=${_id}`,
                 method: "POST",
                 data: data,
                 success: val => finishUpload(val),
@@ -1682,7 +1678,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             };
 
             $.ajax({
-                url: `/${urlParams().brand}/${urlParams().permit}/data/uploadCloudinary/n`,
+                url: `/${urlParams().brand}/auth/data/uploadCloudinary/n`,
                 method: "POST",
                 data: data,
                 success: val => afterCloudinary(val, imgId),

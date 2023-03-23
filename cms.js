@@ -539,6 +539,7 @@ var myFuncs = {
                         }
                     ]);
 
+                console.log(JSON.stringify(output, 0, 2));
                 result = {
                     person: output.person[0],
                     brand: output.brand && output.brand.name,
@@ -593,7 +594,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        // console.log(data);
+        console.log(data);
         
         // sending data to page
         switch(true) {
@@ -633,7 +634,7 @@ var myFuncs = {
         runAndRedirect: 'gen',
         newDocument: 'admin',
         editDocument: 'admin',
-        deleteDocument: 'admin',
+        deleteDocument: 'auth',
         deleteDocumentAuth: "auth",
         checkCollectionExists: 'admin',
         createModel: 'admin',
@@ -720,16 +721,16 @@ var myFuncs = {
         saveSlide: 'auth',
         changeSlideSequence: 'auth',
         uploadCloudinary: "auth",
-        updateDocument: "admin",
+        updateDocument: "auth",
         updateDocumentAuth: "auth",
         importAndMerge: "auth",
         storeHTML: "admin",
-        fetchCollectionData: "admin",
-        saveImgInArray: "admin",
-        deleteImgInArray: "admin",
-        deleteImgInCloudinary: "admin",
-        saveItemInArray: "gen",
-        deleteItemInArray: "gen",
+        fetchCollectionData: "auth",
+        saveImgInArray: "auth",
+        deleteImgInArray: "auth",
+        deleteImgInCloudinary: "auth",
+        saveItemInArray: "auth",
+        deleteItemInArray: "auth",
         receipt: "gen",
 
         kallesShop: "gen", 
@@ -754,7 +755,7 @@ var myFuncs = {
         editOrder: "admin", 
         sendReceiptToEmail: "gen",
         sendMsgToEmail: "gen", 
-        saveSlackAPI: "admin",
+        saveSlackAPI: "auth",
         sendReceiptToSlack: "admin", 
         testPlaceOrder: "admin", 
 
@@ -1537,7 +1538,7 @@ var myFuncs = {
 
         try {
 
-            let myProperties = await Collections.findOne({name: req.params.input}).lean();
+            let myProperties = await Collections.findOne({name: `${req.params.brand}-${req.params.input}`}).lean();
 
             console.log(myProperties);
 
@@ -2333,7 +2334,7 @@ var myFuncs = {
     },
 
     deleteDocument: async function(req,res) {
-        let model = await this.createModel(req.params.input);
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
         let result = await model.deleteOne({_id: req.query._id});
         return {
             status: 200,
@@ -2377,16 +2378,16 @@ var myFuncs = {
     checkSignIn: async function(req,res) {
         // console.log('checking signin');
         let model, output;
-        try {
+        // try {
             model = await this.createModel(`${req.params.brand}-users`);
             output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
             // if 7am does not have this user look into myapp. it can be an brand. 
-            if (!output) throw new Error("no user found");
-        } catch(e) {
-            console.log(e);
-            model = await this.createModel('myapp-users');
-            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        }
+            // if (!output) throw new Error("no user found");
+        // } catch(e) {
+            // console.log(e);
+            // model = await this.createModel('myapp-users');
+            // output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
+        // }
 
         // If still no user found , return mismatch
         if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
@@ -2856,6 +2857,14 @@ var myFuncs = {
         }
     },
 
+    updateDocument: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
+        let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});
+        return output;
+
+    },
+
     updateDocumentAuth : async function(req,res) {
 
         let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
@@ -3068,13 +3077,20 @@ var myFuncs = {
 
     userSignedUp: async function(req,res) {
 
+        let brand = await this.createModel("myapp-themes");
+        let brand_result = await brand.findOne({brand: req.params.brand});
+        console.log(brand_result);
+        if (!(brand.signUpAllowed)) return {
+            status: "404",
+            error: "Sign up is not enabled for this brand"
+        };
         let length = 10000000000000000000000000000000000;
         let code = (Math.floor(Math.random() * length) + length).toString().substring(1);
         let model = await this.createModel(`${req.params.brand}-users`);
         let checkUserExists = await model.count({email: req.body.email}).lean();
         if (checkUserExists.length > 0) return {
-            error: "404",
-            status: "User already exists. Try resetting your password"
+            status: 404,
+            error: "User already exists. Try resetting your password"
         };
 
         let output = await model.create({
@@ -6545,14 +6561,6 @@ var myFuncs = {
 
     },
 
-    updateDocument : async function(req,res) {
-
-        let model = await this.createModel(req.params.input);
-        let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});
-        return output;
-
-    },
-
     boots: async function(req,res) {
 
 
@@ -6613,6 +6621,7 @@ var myFuncs = {
 
     fetchCollectionData: async function(req,res) {
 
+        let string = `${req.params.brand}-${req.params.input.split("-")[1]}`;
         let model = await this.createModel(req.params.input);
         let collection = await Collections.findOne({name: req.params.input}).lean();
         let output = await model.find().lean();
@@ -6627,7 +6636,7 @@ var myFuncs = {
 
         console.log("saving the image in array");
 
-        let model = await this.createModel(req.params.input);
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
 
         let output = await model.findOneAndUpdate(
             {
@@ -6648,7 +6657,7 @@ var myFuncs = {
 
     deleteImgInArray: async function(req,res) {
 
-        let model = await this.createModel(req.params.input);
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
 
         let output = await model.findOneAndUpdate(
             { _id: mongoose.Types.ObjectId(req.body._id) },
@@ -6656,15 +6665,12 @@ var myFuncs = {
             { new: true }
         );
 
-        console.log(output);
-
         return output;
 
     },
 
     deleteImgInCloudinary: async function(req,res) {
 
-        console.log(req.body);
         let output = await cloudinary.uploader.destroy(req.params.brand+"/"+req.body.imgId, {type : 'upload', resource_type : 'image'} );
         return {
             output: output
@@ -6676,7 +6682,7 @@ var myFuncs = {
 
         console.log("saving the item  in array");
 
-        let model = await this.createModel(req.params.input);
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
 
         await model.findOneAndUpdate(
             { _id: mongoose.Types.ObjectId(req.body._id) },
@@ -6699,9 +6705,7 @@ var myFuncs = {
 
     deleteItemInArray: async function(req,res) {
 
-        // input = collection name, _id = data._id, key = data.key, keyId = data.key.Id
-
-        let model = await this.createModel(req.params.input);
+        let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
 
         let output = await model.findOneAndUpdate(
             { _id: mongoose.Types.ObjectId(req.body._id) },
@@ -7348,25 +7352,19 @@ Receipt sent by Server.`;
         });
 
         if (!(user)) return {
-            error: "Please sign up. This email does not exist!",
+            error: "No email found. Try contactin us.",
             status: 400
         };
-
-//   console.log(req.headers);
-  //   let test = Object.values(req.headers).some( val => (/dt.qasim.tech/g).test(val) );
-  //   console.log(test);
-
-  //   if (test) req.session.url = "https://dt.qasim.tech";
 
         req.body = {
             msgText: `
 <p>Hi ${user.name}, </p>
 <p> Your verification code is ${code}. Please enter this code in the form where you requested code or click on below link to reset your password.  </p>
-<p> ${req.headers.origin}/duty/gen/page/landingPage/rp?email=${user.email}&code=${code} </p>
+<p> ${req.headers.origin}/${req.params.brand}/gen/page/signin/rp?email=${user.email}&code=${code} </p>
 <p> — duty </p>
             `,
             toEmail: user.email,
-            msgSubject: "Recover password to Duty",
+            msgSubject: `Recover password to ${req.params.brand}`,
             brand: req.params.brand
         };
 

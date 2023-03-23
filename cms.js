@@ -7352,7 +7352,7 @@ Receipt sent by Server.`;
         });
 
         if (!(user)) return {
-            error: "No email found. Try contactin us.",
+            error: "No email found. Try contacting us.",
             status: 400
         };
 
@@ -7361,7 +7361,7 @@ Receipt sent by Server.`;
 <p>Hi ${user.name}, </p>
 <p> Your verification code is ${code}. Please enter this code in the form where you requested code or click on below link to reset your password.  </p>
 <p> ${req.headers.origin}/${req.params.brand}/gen/page/signin/rp?email=${user.email}&code=${code} </p>
-<p> — duty </p>
+<p> — ${req.query.brandName} </p>
             `,
             toEmail: user.email,
             msgSubject: `Recover password to ${req.params.brand}`,

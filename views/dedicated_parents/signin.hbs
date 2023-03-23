@@ -105,7 +105,7 @@
 
         <form class="layer form-fp d-none" action="" method="post">
 
-            <h1>Forgot Password to {{data.brand}}</h1>
+            <h1>Forgot Password to {{data.owner.brandName}}</h1>
 
             <label for="email">Your email</label>
             <input name="email" type="email" value="" required=true>
@@ -221,7 +221,7 @@
             e.preventDefault();
             $.ajax({
                 method: "POST",
-                url: '/{{data.brand}}/gen/data/sendRecoveryCode/n',
+	        url: '/{{data.brand}}/gen/data/sendRecoveryCode/n?brandName={{data.owner.brandName}}',
                 data: $(this).serialize(),
                 success: val => {
                     console.log(val);

@@ -190,7 +190,13 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         let formString = elems.reduce( (total, val, key) => { 
 
-            if (val.html == 'ckEditor') {
+            if (val.html == 'textarea') {
+                total = total + `
+                   <label for="${val.name}">${val.label}</label>
+                   <textarea type="${val.type}" name="${val.name}" cols="30" rows="10" ${val.addOn}>${val.value}</textarea>
+                `;
+
+            } else if (val.html == 'ckEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
                    <div id="editor" name="${val.name}">${val.value}</div>

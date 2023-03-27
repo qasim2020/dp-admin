@@ -555,8 +555,18 @@ button.big-white:active {
 }
 
 .main-header {
-  padding: 46px 0;
+  padding: 23px 0;
 }
+
+.main-header > div {
+    display: flex;
+    align-items: center;
+}
+
+.main-header a > img {
+    height: 136px;
+}
+
 .main-header .main-header-right {
   text-align: right;
   margin-top: 9px;
@@ -611,10 +621,23 @@ button.big-white:active {
   }
   .main-header .main-header-right {
     margin: 30px 0 0 0;
+    margin-top: 0px;
     text-align: center;
   }
   .main-header .search-form {
     margin: 20px 0 10px 0;
+  }
+
+  .main-header {
+    padding: 12px 0 23px 0;
+  }
+
+  .main-header > div {
+    display: block;
+  }
+
+  .main-header a > img {
+    height: 112px;
   }
 }
 

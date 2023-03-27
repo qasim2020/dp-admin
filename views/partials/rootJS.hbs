@@ -463,7 +463,14 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let saveInput = function(elem, _id, type, optData) {
 
-        // console.log( {elem, _id, type, optData } );
+        console.log( {elem, _id, type, optData} );
+
+        if ( (/(<([^>]+)>)/gi).test( $(elem).html() ) && type != "ckEditor" ) {
+
+            let text = $(elem).html().replace(/(<([^>]+)>)/gi, "");
+            $(elem).html(text); 
+
+        };
 
         $(".listedPhotos").addClass("d-none");
 

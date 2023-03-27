@@ -699,16 +699,6 @@
                 <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
             </td>
             {{#each data.th}}
-            <!--
-            <td index="col{{@index}}" 
-                {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}}
-                class="page" 
-                mydata="{{this.val}}">
-                <a class="icon" onclick="createForm(this)" >
-                    <i class="fas fa-expand-alt black"></i>
-                </a>
-            </td>
-            -->
             <td 
                 index="col{{@index}}"
                 mydata="{{this.val}}"

@@ -331,6 +331,33 @@ hbs.registerHelper('calcTotalPrice', function(cart) {
     return totalPrice;
 });
 
+hbs.registerHelper('getDay', function(date) {
+    let input = new Date(date);
+    return input.getDay();
+});
+hbs.registerHelper('getMonth', function(date) {
+    let input = new Date(date);
+    let months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+    ];
+    return months[input.getMonth()];
+});
+hbs.registerHelper('getYear', function(date) {
+    let input = new Date(date);
+    return input.getFullYear();
+});
+
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
 
     if (myFuncs['moduleRole'][req.params.module] == 'gen') return next();
@@ -596,7 +623,6 @@ var myFuncs = {
         console.log("sending data to the page");
         console.log(data);
         
-        // sending data to page
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
             let url = 
@@ -3115,9 +3141,24 @@ var myFuncs = {
 
     dedicated_parents: async function(req, res) {
         req.params.module = req.query.lang || "en";
+        let model = await this.createModel(`${req.params.brand}-events`);
+
         return {
-            success: true
+            events: await model.find().limit(3).skip(0)
         }
+    }, 
+
+    d_pmodules: {
+
+        events: async function(req,res) {
+
+            req.query = processQuery(req.query);
+            let model = await myFuncs.createModel(`${req.params.brand}-events`);
+            let output = await model.find(req.query.filter).limit(req.query.limit).skip(req.query.skip);
+            return output;
+
+        }, 
+
     }, 
 
     d_ppages: async function(req,res) {
@@ -3151,14 +3192,15 @@ var myFuncs = {
     d_pevents: async function(req,res) {
         req.params.module = "events";
         return {
-            success: true
+            events: await this.d_pmodules.events(req,res)
         }
     }, 
 
     d_pevent: async function(req,res) {
         req.params.module = "event";
+        let model = await this.createModel(`${req.params.brand}-events`);
         return {
-            success: true
+            output: await model.findOne({slug: req.params.input}).lean()
         }
     }, 
 

@@ -6,22 +6,22 @@
 <!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
     <head>
-        <title>Dedicated Parents | Event</title>
+        <title>{{this.output.title}}</title>
         {{> dedicated_parents/header}}
     </head>
     <body>
 
-        {{> dedicated_parents/headerNav}}
+        {{> dedicated_parents/headerNav active='events'}}
 
 		<div class="container">
 			
 			<div class="page-header">
 				<div class="row">
 					<div class="col-md-6 col-sm-6">
-						<h2 class="page-title">Event Single</h2>
+                                                <h2 class="page-title">{{this.output.title}}</h2>
 					</div> <!-- /.col-md-6 -->
 					<div class="col-md-6 col-sm-6 hidden-xs back-home">
-						<a href="index.html">&larr; Go back Home</a>
+						<a href="/">&larr; Go back Home</a>
 					</div> <!-- /.col-md-6 -->
 				</div> <!-- /.row -->
 			</div> <!-- /.page-header -->
@@ -31,16 +31,16 @@
 				<div class="col-md-8">
 					<div class="event-single">
 						<div class="event-image">
-							<img src="http://placehold.it/770x400" alt="">
+                                                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_fill,e_sharpen,g_auto,h_400,w_770,z_0.1/v1680079430/dedicatedparents/{{data.output.bannerImg}}" alt="">
 							<div class="img-date">
-								<span class="month">Jul</span>
-								<span class="day">16</span>
-								<span class="year">2015</span>
+                                                            <span class="month">{{getMonth data.output.date}}</span>
+                                                            <span class="day">{{getDay data.output.date}}</span>
+                                                            <span class="year">{{getYear data.output.date}}</span>
 							</div> <!-- /.img-date -->
 						</div> <!-- /.event-image -->
 						<div class="event-content">
-							<h3>American Institute of Architects</h3>
-							<p>Aenean mollis risus diam, vitae accumsan augue pharetra in. Nam pellentesque massa sem, sed varius nunc cursus nec. Donec non tortor eget nibh interdum sodales sed a nisi. Morbi sit amet sapien sit amet lorem consectetur eleifend. Curabitur tincidunt eros nec massa elementum dapibus. Duis quis odio tincidunt, euismod nulla sed, vestibulum lacus. Aenean lobortis feugiat augue non ultricies. Donec bibendum vel odio quis mollis. <br><br>Phasellus a convallis leo. Proin non sem augue. Pellentesque luctus non nunc sed mollis. Duis in nibh purus. Duis quis metus fermentum, volutpat lorem eget, pulvinar elit. Vivamus dapibus, libero ut ullamcorper venenatis, nulla augue cursus felis, quis ornare dolor nunc sed nisi. Suspendisse at elit quis tellus auctor malesuada ac venenatis felis. Quisque quis condimentum nisi.</p>
+                                                        <h3>{{data.output.title}}</h3>
+                                                        <p>{{data.output.detail}}</p>
 							<div class="space-s"></div>
 							<div class="row">
 								<div class="col-md-6 col-sm-6">
@@ -48,12 +48,14 @@
 								</div> <!-- /.col-md-6 -->
 								<div class="col-md-6 col-sm-6">
 									<ul class="event-info">
-										<li><span>Date:</span>Jun 24, 2015</li>
-										<li><span>Time:</span>8:00 am - 12:00 pm</li>
-										<li><span>Event Type:</span>Active & Health > Running</li>
-										<li><span>Phone:</span>+34 234 2353 22</li>
-										<li><span>Emai:</span><a href="mailto:youremail@info.com">youremail@info.com</a></li>
-										<li><span>Website:</span><a href="http://themeforest.net/user/Esmet">www.esmeth.com</a></li>
+                                                                <li><span>Date:</span>{{data.output.date}}</li>
+                                                                <li><span>Time:</span>{{data.output.time}}</li>
+                                                          <li><span>Event Type:</span>{{data.output.type}}</li>
+                                                          <li><span>Contact:</span> {{data.output.phone}} </li>
+                                                          <li>
+                                                              <span></span>
+                                                              <a href="mailto:{{data.output.email}}">{{data.output.email}}</a>
+                                                          </li>
 									</ul>
 								</div> <!-- /.col-md-6 -->
 							</div> <!-- /.row -->

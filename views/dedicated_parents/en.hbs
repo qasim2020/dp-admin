@@ -16,7 +16,7 @@
                     {{> dedicated_parents/header}}
                 </head>
                 <body>
-                    {{> dedicated_parents/headerNav}}
+                    {{> dedicated_parents/headerNav active='home'}}
                     <div class="container">
                         <div class="top-content">
                             <div class="row">
@@ -82,24 +82,25 @@
                                     <div class="col-md-8">
                                         <div class="flexslider">
                                             <ul class="slides">
+                                                {{#each data.events}}
                                                 <li>
-                                                    <img src="http://placehold.it/770x455" alt="">
+                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_fill,e_sharpen,g_auto,h_550,w_770,z_0.1/v1680079430/dedicatedparents/{{this.bannerImg}}" alt="">
                                                     <div class="flex-caption">
-                                                        <p>Expedita aliquam quam dignissimos eum illo eius soluta explicabo facere...<a href="#">Read More</a></p>
+                                                        <p>
+                                                            {{this.summary}}
+                                                            <a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">Read More</a>
+                                                        </p>
                                                     </div>
                                                 </li>
+                                                {{/each}}
+                                                <!--
                                                 <li>
                                                     <img src="http://placehold.it/770x455" alt="">
                                                     <div class="flex-caption">
                                                         <p>Quasi ducimus debitis quos odio libero eligendi veniam....<a href="#">Read More</a></p>
                                                     </div>
                                                 </li>
-                                                <li>
-                                                    <img src="http://placehold.it/770x455" alt="">
-                                                    <div class="flex-caption">
-                                                        <p>Commodi laboriosam autem error non sit ab in nisi suscipit...<a href="#">Read More</a></p>
-                                                    </div>
-                                                </li>
+                                                -->
                                             </ul>
                                         </div>
                                         <!-- /.flexslider -->

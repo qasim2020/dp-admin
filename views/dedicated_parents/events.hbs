@@ -11,7 +11,7 @@
     </head>
     <body>
 
-        {{> dedicated_parents/headerNav}}
+        {{> dedicated_parents/headerNav active='events'}}
 
 		<div class="container">
 			
@@ -29,86 +29,26 @@
 			<div class="row">
 				
 				<div class="col-md-8">
+                                    {{#each data.events}}
 					<div class="event-list">
 						<div class="event-thumb">
-							<img src="http://placehold.it/240x192" alt="">
+                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_fill,e_sharpen,g_auto,h_192,w_240,z_0.1/v1680079430/dedicatedparents/{{this.bannerImg}}" alt="">
 						</div> <!-- /.event-thumb -->
 						<div class="event-content">
-							<h4 class="event-title"><a href="event-detail.html">American Institute of Architects</a></h4>
-							<p>Voluptatibus cum enim officiis quidem possimus aspernatur saepe consectetur aperiam ex laborum architecto blanditiis!</p>
+                                                    <h4 class="event-title">
+                                                        <a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">{{this.title}} </a>
+                                                    </h4>
+                                                        <p>{{this.summary}}</p>
 							<div class="event-location">
-								<span><i class="fa fa-map-marker"></i>Wheaton, MD</span>
+                                                                <span><i class="fa fa-map-marker"></i>{{this.location}}</span>
 							</div>
 							<div class="event-time">
-								<span><i class="fa fa-calendar"></i>26 January 2015</span>
+                                                                <span><i class="fa fa-calendar"></i>{{this.date}}</span>
 							</div>
 							<div class="clearfix"></div>
 						</div> <!-- /.event-content -->
 					</div> <!-- /.event-list -->
-					<div class="event-list">
-						<div class="event-thumb">
-							<img src="http://placehold.it/240x192" alt="">
-						</div> <!-- /.event-thumb -->
-						<div class="event-content">
-							<h4 class="event-title"><a href="event-detail.html">American Institute of Architects</a></h4>
-							<p>Voluptatibus cum enim officiis quidem possimus aspernatur saepe consectetur aperiam ex laborum architecto blanditiis!</p>
-							<div class="event-location">
-								<span><i class="fa fa-map-marker"></i>Wheaton, MD</span>
-							</div>
-							<div class="event-time">
-								<span><i class="fa fa-calendar"></i>26 January 2015</span>
-							</div>
-							<div class="clearfix"></div>
-						</div> <!-- /.event-content -->
-					</div> <!-- /.event-list -->
-					<div class="event-list">
-						<div class="event-thumb">
-							<img src="http://placehold.it/240x192" alt="">
-						</div> <!-- /.event-thumb -->
-						<div class="event-content">
-							<h4 class="event-title"><a href="event-detail.html">American Institute of Architects</a></h4>
-							<p>Voluptatibus cum enim officiis quidem possimus aspernatur saepe consectetur aperiam ex laborum architecto blanditiis!</p>
-							<div class="event-location">
-								<span><i class="fa fa-map-marker"></i>Wheaton, MD</span>
-							</div>
-							<div class="event-time">
-								<span><i class="fa fa-calendar"></i>26 January 2015</span>
-							</div>
-							<div class="clearfix"></div>
-						</div> <!-- /.event-content -->
-					</div> <!-- /.event-list -->
-					<div class="event-list">
-						<div class="event-thumb">
-							<img src="http://placehold.it/240x192" alt="">
-						</div> <!-- /.event-thumb -->
-						<div class="event-content">
-							<h4 class="event-title"><a href="event-detail.html">American Institute of Architects</a></h4>
-							<p>Voluptatibus cum enim officiis quidem possimus aspernatur saepe consectetur aperiam ex laborum architecto blanditiis!</p>
-							<div class="event-location">
-								<span><i class="fa fa-map-marker"></i>Wheaton, MD</span>
-							</div>
-							<div class="event-time">
-								<span><i class="fa fa-calendar"></i>26 January 2015</span>
-							</div>
-							<div class="clearfix"></div>
-						</div> <!-- /.event-content -->
-					</div> <!-- /.event-list -->
-					<div class="event-list">
-						<div class="event-thumb">
-							<img src="http://placehold.it/240x192" alt="">
-						</div> <!-- /.event-thumb -->
-						<div class="event-content">
-							<h4 class="event-title"><a href="event-detail.html">American Institute of Architects</a></h4>
-							<p>Voluptatibus cum enim officiis quidem possimus aspernatur saepe consectetur aperiam ex laborum architecto blanditiis!</p>
-							<div class="event-location">
-								<span><i class="fa fa-map-marker"></i>Wheaton, MD</span>
-							</div>
-							<div class="event-time">
-								<span><i class="fa fa-calendar"></i>26 January 2015</span>
-							</div>
-							<div class="clearfix"></div>
-						</div> <!-- /.event-content -->
-					</div> <!-- /.event-list -->
+                                    {{/each}}
 					<div class="row">
 						<div class="col-md-12">
 							<a href="javascript:void(0);" class="load-more">Load More <i class="fa fa-refresh"></i></a>

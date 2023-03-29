@@ -496,10 +496,10 @@ button.big-white:active {
 [ 2. HEADER ]
 -------------------------------------------------------------------*/
 .site-header {
-  background-color: #6b9262;
-  color: #c0d2bb;
-  font-size: 13px;
-  border-bottom: 4px solid #dddddd;
+    background-color: #69a7a9;
+    color: #173435;
+    font-size: 13px;
+    border-bottom: 4px solid #dddddd;
 }
 .site-header a {
   color: white;
@@ -509,14 +509,15 @@ button.big-white:active {
 }
 
 .top-header {
-  border-bottom: 1px solid #86a97e;
+  border-bottom: 1px solid #173435;
 }
 .top-header a {
-  color: #dce6da;
+  color: #153435;
   font-size: 13px;
+  font-weight: bold;
 }
 .top-header a:hover {
-  color: white;
+  color: #22585a;
 }
 .top-header .header-info-right, .top-header .header-info-left {
   padding-top: 12px;
@@ -564,7 +565,8 @@ button.big-white:active {
 }
 
 .main-header a > img {
-    height: 136px;
+    height: 106px;
+    margin-bottom: 10px;
 }
 
 .main-header .main-header-right {
@@ -577,21 +579,21 @@ button.big-white:active {
   margin-right: 30px;
 }
 .main-header .search-form input[type="text"] {
-  background-color: #6b9262;
-  border-color: #95b38e;
+  background-color: #163436;
+  border-color: #295d5f;
   height: 35px;
   width: 215px;
   padding: 5px 25px 5px 10px;
-  color: #c0d2bb;
+  color: white;
   background-image: url(../images/search-ic.png);
   background-repeat: no-repeat;
   background-position: 192px 11px;
 }
 .main-header .search-form input::-webkit-input-placeholder {
-  color: #c0d2bb;
+  color: #69a7a9;
 }
 .main-header .search-form input:active::-webkit-input-placeholder {
-  color: #c0d2bb;
+  color: #69a7a9;
 }
 .main-header .social-icon-top {
   display: inline-block;
@@ -605,7 +607,8 @@ button.big-white:active {
   display: inline-block;
   line-height: 36px;
   text-align: center;
-  background: #608358;
+  background: #163436;
+  color: #69a7a9;
 }
 @media (max-width: 992px) {
   .main-header .main-header-right {
@@ -637,15 +640,15 @@ button.big-white:active {
   }
 
   .main-header a > img {
-    height: 112px;
+    height: 106px;
   }
 }
 
 .menu-wrapper {
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: rgba(23, 52, 53, 0.44);
 }
 .menu-wrapper .inner-menu {
-  background-color: #363833;
+  background-color: #173435;
   padding: 0 10px 0 0;
 }
 .menu-wrapper .main-menu {
@@ -660,15 +663,16 @@ button.big-white:active {
 }
 .menu-wrapper .main-menu ul.sf-menu > li a {
   line-height: 54px;
-  color: #aaaaaa;
+  color: #69a7a9;
   font-size: 14px;
+  font-weight: bold;
 }
 .menu-wrapper .main-menu ul.sf-menu > li a i {
   margin-left: 7px;
   margin-top: 2px;
 }
 .menu-wrapper .main-menu ul.sf-menu > li a:hover {
-  color: white;
+  color: #22585a;
 }
 .menu-wrapper .main-menu ul.sf-menu > li.active a {
   color: #faca3a;
@@ -677,7 +681,7 @@ button.big-white:active {
   color: #aaaaaa;
 }
 .menu-wrapper .main-menu ul.sf-menu > li.active ul li a:hover {
-  color: white;
+  color: #22585a;
 }
 .menu-wrapper .main-menu ul.sf-menu > li ul {
   position: absolute;
@@ -686,7 +690,7 @@ button.big-white:active {
   left: 0;
   z-index: 999;
   display: none;
-  background-color: #484b44;
+  background-color: #173435;
 }
 .menu-wrapper .main-menu ul.sf-menu > li ul li {
   border-bottom: 1px solid #5c6058;
@@ -716,14 +720,14 @@ button.big-white:active {
 .responsive-menu a.toggle-menu {
   display: block;
   height: 50px;
-  background-color: #faca3a;
-  color: #232323;
+  background-color: #173435;
+  color: #69a7a9;
   line-height: 50px;
   text-align: center;
   font-size: 18px;
 }
 .responsive-menu .menu-open {
-  background: rgba(35, 35, 35, 0.96);
+  background: #173435;
   width: 100%;
   padding: 30px;
   position: absolute;
@@ -734,10 +738,11 @@ button.big-white:active {
 }
 .responsive-menu .menu-open ul li {
   padding: 15px 0;
-  border-bottom: 1px solid #373737;
+  border-bottom: 1px solid black;
 }
 .responsive-menu .menu-open ul li a {
   color: white;
+  font-weight: bold;
 }
 .responsive-menu .menu-open ul li.active a {
   color: #faca3a;
@@ -747,7 +752,7 @@ button.big-white:active {
 }
 .responsive-menu .menu-open ul li ul {
   margin-left: 30px;
-  border-top: 1px solid #373737;
+  border-top: 1px solid black;
   margin-top: 15px;
 }
 .responsive-menu .menu-open ul li ul li {

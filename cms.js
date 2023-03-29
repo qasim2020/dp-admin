@@ -333,7 +333,8 @@ hbs.registerHelper('calcTotalPrice', function(cart) {
 
 hbs.registerHelper('getDay', function(date) {
     let input = new Date(date);
-    return input.getDay();
+
+    return input.getDate();
 });
 hbs.registerHelper('getMonth', function(date) {
     let input = new Date(date);

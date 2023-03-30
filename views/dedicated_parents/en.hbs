@@ -313,68 +313,26 @@
                                     <div class="row">
                                         <div class="col-md-12 testimonials-wrapper">
                                             <ul class="testi-tabs clearfix">
-                                                <li class="active">
-                                                    <a href="#testi-content-01">
-                                                    <img src="http://placehold.it/70x70" alt="">
+                                            {{#each data.staffs}}
+                                                <li {{#if (matchValues @index 0)}} class="active" {{/if}}>
+                                                    <a href="#testi-content-0{{inc @index}}">
+                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_70,w_70/v1680079430/dedicatedparents/{{this.image}}" alt="">
                                                     </a>
                                                 </li>
-                                                <li>
-                                                    <a href="#testi-content-02">
-                                                    <img src="http://placehold.it/70x70" alt="">
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#testi-content-03">
-                                                    <img src="http://placehold.it/70x70" alt="">
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#testi-content-04">
-                                                    <img src="http://placehold.it/70x70" alt="">
-                                                    </a>
-                                                </li>
+                                            {{/each}}
                                             </ul>
                                             <div class="testi-wrapper">
-                                                <div id="testi-content-01" class="testi-content active">
+                                            {{#each data.staffs}}
+                                            <div id="testi-content-0{{inc @index}}" class="testi-content {{#if (matchValues @index 0)}}active{{/if}}">
                                                     <div class="testi-author">
-                                                        <h6>Arthur Damon <span>Ceo</span></h6>
+                                                        <h6>{{this.title}}<span>{{this.role}}</span></h6>
                                                     </div>
                                                     <p>
-                                                        Sed bibendum, arcu ac rhoncus adipiscing,
-                                                        nulla lectus dictum mauris, non volutpat massa
-                                                        ipsum in nibh. Nulla lectus dictum mauris, non volutpat massa.
+                                                        {{reduceStringLength this.detail '151'}}...
                                                     </p>
+                                                    <a href="/dedicated_parents/gen/page/d_pstaff/{{this.slug}}">Read More...</a>
                                                 </div>
-                                                <div id="testi-content-02" class="testi-content">
-                                                    <div class="testi-author">
-                                                        <h6>Joana Doe <span>Founder</span></h6>
-                                                    </div>
-                                                    <p>
-                                                        Sed bibendum, arcu ac rhoncus adipiscing,
-                                                        nulla lectus dictum mauris, non volutpat massa
-                                                        ipsum in nibh. Nulla lectus dictum mauris, non volutpat massa.
-                                                    </p>
-                                                </div>
-                                                <div id="testi-content-03" class="testi-content">
-                                                    <div class="testi-author">
-                                                        <h6>Mark Barreto <span>Volunteer</span></h6>
-                                                    </div>
-                                                    <p>
-                                                        Sed bibendum, arcu ac rhoncus adipiscing,
-                                                        nulla lectus dictum mauris, non volutpat massa
-                                                        ipsum in nibh. Nulla lectus dictum mauris, non volutpat massa.
-                                                    </p>
-                                                </div>
-                                                <div id="testi-content-04" class="testi-content">
-                                                    <div class="testi-author">
-                                                        <h6>Philip Stevens <span>Supplier</span></h6>
-                                                    </div>
-                                                    <p>
-                                                        Sed bibendum, arcu ac rhoncus adipiscing,
-                                                        nulla lectus dictum mauris, non volutpat massa
-                                                        ipsum in nibh. Nulla lectus dictum mauris, non volutpat massa.
-                                                    </p>
-                                                </div>
+                                            {{/each}}
                                             </div>
                                             <!-- //.testi-wrapper -->
                                         </div>
@@ -429,42 +387,7 @@
                                     <!-- /.gallery-wrapper -->
                                 </div>
                                 <!-- /.box-content -->
-                                <div class="box-content">
-                                    <h4 class="widget-title"><span>Upcoming events</span></h4>
-                                    <div class="events-sidebar">
-                                        <ul>
-                                            <li class="event-item">
-                                                <div class="event-thumb">
-                                                    <img src="http://placehold.it/80x80" alt="">
-                                                </div>
-                                                <div class="event-content">
-                                                    <h5 class="event-title"><a href="event-detail.html">Memorial Day Sale: 30% All Day Monday May 26</a></h5>
-                                                    <p class="event-meta">02 January 2015</p>
-                                                </div>
-                                            </li>
-                                            <li class="event-item">
-                                                <div class="event-thumb">
-                                                    <img src="http://placehold.it/80x80" alt="">
-                                                </div>
-                                                <div class="event-content">
-                                                    <h5 class="event-title"><a href="event-detail.html">Fashion Figures Online Sale: Sizes 10 - 3X</a></h5>
-                                                    <p class="event-meta">02 January 2015</p>
-                                                </div>
-                                            </li>
-                                            <li class="event-item">
-                                                <div class="event-thumb">
-                                                    <img src="http://placehold.it/80x80" alt="">
-                                                </div>
-                                                <div class="event-content">
-                                                    <h5 class="event-title"><a href="event-detail.html">Speak Up! National Summit for Women Living with HIV</a></h5>
-                                                    <p class="event-meta">02 January 2015</p>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <a href="events-list.html" class="read-more">More Events &rarr;</a>
-                                    </div>
-                                    <!-- /.events-sidebar -->
-                                </div>
+                                {{> dedicated_parents/upcomingEvents}}
                                 <!-- /.box-content -->
                             </div>
                             <!-- /.col-md-4 -->

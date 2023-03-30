@@ -1,0 +1,18 @@
+<div class="box-content">
+        <h4 class="widget-title"><span>Upcoming events</span></h4>
+        <div class="events-sidebar">
+                <ul>
+                    {{#each data.futureEvents}}
+                        <li class="event-item">
+                                <div class="event-thumb">
+                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_80,w_80/v1680079430/dedicatedparents/{{this.bannerImg}}" alt="">
+                                </div>
+                                <div class="event-content">
+                                    <h5 class="event-title"><a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">{{this.title}}</a></h5>
+                                    <p class="event-meta">{{this.date}}</p>
+                                </div>
+                        </li>
+                    {{/each}}
+                </ul>
+        </div> <!-- /.events-sidebar -->
+</div> <!-- /.box-content -->

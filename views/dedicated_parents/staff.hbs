@@ -6,7 +6,7 @@
 <!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
     <head>
-        <title>Dedicated Parents | Staff</title>
+        <title>{{data.staff.title}} / {{data.staff.role}}</title>
         {{> dedicated_parents/header}}
     </head>
     <body>
@@ -18,7 +18,7 @@
 			<div class="page-header">
 				<div class="row">
 					<div class="col-md-6 col-sm-6">
-						<h2 class="page-title">Staff Single</h2>
+                                                <h2 class="page-title">{{data.staff.title}}</h2>
 					</div> <!-- /.col-md-6 -->
 					<div class="col-md-6 col-sm-6 hidden-xs back-home">
 						<a href="index.html">&larr; Go back Home</a>
@@ -31,13 +31,13 @@
 				<div class="col-md-8">
 					<div class="member-single">
 						<div class="member-image">
-							<img src="http://placehold.it/770x365" alt="">
+                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_365,w_770/v1680079430/dedicatedparents/{{data.staff.image}}" alt="">
 						</div> <!-- /.member-image -->
 						<div class="member-content">
 							<div class="member-header">
 								<div class="pull-left">
-									<h3><a href="staff-detail.html">Hugh Lindsey</a></h3>
-									<span class="role">Assistant Director</span>
+                                                                    <h3><a href="staff-detail.html">{{toUpperCase data.staff.title}}</a></h3>
+                                                                        <span class="role">{{data.staff.role}}</span>
 								</div>
 								<ul class="social pull-right">
 									<li><a href="#" class="fa fa-twitter"></a></li>
@@ -48,9 +48,15 @@
 								</ul>
 								<div class="clearfix"></div>
 							</div>
-							<p>Phasellus id lacus posuere, interdum dui eu, eleifend leo. Cras non magna nisl. Nullam venenatis ut urna faucibus mattis. Nunc nec tortor nec erat faucibus eleifend. Fusce adipiscing dui velit, sed mattis ante auctor ac. Maecenas luctus lobortis erat, vel semper magna vehicula nec. Nunc dolor felis, eleifend sit amet rhoncus in, hendrerit eu dui. Nullam augue eros, aliquam id elit semper, cursus blandit lectus. <br><br>Proin purus eros, facilisis ut tincidunt ac, commodo eu nunc. Mauris elit quam, auctor eget semper sit amet, pellentesque ac purus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin porta nisi eget tristique pulvinar. Proin et adipiscing neque. Donec posuere neque eros, a iaculis metus bibendum quis. Aenean consequat, ipsum vestibulum sagittis gravida, eros enim tempor nisl, non volutpat lacus lectus vel elit. <br><br>Nulla non nisl et orci porttitor ultrices vitae id ligula. Curabitur gravida arcu libero, a suscipit eros viverra eu. Proin iaculis libero quis augue mollis, nec pulvinar tellus semper. Curabitur imperdiet mi id pellentesque vehicula. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer a nisi imperdiet, adipiscing magna quis, aliquet elit. Sed luctus neque nisl, eget aliquet orci imperdiet eu. Pellentesque lobortis, quam mollis rhoncus porta, nisl sapien placerat enim, at cursus mi lorem at felis.</p>
+                                                        <p>{{data.staff.detail}}</p>
 						</div>
 					</div> <!-- /.member-single -->
+					<div class="row">
+						<div class="col-md-12">
+							<a href="javascript:void(0);" class="go-prev"><i class="fa fa-long-arrow-left"></i>Prev</a>
+							<a href="javascript:void(0);" class="go-next">Next <i class="fa fa-long-arrow-right"></i></a>
+						</div> <!-- /.col-md-12 -->
+					</div> <!-- /.row -->
 				</div> <!-- /.col-md-8 -->
 
 				<div class="col-md-4">

@@ -358,6 +358,9 @@ hbs.registerHelper('getYear', function(date) {
     let input = new Date(date);
     return input.getFullYear();
 });
+hbs.registerHelper('reduceStringLength', function(string, length) {
+    return string.substring(0, length);
+});
 
 app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => {
 
@@ -3142,23 +3145,127 @@ var myFuncs = {
 
     dedicated_parents: async function(req, res) {
         req.params.module = req.query.lang || "en";
-        let model = await this.createModel(`${req.params.brand}-events`);
-
         return {
-            events: await model.find().limit(3).skip(0)
+            events: await this.d_pmodules.pastThreeEvents(req,res),
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
+            staffs: await this.d_pmodules.staffs(req,res)
         }
     }, 
 
     d_pmodules: {
 
-        events: async function(req,res) {
+        pastThreeEvents: async function(req,res) {
 
             req.query = processQuery(req.query);
             let model = await myFuncs.createModel(`${req.params.brand}-events`);
-            let output = await model.find(req.query.filter).limit(req.query.limit).skip(req.query.skip);
+            let output = await model.aggregate([
+                [
+                  {
+                    $addFields:
+                      {
+                        newDate: {
+                          $dateFromString: {
+                                dateString: "$date",
+                          }
+                        }
+                      },
+                  },
+                  {
+                    $match: {
+                      newDate: {
+                        $lt: new Date()
+                      }
+                    }
+                  },
+                  {
+                    $sort: {
+                      newDate: -1
+                    }
+                  },
+                  {
+                    $limit: 3
+                  }
+                ]
+                
+            ]);
             return output;
 
         }, 
+
+        pastEvents: async function(req,res) {
+
+            req.query = processQuery(req.query);
+            let model = await myFuncs.createModel(`${req.params.brand}-events`);
+            let output = await model.aggregate([
+                [
+                  {
+                    $addFields:
+                      {
+                        newDate: {
+                          $dateFromString: {
+                                dateString: "$date",
+                          }
+                        }
+                      },
+                  },
+                  {
+                    $match: {
+                      newDate: {
+                        $lt: new Date()
+                      }
+                    }
+                  },
+                  {
+                    $sort: {
+                      newDate: -1
+                    }
+                  }
+                ]
+                
+            ]);
+            return output;
+
+        }, 
+        futureEvents: async function(req,res) {
+
+            req.query = processQuery(req.query);
+            let model = await myFuncs.createModel(`${req.params.brand}-events`);
+            let output = await model.aggregate([
+                [
+                  {
+                    $addFields:
+                      {
+                        newDate: {
+                          $dateFromString: {
+                                dateString: "$date",
+                          }
+                        }
+                      },
+                  },
+                  {
+                    $match: {
+                      newDate: {
+                        $gt: new Date()
+                      }
+                    }
+                  },
+                  {
+                    $sort: {
+                      newDate: -1
+                    }
+                  }
+                ]
+                
+            ]);
+            return output;
+
+        }, 
+
+        staffs: async function(req,res) {
+            let model = await myFuncs.createModel(`${req.params.brand}-staffs`);
+            return await model.find({visibility: true}).lean()
+        }
+
 
     }, 
 
@@ -3193,7 +3300,8 @@ var myFuncs = {
     d_pevents: async function(req,res) {
         req.params.module = "events";
         return {
-            events: await this.d_pmodules.events(req,res)
+            pastEvents: await this.d_pmodules.pastEvents(req,res),
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     }, 
 
@@ -3201,6 +3309,7 @@ var myFuncs = {
         req.params.module = "event";
         let model = await this.createModel(`${req.params.brand}-events`);
         return {
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
             output: await model.findOne({slug: req.params.input}).lean()
         }
     }, 
@@ -3208,14 +3317,15 @@ var myFuncs = {
     d_pstaffs: async function(req,res) {
         req.params.module = "staffs";
         return {
-            success: true
+            staffs: await this.d_pmodules.staffs(req,res)
         }
     }, 
 
     d_pstaff: async function(req,res) {
         req.params.module = "staff";
+        let model = await this.createModel(`${req.params.brand}-staffs`);
         return {
-            success: true
+            staff: await model.findOne({slug: req.params.input}).lean()
         }
     }, 
 
@@ -3242,7 +3352,6 @@ var myFuncs = {
 
     landingPage: async function(req,res) {
         let output = this[req.params.theme](req,res);
-        console.log(req.params.theme);
         return output;
     },
 

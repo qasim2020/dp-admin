@@ -822,6 +822,17 @@ var myFuncs = {
         d_ppages: "gen",
         d_ppage: "gen",
         d_pcontact: "gen",
+        draftEmail: "gen",
+    },
+
+    draftEmail: async function(req,res) {
+
+        req.params.theme = "root";
+
+        return {
+            success: true
+        };
+
     },
 
     newDashboard: async function(req,res) {
@@ -2591,12 +2602,6 @@ var myFuncs = {
         }
     },
     
-    newsletters: async function( req,res) {
-        return {
-            success: true
-        }
-    }, 
-
     subscribe: async function( req, res) {
         return {
             success: true
@@ -2610,26 +2615,6 @@ var myFuncs = {
             .sort({ser: -1})
             .collation({locale: "en_US", numericOrdering: true})
             .skip(req.query.skip).limit(req.query.limit).lean()
-        // let output = await model.aggregate(
-        //     [
-        //         {
-        //             $match: {
-        //                 body: exp
-        //             }
-        //         },{
-        //             $addFields: {
-        //                 intSer: {
-        //                     $toInt: "$ser"
-        //                 }
-        //             }
-        //         },{
-        //             $sort: {
-        //                 intSer: -1
-        //             }
-        //         },{
-        //             $limit: req.query.limit || 12
-        //         }
-        //     ]);
         output = output.map( (val,index) => {
             val.index = output.length - index;
             val.date = this.dateBlogHeader(val.date);

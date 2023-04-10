@@ -4,22 +4,80 @@
     <meta charset="UTF-8">
     <title></title>
     <style>
-.controls, .inline-controls {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin: auto;
-    justify-content: center;
-}
 
-.controls > p, .inline-controls > p {
-    padding: 10px;
-    line-height: 1.0;
-    background: whitesmoke;
-    margin: 0 2px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .editor-box {
+        width: 100%;
+    }
+
+    .editor-box > .post {
+        max-width: 600px;
+        margin: auto;
+    }
+    
+    .editor-box [contenteditable]:focus-visible {
+        outline-color: transparent;
+    }
+
+    .controls, .inline-controls {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin: auto;
+        justify-content: center;
+    }
+
+    .controls > p, .inline-controls > p {
+        padding: 10px;
+        line-height: 1.0;
+        background: whitesmoke;
+        margin: 0 2px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .popover {
+        z-index: 2;
+        background: white;
+        position: absolute;
+        max-width: fit-content;
+        font-size: 12px;
+        padding: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        line-height: 1.4;
+        box-shadow: 0px 1px 4px lightgrey;
+    }
+
+    .popover > div {
+        display: flex;
+    }
+
+    .popover > div > p {
+        display: inline-block;
+        padding: 5px;
+        border: 1px solid whitesmoke;
+        line-height: 1;
+        margin: 0px;
+    }
+
+    .screen {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        height: 100vh;
+        width: 100vw;
+        z-index: 1;
+    }
+
+    .d-none {
+        display: none;
+    }
+
 
     </style>
 </head>
@@ -37,41 +95,128 @@
             <p data-content="HR">Separator</p>
         </div>
 
-        <div class="inline-controls">
-            <p data-content=''>Bold</p>
-            <p data-content=''>Underline</p>
-            <p data-content=''>Align Center</p>
-            <p data-content=''>Align Left</p>
-            <p data-content=''>Link</p>
-        </div>
-
-        <div class="post">
-
-        </div>
-
     </div>
+
+    <div class="editor-box">
+        <div class="post"></div>
+    </div>
+
+    <div class="popover d-none"></div>
+    <div class="screen d-none" onclick="$(this).addClass('d-none')"></div>
+
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script>
 
         ( $(document).ready( ()=> {
 
+            let activeElem, activeColor, stringTable = [];
+
             $('.controls > p').on('click', function(e) {
-                myFuncs.createTag(e.target);
+                let newTag = myFuncs.createTag(e.currentTarget);
+                myFuncs.createCharTable(newTag);
             });
 
             $(document).on('click', '.post > *', function(e) {
-                console.log("clicked ————");
-                console.log(e.target);
-                if ( $(e.target).prop("tagName") == "LI" ) {
-                    $(e.target).parent().siblings().removeClass("active");
-                    $(e.target).parent().addClass("active");
-                } else {
-                    $(e.target).siblings().removeClass("active");
-                    $(e.target).addClass("active");
-                }
+                console.log(e.currentTarget);
+                $(e.currentTarget).siblings().removeClass("active");
+                $(e.currentTarget).addClass("active");
             });
 
+            $(document).on("mouseup keyup", ".editor-box", function(e) {
+
+                var text, span;
+                
+                if (window.getSelection) {
+                    text = window.getSelection().toString();
+                } else if (document.selection && document.selection.type != "Control") {
+                    text = document.selection.createRange().text;
+                }
+
+                if (text.length === 0) {
+                    return;
+                } else {
+                    $(".popover").addClass("d-none");
+                };
+
+                if ( [37,38,39,40].some(v => v == e.keyCode) ) {
+                    console.log("selection in progress");
+                } else {
+                    console.log("selection ended");
+                    span = myFuncs.selectHTML();
+                    myFuncs.showPopover( span );
+                };
+
+                return;
+            });
+
+            $(document).on("click", ".screen", function() {
+                $(activeElem).css({ "background-color": activeColor });
+                $("temp").closest("li, .active").find("temp").replaceWith( $("temp").html() );
+               //  console.log(activeElem);
+                $(".popover, .screen").addClass("d-none");
+                // $(".post > *").removeClass("active");
+            });
+
+            let replaceTag = function(tag, elem) {
+                let combinedArr = myFuncs.createCharTable( $(elem).closest("li, .active") );
+                let matrixMatch = myFuncs.matrixMatch(combinedArr, tag);
+                let buildNewTag = myFuncs.buildNewTag(combinedArr, tag, matrixMatch);
+                return true;
+            };
+
+            // when you click on inline-control button
+            $(document).on("click", ".popover > div > p", function(e) {
+                switch (true) {
+                    case $(e.target).attr("data-content") == "bold":
+                        replaceTag("STRONG", activeElem);
+                        return;
+
+                        // here stopped
+                        if ($(activeElem).css("font-weight") == "700") {
+                            $(activeElem).css({
+                                "font-weight": "100"
+                            });
+                        } else {
+                            $(activeElem).css({
+                                "font-weight": "700"
+                            });
+                        }
+                    break;
+                    case $(e.target).attr("data-content") == "underline":
+                        if ($(activeElem).css("text-decoration-line") == "underline") {
+                            $(activeElem).css({ "text-decoration-line": "none" });
+                            $(activeElem).children().css({ "text-decoration-line": "none" });
+                        } else {
+                            $(activeElem).css({ "text-decoration-line": "underline" });
+                            $(activeElem).children().css({ "text-decoration-line": "none" });
+                        }
+                    break;
+                    case $(e.target).attr("data-content") == "align_center":
+                        if ($(activeElem).closest(".active").css("text-align") == "center") {
+                            $(activeElem).closest(".active").css({
+                                "text-align": "center"
+                            });
+                        } else {
+                            $(activeElem).closest(".active").css({
+                                "text-align": "left"
+                            });
+                        }
+                    break;
+                    case $(e.target).attr("data-content") == "link":
+                        return console.log("add a link here");
+                        if ($(activeElem).css("font-weight") == "700") {
+                            $(activeElem).css({
+                                "font-weight": "100"
+                            });
+                        } else {
+                            $(activeElem).css({
+                                "font-weight": "700"
+                            });
+                        }
+                    break;
+                };
+            });
 
             const myFuncs = {
 
@@ -79,43 +224,45 @@
 
                     switch (true) {
 
-                        case ( $(elem).attr("data-content") == "H1" ): 
+                        case ( $(elem).attr("data-content") == "H1" ):
                             return `<h1 contenteditable=true>type here</h1>`;
                             break;
 
-                        case ( $(elem).attr("data-content") == "H3" ): 
+                        case ( $(elem).attr("data-content") == "H3" ):
                             return `<h3 contenteditable=true>type here</h3>`;
                             break;
 
-                        case ( $(elem).attr("data-content") == "P" ): 
-                            return `<p contenteditable=true>type here</p>`;
+                        case ( $(elem).attr("data-content") == "P" ):
+                            return `<p contenteditable=true>ty<strong>pe <u>h<i>e</i></u></strong>re. <strong>now</strong> please.</p>`;
+                            // return `<p contenteditable=true>ty<strong>pe. here</strong>`;
+                            // return `<p contenteditable=true>type here</p>`;
                             break;
 
-                        case ( $(elem).attr("data-content") == "UL" ): 
+                        case ( $(elem).attr("data-content") == "UL" ):
                             return {
                                 full: `<ul><li contenteditable=true>type here</li></ul>`,
                                 short: `<li contenteditable=true>type here</li>`,
                             }
                             break;
 
-                        case ( $(elem).attr("data-content") == "OL" ): 
+                        case ( $(elem).attr("data-content") == "OL" ):
                             return {
                                 full: `<ol><li contenteditable=true>type here</li></ol>`,
                                 short: `<li contenteditable=true>type here</li>`,
                             }
                             break;
 
-                        case ( $(elem).attr("data-content") == "HR" ): 
+                        case ( $(elem).attr("data-content") == "HR" ):
                             return `<hr>`;
                             break;
                     };
 
-                }, 
+                },
 
                 // when you click the button on the top
                 createTag: function(elem) {
 
-                    let tag = this.tagDeclaration(elem); 
+                    let tag = this.tagDeclaration(elem);
                     let type = $(elem).attr("data-content");
                     let newTag;
 
@@ -132,23 +279,273 @@
                         };
 
                     } else {
-                        newTag = $('.post').append(tag.full || tag);
+                        $('.post').append(tag.full || tag);
+                        newTag = $(".post > *:eq(-1)");
                     };
 
-                    if ( $(newTag).prop("tagName") == "LI" ) {
-                        $(newTag).parent().siblings().removeClass("active");
-                        $(newTag).parent().addClass("active");
-                    } else {
-                        $(newTag).siblings().removeClass("active");
-                        $(newTag).addClass("active");
-                    }
+                    $(newTag).siblings().removeClass("active");
+                    console.log(newTag);
+                    $(newTag).addClass("active");
 
-                }, 
+                    return newTag;
+
+                },
 
                 addClass: function(elem, className) {
                     $(elem).siblings().removeClass(className);
                     $(elem).addClass(className);
-                }
+                },
+
+                selectHTML: function() {
+                    var range = window.getSelection().getRangeAt(0);
+                    let select = document.createElement("temp");
+                    select.style.backgroundColor = "yellow";
+                    activeColor = select.style.backgroundColor || "";
+                    select.appendChild(range.extractContents());
+                    range.insertNode(select);
+                    return select;
+                },
+
+                showPopover: function(elem) {
+                  let data = `
+                  <div>
+                      <p data-content='bold'>Bold</p>
+                      <p data-content='underline'>Underline</p>
+                      <p data-content='align_center'>Align Center</p>
+                      <p data-content='link'>Link</p>
+                  </div>
+                  `;
+                  activeElem = elem;
+                  $('.popover').html(data);
+                  $('.popover, .screen').removeClass('d-none');
+
+                  if ( $('.popover').hasClass("d-none") ) return console.log("popover disappeared");
+
+                  let posn = {
+                    left: $(elem).offset().left,
+                    top: $(elem).offset().top,
+                    right: $(elem).offset().right,
+                    bottom: $(elem).offset().bottom
+                  };
+
+                  if ((posn.left + $('.popover').width()/2) > $(window).width()) {
+                    return $('.popover').css({
+                      left: "auto",
+                      right: 5,
+                      top: posn.top - $('.popover').height() - $(elem).height() - 20,
+                    });
+                  }
+
+                  if ((posn.left < $('.popover').width()/2)) { // >
+                    return $('.popover').css({
+                      left: posn.left,
+                      top: posn.top - $('.popover').height() - $(elem).height() - 20,
+                    });
+                  }
+
+                  $('.popover').css({
+                    left: posn.left - ($('.popover').width()/2),
+                    top: posn.top - $('.popover').height() - $(elem).height() - 20,
+                  });
+
+                },
+
+                createCharTable: function(elem) {
+
+                    console.log(elem);
+                    let text, id, html, index, currentTable, arr = [];
+
+                    if ( (/UL|OL/g).test( $(elem).prop("tagName") ) ) {
+                        elem = $(elem).find("*:eq(-1)");
+                    } else {
+                        elem = $(elem);
+                    }
+
+                    text = $(elem).text();
+
+                    let getInnerContent = function(elem_temp) {
+                        $(elem_temp).contents().get().forEach( (val, index) => {
+                            if ( val.nodeType == 1 ) {
+                                return getInnerContent(val);
+                            };
+                            $(val).text().split("").forEach( t => {
+                                arr.push({
+                                    t: t,
+                                    style: $(val).parentsUntil(elem).get().map( val => $(val).prop("tagName") )
+                                });
+                            });
+                        });
+                        return true;
+                    };
+
+                    getInnerContent(elem);
+                    return arr;
+
+                    id = $(elem).attr("data-id");
+
+                    index = stringTable && stringTable.findIndex( val => val.id == id );
+
+                    if ( index == -1) {
+                        currentTable = {
+                            id: Math.random().toString(16).slice(2),
+                            text: text,
+                            table: text.split("").map( val => {
+                                return {
+                                    id: Math.random().toString(16).slice(2),
+                                    t: val ,
+
+                                };
+                            })
+                        };
+                        stringTable.push(currentTable);
+                        $(elem).attr({ "data-id": currentTable.id });
+                    } else {
+                        stringTable[index].text = text;
+                        currentTable = stringTable[index];
+                    };
+                    return currentTable;
+
+                },
+
+                matrixMatch: function(arr, tagName) {
+                    let showVal = (arr) => arr.forEach( val => console.log( val.t, val.style ) );
+                    let match = arr.filter( val => {
+                        let index = val.style.findIndex( temp => temp == "TEMP" );
+                        return index > -1 ;
+                    });
+                    let checkExactMatch = match.every( val => {
+                        let indexOne = val.style.findIndex( temp => temp == "TEMP" );
+                        let indexTwo = val.style.findIndex( tag => tag == tagName );
+                        return indexOne > -1 && indexTwo > -1;
+                    });
+                    return checkExactMatch;
+                },
+
+                buildNewTag: function(arr, tagName, remove) {
+
+                    let showVal = (arr) => arr.forEach( val => console.log( val.t, val.style ) );
+
+                    let newArr = arr.map( val => {
+                        let indexOne = val.style.findIndex( temp => temp == "TEMP" );
+                        let indexTwo = val.style.findIndex( tag => tag == tagName );
+                        if ( indexOne > -1 && indexTwo > -1 ) {
+                            if (remove) {
+                                val.style.splice( indexTwo, 1 );
+                            }
+                            return val
+                        } else if ( indexOne > -1 ) {
+                            val.style.push( tagName );
+                            return val;
+                        };
+                        return val;
+                    });
+
+                    // initialize to <strong><u> if first elem has [strong, u]
+                    let startATag = function(styleArr) {
+                        let output = styleArr.reduce( (total, val, index) => {
+                            switch (true) {
+                                case (val == "STRONG"):
+                                    total += "<strong>";
+                                    break;
+                                case (val == "U"):
+                                    total += "<u>";
+                                    break;
+                                case (val == "I"):
+                                    total += "<i>";
+                                    break;
+                                case (val == "TEMP"):
+                                    total += "<temp>";
+                                    break;
+                                default:
+                                    return total;
+                            }
+                            return total;
+                        }, "");
+                        return output;
+                    };
+
+                    let closeATag = function(styleArr) {
+                        let output = styleArr.reduce( (total, val, index) => {
+                            switch (true) {
+                                case (val == "STRONG"):
+                                    total += "</strong>";
+                                    break;
+                                case (val == "U"):
+                                    total += "</u>";
+                                    break;
+                                case (val == "I"):
+                                    total += "</i>";
+                                    break;
+                                case (val == "TEMP"):
+                                    total += "</temp>";
+                                    break;
+                                default:
+                                    return total;
+                            }
+                            return total;
+                        }, "");
+                        return output;
+                    };
+                    // </u></strong>
+                    let matchTwoArrays = function(arr1, arr2) {
+                        return arr1.every( val => {
+                            let index = arr2.findIndex( v => v == val );
+                            return index > -1;
+                        })
+                    }
+
+                    // what is in array 1 that is not in array 2 | [string, u] , [string, u, temp] => temp is new
+                    let findDifferenceInArrays = function( src, dest ) {
+                        let temp_arr = {
+                            close: [],
+                            open: []
+                        };
+                        src.forEach( val => {
+                            let index = dest.findIndex( v => v === val );
+                            if (index === -1) {
+                                temp_arr.close.push(val);
+                            };
+                        });
+                        dest.forEach( val => {
+                            let index = src.findIndex( v => v === val );
+                            if (index === -1) {
+                                temp_arr.open.unshift(val);
+                            };
+                        });
+                        return temp_arr;
+                    }
+
+                    // testDiff = findDifferenceInArrays(["string", "u", "temp" ],  ["string"] );
+                    // console.log("close temp & u", testDiff);
+
+                    console.log({arr, tagName, remove});
+                    showVal(arr);
+                    let currentTag = startATag(arr[0].style) ;
+
+                    let newTag = newArr.reduce((total, val, index)  => {
+
+                        let nextArrStyle = newArr[index + 1] === undefined ? [] : newArr[index + 1].style;
+
+                        let diff = findDifferenceInArrays( val.style, nextArrStyle );
+
+                        if (diff.open.length === 0 && diff.close.length === 0) return total += val.t;
+
+                        let tempString = "";
+                        tempString += val.t;
+                        tempString += closeATag( diff.close );
+                        tempString += startATag( diff.open );
+
+                        total += tempString;
+                        return total;
+
+
+                    }, currentTag);
+
+                    console.log(newTag);
+                    $(activeElem).closest("li, .active").html(newTag);
+
+
+                },
 
             };
 

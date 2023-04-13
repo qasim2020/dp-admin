@@ -899,11 +899,52 @@ var myFuncs = {
 
             let dataRows = await model.find().sort({ser: 1}).collation({locale: "en_US", numericOrdering: true}).lean();
 
-            let newRows = [];
+            let newRows = [], newHeadings = [];
 
             if ( dataRows.length == 0 ) {
 
-                newRows = [];
+                let total = [], temp, property;
+
+                for (i=0; i<collectionHeadings.length; i++) {
+
+                    switch (true) {
+
+                        case (collectionHeadings[i] == '_id'):
+
+                            property = {
+                                html: "brick",
+                                type: "String"
+                            };
+                            break;
+
+                        case (collectionHeadings[i] == 'properties'):
+
+                            break;
+
+                        case (collectionHeadings[i] == /fixed|noClone/g):
+
+                            break;
+
+                        default:
+
+                            property = requestedCollection.properties[collectionHeadings[i]];
+
+                    }
+
+                    total.push({
+                        meta: property
+                    });
+
+                }
+
+                for (i=0; i<collectionHeadings.length; i++) {
+
+                    newHeadings[i] = {
+                        val: collectionHeadings[i],
+                        meta: total[i].meta
+                    };
+
+                };
 
             } else {
 
@@ -937,6 +978,8 @@ var myFuncs = {
 
                                 temp = val[collectionHeadings[i]];
                                 property = requestedCollection.properties[collectionHeadings[i]];
+                                console.log("meta here");
+                                console.log(property);
                                 Object.assign(property, {
                                     key: collectionHeadings[i]
                                 });
@@ -950,8 +993,6 @@ var myFuncs = {
 
                     }
 
-                    // console.log( val.ser , val.ser == 1 );
-
                     return {
 
                         array: total,
@@ -962,16 +1003,15 @@ var myFuncs = {
                     };
                 });
 
-            };
+                for (i=0; i<collectionHeadings.length; i++) {
 
-            let newHeadings = [];
+                    newHeadings[i] = {
+                        val: collectionHeadings[i],
+                        meta:  newRows[0] && newRows[0].array[i].meta
+                    };
 
-            for (i=0; i<collectionHeadings.length; i++) {
-
-                newHeadings[i] = {
-                    val: collectionHeadings[i],
-                    meta:  newRows[0] && newRows[0].array[i].meta
                 };
+
 
             };
 

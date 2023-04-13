@@ -3315,7 +3315,7 @@ var myFuncs = {
     d_pstaffs: async function(req,res) {
         req.params.module = "staffs";
         return {
-            staffs: await this.d_pmodules.staffs(req,res)
+            staffs: await this.d_pmodules.staffs(req,res),
         }
     }, 
 
@@ -3323,7 +3323,8 @@ var myFuncs = {
         req.params.module = "staff";
         let model = await this.createModel(`${req.params.brand}-staffs`);
         return {
-            staff: await model.findOne({slug: req.params.input}).lean()
+            staff: await model.findOne({slug: req.params.input}).lean(),
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     }, 
 

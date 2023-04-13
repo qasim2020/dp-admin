@@ -89,7 +89,7 @@
             <p data-content="H1">H1</p>
             <p data-content="H3">H3</p>
             <p data-content="P">P</p>
-            <p data-content="">Attachment</p>
+            <p data-content="">Img + Link</p> <!-- Add Image + Add Link when clicked upon + Add caption -->
             <p data-content="UL">Bullets</p>
             <p data-content="OL">Numbered</p>
             <p data-content="HR">Separator</p>
@@ -98,7 +98,7 @@
     </div>
 
     <div class="editor-box">
-        <div class="post"></div>
+        <div class="post" data-id="{{data.output._id}}"></div>
     </div>
 
     <div class="popover d-none"></div>
@@ -110,118 +110,94 @@
 
         ( $(document).ready( ()=> {
 
-            let activeElem, activeColor, stringTable = [];
+            let activeElem, 
+                activeColor, 
+                stringTable = [];
 
-            $('.controls > p').on('click', function(e) {
-                let newTag = myFuncs.createTag(e.currentTarget);
-                myFuncs.createCharTable(newTag);
-            });
+            // what happens after an event & modules
+            let myFuncs = {
 
-            $(document).on('click', '.post > *', function(e) {
-                console.log(e.currentTarget);
-                $(e.currentTarget).siblings().removeClass("active");
-                $(e.currentTarget).addClass("active");
-            });
+                clickTopButtons: function(e) {
+                    let newTag = myFuncs.createTag(e.currentTarget);
+                    myFuncs.createCharTable(newTag);
+                }, 
 
-            $(document).on("mouseup keyup", ".editor-box", function(e) {
+                clickTagInPost: function(e) {
+                    console.log(e.currentTarget);
+                    $(e.currentTarget).siblings().removeClass("active");
+                    $(e.currentTarget).addClass("active");
+                },
 
-                var text, span;
+                saveDraftEmail: function(elem) {
 
-                // TODO: if this is enter press > create a new similar item in the next row and place all text after it inside next element > delete this text from current element
-                
-                if (window.getSelection) {
-                    text = window.getSelection().toString();
-                } else if (document.selection && document.selection.type != "Control") {
-                    text = document.selection.createRange().text;
-                }
-
-                if (text.length === 0) {
-                    return;
-                } 
-
-                $(".popover").addClass("d-none");
-
-                if ( !([37,38,39,40].some(v => v == e.keyCode)) ) {
-                    console.log("selection ended");
-                    span = myFuncs.selectHTML();
-                    myFuncs.showPopover( span );
-                };
-
-                return;
-            });
-
-            $(document).on("click", ".screen", function() {
-                $(activeElem).css({ "background-color": activeColor });
-
-                if ( $("temp").length > 0 ) {
-                    while ( $("temp").get().length > 0 ) {
-                        $("temp").get().forEach( el => {
-                            // console.log( $("temp").html() );
-                            $(el).replaceWith( $(el).html() );
-                        });
+                    let _id = $("post").attr("data-id");
+                    let data = {
+                        body: $("post").html()
                     };
-                };
-                $(".popover, .screen").addClass("d-none");
-            });
 
-            // when you click on bold or underline button
-            $(document).on("click", ".popover > div > p", function(e) {
-                    console.log( $(e.target).attr("data-content") );
-                switch (true) {
-                    case $(e.target).attr("data-content") == "bold":
-                        myFuncs.replaceTag("STRONG", activeElem);
+                    console.log("saving post...");
+
+                    $.ajax({
+                        url: /`{{data.brand}}/gen/page/saveDraftEmail/${_id}`,
+                        data: data, 
+                        method: "POST",
+                        success: val => console.log(val),
+                    }).fail( err => console.log(err) );
+
+                }, 
+
+                mouseUpKeyUpEditorBox: function(e) {
+
+                    var text, span;
+
+                    myFuncs.saveDraftEmail(e.target);
+
+                    // TODO: if this is enter press > create a new similar item in the next row and place all text after it inside next element > delete this text from current element
+                    
+                    if (window.getSelection) {
+                        text = window.getSelection().toString();
+                    } else if (document.selection && document.selection.type != "Control") {
+                        text = document.selection.createRange().text;
+                    }
+
+                    if (text.length === 0) {
                         return;
-                    case $(e.target).attr("data-content") == "underline":
-                        myFuncs.replaceTag("U", activeElem);
-                        return;
+                    } 
 
-                        // here stopped
-                        if ($(activeElem).css("font-weight") == "700") {
-                            $(activeElem).css({
-                                "font-weight": "100"
-                            });
-                        } else {
-                            $(activeElem).css({
-                                "font-weight": "700"
-                            });
-                        }
-                    break;
-                    case $(e.target).attr("data-content") == "underline":
-                        if ($(activeElem).css("text-decoration-line") == "underline") {
-                            $(activeElem).css({ "text-decoration-line": "none" });
-                            $(activeElem).children().css({ "text-decoration-line": "none" });
-                        } else {
-                            $(activeElem).css({ "text-decoration-line": "underline" });
-                            $(activeElem).children().css({ "text-decoration-line": "none" });
-                        }
-                    break;
-                    case $(e.target).attr("data-content") == "align_center":
-                        if ($(activeElem).closest(".active").css("text-align") == "center") {
-                            $(activeElem).closest(".active").css({
-                                "text-align": "center"
-                            });
-                        } else {
-                            $(activeElem).closest(".active").css({
-                                "text-align": "left"
-                            });
-                        }
-                    break;
-                    case $(e.target).attr("data-content") == "link":
-                        return console.log("add a link here");
-                        if ($(activeElem).css("font-weight") == "700") {
-                            $(activeElem).css({
-                                "font-weight": "100"
-                            });
-                        } else {
-                            $(activeElem).css({
-                                "font-weight": "700"
-                            });
-                        }
-                    break;
-                };
-            });
+                    $(".popover").addClass("d-none");
 
-            const myFuncs = {
+                    if ( !([37,38,39,40].some(v => v == e.keyCode)) ) {
+                        console.log("selection ended");
+                        span = myFuncs.selectHTML();
+                        myFuncs.showPopover( span );
+                    };
+
+                }, 
+
+                clickScreen: function() {
+                    $(activeElem).css({ "background-color": activeColor });
+
+                    if ( $("temp").length > 0 ) {
+                        while ( $("temp").get().length > 0 ) {
+                            $("temp").get().forEach( el => {
+                                // console.log( $("temp").html() );
+                                $(el).replaceWith( $(el).html() );
+                            });
+                        };
+                    };
+                    $(".popover, .screen").addClass("d-none");
+                },
+
+                clickPopoverButtons: function(e) {
+                    switch (true) {
+                        case $(e.target).attr("data-content") == "bold":
+                            myFuncs.replaceTag("STRONG", activeElem);
+                            return;
+                        case $(e.target).attr("data-content") == "underline":
+                            myFuncs.replaceTag("U", activeElem);
+                            return;
+                    };
+                }, 
 
                 tagDeclaration: function(elem) {
 
@@ -545,6 +521,13 @@
                 },
 
             };
+
+            // events
+            $(document).on('click', '.controls > p', myFuncs.clickTopButtons);
+            $(document).on('click', '.post > *', myFuncs.clickTagInPost) 
+            $(document).on('mouseup keyup', '.editor-box', myFuncs.mouseUpKeyUpEditorBox);
+            $(document).on('click', '.screen', myFuncs.clickScreen);
+            $(document).on('click', '.popover > div > p', myFuncs.clickPopoverButtons);
 
         }));
 

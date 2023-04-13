@@ -190,12 +190,17 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         let formString = elems.reduce( (total, val, key) => { 
 
-            if (val.html == 'textarea') {
+            if (val.html == 'link') {
+                console.log(val);
+                total = total + `
+                   <label for="${val.name}">${val.label}</label>
+                   <div class="link" name="${val.name}"><a href="${val.value}">Open</a></div>
+                `;
+            } else if (val.html == 'textarea') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
                    <textarea type="${val.type}" name="${val.name}" cols="30" rows="10" ${val.addOn}>${val.value}</textarea>
                 `;
-
             } else if (val.html == 'ckEditor') {
                 total = total + `
                    <label for="${val.name}">${val.label}</label>
@@ -544,7 +549,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
             _id = $(elem).closest("tr").find("[index=col0]").html();
         }
 
-        console.log("saving");
+        // console.log("saving");
         $(".btn.saving").html("Saving...").removeClass("d-none");
 
         $.ajax({
@@ -566,16 +571,28 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         type = type.split("-")[1];
 
+        console.log( type );
+        console.log( $(elem) );
+
         $(elem).closest("tr").find("td").map( (key,val) => {
 
-            if ( key < 2 ) return;
+            console.log( key, val);
+
+            if ( key < 2 ) return;                                                                              // >
 
             $("tr:eq(-1)").find(`td[index=col${key - 1}]`).remove();
 
+            if ( $(val).hasClass("link") ) {
 
-            console.log( $(val).attr("class") );
+                console.log( $(val) );
+                console.log( $(val).html() );
+                console.log( $(val).find("a").attr("href") );
+                $(val).clone().appendTo("tr:eq(-1)");
+                console.log( $(val) );
+                console.log( $(val).html() );
+                console.log( $(val).find("a").attr("href") );
 
-            if ( $(val).hasClass("page") || $(val).hasClass("fixed") || $(val).hasClass("photos") ) {
+            } else if ( $(val).hasClass("page") || $(val).hasClass("fixed") || $(val).hasClass("photos") ) {
 
                 $(val).clone().appendTo("tr:eq(-1)").removeAttr("onkeyup")
                               
@@ -589,67 +606,6 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         });
 
-        let saveRow = function() {
-
-            $("tr:eq(-1)").find("td").map( (key,val) => {
-
-                if ( key < 2 ) {
-                           
-                   console.log( "col " + key + " was not saved" );
-                   // console.log( $(val).attr("index") + " was not saved" );
-                   
-               } else if ( $(val).hasClass("photos") ) {
-
-                   JSON.parse( $(val).attr("mydata") ).forEach( photo => {
-
-                       let data = {
-                           _id: getMyId(val),
-                           photo: photo
-                       };
-                           
-                       $.ajax({
-                           url: `/${urlParams().brand}/auth/data/saveImgInArray/${urlParams().collection}`,
-                           method: "POST",
-                           data: data,
-                           success: val => console.log(" img saved in DB"),
-                           error: (err, status, response) => console.log(err)
-                       });
-
-                   });
-
-               } else if ( $(val).hasClass("quantityFK") ) {
-
-                   JSON.parse( $(val).attr("mydata") ).forEach( item => {
-
-                       let data = {
-                           _id: getMyId(val),
-                           key: $(val).attr("key"),
-                           item: item
-                       };
-
-                       console.log( data );
-                           
-                       $.ajax({
-                           url: `/${urlParams().brand}/${urlParams().permit}/data/saveItemInArray/${urlParams().collection}`,
-                           method: "POST",
-                           data: data,
-                           success: val => console.log(" item saved in DB"),
-                           error: (err, status, response) => console.log(err)
-                       });
-
-                   });
-
-               } else {
-
-                    saveInput( val, _id, "cloned", $(val).attr("mydata") );
-
-               };
-
-               return;
-
-            });
-
-        };
 
         let changings = {
            ser: $(elem).closest("table").find("[formname='ser']").attr("index"),
@@ -698,7 +654,68 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     };
 
-    let addNewRow = function(cloneMe, elem, type) {
+    let saveRow = function(_id) {
+
+        $("tr:eq(-1)").find("td").each( (key,val) => {
+
+            if ( $(val).hasClass("link") ) return;
+            if (key < 2) return;
+
+            if ( $(val).hasClass("photos") ) {
+
+               JSON.parse( $(val).attr("mydata") ).forEach( photo => {
+
+                   let data = {
+                       _id: getMyId(val),
+                       photo: photo
+                   };
+                       
+                   $.ajax({
+                       url: `/${urlParams().brand}/auth/data/saveImgInArray/${urlParams().collection}`,
+                       method: "POST",
+                       data: data,
+                       success: val => console.log(" img saved in DB"),
+                       error: (err, status, response) => console.log(err)
+                   });
+
+               });
+
+           } else if ( $(val).hasClass("quantityFK") ) {
+
+               JSON.parse( $(val).attr("mydata") ).forEach( item => {
+
+                   let data = {
+                       _id: getMyId(val),
+                       key: $(val).attr("key"),
+                       item: item
+                   };
+
+                   console.log( data );
+                       
+                   $.ajax({
+                       url: `/${urlParams().brand}/${urlParams().permit}/data/saveItemInArray/${urlParams().collection}`,
+                       method: "POST",
+                       data: data,
+                       success: val => console.log(" item saved in DB"),
+                       error: (err, status, response) => console.log(err)
+                   });
+
+               });
+
+           } else {
+
+                saveInput( val, _id, "cloned", $(val).attr("mydata") );
+
+           };
+
+           return;
+
+        });
+
+    };
+
+
+    let addNewRow = function(elem, type) {
         
         console.log("add new row clicked");
         $.get(`/${urlParams().brand}/gen/data/getMongoId/n`, function( data, status ){
@@ -714,8 +731,15 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                     <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt" aria-hidden="true"></i></a>
                 `)
                 .closest("tr")
-                .find("[index=col0]").html(data);
-            if (cloneMe) cloneMe(elem, type, data);
+                .find("[index=col0]").html(data).attr({mydata: data})
+                .closest("tr")
+                .find(".link").get().forEach( val => {
+                    let meta = JSON.parse($(val).attr("meta"));
+                    $(val).find("a").attr({href: meta.link + data});
+                    $(val).attr({mydata: meta.link + data});
+                });
+
+            saveRow(data);
         });
 
     }
@@ -723,6 +747,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
     let deleteMe = function(elem) {
 
         let _id = $(elem).closest("tr").find("[index=col0]").attr("mydata");
+        console.log( _id );
 
         $.get(`/${urlParams().brand}/auth/data/deleteDocumentAuth/${urlParams().collection}?_id=${_id}`, function( data, status ) {
 

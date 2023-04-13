@@ -441,7 +441,7 @@
 
 <div class="table">
     <!-- <button class="btn" onclick="openContainerLayer('.table','.airtableKeys')">Airtable Pull</button> -->
-    <button class="btn" onclick="addNewRow(cloneMe, 'tr[class=d-none] > td', '{{data.modelName}}')">Add New Row</button>
+    <button class="btn" onclick="addNewRow('tr[class=d-none] > td', '{{data.modelName}}')">Add New Row</button>
     <button class="btn saving d-none">SAVING...</button>
     <div id="hiddenFields"> </div>
     <table schema="{{json schema}}">
@@ -678,6 +678,16 @@
                             </select>
                     </td>
 
+                    {{else if (matchValues "link" this.meta.html)}}
+
+                    <td 
+                        index="col{{@index}}"
+                        meta="{{json this.meta}}"
+                        mydata="{{this.meta.link}}{{../array.[0].val}}"
+                        class="{{this.meta.html}}">
+                        <a href="{{this.meta.link}}{{../array.[0].val}}">Open</a>
+                    </td>
+
                     {{else}}
 
                     <td 
@@ -699,15 +709,25 @@
                 <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
             </td>
             {{#each data.th}}
-            <td 
-                index="col{{@index}}"
-                mydata="{{this.val}}"
-                meta="{{json this.meta}}"
-                class="{{this.meta.html}}" 
-                {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} 
-                onkeyup="saveInput(this,'{{../array.[0].val}}','td')" >
-                    {{#unless (matchValues this.val '[object Object]')}}{{this.val}}{{/unless}}
-            </td>
+                {{#if (matchValues "link" this.meta.html)}}
+                    <td 
+                        index="col{{@index}}"
+                        meta="{{json this.meta}}"
+                        mydata="{{this.meta.link}}"
+                        class="{{this.meta.html}}">
+                        <a href="{{this.meta.link}}">Open</a>
+                    </td>
+                {{else}}
+                    <td 
+                        index="col{{@index}}"
+                        mydata="{{this.val}}"
+                        meta="{{json this.meta}}"
+                        class="{{this.meta.html}}" 
+                        {{#unless (matchValues @index 0)}} contenteditable=true {{/unless}} 
+                        onkeyup="saveInput(this,'{{../array.[0].val}}','td')" >
+                            {{#unless (matchValues this.val '[object Object]')}}{{this.val}}{{/unless}}
+                    </td>
+                {{/if}}
             {{/each}}
         </tr>
 

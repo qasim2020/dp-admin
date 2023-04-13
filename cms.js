@@ -823,14 +823,27 @@ var myFuncs = {
         d_ppage: "gen",
         d_pcontact: "gen",
         draftEmail: "gen",
+        saveDraftEmail: "gen", 
     },
+
+    saveDraftEmail: async function(req, res) {
+
+        let model = await this.createModel(`${req.params.brand}-newsletters`);
+        // save email start here .... continouslly write until the work flow is written and move to next step. 
+        let output = await model.findOneAndUpdate({ _id: req.params.input}, {$set: req.body}, {upsert: true});
+        return {
+            success: output
+        }
+
+    }, 
 
     draftEmail: async function(req,res) {
 
+        let model = await this.createModel(`${req.params.brand}-newsletters`);
+        let output = await model.findOne({_id: req.params.input});
         req.params.theme = "root";
-
         return {
-            success: true
+            output: output
         };
 
     },

@@ -10,6 +10,12 @@
         margin: auto;
     }
 
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .editor-box {
         width: 100%;
     }
@@ -82,7 +88,12 @@
     </style>
 </head>
 <body>
-    <nav>Back</nav>
+    <nav>
+        <div class="">
+            <a href="/{{data.brand}}/auth/page/newDashboard/{{data.brand}}-newsletters">Back</a>
+        </div>
+        <div class="d-none success"></div>
+    </nav>
     <div class="container">
 
         <div class="controls">
@@ -98,7 +109,9 @@
     </div>
 
     <div class="editor-box">
-        <div class="post" data-id="{{data.output._id}}"></div>
+        <div class="post" data-id="{{data.output._id}}">
+            {{{data.output.body}}}
+        </div>
     </div>
 
     <div class="popover d-none"></div>
@@ -120,6 +133,7 @@
                 clickTopButtons: function(e) {
                     let newTag = myFuncs.createTag(e.currentTarget);
                     myFuncs.createCharTable(newTag);
+                    myFuncs.saveDraftEmail();
                 }, 
 
                 clickTagInPost: function(e) {
@@ -128,21 +142,26 @@
                     $(e.currentTarget).addClass("active");
                 },
 
-                saveDraftEmail: function(elem) {
+                saveDraftEmail: function() {
 
-                    let _id = $("post").attr("data-id");
+                    let _id = $(".post").attr("data-id");
                     let data = {
-                        body: $("post").html()
+                        body: $(".post").html()
                     };
 
                     console.log("saving post...");
+                    $(".success").removeClass("d-none").html("Saving...");
 
                     $.ajax({
-                        url: /`{{data.brand}}/gen/page/saveDraftEmail/${_id}`,
+                        url: `/{{data.brand}}/gen/data/saveDraftEmail/${_id}`,
                         data: data, 
                         method: "POST",
-                        success: val => console.log(val),
-                    }).fail( err => console.log(err) );
+                        success: val => {
+                            $(".success").addClass("d-none");
+                        }, 
+                    }).fail( err => {
+                            $(".success").html("Error! Couldn't save.");
+                    });
 
                 }, 
 
@@ -150,9 +169,8 @@
 
                     var text, span;
 
-                    myFuncs.saveDraftEmail(e.target);
-
                     // TODO: if this is enter press > create a new similar item in the next row and place all text after it inside next element > delete this text from current element
+
                     
                     if (window.getSelection) {
                         text = window.getSelection().toString();
@@ -160,7 +178,9 @@
                         text = document.selection.createRange().text;
                     }
 
+                    // when no highlighting save the text
                     if (text.length === 0) {
+                        myFuncs.saveDraftEmail();
                         return;
                     } 
 
@@ -176,7 +196,6 @@
 
                 clickScreen: function() {
                     $(activeElem).css({ "background-color": activeColor });
-
                     if ( $("temp").length > 0 ) {
                         while ( $("temp").get().length > 0 ) {
                             $("temp").get().forEach( el => {
@@ -186,17 +205,19 @@
                         };
                     };
                     $(".popover, .screen").addClass("d-none");
+                    myFuncs.saveDraftEmail();
                 },
 
                 clickPopoverButtons: function(e) {
                     switch (true) {
                         case $(e.target).attr("data-content") == "bold":
                             myFuncs.replaceTag("STRONG", activeElem);
-                            return;
+                            break;
                         case $(e.target).attr("data-content") == "underline":
                             myFuncs.replaceTag("U", activeElem);
-                            return;
+                            break;
                     };
+                    myFuncs.saveDraftEmail();
                 }, 
 
                 tagDeclaration: function(elem) {

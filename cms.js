@@ -570,7 +570,7 @@ var myFuncs = {
                         }
                     ]);
 
-                console.log(JSON.stringify(output, 0, 2));
+                // console.log(JSON.stringify(output, 0, 2));
                 result = {
                     person: output.person[0],
                     brand: output.brand && output.brand.name,
@@ -625,7 +625,8 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        console.log(data);
+        // console.log(JSON.stringify(data, 0, 2));
+        // console.log(data);
         
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -828,6 +829,7 @@ var myFuncs = {
 
     saveDraftEmail: async function(req, res) {
 
+        console.log(req.params.input, req.body);
         let model = await this.createModel(`${req.params.brand}-newsletters`);
         // save email start here .... continouslly write until the work flow is written and move to next step. 
         let output = await model.findOneAndUpdate({ _id: req.params.input}, {$set: req.body}, {upsert: true});
@@ -950,9 +952,13 @@ var myFuncs = {
 
                 newRows = dataRows.map(val => {
 
-                    let total = [], temp, property;
+                    let total = [], temp, property, attributes;
 
                     for (i=0; i<collectionHeadings.length; i++) {
+
+
+                        console.log("COLLECTION HEADINGS");
+                        attributes = requestedCollection && requestedCollection.properties[collectionHeadings[i]] || false;
 
                         switch (true) {
 
@@ -965,21 +971,24 @@ var myFuncs = {
                                 };
                                 break;
 
+                            case (attributes && attributes["html"] == "link"):
+
+                                temp = attributes["link"] + val._id;
+                                property = requestedCollection.properties[collectionHeadings[i]];
+                                break;
+
                             case (collectionHeadings[i] == 'properties'):
 
                                 temp = JSON.stringify(val[collectionHeadings[i]]);
                                 break;
 
                             case (collectionHeadings[i] == /fixed|noClone/g):
-
                                 break;
 
                             default:
 
                                 temp = val[collectionHeadings[i]];
                                 property = requestedCollection.properties[collectionHeadings[i]];
-                                console.log("meta here");
-                                console.log(property);
                                 Object.assign(property, {
                                     key: collectionHeadings[i]
                                 });

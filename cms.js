@@ -625,7 +625,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        // console.log(JSON.stringify(data, 0, 2));
+        console.log(JSON.stringify(data, 0, 2));
         // console.log(data);
         
         switch(true) {
@@ -824,15 +824,87 @@ var myFuncs = {
         d_ppage: "gen",
         d_pcontact: "gen",
         draftEmail: "gen",
-        saveDraftEmail: "gen", 
+        saveDraftEmail: "auth", 
+        shipEmail: "auth", 
+        logOfEmail: "auth", 
     },
+
+    shipEmail: async function(req, res) {
+        req.params.theme = "root";
+        let model = await this.createModel(`${req.params.brand}-subscribers`);
+        let list = await model.distinct("list").lean();
+        let arr = [];
+        await list.forEach( async (val) => {
+            arr.push({
+                list: val, 
+                emails: await model.find({list: val, isUnsubscribed: "false"}).lean()
+            });
+        });
+        console.log("Here shoing the arr");
+        return {
+            list, 
+            listData: arr
+        }
+    }, 
+
+    // Sending newsletter one by one from the front-end side
+    sendNewsletter: async function(req,res) {
+
+        if ( !(req.body.hasOwnProperty("email")) ) return {
+            error: "Bad request. Email is a must parameter.",
+            status: 404
+        };
+
+        let model;
+
+        if ( !(req.session.newsletter && req.session.newsletter._id == req.body.id) ) {
+
+            let output;
+            model = await this.createModel(`${req.params.brand}-newsletters`);
+            output = await model.findOne({_id: req.body.id}).lean();
+            req.session.newsletter = output;
+            console.log( chalk.bold.red( "Creating a new session of newsletter") );
+
+        } else {
+
+            console.log( chalk.bold.green( "Newsletter old session in use") );
+
+        };
+
+        let sentMail = await this.sendMail({
+            toEmail: req.body.email, 
+            subject: req.session.newsletter.subject, 
+            brand: req.params.brand, 
+            msg: req.session.newsletter.body
+        });
+
+        if (sentMail.hasOwnProperty("accepted")) {
+            return {
+                status: 200,
+                text: "Email sent", 
+                email: sentMail.accepted[0], 
+                list: req.body.list
+            };
+        } else {
+            console.log(sentMail);
+            return {
+                status: 400, 
+                error: "Email not sent"
+            };
+        };
+
+    }, 
+
+    logOfEmail: async function(req, res) {
+        req.params.theme = "root";
+        return { success: true }
+    }, 
 
     saveDraftEmail: async function(req, res) {
 
-        console.log(req.params.input, req.body);
         let model = await this.createModel(`${req.params.brand}-newsletters`);
-        // save email start here .... continouslly write until the work flow is written and move to next step. 
         let output = await model.findOneAndUpdate({ _id: req.params.input}, {$set: req.body}, {upsert: true});
+        req.session.newsletter = output;
         return {
             success: output
         }
@@ -5112,9 +5184,13 @@ var myFuncs = {
 
     subscribeCustomer: async function(req,res) {
 
+        console.log( chalk.bold.red('Subscribing a new customer') );
+
         let model = await this.createModel(`${req.params.brand}-subscribers`);
         
         let isSubscribed = await model.findOne({email: req.body.email, validation: true}).lean();
+
+        console.log(isSubscribed);
 
         if (isSubscribed != null) {
             return {
@@ -5124,10 +5200,12 @@ var myFuncs = {
         };
                 
         // Add this customer with the special subscription code
+        // TODO: Fix this send Email using dedicated_parents verify email template that is being drafted in the front end
         let output = await model.findOneAndUpdate(
             {
                 email: req.body.email
             },{
+                name: `${req.body.firstName} ${req.body.lastName}`, 
                 email: req.body.email, 
                 validation: false, 
                 isUnsubscribed: false,
@@ -5138,6 +5216,8 @@ var myFuncs = {
             }
         );
 
+        console.log(output);
+
         // Send an Email to the customer saying "Please click on this link to verify your subscription request"
         let url = '';
 
@@ -5145,10 +5225,10 @@ var myFuncs = {
 
         console.log(output);
 
-        url = process.env.url + `/life/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
+        url = process.env.url + `/${req.params.brand}/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
         let mailResponse = await this.sendMail({
-            from: `Qasim Ali<${process.env.zoho}>`,
+            from: process.env.zoho, 
             template: 'verifyEmail', 
             context: {
                 verifyUrl : url,
@@ -5167,6 +5247,7 @@ var myFuncs = {
     },
 
     sendMail: async function({template, context, toEmail, subject, brand, msg}) { 
+        // min essential params are toEmail, subject, brand, msg
 
         console.log("sendMail");
         console.log({ brand, toEmail });
@@ -5214,8 +5295,6 @@ var myFuncs = {
         }
 
         const info = await transporter.sendMail(mail);
-
-        console.log(info);
 
         return info;
 
@@ -5299,7 +5378,7 @@ var myFuncs = {
         } else {
             return {
                 brand: req.params.brand,
-                msg: 'Sorry — this link is already used.'
+                msg: 'Sorry — this link does not exist.'
             }
         }
 
@@ -7579,8 +7658,6 @@ Receipt sent by Server.`;
 
     sendMsgToEmail: async function(req, res) {
 
-        console.log("sending email");
-
         if ( !( req.body.msgText && req.body.toEmail && req.body.msgSubject ) ) return {
             status: 404, 
             error: "Sorry you missed some fields."
@@ -7592,8 +7669,6 @@ Receipt sent by Server.`;
                 subject: req.body.msgSubject, 
                 brand: req.params.brand
             });
-
-        console.log(mail);
 
         return {
             success: true

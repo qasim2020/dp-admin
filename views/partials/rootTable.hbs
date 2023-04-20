@@ -669,7 +669,7 @@
                         class="dropdown" 
                         index="col{{@index}}" 
                         mydata="{{this.val}}"
-                        allowedValues="{{this.mera.allowedValues}}"
+                        allowedValues="{{this.meta.allowedValues}}"
                         onchange="saveInput(this,'{{../array.[0].val}}','dropdown')">
                             <select>
                                 {{#each (splitComma this.meta.allowedValues) }}
@@ -717,6 +717,22 @@
                         class="{{this.meta.html}}">
                         <a href="{{this.meta.link}}">Open</a>
                     </td>
+
+                {{else if (matchValues "dropdown" this.meta.html)}}
+
+                <td 
+                    class="dropdown" 
+                    index="col{{@index}}" 
+                    mydata="{{this.val}}"
+                    allowedValues="{{this.meta.allowedValues}}"
+                    onchange="saveInput(this,'{{../array.[0].val}}','dropdown')">
+                        <select>
+                            {{#each (splitComma this.meta.allowedValues) }}
+                            <option value="{{this}}" {{#if (matchValues this ../this.val)}} selected {{/if}} >{{this}}</option>
+                            {{/each}}
+                        </select>
+                </td>
+
                 {{else}}
                     <td 
                         index="col{{@index}}"

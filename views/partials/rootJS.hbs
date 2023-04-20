@@ -470,7 +470,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
         console.log( {elem, _id, type, optData} );
 
-        if ( (/(<([^>]+)>)/gi).test( $(elem).html() ) && type != "ckEditor" ) {
+        if ( (/(<([^>]+)>)/gi).test( $(elem).html() ) && type != "ckEditor" && type != "dropdown" ) {
 
             let text = $(elem).html().replace(/(<([^>]+)>)/gi, "");
             $(elem).html(text); 
@@ -532,11 +532,15 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                 data[$(elem).attr("name")] =  $(elem).find("select").val() ;
                 break;
             case (type == "dropdown") :
+                console.log("dropdown input saving");
+                console.log( $(elem).html() );
                 name = $(`[index=${ $(elem).attr("index").trim() }`).attr("formname");
+                console.log( $(elem).find("select") );
                 $(elem).attr({mydata: $(elem).find("select").val()});
                 data[name] = $(elem).find("select").val(); 
                 $(elem).find("option").removeAttr("selected")
                 $(elem).find(`option[value="${$(elem).find("select").val()}"]`).attr({selected: "selected"});
+                console.log( $(elem) );
                 break; 
             case (type == "cloned") :
                 name = $(`[index=${ $(elem).attr("index").trim() }`).attr("formname");
@@ -659,6 +663,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         $("tr:eq(-1)").find("td").each( (key,val) => {
 
             if ( $(val).hasClass("link") ) return;
+            if ( $(val).hasClass("dropdown") ) return;
             if (key < 2) return;
 
             if ( $(val).hasClass("photos") ) {
@@ -717,10 +722,8 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
 
     let addNewRow = function(elem, type) {
         
-        console.log("add new row clicked");
         $.get(`/${urlParams().brand}/gen/data/getMongoId/n`, function( data, status ){
             if (status != "success") return alert("could not get the id");
-            console.log(data, status);
             $(elem).closest("tr")
                 .clone()
                 .attr({id: "row" + ( $("tr").get().length - 1 )})
@@ -737,7 +740,7 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
                     let meta = JSON.parse($(val).attr("meta"));
                     $(val).find("a").attr({href: meta.link + data});
                     $(val).attr({mydata: meta.link + data});
-                });
+                })
 
             saveRow(data);
         });

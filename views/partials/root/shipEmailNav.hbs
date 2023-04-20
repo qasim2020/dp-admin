@@ -1,0 +1,12 @@
+    <nav>
+        <div class="left">
+            <a href="/{{data.brand}}/auth/page/newDashboard/{{data.brand}}-newsletters">Dashboard</a>
+            <a {{#if (matchValues active 'edit')}} class="active" {{/if}} href="/{{data.brand}}/auth/page/draftEmail/{{data.input}}">Edit</a> 
+            <a {{#if (matchValues active 'ship')}} class="active" {{/if}} href="/{{data.brand}}/auth/page/shipEmail/{{data.input}}">Ship</a> 
+            <a {{#if (matchValues active 'log') }} class="active" {{/if}} href="/{{data.brand}}/auth/page/logOfEmail/{{data.input}}">Log</a>
+        </div>
+        <div class="right">
+            <a href="" class="success d-none">Success</a>
+        </div>
+    </nav>
+

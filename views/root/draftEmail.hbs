@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    {{> root/shipEmailCss}}
     <style>
 
     .container {
         max-width: 600px;
         margin: auto;
-    }
-
-    nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
     }
 
     .editor-box {
@@ -23,6 +18,7 @@
     .editor-box > .post {
         max-width: 600px;
         margin: auto;
+        margin-top: 20px;
     }
     
     .editor-box [contenteditable]:focus-visible {
@@ -88,18 +84,14 @@
     </style>
 </head>
 <body>
-    <nav>
-        <div class="">
-            <a href="/{{data.brand}}/auth/page/newDashboard/{{data.brand}}-newsletters">Back</a>
-        </div>
-        <div class="d-none success"></div>
-    </nav>
+    {{> root/shipEmailNav active="edit"}}
     <div class="container">
 
         <div class="controls">
             <p data-content="H1">H1</p>
             <p data-content="H3">H3</p>
             <p data-content="P">P</p>
+            <p data-content="A">A</p>
             <p data-content="">Img + Link</p> <!-- Add Image + Add Link when clicked upon + Add caption -->
             <p data-content="UL">Bullets</p>
             <p data-content="OL">Numbered</p>
@@ -225,7 +217,16 @@
                     switch (true) {
 
                         case ( $(elem).attr("data-content") == "H1" ):
-                            return `<h1 contenteditable=true>type here</h1>`;
+                            return `<h1 style="
+                                        background: #219653;
+                                        padding: 7px 10px;
+                                        width: fit-content;
+                                        color: white !important;
+                                        font-size: 21px !important;
+                                        transform: rotate( -1deg);
+                                        margin: 0px 0 25px 0;
+                                        " contenteditable=true>
+                                    type here</h1>`
                             break;
 
                         case ( $(elem).attr("data-content") == "H3" ):
@@ -233,9 +234,27 @@
                             break;
 
                         case ( $(elem).attr("data-content") == "P" ):
-                            // return `<p contenteditable=true>ty<strong>pe <u>h<i>e</i></u></strong>re. <strong>now</strong> please.</p>`;
-                            // return `<p contenteditable=true>ty<strong>pe. here</strong>`;
-                            return `<p contenteditable=true>type here</p>`;
+                            return `
+                                    <p style="
+                                        font-size: 17px;
+                                        line-height: 1.7;
+                                        color: #333333;
+                                        word-break: break-word;"
+                                    contenteditable=true>
+                                    type here</p>`;
+                            break;
+
+                        case ( $(elem).attr("data-content") == "A" ):
+                            return `<a href="" style="
+                                        font-size: 13px;
+                                        line-height: 1.5;
+                                        font-weight: bold;
+                                        color: black;
+                                        "
+                                        contenteditable=true
+                                        >
+                                        {{data.verifyUrl}}
+                                    </a> `;
                             break;
 
                         case ( $(elem).attr("data-content") == "UL" ):

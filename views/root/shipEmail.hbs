@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    {{> root/shipEmailCss }}
+
+    <style>
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .email-list {
+        border: 2px solid black;
+        padding: 10px;
+        background: whitesmoke;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    button.active {
+        background: black;
+        color: white;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+        background: whitesmoke;
+    }
+
+    table > tbody > tr > th,
+    table > tbody > tr > td {
+        padding: 8px 4px;
+        border: 2px solid black;
+        text-align: center;
+    }
+
+    .ship-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    </style>
+</head>
+<body>
+    {{> root/shipEmailNav active="ship"}}
+
+    <div class="container select-emails">
+
+        <div>
+            <h3>Select list and the emails that you want this email to go to!</h3>
+            {{#each data.list}}
+                <button class="btn" list-decision onclick="myFuncs.toggleLists(this)" data-connected="data-{{this}}">{{this}}</button>
+            {{/each}}
+        </div>
+
+        {{#each data.listData}}
+            {{#if (matchValues @index 0)}}
+            <div class="email-list data-{{this.list}} d-none">
+                {{#each this.emails}}
+                <input checked type="checkbox" id="email-{{../this.list}}-{{@index}}" name="email-{{../this.list}}-{{@index}}" value="{{this.email}}" list="{{../this.list}}">
+                <label for="email-{{../this.list}}-{{@index}}">{{this.email}}</label><br>
+                {{/each}}
+            </div>
+            {{else}}
+            <div class="email-list data-{{this.list}} d-none">
+                {{#each this.emails}}
+                <input checked type="checkbox" id="email-{{../this.list}}-{{@index}}" name="email-{{../this.list}}-{{@index}}" value="{{this.email}}" list="{{../this.list}}">
+                <label for="email-{{../this.list}}-{{@index}}">{{this.email}}</label><br>
+                {{/each}}
+            </div>
+            {{/if}}
+        {{/each}}
+
+        <button class="btn" onclick="myFuncs.sendEmails(this)">Send Now</button>
+    </div>
+
+    <div class="container sending-email d-none">
+
+        <h3>Email sent!</h3>
+
+        <table>
+            <tbody>
+                <tr>
+                    <th>Status</th>
+                    <th>Email</th>
+                    <th>List</th>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="ship-buttons">
+
+            <button class="btn" onclick="myFuncs.openLayer('.select-emails', '.sending-email')">Send Again</button>
+        
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+        $(document).ready( () => {
+            $("[data-connected]:eq(0)").click();
+        });
+
+        let myFuncs = {
+
+            openLayer : function( layer1, layer2 ) {
+                $(layer1).removeClass("d-none");
+                $(layer2).addClass("d-none");
+            },
+
+            toggleLists : function(elem) {
+                let dataConnected = $(elem).attr("data-connected");
+                $(elem).siblings("button").removeClass("active");
+                $(elem).addClass("active");
+                $(".email-list").addClass("d-none");
+                $(`.${dataConnected}`).removeClass("d-none");
+            },
+
+            afterEmailSent: function(val) {
+                console.log(val);
+                this.openLayer(".sending-email", ".select-emails");
+                let html = `
+<tr>
+    <td>Done</td>
+    <td>${val.email}</td>
+    <td>${val.list}</td>
+</tr>
+`;
+
+                $(".sending-email > table > tbody").append(html);
+                $(".select-emails > .btn").html("Send Now");
+
+            }, 
+
+            sendOneEmail: function(email, list) {
+
+                let data = {
+                    email: email, 
+                    list: list, 
+                    id: "{{data.input}}"
+                };
+
+                $.ajax({
+                    url: `/{{data.brand}}/auth/data/sendNewsletter/n`,
+                    method: "POST", 
+                    data: data,
+                    success: val => this.afterEmailSent(val), 
+                }).fail( err => console.log(err) );
+
+            }, 
+
+            sendEmails: function(elem) {
+                let listDecision = $("[list-decision].active").attr("data-connected");
+                $(elem).html("Sending...");
+                $(`.${listDecision}`).find("input:checked").each( (index, val)  => {
+                    myFuncs.sendOneEmail( $(val).attr("value"), $(val).attr("list") );
+                });
+            }, 
+
+        };
+
+    </script>
+
+</body>
+</html>

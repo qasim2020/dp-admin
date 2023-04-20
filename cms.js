@@ -625,7 +625,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        console.log(JSON.stringify(data, 0, 2));
+        // console.log(JSON.stringify(data, 0, 2));
         // console.log(data);
         
         switch(true) {
@@ -871,11 +871,32 @@ var myFuncs = {
 
         };
 
+        let person ;
+
+        model = await this.createModel(`${req.params.brand}-subscribers`);
+        person = await model.findOne({email: req.body.email}).lean();
+        
+        if (person == undefined) {
+            return {
+                status: 400,
+                error: req.body.email + " not found in database"
+            }
+        };
+
         let sentMail = await this.sendMail({
-            toEmail: req.body.email, 
-            subject: req.session.newsletter.subject, 
-            brand: req.params.brand, 
-            msg: req.session.newsletter.body
+                type: "database", 
+                from: process.env.zoho, 
+                context: {
+                    firstName: person.firstName, 
+                    lastName: person.lastName, 
+                    _id: person._id, 
+                    env: process.env.url, 
+                    email: person.email,
+                }, 
+                toEmail: req.body.email, 
+                msg: req.session.newsletter.body, 
+                subject: req.session.newsletter.subject, 
+                brand: req.params.brand
         });
 
         if (sentMail.hasOwnProperty("accepted")) {
@@ -883,7 +904,7 @@ var myFuncs = {
                 status: 200,
                 text: "Email sent", 
                 email: sentMail.accepted[0], 
-                list: req.body.list
+                list: person.list
             };
         } else {
             console.log(sentMail);
@@ -5188,7 +5209,11 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-subscribers`);
         
-        let isSubscribed = await model.findOne({email: req.body.email, validation: true}).lean();
+        let isSubscribed = await model.findOne({
+            email: req.body.email, 
+            validation: true, 
+            isUnsubscribed: false, 
+        }).lean();
 
         console.log(isSubscribed);
 
@@ -5200,12 +5225,12 @@ var myFuncs = {
         };
                 
         // Add this customer with the special subscription code
-        // TODO: Fix this send Email using dedicated_parents verify email template that is being drafted in the front end
         let output = await model.findOneAndUpdate(
             {
                 email: req.body.email
             },{
-                name: `${req.body.firstName} ${req.body.lastName}`, 
+                firstName: req.body.firstName, 
+                lastName: req.body.lastName, 
                 email: req.body.email, 
                 validation: false, 
                 isUnsubscribed: false,
@@ -5227,18 +5252,46 @@ var myFuncs = {
 
         url = process.env.url + `/${req.params.brand}/gen/page/verifyEmail/n?email=${req.body.email}&uniqueCode=${output._id}`;
 
-        let mailResponse = await this.sendMail({
-            from: process.env.zoho, 
-            template: 'verifyEmail', 
-            context: {
-                verifyUrl : url,
-                Id: output._id, 
-                email: output.email,
-            }, 
-            toEmail: req.body.email, 
-            subject: 'Verify Email', 
-            brand: req.params.brand
-        });
+        let mailResponse;
+        let mailModel = await this.createModel(`${req.params.brand}-newsletters`);
+        let mail = await mailModel.findOne({slug: "verify-email"}).lean();
+
+
+        if ( mail != null ) {
+
+            mailResponse = await this.sendMail({
+                type: "database", 
+                from: process.env.zoho, 
+                context: {
+                    firstName: output.firstName, 
+                    lastName: output.lastName, 
+                    _id: output._id, 
+                    env: process.env.url, 
+                    email: output.email,
+                }, 
+                toEmail: req.body.email, 
+                msg: mail.body, 
+                subject: mail.subject, 
+                brand: req.params.brand
+            });
+
+        } else {
+
+            mailResponse = await this.sendMail({
+                from: process.env.zoho, 
+                template: 'verifyEmail', 
+                context: {
+                    verifyUrl : url,
+                    Id: output._id, 
+                    email: output.email,
+                }, 
+                toEmail: req.body.email, 
+                subject: 'Verify Email', 
+                brand: req.params.brand
+            });
+
+        };
+
 
         return {
             output
@@ -5246,7 +5299,7 @@ var myFuncs = {
 
     },
 
-    sendMail: async function({template, context, toEmail, subject, brand, msg}) { 
+    sendMail: async function({type, template, context, toEmail, subject, brand, msg}) { 
         // min essential params are toEmail, subject, brand, msg
 
         console.log("sendMail");
@@ -5267,19 +5320,29 @@ var myFuncs = {
 
         let hbstemplate, html;
 
-        if (template != undefined) {
+        if (context != undefined) {
 
-            let file = await new Promise( (resolve, reject) => {
+            if (type == "database") {
 
-                fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
-                    if (err) reject(err)
-                    resolve(data);
+                // I need type, context, toEmail, subject, brand, and msg
+                hbstemplate = hbs.compile(msg);
+                html = hbstemplate({data: context});
+
+            } else {
+
+                let file = await new Promise( (resolve, reject) => {
+
+                    fs.readFile(`./views/emails/${template}.hbs`, 'utf8', (err, data) => {
+                        if (err) reject(err)
+                        resolve(data);
+                    });
+
                 });
 
-            });
+                hbstemplate = hbs.compile(file);
+                html = hbstemplate({data: context});
 
-            hbstemplate = hbs.compile(file);
-            html = hbstemplate({data: context});
+            }
 
         } else {
 

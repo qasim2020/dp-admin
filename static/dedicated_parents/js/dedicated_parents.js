@@ -16,6 +16,8 @@ let myFuncs = {
 
         let test = true;
 
+        $(e.target).closest("form").find(".error").remove();
+
         if (!(myFuncs.validateEmail( $("#email").val() ) ) ) {
             return $(e.target).html("Invalid Email");
         };
@@ -33,7 +35,6 @@ let myFuncs = {
         }
 
         $(e.target).html("Sending...");
-        console.log( $(e.target).closest("form").serialize() );
 
         let data = {
             firstName: $("#name").val(), 

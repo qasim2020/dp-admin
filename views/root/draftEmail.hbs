@@ -152,7 +152,9 @@
                             $(".success").addClass("d-none");
                         }, 
                     }).fail( err => {
-                            $(".success").html("Error! Couldn't save.");
+                        $(".success").html("Error! Couldn't save.");
+                        window.location.assign("/{{data.brand}}/gen/page/landingPage/n");
+
                     });
 
                 }, 
@@ -181,7 +183,9 @@
                     if ( !([37,38,39,40].some(v => v == e.keyCode)) ) {
                         console.log("selection ended");
                         span = myFuncs.selectHTML();
-                        myFuncs.showPopover( span );
+                        myFuncs.showPopover( span , "show_styles");
+                        activeElem = span;
+                        $('.screen').removeClass('d-none');
                     };
 
                 }, 
@@ -207,6 +211,10 @@
                             break;
                         case $(e.target).attr("data-content") == "underline":
                             myFuncs.replaceTag("U", activeElem);
+                            break;
+                        case $(e.target).attr("data-content") == "link":
+                            let href = prompt("Please enter an href link");
+                            $(activeElem).wrap(`<a href="${href}"></a>`);
                             break;
                     };
                     myFuncs.saveDraftEmail();
@@ -325,18 +333,28 @@
                     return select;
                 },
 
-                showPopover: function(elem) {
-                  let data = `
-                  <div>
-                      <p data-content='bold'>Bold</p>
-                      <p data-content='underline'>Underline</p>
-                      <p data-content='align_center'>Align Center</p>
-                      <p data-content='link'>Link</p>
-                  </div>
-                  `;
-                  activeElem = elem;
+                showPopover: function(elem, request) {
+                  let data;
+                    if (request == "show_styles") {
+                      data = `
+                      <div>
+                          <p data-content='bold'>Bold</p>
+                          <p data-content='underline'>Underline</p>
+                          <p data-content='align_center'>Align Center</p>
+                          <p data-content='link'>Link</p>
+                      </div>
+                      `;
+                    } else if (request == "A") {
+                        data = `
+                        <p>A Tag</p>
+                        <p>${ $(elem).attr("href") }</p>
+                        <button data-action="editA">Edit</button>
+                        <button data-action="deleteA">Delete</button>
+                        <button data-action="cancelA">Cancel</button>
+                        `;
+                    }
                   $('.popover').html(data);
-                  $('.popover, .screen').removeClass('d-none');
+                  $('.popover').removeClass('d-none');
 
                   if ( $('.popover').hasClass("d-none") ) return console.log("popover disappeared");
 
@@ -371,11 +389,15 @@
 
                 replaceTag: function(tag, elem) {
                     let combinedArr = this.createCharTable( $("temp").closest("li, .active") );
+                    // console.log("STARTS");
+                    // console.log(combinedArr);
+                    // console.log("ENDS");
                     let matrixMatch = this.matrixMatch(combinedArr, tag);
                     let buildNewTag = this.buildNewTag(combinedArr, tag, matrixMatch);
                     return true;
                 }, 
 
+                // returns the table of [ { t: t, style: STRONG } , .... ]
                 createCharTable: function(elem) {
 
                     let text, id, html, index, currentTable, arr = [];
@@ -396,7 +418,12 @@
                             $(val).text().split("").forEach( t => {
                                 arr.push({
                                     t: t,
-                                    style: $(val).parentsUntil(elem).get().map( val => $(val).prop("tagName") )
+                                    style: $(val).parentsUntil(elem).get().map( val => {
+                                        return {
+                                            prop: $(val).prop("tagName"), 
+                                            href: $(val).attr("href")
+                                        };
+                                    })
                                 });
                             });
                         });
@@ -409,15 +436,16 @@
 
                 },
 
+                // returns true if all TEMP matches all new STRONG else returns false. 
                 matrixMatch: function(arr, tagName) {
                     let showVal = (arr) => arr.forEach( val => console.log( val.t, val.style ) );
                     let match = arr.filter( val => {
-                        let index = val.style.findIndex( temp => temp == "TEMP" );
+                        let index = val.style.findIndex( temp => temp.prop == "TEMP" );
                         return index > -1 ;
                     });
                     let checkExactMatch = match.every( val => {
-                        let indexOne = val.style.findIndex( temp => temp == "TEMP" );
-                        let indexTwo = val.style.findIndex( tag => tag == tagName );
+                        let indexOne = val.style.findIndex( temp => temp.prop == "TEMP" );
+                        let indexTwo = val.style.findIndex( tag => tag.prop == tagName );
                         return indexOne > -1 && indexTwo > -1;
                     });
                     return checkExactMatch;
@@ -428,37 +456,39 @@
                     let showVal = (arr) => arr.forEach( val => console.log( val.t, val.style ) );
 
                     let newArr = arr.map( val => {
-                        let indexOne = val.style.findIndex( temp => temp == "TEMP" );
-                        let indexTwo = val.style.findIndex( tag => tag == tagName );
+                        let indexOne = val.style.findIndex( temp => temp.prop == "TEMP" );
+                        let indexTwo = val.style.findIndex( tag => tag.prop == tagName );
                         if ( indexOne > -1 && indexTwo > -1 ) {
                             if (remove) {
                                 val.style.splice( indexTwo, 1 );
                             }
                             return val
                         } else if ( indexOne > -1 ) {
-                            val.style.push( tagName );
+                            val.style.push( { prop: tagName } );
                             return val;
                         };
                         return val;
                     });
 
-                    // initialize to <strong><u> if first elem has [strong, u]
                     let startATag = function(styleArr) {
                         let output = styleArr.reduce( (total, val, index) => {
                             switch (true) {
-                                case (val == "DIV"):
+                                case (val.prop == "A"):
+                                    total += `<a href='${val.href}'>`;
+                                    break;
+                                case (val.prop == "DIV"):
                                     total += "<div>";
                                     break;
-                                case (val == "STRONG"):
+                                case (val.prop == "STRONG"):
                                     total += "<strong>";
                                     break;
-                                case (val == "U"):
+                                case (val.prop == "U"):
                                     total += "<u>";
                                     break;
-                                case (val == "I"):
+                                case (val.prop == "I"):
                                     total += "<i>";
                                     break;
-                                case (val == "TEMP"):
+                                case (val.prop == "TEMP"):
                                     total += "<temp style='background-color: yellow'>";
                                     break;
                                 default:
@@ -472,19 +502,22 @@
                     let closeATag = function(styleArr) {
                         let output = styleArr.reduce( (total, val, index) => {
                             switch (true) {
-                                case (val == "DIV"):
+                                case (val.prop == "A"):
+                                    total += `</a>`;
+                                    break;
+                                case (val.prop == "DIV"):
                                     total += "</div>";
                                     break;
-                                case (val == "STRONG"):
+                                case (val.prop == "STRONG"):
                                     total += "</strong>";
                                     break;
-                                case (val == "U"):
+                                case (val.prop == "U"):
                                     total += "</u>";
                                     break;
-                                case (val == "I"):
+                                case (val.prop == "I"):
                                     total += "</i>";
                                     break;
-                                case (val == "TEMP"):
+                                case (val.prop == "TEMP"):
                                     total += "</temp>";
                                     break;
                                 default:
@@ -495,12 +528,6 @@
                         return output;
                     };
                     // </u></strong>
-                    let matchTwoArrays = function(arr1, arr2) {
-                        return arr1.every( val => {
-                            let index = arr2.findIndex( v => v == val );
-                            return index > -1;
-                        })
-                    }
 
                     // what is in array 1 that is not in array 2 | [string, u] , [string, u, temp] => temp is new
                     let findDifferenceInArrays = function( src, dest ) {
@@ -509,13 +536,13 @@
                             open: []
                         };
                         src.forEach( val => {
-                            let index = dest.findIndex( v => v === val );
+                            let index = dest.findIndex( v => v.prop === val.prop );
                             if (index === -1) {
                                 temp_arr.close.push(val);
                             };
                         });
                         dest.forEach( val => {
-                            let index = src.findIndex( v => v === val );
+                            let index = src.findIndex( v => v.prop === val.prop );
                             if (index === -1) {
                                 temp_arr.open.unshift(val);
                             };
@@ -557,8 +584,40 @@
 
                     $("temp").closest("li, .active").html(newTag);
 
+                },
+
+                hoverOverA: function(e) {
+
+                    $(".post a").each( (key, val) => { 
+                        console.log(key);
+                        console.log( $(val).attr("temp-id") );
+                        $(val).removeAttr("temp-id") ;
+                    });
+
+                    $(e.target).attr({"temp-id": "active"});
+                    myFuncs.showPopover(e.target, "A", $(e.target).attr("href"));
 
                 },
+
+                editALink: function(e) {
+                    $(".popover").addClass("d-none");
+                    let href = prompt("Please enter an href link");
+                    $("[temp-id='active']").attr({href: href});
+                    console.log("done changed the link");
+                    myFuncs.clickScreen();
+                }, 
+
+                deleteALink: function(e) {
+                    $(".popover").addClass("d-none");
+                    let el = $("[temp-id='active']");
+                    $(el).replaceWith( $(el).html() );
+                    console.log("done removed the link");
+                    myFuncs.clickScreen();
+                }, 
+
+                cancelALink: function(e) {
+                    $(".popover").addClass("d-none");
+                }, 
 
             };
 
@@ -569,6 +628,12 @@
             $(document).on('click', '.screen', myFuncs.clickScreen);
             $(document).on('click', '.popover > div > p', myFuncs.clickPopoverButtons);
 
+            // when you want to edit the a tag
+            $(document).on('hover, mouseover', '.post a', myFuncs.hoverOverA) 
+            // $(document).on('mouseleave', '.post a', myFuncs.clickScreen) 
+            $(document).on('click', '.popover > [data-action=editA]', myFuncs.editALink);
+            $(document).on('click', '.popover > [data-action=deleteA]', myFuncs.deleteALink);
+            $(document).on('click', '.popover > [data-action=cancelA]', myFuncs.cancelALink);
         }));
 
     </script>

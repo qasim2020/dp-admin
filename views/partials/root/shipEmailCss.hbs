@@ -4,6 +4,11 @@
         font-family: "Roboto";
     }
 
+    .container {
+        max-width: 600px;
+        margin: auto;
+    }
+
     .btn {
         padding: 7px 8px;
         border: 2px solid black;
@@ -38,6 +43,25 @@
 
     nav > div > a:not(:last-child)::after {
         content: " /";
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+        background: whitesmoke;
+    }
+
+    table > tbody > tr > th,
+    table > tbody > tr > td {
+        padding: 8px 4px;
+        border: 2px solid black;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .d-none {
+        display: none;
     }
 
 </style>

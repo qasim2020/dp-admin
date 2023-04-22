@@ -625,7 +625,7 @@ var myFuncs = {
         };
 
         console.log("sending data to the page");
-        // console.log(JSON.stringify(data, 0, 2));
+        console.log(JSON.stringify(data, 0, 2));
         // console.log(data);
         
         switch(true) {
@@ -899,15 +899,32 @@ var myFuncs = {
                 brand: req.params.brand
         });
 
+        let logModel = await this.createModel(`${req.params.brand}-log`);
+        let logEntry;
+
         if (sentMail.hasOwnProperty("accepted")) {
+
+            logEntry = await logModel.create({
+                status: 200, 
+                text: `Email ${req.session.newsletter.slug} sent to ${sentMail.accepted[0]}`, 
+                meta: JSON.stringify(sentMail)
+            });
+            
             return {
                 status: 200,
                 text: "Email sent", 
                 email: sentMail.accepted[0], 
                 list: person.list
             };
+
         } else {
-            console.log(sentMail);
+
+            logEntry = await logModel.create({
+                status: 400, 
+                text: `Failed! ${req.session.newsletter.slug} sending to ${sentMail.accepted[0]}`, 
+                meta: JSON.stringify(sentMail)
+            });
+            
             return {
                 status: 400, 
                 error: "Email not sent"
@@ -917,8 +934,12 @@ var myFuncs = {
     }, 
 
     logOfEmail: async function(req, res) {
+        let model = await this.createModel(`${req.params.brand}-log`);
+        let output = await model.find().sort({_id: -1}).lean();
         req.params.theme = "root";
-        return { success: true }
+        return {
+            log: output
+        };
     }, 
 
     saveDraftEmail: async function(req, res) {
@@ -5234,7 +5255,8 @@ var myFuncs = {
                 email: req.body.email, 
                 validation: false, 
                 isUnsubscribed: false,
-                lists: 'public'
+                lists: 'public', 
+                list: "public"
             }, {
                 upsert: true, 
                 new: true
@@ -5292,6 +5314,14 @@ var myFuncs = {
 
         };
 
+        let logModel = await this.createModel(`${req.params.brand}-log`);
+        let logEntry;
+
+        logEntry = await logModel.create({
+            status: 200, 
+            text: `Email ${mail.slug} sent to ${output.email}`, 
+            meta: JSON.stringify(mailResponse)
+        });
 
         return {
             output

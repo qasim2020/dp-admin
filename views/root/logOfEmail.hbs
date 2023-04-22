@@ -2,13 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Emails | Log</title>
     {{> root/shipEmailCss}}
 </head>
 <body>
     {{> root/shipEmailNav active="log"}}
-    <div class="container">
-        <p>This is log email</p>
+    <div class="">
+        <table>
+            <tbody>
+                <tr>
+                    <th>_id</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Text</th>
+                    <th>Meta</th>
+                </tr>
+                {{#each data.log}}
+                <tr>
+                    <td>{{this._id}}</td>
+                    <td>{{getFormattedDateTimeMongoId this._id}}</td>
+                    <td>{{this.status}}</td>
+                    <td>{{this.text}}</td>
+                    <td><button my-data="{{this.meta}}" class="show-model">Show</button></td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
     </div>
+    <div class="model d-none"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+        let showModel = function(e) {
+            let data = $(e.target).attr("my-data");
+            alert(data);
+        };
+
+        $(".show-model").on("click", showModel);
+
+    
+    </script>
 </body>
 </html>

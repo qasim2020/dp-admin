@@ -3445,16 +3445,22 @@ var myFuncs = {
     }, 
 
     d_pblogs: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-blogs`);
+        let output = await model.find().sort({_id: -1}).lean();
+
         req.params.module = "blogs";
         return {
-            success: true
+            blogs: output, 
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     }, 
 
     d_pblog: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-blogs`);
+        let output = await model.findOne({slug: req.params.input}).lean();
         req.params.module = "blog";
         return {
-            success: true
+            blog: output, 
         }
     },
 

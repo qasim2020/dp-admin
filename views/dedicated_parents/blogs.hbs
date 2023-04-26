@@ -29,50 +29,19 @@
 			<div class="row">
 				
 				<div class="col-md-8">
+                                    {{#each data.blogs}}
 					<div class="blog-list">
 						<div class="post-thumb">
-							<img src="http://placehold.it/300x242" alt="">
+                                                    <img src="http://placehold.it/300x242" alt="">
 						</div> <!-- /.blog-thumb -->
 						<div class="post-content">
-							<h4 class="post-title"><a href="blog-single.html">Northern Ireland unveils first register of charities</a></h4>
-							<p class="post-meta"><a href="#">24 June 2014</a> with <a href="#">4 Comments</a></p>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, deleniti amet quas excepturi nam.</p>
-							<a href="blog-single.html" class="read-more">Continue Reading &rarr;</a>
+                                                    <h4 class="post-title"><a href="/dedicated_parents/gen/page/d_pblog/{{this.slug}}">{{this.title}}</a></h4>
+                                                    <p class="post-meta"><a href="#">{{this.date}}</a> with <a href="#">4 Comments</a></p>
+                                                    <p>{{this.subtitle}}</p>
+                                                    <a href="/dedicated_parents/gen/page/d_pblog/{{this.slug}}" class="read-more">Continue Reading &rarr;</a>
 						</div> <!-- /.blog-content -->
 					</div> <!-- /.blog-list -->
-					<div class="blog-list">
-						<div class="post-thumb">
-							<img src="http://placehold.it/300x242" alt="">
-						</div> <!-- /.blog-thumb -->
-						<div class="post-content">
-							<h4 class="post-title"><a href="blog-single.html">Northern Ireland unveils first register of charities</a></h4>
-							<p class="post-meta"><a href="#">24 June 2014</a> with <a href="#">4 Comments</a></p>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, deleniti amet quas excepturi nam.</p>
-							<a href="blog-single.html" class="read-more">Continue Reading &rarr;</a>
-						</div> <!-- /.blog-content -->
-					</div> <!-- /.blog-list -->
-					<div class="blog-list">
-						<div class="post-thumb">
-							<img src="http://placehold.it/300x242" alt="">
-						</div> <!-- /.blog-thumb -->
-						<div class="post-content">
-							<h4 class="post-title"><a href="blog-single.html">Northern Ireland unveils first register of charities</a></h4>
-							<p class="post-meta"><a href="#">24 June 2014</a> with <a href="#">4 Comments</a></p>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, deleniti amet quas excepturi nam.</p>
-							<a href="blog-single.html" class="read-more">Continue Reading &rarr;</a>
-						</div> <!-- /.blog-content -->
-					</div> <!-- /.blog-list -->
-					<div class="blog-list">
-						<div class="post-thumb">
-							<img src="http://placehold.it/300x242" alt="">
-						</div> <!-- /.blog-thumb -->
-						<div class="post-content">
-							<h4 class="post-title"><a href="blog-single.html">Northern Ireland unveils first register of charities</a></h4>
-							<p class="post-meta"><a href="#">24 June 2014</a> with <a href="#">4 Comments</a></p>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, deleniti amet quas excepturi nam.</p>
-							<a href="blog-single.html" class="read-more">Continue Reading &rarr;</a>
-						</div> <!-- /.blog-content -->
-					</div> <!-- /.blog-list -->
+                                    {{/each}}
 					<div class="row">
 						<div class="col-md-12">
 							<a href="javascript:void(0);" class="load-more">Load More <i class="fa fa-refresh"></i></a>
@@ -139,39 +108,7 @@
 						</div> <!-- /.gallery-wrapper -->
 					</div> <!-- /.box-content -->
 					<div class="box-content">
-						<h4 class="widget-title"><span>Upcoming events</span></h4>
-						<div class="events-sidebar">
-							<ul>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Memorial Day Sale: 30% All Day Monday May 26</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Fashion Figures Online Sale: Sizes 10 - 3X</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Speak Up! National Summit for Women Living with HIV</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-							</ul>
-							<a href="events-list.html" class="read-more">More Events &rarr;</a>
-						</div> <!-- /.events-sidebar -->
+                                            {{> dedicated_parents/upcomingEvents}}
 					</div> <!-- /.box-content -->
 				</div> <!-- /.col-md-4 -->
 

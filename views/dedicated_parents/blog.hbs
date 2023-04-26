@@ -39,44 +39,19 @@
 							</div>
 						</div> <!-- /.blog-thumb -->
 						<div class="post-content">
-							<h3 class="post-title">Northern Ireland register of charities</h3>
-							<p>Duis pulvinar condimentum imperdiet. Nam elementum dapibus sem eu aliquam. Praesent gravida ullamcorper hendrerit. Maecenas neque massa, accumsan ac pretium id, consequat fringilla eros. Fusce id fermentum massa. Mauris ornare erat metus, eu pharetra ligula tincidunt in. Morbi sit amet varius risus. Donec quis volutpat eros. <br><br>Nullam consectetur odio eget magna pulvinar dictum. Donec ac velit vel ligula placerat condimentum. Vestibulum ultricies orci id ornare aliquet. Sed ante massa, accumsan ac imperdiet in, pharetra quis lacus. Donec nec quam vitae risus gravida pulvinar nec non lectus. Nulla aliquet gravida felis. Integer neque sem, vehicula vel sollicitudin ornare, tincidunt vitae elit. In iaculis porttitor ipsum vel egestas.</p>
-							<ul class="post-gallery">
-								<li>
-									<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group2">
-										<img src="http://placehold.it/80x80" alt="">
-									</a>
-								</li>
-								<li>
-									<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group2">
-										<img src="http://placehold.it/80x80" alt="">
-									</a>
-								</li>
-								<li>
-									<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group2">
-										<img src="http://placehold.it/80x80" alt="">
-									</a>
-								</li>
-								<li>
-									<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group2">
-										<img src="http://placehold.it/80x80" alt="">
-									</a>
-								</li>
-							</ul> <!-- /.post-gallery -->
-							<p>Vivamus ac risus ante. Duis porta id purus quis pulvinar. Sed ut sem aliquet massa rhoncus vehicula. Sed sit amet nunc cursus, bibendum urna sed, vehicula nisi. Nullam et dolor rutrum, faucibus enim ut, egestas sem. Maecenas luctus luctus sem id pulvinar. Proin blandit tristique nisi eu feugiat. Quisque ultrices rutrum nulla id tempor. Morbi a dignissim neque. <br><br>Nulla congue mauris in rhoncus fermentum. Nunc pretium nibh at nisl viverra molestie. Morbi porttitor porta dapibus. Integer luctus quam at ligula tempus, id ultricies turpis facilisis.</p>
+                                                    {{{data.blog.post}}}
 							<div class="tags">
 								<span><i class="fa fa-tags"></i></span>
-								<a href="#">advertise</a>
-								<a href="#">google</a>
-								<a href="#">WordPress</a>
-								<a href="#">iPhone</a>
+                                                                {{#each (splitComma data.blog.tags)}}
+                                                                <a href="#">{{this}}</a>
+                                                                {{/each}}
 							</div> <!-- /.tags -->
 						</div> <!-- /.blog-content -->
 					</div> <!-- /.blog-single -->
 					<div class="row">
 						<div class="col-md-12">
-							<a href="javascript:void(0);" class="go-prev"><i class="fa fa-long-arrow-left"></i>Prev Event</a>
-							<a href="javascript:void(0);" class="go-next">Next Event <i class="fa fa-long-arrow-right"></i></a>
+							<a href="javascript:void(0);" class="go-prev"><i class="fa fa-long-arrow-left"></i>Prev Blog</a>
+							<a href="javascript:void(0);" class="go-next">Next Blog <i class="fa fa-long-arrow-right"></i></a>
 						</div> <!-- /.col-md-12 -->
 					</div> <!-- /.row -->
 					<div class="comments box-content">
@@ -207,40 +182,8 @@
 						</div> <!-- /.gallery-wrapper -->
 					</div> <!-- /.box-content -->
 					<div class="box-content">
-						<h4 class="widget-title"><span>Upcoming events</span></h4>
-						<div class="events-sidebar">
-							<ul>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Memorial Day Sale: 30% All Day Monday May 26</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Fashion Figures Online Sale: Sizes 10 - 3X</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Speak Up! National Summit for Women Living with HIV</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-							</ul>
-							<a href="events-list.html" class="read-more">More Events &rarr;</a>
-						</div> <!-- /.events-sidebar -->
-					</div> <!-- /.box-content -->
+                                            {{> dedicated_parents/upcomingEvents}}
+                                        </div> <!-- /.box-content -->
 				</div> <!-- /.col-md-4 -->
 
 			</div> <!-- /.row -->

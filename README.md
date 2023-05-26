@@ -1,15 +1,15 @@
 Before you go further. I wrote a whole 2 hour long "proud readme" that "Nate" my mob mate deleted (by mistake). I hate him for that. ❤️
 
-Ok, this repo is good. I built in over 2 years. So you will find important stuff here. 
+Ok, this repo is good (I mean it). I built in over 2 years. So you will find important stuff here. 
 
 # Introduction
 
-Playground is my self-built mini-CMS (e.g. Wordpress is a CMS). Built with Nodejs, MongoDB, Handlebars and Pjax. 
+Playground is my self-built mini-CMS (e.g. Wordpress is a CMS), where I host my websites (I built for family + friends). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
 
 # Benefits
-- CMS - Content Management System - Content is "data" and "modules". With wordpress you only get "data" management. Not the modules part. So owning a self-built CMS helps better dig into the modules, and build them your own way.
+- CMS - Content Management System - Content is "data" and "modules". Owning a self-built CMS helps dig better into the modules, and build them your own way. (also it is better to have your own place on the internet). 
 - It is easier to work on a single project. Code doesn't go lost in the void. 
-- I am doing it all in one 6 USD Digital Ocean droplet. (saving money there).
+- Do all of that in 6 USD Digital Ocean droplet (I started with this benefit in mind, but now realise there are other ways too to save money - humbled).
 
 # Connected Websites
 
@@ -41,13 +41,13 @@ replyFunction
 );
 ```
 
-1. `:brand` is a brand's unique key. The website unique key (for example 7am) in the url [https://7amuniforms.com/7am/data/page/landingPage/n](https://7amuniforms.com/7am/data/page/landingPage/n).
-2. `:permit` is the request authentication type. It has three types; gen, auth, admin. Gen is for general people. Auth is for owners of the website. And Admin is for the super admins. 
+1. `:brand` is a brand's unique key. The website unique key (for example 7am) in this url :- [https://7amuniforms.com/7am/data/page/landingPage/n](https://7amuniforms.com/7am/data/page/landingPage/n).
+2. `:permit` is the request authentication type. It has three types; gen, auth, admin. Gen is general level request. Auth is for owners of the website. And Admin is for the super admins. 
 3. `:requiredType` is the type of request you are making to the website. It has three types also; page, data, and pjax. Page is when user wants the rendered website. Data is when user is looking only for the data (the JSON). and Pjax is when he is looking for a portion of the website. 
 4. `:module` is the name of the module. For example, when sending mail, the `sendMail` module in the server is accessible. Just send the `email`, `mail text`, `email template` and it sends the email to website owner's email address (or ship a newsletters to many subscribers).
 5. `:input` is the kind of input that you send to the module. For example `showBlog` module takes the `blog-slug` as its input. Slug is a unique identifier for each blog post in the database.
 
-`replyFunction` then constructs a webPage || a data object || a pjax page and returns the website to the client.
+- `replyFunction` then constructs a webPage || a data object || a pjax page and returns the website to the client.
 
 
 # ahh, if you have made this far

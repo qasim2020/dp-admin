@@ -1,3 +1,7 @@
+Before you go further. I wrote a whole 2 hour long "proud readme" that "Nate" my mob mate deleted (by mistake). I hate him for that. ❤️
+
+Ok, this repo is good. I built in over 2 years. So you will find important stuff here. 
+
 # Introduction
 
 Playground is my self-built mini-CMS (e.g. Wordpress is a CMS). Built with Nodejs, MongoDB, Handlebars and Pjax. 

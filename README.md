@@ -7,8 +7,8 @@ Ok, this repo is good (I mean it). I built in over 2 years. So you will find imp
 Playground is my self-built mini-CMS (e.g. Wordpress is a CMS), where I host my websites (I built for family + friends). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
 
 # Benefits
-- CMS - Content Management System - Content is "data" and "modules". Owning a self-built CMS helps dig better into the modules, and build them your own way. (also it is better to have your own place on the internet). 
-- It is easier to work on a single project. Code doesn't go lost in the void. 
+- CMS - Content Management System - Content is "data" and "modules". For example, "SendMail" module is written & maintained once, and it works for all your websites. Now next time you are building your next website, you do not need to copy paste the code. You just need to call this module, and it is available to you. Nice ;).
+- It is easier to work on a single project (this CMS is one project). Code doesn't go lost in the void. Before building it, everytime I wrote something "to be proud of", some days later it just got last in the `void`.
 - Do all of that in 6 USD Digital Ocean droplet (I started with this benefit in mind, but now realise there are other ways too to save money - humbled).
 
 # Connected Websites

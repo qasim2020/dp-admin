@@ -624,8 +624,8 @@ var myFuncs = {
 
         };
 
-        console.log("sending data to the page");
-        console.log(JSON.stringify(data, 0, 2));
+        // console.log("sending data to the page");
+        // console.log(JSON.stringify(data, 0, 2));
         // console.log(data);
         
         switch(true) {
@@ -2803,6 +2803,7 @@ var myFuncs = {
 
     blogs: async function(req,res) {
 
+        console.log(blogs);
         req.query = processQuery(req.query, {price: { dataType: "string" } });
         console.log("here is your query");
         console.log(req.query);
@@ -5216,11 +5217,13 @@ var myFuncs = {
     },
 
     openBlog: async function(req,res) {
+        console.log("open the blog post");
         let model = await this.createModel('life-blogs');
         let modelComments = await this.createModel('life-comments');
         let output = await model.findOne({slug: req.params.input}).lean();
         let body = this.convertStringToArticle(output.body);
         output.date = this.dateBlogHeader(output.date);
+        console.log(body);
         return {
             output: output,
             body: body,

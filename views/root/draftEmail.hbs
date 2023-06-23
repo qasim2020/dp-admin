@@ -619,9 +619,8 @@
             $(document).on('click', '.screen', myFuncs.clickScreen);
             $(document).on('click', '.popover > div > p', myFuncs.clickPopoverButtons);
 
-            // when you want to edit the a tag
+            // A tag events
             $(document).on('hover, mouseover', '.post a', myFuncs.hoverOverA) 
-            // $(document).on('mouseleave', '.post a', myFuncs.clickScreen) 
             $(document).on('click', '.popover > [data-action=editA]', myFuncs.editALink);
             $(document).on('click', '.popover > [data-action=deleteA]', myFuncs.deleteALink);
             $(document).on('click', '.popover > [data-action=cancelA]', myFuncs.cancelALink);

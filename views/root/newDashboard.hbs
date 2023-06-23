@@ -401,35 +401,23 @@
     <div class="layerOne">
 
         <nav>
+
             <div class="left">
-                
-                <div>
-                    <select class="" name="" onchange="changeBrand(this)">
-                        {{#each data.owner.person.brands}}
-                            {{#if (matchValues this.0.brand ../data.brand)}}
-                            <option value="/{{this.0.brand}}/admin/page/newDashboard/{{this.0.brand}}-{{this.0.collections}}" selected>{{this.0.brandName}}</option>
-                            {{else}}
-                            <option value="/{{this.0.brand}}/admin/page/newDashboard/{{this.0.brand}}-{{this.0.collections}}" >{{this.0.brandName}}</option>
-                            {{/if}}
-                        {{/each}}
-                    </select>
-                </div>
-
-                <button class="btn" onclick="openLayer('.layerOne', '.themes')"><i class="fas fa-plus"></i></button>
-
+                <p>{{data.owner.brandName}}</p>
             </div>
+
             <div>
-                <!-- <a class="btn icon" href="/{{data.brand}}/admin/page/readFromJSON/landingPage"><i class="fas fa-newspaper"></i></a> -->
                 <a class="btn icon" href="/{{data.brand}}/gen/page/landingPage/n" target="_blank"><i class="fas fa-home"></i></a>
                 <a class="btn" href="/{{data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">Log Out</a> 
             </div>
+
         </nav>
 
         <div>
             {{#each ( split data.collections )}} 
             <a 
                class="btn pjaxTrigger {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}" 
-               href="/{{../data.brand}}/admin/pjax/newDashboard/{{../data.brand}}-{{this}}" 
+               href="/{{../data.brand}}/auth/pjax/newDashboard/{{../data.brand}}-{{this}}" 
                data-pjax 
                onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
@@ -437,7 +425,7 @@
             {{#each ( split data.modules ) }} 
             <a 
                 class="btn pjaxTrigger {{#if (matchValues ../data.input this)}} active {{/if}}" 
-                href="/{{../data.brand}}/admin/pjax/newDashboard/{{this}}" 
+                href="/{{../data.brand}}/auth/pjax/newDashboard/{{this}}" 
                 data-pjax 
                 onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
@@ -445,7 +433,7 @@
 
             <a 
                 class="btn pjaxTrigger {{#if (matchValues data.input 'settings')}} active {{/if}}" 
-                href="/{{data.brand}}/admin/pjax/newDashboard/settings"
+                href="/{{data.brand}}/auth/pjax/newDashboard/settings"
                 data-pjax 
                 onclick="toggleClass(this, 'active')">Settings</a>
             
@@ -490,9 +478,9 @@
         </div>
         <div>
             <label>PROJECT THEME</label>
-            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/property">Property Listings</a>
-            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/printer">Services Center</a>
-            <a class="card btn d-block" href="/{{data.brand}}/admin/startNewProject/7am">Small Business</a>
+            <a class="card btn d-block" href="/{{data.brand}}/auth/startNewProject/property">Property Listings</a>
+            <a class="card btn d-block" href="/{{data.brand}}/auth/startNewProject/printer">Services Center</a>
+            <a class="card btn d-block" href="/{{data.brand}}/auth/startNewProject/7am">Small Business</a>
         </div>
 
         <div>

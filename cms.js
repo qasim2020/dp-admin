@@ -499,91 +499,86 @@ var myFuncs = {
 
             output.brand = await model.findOne({brand: req.params.brand}).lean();
              
-            if (req.session && req.session.person == undefined) {
+            result = {
+                brand: output.brand && output.brand.name,
+                brandName: output.brand && output.brand.brandName,
+                brandWebsite: output.brand && output.brand.brandWebsite,
+                brandLogo: output.brand && output.brand.brandLogo, 
+                mobile: output.brand && output.brand.brandMobile,
+                email: output.brand && output.brand.brandEmail,
+                loc: output.brand && output.brand.brandGooglePin,
+                brandDesc: output.brand && output.brand.brandDesc,
+                brandMetaImg: output.brand && output.brand.brandMetaImg
+            };
 
-                result = {
-                    brand: output.brand && output.brand.name,
-                    brandName: output.brand && output.brand.brandName,
-                    brandWebsite: output.brand && output.brand.brandWebsite,
-                    brandLogo: output.brand && output.brand.brandLogo, 
-                    mobile: output.brand && output.brand.brandMobile,
-                    email: output.brand && output.brand.brandEmail,
-                    loc: output.brand && output.brand.brandGooglePin,
-                    brandDesc: output.brand && output.brand.brandDesc,
-                    brandMetaImg: output.brand && output.brand.brandMetaImg
-                };
+            return result;
 
-            } else {
-
-                output.person = await model2.aggregate([
-                        {
-                            $match: {
-                                "email": req.session && req.session.person && req.session.person.email,
-                            }
-                        },{
-                            $addFields: {
-                                "brands" : {
-                                    $split: ["$brand", ","]
-                                }
-                            }
-                        },{
-                            $unwind: "$brands"
-                        },{
-                            $addFields: {
-                                brands: {
-                                    $trim: {
-                                        input: "$brands"
-                                    }
-                                }
-                            }
-                        },{
-                            $lookup: {
-                                from: "myapp-themes",
-                                localField: 'brands',
-                                foreignField: 'brand',
-                                as: 'brands'
-                            }
-                        },{
-                            $group: {
-                                _id: {
-                                    "_id": "$_id",
-                                    "name" : "$name",
-                                    "email" : "$email",
-                                    "mobile" : "$mobile",
-                                    "role" : "$role",
-                                    "brand" : "$brand"
-                                },
-                                brands: {
-                                    $addToSet: "$brands"
-                                }
-                            }
-                        },{
-                            $project: {
-                                "name" : "$_id.name",
-                                "email" : "$_id.email",
-                                "mobile" : "$_id.mobile",
-                                "role" : "$_id.role",
-                                "brandsString" : "$_id.brand",
-                                "brands" : "$brands",
-                                "_id" : "$_id._id",
+            output.person = await model2.aggregate([
+                {
+                    $match: {
+                        "email": req.session && req.session.person && req.session.person.email,
+                    }
+                },{
+                    $addFields: {
+                        "brands" : {
+                            $split: ["$brand", ","]
+                        }
+                    }
+                },{
+                    $unwind: "$brands"
+                },{
+                    $addFields: {
+                        brands: {
+                            $trim: {
+                                input: "$brands"
                             }
                         }
-                    ]);
+                    }
+                },{
+                    $lookup: {
+                        from: "myapp-themes",
+                        localField: 'brands',
+                        foreignField: 'brand',
+                        as: 'brands'
+                    }
+                },{
+                    $group: {
+                        _id: {
+                            "_id": "$_id",
+                            "name" : "$name",
+                            "email" : "$email",
+                            "mobile" : "$mobile",
+                            "role" : "$role",
+                            "brand" : "$brand"
+                        },
+                        brands: {
+                            $addToSet: "$brands"
+                        }
+                    }
+                },{
+                    $project: {
+                        "name" : "$_id.name",
+                        "email" : "$_id.email",
+                        "mobile" : "$_id.mobile",
+                        "role" : "$_id.role",
+                        "brandsString" : "$_id.brand",
+                        "brands" : "$brands",
+                        "_id" : "$_id._id",
+                    }
+                }
+            ]);
 
-                // console.log(JSON.stringify(output, 0, 2));
-                result = {
-                    person: output.person[0],
-                    brand: output.brand && output.brand.name,
-                    brandName: output.brand && output.brand.brandName,
-                    brandWebsite: output.brand && output.brand.brandWebsite,
-                    brandLogo: output.brand && output.brand.brandLogo, 
-                    mobile: output.brand && output.brand.brandMobile,
-                    email: output.brand && output.brand.brandEmail,
-                    loc: output.brand && output.brand.brandGooglePin,
-                    brandDesc: output.brand && output.brand.brandDesc,
-                    brandMetaImg: output.brand && output.brand.brandMetaImg
-                };
-
+            result = {
+                person: output.person[0],
+                brand: output.brand && output.brand.name,
+                brandName: output.brand && output.brand.brandName,
+                brandWebsite: output.brand && output.brand.brandWebsite,
+                brandLogo: output.brand && output.brand.brandLogo, 
+                mobile: output.brand && output.brand.brandMobile,
+                email: output.brand && output.brand.brandEmail,
+                loc: output.brand && output.brand.brandGooglePin,
+                brandDesc: output.brand && output.brand.brandDesc,
+                brandMetaImg: output.brand && output.brand.brandMetaImg
             };
 
             return result;
@@ -624,7 +619,12 @@ var myFuncs = {
 
         };
 
+<<<<<<< Updated upstream
         // console.log("sending data to the page");
+=======
+        console.log("sending data to the page");
+        console.log( req.session );
+>>>>>>> Stashed changes
         // console.log(JSON.stringify(data, 0, 2));
         // console.log(data);
         
@@ -642,8 +642,6 @@ var myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
-            // console.log("sending pjax at the below link");
-            // console.log(`${req.params.theme}/pjax/${req.params.module}.hbs`);
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
@@ -2593,20 +2591,9 @@ var myFuncs = {
     },
 
     checkSignIn: async function(req,res) {
-        // console.log('checking signin');
         let model, output;
-        // try {
-            model = await this.createModel(`${req.params.brand}-users`);
-            output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-            // if 7am does not have this user look into myapp. it can be an brand. 
-            // if (!output) throw new Error("no user found");
-        // } catch(e) {
-            // console.log(e);
-            // model = await this.createModel('myapp-users');
-            // output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
-        // }
-
-        // If still no user found , return mismatch
+        model = await this.createModel(`${req.params.brand}-users`);
+        output = await model.findOne({email: req.body.email, password: req.body.password}).lean();
         if (!output) return {status: 400, error: 'Email Password Mismatch. Please Sign Up.'};
         req.session.person = output;
         req.session.person.brand = output.brand || req.params.brand;
@@ -2905,27 +2892,49 @@ var myFuncs = {
 
     postComment: async function(req,res) {
 
-        console.log("posting comment");
+        console.log(req.body);
+
         let model = await this.createModel(`${req.params.brand}-comments`);
-        console.log("model created");
+        let uniqueCode = Date.now().toString(36) + Math.random().toString(36).substr(2);
+
         let output = await model.create({
             name: req.body.name,
             email: req.body.email,
             comment: req.body.comment,
-            slug: req.body.slug
+            replyTo: req.body.replyTo, 
+            slug: req.body.slug, 
         });
+
         console.log(output);
 
+        await this.sendMail({ 
+            msg: `
+            <p>New comment posted at <a href="${process.env.url}/${req.params.brand}/gen/page/${req.body.page}/${output.slug}?uniqueCode=${output.uniqueCode}">${req.params.brand}</a></p>
+            <p>Please click on below link to verify your comments</p>
+            <p> 
+                <a href="${process.env.url}/${req.params.brand}/gen/page/${req.body.page}/${output.slug}?uniqueCode=${output.uniqueCode}">${process.env.url}/${req.params.brand}/gen/page/${req.body.page}/${output.slug}?uniqueCode=${output.uniqueCode}</a>
+            </p>
+            <hr>
+            <p>If you did not post any comment, please ignore this message.</p>
+            `, 
+            toEmail: req.body.email, 
+            subject: req.params.brand + " | approve your comment", 
+            brand: req.params.brand
+        });
+
+
         return {
-            success: output
-        }
+            success: {
+                _id : output._id,
+                name: output.name, 
+                comment: output.comment
+            }
+        };
 
     },
 
     deleteComment: async function(req,res) {
 
-        console.log("");
-        console.log("");
         console.log("deleting comment");
         if ( !(req.session.person && req.session.person.email) ) return {
             status: 404,
@@ -3456,12 +3465,50 @@ var myFuncs = {
         }
     }, 
 
+    getComments: async function(brand, blog, uniqueCode) {
+
+        let model = await this.createModel(`${brand}-comments`);
+        let output = await model.find({slug: blog.slug, replyTo: "none"}).lean();
+        let result;
+            
+        result = await Promise.all( output.map(async val => {
+            return {
+                comment: val, 
+                replies: await model.find({replyTo: val._id.toString()}).sort({_id: 1}).lean()
+            }
+        }) );
+
+        if (uniqueCode) {
+
+            // make sure its a valid secret code and then activate all the comments attached to this email
+
+            result = result.map( val => {
+                val.comment.editable = val.comment.uniqueCode == uniqueCode;
+                val.replies = val.replies.map( tal => {
+                    tal.editable = tal.uniqueCode == uniqueCode
+                    return tal;
+                });
+                return val;
+            });
+
+            return result;
+
+        } else {
+
+            return result;
+
+        }
+    }, 
+
     d_pblog: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-blogs`);
+        let modelComments = await this.createModel(`${req.params.brand}-comments`);
         let output = await model.findOne({slug: req.params.input}).lean();
         req.params.module = "blog";
         return {
             blog: output, 
+            comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
+            countComments: await modelComments.count({slug: output.slug}).lean()
         }
     },
 

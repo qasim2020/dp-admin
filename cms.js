@@ -619,15 +619,6 @@ var myFuncs = {
 
         };
 
-<<<<<<< Updated upstream
-        // console.log("sending data to the page");
-=======
-        console.log("sending data to the page");
-        console.log( req.session );
->>>>>>> Stashed changes
-        // console.log(JSON.stringify(data, 0, 2));
-        // console.log(data);
-        
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
             let url = 

@@ -1,4 +1,4 @@
-Before you go further. I wrote a whole 2 hour long "Proud Readme" that "[Nate](https://github.com/NateAra)" my mob mate deleted (by mistake). I hate him for that. ❤️❤️.
+Before you go further. I wrote a whole 2 hour long "Proud Readme" that "[Nate](https://github.com/NateAra)" my mob mate deleted (by mistake). Ingen fara ;)
 
 ----
 

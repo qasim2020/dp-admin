@@ -53,4 +53,4 @@ replyFunction
 
 
 # ahh, if you have made this far
-Leave a comment, some feedback, that you think can help me better this readme. I won't execute your feedback, until I am 100% convinced with your feedback.
+Leave a comment, some feedback, that you think can help me improve my code. 

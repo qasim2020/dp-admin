@@ -2781,7 +2781,7 @@ var myFuncs = {
 
     blogs: async function(req,res) {
 
-        console.log(blogs);
+        // console.log(blogs);
         req.query = processQuery(req.query, {price: { dataType: "string" } });
         console.log("here is your query");
         console.log(req.query);

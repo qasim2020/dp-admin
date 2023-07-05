@@ -120,10 +120,46 @@
 
     <script>
 
+        let myFuncs = {
+
+            createNewUser: function(data) {
+                $.ajax({
+                  type: "POST",
+                  url: '/{{data.brand}}/gen/data/createSignUp/n',
+                  data: data,
+                  success: (msg) => {
+                    console.log(msg);
+                    $('#submitButton').html("Signing in...");
+                    myFuncs.checkSignIn(data);
+                  }
+                }).fail( e => {
+                    console.log(e);
+                    $('#submitButton').html(e.responseText);
+                });
+            }, 
+
+            checkSignIn: function(data) {
+                $.ajax({
+                  type: "POST",
+                  url: '/{{data.brand}}/gen/data/checkSignIn/n',
+                  data: data, 
+                  success: (msg) => {
+                    $('#submitButton').html("Done!");
+                    window.location.href = `/challenge/gen/page/profile/n`;
+                  }
+                }).fail( e => {
+                    console.log(e);
+                    $('#submitButton').html(e.responseText);
+                });
+            }, 
+
+        };
+
         $('form').on('submit',function(e) {
             e.preventDefault();
-            return console.log('temp Todo: Create new user here');
-            console.log($(this).serialize());
+            console.log( $(this).serialize() );
+            let data = $(this).serialize();
+            return myFuncs.createNewUser(data);
             $.ajax({
               type: "POST",
               url: '/{{data.brand}}/gen/data/checkSignIn/n',

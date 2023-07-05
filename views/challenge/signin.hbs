@@ -126,10 +126,12 @@
               data: $(this).serialize(),
               success: (data) => {
                 console.log(data);
-                $('#submitButton').html(data.error || data.success);
-                if (data.error) return 'Click on show collections to go home';
-                  window.location.href = `/challenge/gen/page/{{data.nextPage}}/{{data.nextPageInput}}`;
+                $('#submitButton').html("Signing you in...");
+                window.location.href = `/challenge/gen/page/profile/n`;
               }
+            }).fail( e => {
+                console.log(e);
+                $('#submitButton').html(e.responseText);
             });
         });
 

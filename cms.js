@@ -666,12 +666,17 @@ var myFuncs = {
         saveSequence: 'auth',
         updateSequence: 'auth',
         newDashboard: 'auth',
+
         showCollection: 'admin',
         destroySession: 'auth',
         checkAdmin: 'admin',
         signin: 'gen',
         checkSignIn: 'gen',
         signup: 'gen',
+        createSignUp: "gen", 
+        sendVerificationEmail: "auth", 
+        verifyEmailChallenges: "gen", 
+
         home: 'auth',
         landingPage: 'gen',
         searchItems: 'gen',
@@ -2573,7 +2578,7 @@ var myFuncs = {
         };
     },
 
-    signup: function(req,res) {
+    signup: async function(req,res) {
         return {
             status: 200,
             success: 'sign up page comes here',
@@ -2581,6 +2586,107 @@ var myFuncs = {
         }
     },
 
+    createSignUp: async function(req,res) {
+
+        console.log(req.params);
+        let appModel = await this.createModel("myapp-themes");
+        let checkAllowed = await appModel.findOne({brand: req.params.brand}).lean();
+        console.log(checkAllowed);
+        if (!(checkAllowed.signUpAllowed)) {
+            return {
+                status: 404,
+                error: "Sign up is not allowed"
+            };
+        };
+
+        let userModel = await this.createModel(`${req.params.brand}-users`);
+        let checkUserEmailIsUnique = await userModel.count({
+            email: req.body.email
+        });
+
+        if (checkUserEmailIsUnique > 0) {
+            return {
+                status: 404,
+                error: "User already exists!"
+            };
+        };
+
+        let output = await userModel.create({
+            brand: req.params.brand, 
+            role: "auth",
+            password: req.body.password,
+            name: req.body.name,
+            email: req.body.email,
+            verifiedEmail: false 
+        });
+
+        console.log(output);
+
+        return {
+            success: "User was created successfully",
+        }
+
+    }, 
+
+    sendVerificationEmail: async function(req,res) {
+
+        if (!(req.session.hasOwnProperty("person"))) {
+            return {
+                status: 404,
+                error:  "You are not logged in!"
+            };
+        };
+
+        await this.sendMail({ 
+            msg: `
+            <h3>Welcome to challenges by Qasim</h3>
+            <hr>
+            <p>Please verify your email by clicking on the link below:-</p>
+            <a href="${process.env.url}/${req.params.brand}/gen/page/verifyEmailChallenges/n?email=${req.session.person.email}&uniqueCode=${req.session.person._id}" target="_blank">Click here</a>
+            <p>Wish you a good day ahead. :-)</p>
+            <p>challenges.qasim.tech</p>
+            <hr>
+            `, 
+            toEmail: req.session.person.email, 
+            subject: "Verify your email — Challenge", 
+            brand: req.params.brand
+        });
+
+        return {
+            success: "Email sent! Check your inbox"
+        };
+
+    }, 
+
+    verifyEmailChallenges: async function(req,res) {
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.findOneAndUpdate({
+            email: req.query.email,
+            _id: req.query.uniqueCode,
+            verifiedEmail: false 
+        },{
+            verifiedEmail: true,
+        },{
+            new: true
+        });
+
+        console.log(output);
+
+        if (output == null) {
+            this.sendEmailWithTemplate(req.params.brand, 'welcomeEmailChallenges', output);
+            return {
+                brand: req.params.brand,
+                msg: 'Email Verified. Thank you for Signing Up.',
+            }
+        } else {
+            return {
+                brand: req.params.brand,
+                msg: 'Sorry — this link does not exist.'
+            }
+        }
+
+    },
     checkSignIn: async function(req,res) {
         let model, output;
         model = await this.createModel(`${req.params.brand}-users`);
@@ -2942,7 +3048,9 @@ var myFuncs = {
     },
 
     challenge: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-types`);
         return {
+            types: await model.find().lean(), 
             sessionExists: req.session.hasOwnProperty('person') 
         };
     },
@@ -3933,9 +4041,28 @@ var myFuncs = {
         return output;
     },
 
-    profile : async function(req,res) {
+    profile: async function(req,res) {
+
+        console.log(req.session);
+
+        if (!(req.session.hasOwnProperty("person"))) {
+            return {
+                status: 404,
+                error: "You are not logged in",
+            }
+        };
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+
+        let checkEmailVerified = await model.count({
+            email: req.session.person.email,
+            verifiedEmail: "true"
+        });
+
         return {
-            success: true
+            name: req.session.person.name,
+            email: req.session.person.email,
+            verified: checkEmailVerified > 0
         };
     },
 
@@ -5510,7 +5637,7 @@ var myFuncs = {
         });
 
         if (output != null) {
-            this.sendEmailWithTemplate(req.params.brand, 'welcome-email', output);
+            this.sendEmailWithTemplate(req.params.brand, 'welcomeEmail', output);
             return {
                 brand: req.params.brand,
                 msg: 'Email Verified. Thank you for subscribing to my weekly newsletter.',
@@ -5630,10 +5757,6 @@ var myFuncs = {
         let output = await model.findOne({slug: templateSlug}).lean();
         if (output == null) return console.log( chalk.bold.red( 'COULD NOT SEND MAIL BECAUSE SLUG WAS NOT FOUND' ) );
 
-
-        console.log("subscribe");
-        console.log(subscriber);
-
         let sentMails = await this.sendMail(
             {
                 from: `Qasim Ali<${process.env.zoho}>`,
@@ -5646,7 +5769,7 @@ var myFuncs = {
                     unsubscribeUrl: process.env.url+`/life/gen/page/unsubscribeMe/n?email=${subscriber.email}&Id=${subscriber._id}`
                 }, 
                 toEmail: subscriber.email, 
-                subject: output.subject,
+                subject: output.subject, 
                 brand: brand
             }
         );

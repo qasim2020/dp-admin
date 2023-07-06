@@ -47,6 +47,10 @@
       font-weight: 100;
     }
 
+    input[disabled] {
+        background: bisque;
+    }
+
     form .btn-submit {
       color: black;
       background-color: white;
@@ -94,12 +98,12 @@
       {{/if}}
     </div>
     <form class="block" action="/profile" method="post">
-      <input type="text" name="" value="{{data.name}}">
-      <input type="text" name="" value="{{data.email}}">
-      <input type="text" name="" value="Old Password">
-      <input type="text" name="" value="New Password">
-      <input type="text" name="" value="Confirm Password">
-      <button class="btn btn-submit" type="submit" name="button">Save</button>
+      <input type="text" name="name" value="{{data.name}}">
+      <input type="text" name="email" value="{{data.email}}" disabled>
+      <input type="text" name="password" value="Old Password">
+      <input type="text" name="newPassword" value="New Password">
+      <input type="text" name="cfmPassword" value="Confirm Password">
+      <button class="btn btn-submit" type="button" name="button">Save</button>
     </form>
 
   </div>
@@ -116,7 +120,7 @@
               $('.btn-info').html("Sending email...");
               $.ajax({
                   type: "GET",
-                  url: '/{{data.brand}}/gen/data/sendVerificationEmail/n',
+                  url: '/{{data.brand}}/auth/data/sendVerificationEmail/n',
                   success: msg => {
                       console.log(msg);
                       $('.btn-info').html("Email sent!");
@@ -125,11 +129,43 @@
                   console.log(e.responseText);
                   $('.btn-info').html(e.responseText);
               });
-          }
+          },
+
+          saveProfileDetails: function(e) {
+
+              e.preventDefault();
+
+              $('.btn-submit').html("Saving...");
+
+              let newPassword = $("[name=newPassword]").val();
+              let cfmPassword = $("[name=cfmPassword]").val();
+
+              if (newPassword != cfmPassword) {
+                  $('.btn-submit').html("Password mismatch");
+                  return;
+              };
+
+              let data = $("form").serialize() + `&email=${$("[name=email]").val()}`;
+
+              $.ajax({
+                  type: "POST",
+                  url: '/{{data.brand}}/auth/data/saveProfileData/n',
+                  data: data, 
+                  success: msg => {
+                      console.log(msg);
+                      $('.btn-submit').html("Changes Saved!");
+                  }
+              }).fail( e=> {
+                  console.log(e.responseText);
+                  $('.btn-submit').html(e.responseText);
+              });
+
+          }, 
 
       };
   
       $('.btn-info').on('click',myFuncs.sendVerificationEmail);
+      $('.btn-submit').on('click',myFuncs.saveProfileDetails);
   
   </script>
 

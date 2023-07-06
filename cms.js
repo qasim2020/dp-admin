@@ -432,7 +432,7 @@ app.use('/:brand/:permit/:requiredType/:module/:input', async (req,res,next) => 
 
 let openBrand = async (req,res) => {
     if (req.params.brand.indexOf('.') > 0) {
-        return res.status(300).send('Wrong Attempt');
+        return res.status(300).send('Sorry, this url contains a dot which is a wrong attempt. Haha keep trying..');
     };
 
     return res.redirect(`/${req.params.brand}/gen/page/landingPage/n`);
@@ -480,11 +480,9 @@ app.get(  '/', async (req,res) => {
     });
 });
 
-var myFuncs = {
+let myFuncs = {
 
     respond: async function(data,req,res) {
-
-        console.log( chalk.bold.yellow('sending data to page') ); 
 
         if( data && data.hasOwnProperty("error")) {
             return res.status(data.status).send(data.error);
@@ -619,6 +617,15 @@ var myFuncs = {
 
         };
 
+        console.log( chalk.bold.red('') ); 
+        console.log( chalk.bold.red('—————————————————') ); 
+        console.log( chalk.bold.red('sending data start') ); 
+        console.log(data);
+        console.log( chalk.bold.red('sending data end') ); 
+        console.log( chalk.bold.red('—————————————————') ); 
+        console.log( chalk.bold.red('') ); 
+
+
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
             let url = 
@@ -676,6 +683,7 @@ var myFuncs = {
         createSignUp: "gen", 
         sendVerificationEmail: "auth", 
         verifyEmailChallenges: "gen", 
+        saveProfileData: "auth", 
 
         home: 'auth',
         landingPage: 'gen',
@@ -2630,6 +2638,8 @@ var myFuncs = {
 
     sendVerificationEmail: async function(req,res) {
 
+        console.log(req.params);
+
         if (!(req.session.hasOwnProperty("person"))) {
             return {
                 status: 404,
@@ -2663,30 +2673,73 @@ var myFuncs = {
         let model = await this.createModel(`${req.params.brand}-users`);
         let output = await model.findOneAndUpdate({
             email: req.query.email,
-            _id: req.query.uniqueCode,
-            verifiedEmail: false 
+            _id: req.query.uniqueCode
         },{
-            verifiedEmail: true,
+            verifiedEmail: "true",
         },{
             new: true
-        });
+        }).lean();
 
-        console.log(output);
+        if (output.hasOwnProperty("email")) {
 
-        if (output == null) {
-            this.sendEmailWithTemplate(req.params.brand, 'welcomeEmailChallenges', output);
+            await this.sendMail({
+                from: `Challenges <${process.env.zoho}>`,
+                toEmail: output.email, 
+                subject: `Welcome to- Challenges`, 
+                msg: `
+                <p>Welcome to challenges!</p>
+                <p>Wish you a good start to your journey.</p>
+                <p>Your feedback is valuable for us!</p>
+                <p>Send us details at hello@qasimali.xyz</p>
+                <p>🌹</p>
+                `,
+                brand: req.params.brand
+            });
+
             return {
                 brand: req.params.brand,
                 msg: 'Email Verified. Thank you for Signing Up.',
             }
+
         } else {
+
             return {
                 brand: req.params.brand,
-                msg: 'Sorry — this link does not exist.'
+                msg: 'Sorry link has expired!',
             }
-        }
+
+        };
+
 
     },
+
+    saveProfileData: async function(req,res) {
+
+        console.log(req.body);
+
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output = await model.findOneAndUpdate({
+            email: req.body.email,
+            password: req.body.password
+        },{
+            name: req.body.name, 
+            password: req.body.newPassword
+        });
+
+        if (output != null) {
+            return {
+                status: 200,
+                success: "Changes saved!"
+            }
+        } else {
+            return {
+                status: 404,
+                error: "Make sure you have entered correct password!"
+            }
+        };
+
+    }, 
+
     checkSignIn: async function(req,res) {
         let model, output;
         model = await this.createModel(`${req.params.brand}-users`);
@@ -4043,8 +4096,6 @@ var myFuncs = {
 
     profile: async function(req,res) {
 
-        console.log(req.session);
-
         if (!(req.session.hasOwnProperty("person"))) {
             return {
                 status: 404,
@@ -4054,15 +4105,14 @@ var myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-users`);
 
-        let checkEmailVerified = await model.count({
+        let output = await model.findOne({
             email: req.session.person.email,
-            verifiedEmail: "true"
         });
 
         return {
-            name: req.session.person.name,
-            email: req.session.person.email,
-            verified: checkEmailVerified > 0
+            name: output.name, 
+            email: output.email,
+            verified: output.verifiedEmail
         };
     },
 
@@ -8137,5 +8187,6 @@ Receipt sent by Server.`;
     }, 
 
 };
+
 
 server.listen(3000)

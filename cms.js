@@ -5611,6 +5611,8 @@ let myFuncs = {
            html: html
         }
 
+        console.log(html);
+
         const info = await transporter.sendMail(mail);
 
         return info;
@@ -5719,6 +5721,9 @@ let myFuncs = {
             }
         }).lean();
 
+        console.log("pendingLetters");
+        console.log(pendingLetters);
+
         if (pendingLetters.length == 0) return {success: 'Currently there are no newsletters pending Publish'};
 
         let output = pendingLetters.map( val => this.setTimerToPublish(val) );
@@ -5790,7 +5795,7 @@ let myFuncs = {
                 },
                 toEmail: val.email,
                 subject: letter.subject, 
-                brand: req.params.brand
+                brand: brand
             });
 
         });

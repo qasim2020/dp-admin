@@ -1,6 +1,4 @@
-$(document).on('click', '.subscribe>.submit', function() {
-
-  console.log('subscribe clicked');
+$(document).on('click', '.subscribe > .submit', function() {
 
   if (!($(".subscribe").valid())) {
 

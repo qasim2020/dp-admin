@@ -26,7 +26,7 @@ let subscribeMe = function(elem) {
     data = JSON.stringify(data);
       
     $.ajax({
-      url: '/life/gen/data/subscribeCustomer/n',
+      url: 'https://qasimali.xyz/life/gen/data/subscribeCustomer/n',
       type: 'post',
       data,
       headers: {

@@ -5543,7 +5543,7 @@ let myFuncs = {
 
         logEntry = await logModel.create({
             status: 200, 
-            text: `Email ${mail.slug} sent to ${output.email}`, 
+            text: `Email ${mail && mail.slug || 'verify-email'} sent to ${output.email}`, 
             meta: JSON.stringify(mailResponse)
         });
 
@@ -5610,8 +5610,6 @@ let myFuncs = {
            subject: subject,
            html: html
         }
-
-        console.log(html);
 
         const info = await transporter.sendMail(mail);
 

@@ -5268,8 +5268,27 @@ let myFuncs = {
     },
 
     challenges: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-selected`);
+        let selected = await model.aggregate([
+            {
+              $match:
+                {
+                  user: req.session.person.email
+                },
+            },
+            {
+              $lookup:
+                {
+                  from: "challenge-types",
+                  localField: "slug",
+                  foreignField: "slug",
+                  as: "result",
+                },
+            }
+        ]);
         return {
-            sessionExists: true
+            sessionExists: true,
+            selected: selected
         };
     },
 

@@ -50,25 +50,14 @@
       <p>Below are your challenges you have taken so far. Select in progress challenges to resume the Change you have committed to...</p>
     </div>
 
-    <div class="card">
-      <h1>Get Fit</h1>
-      <p>5 out of 30 Days Completed</p>
+    {{#each data.selected}}
+    <div class="card" data-challenge='{{this.slug}}' onClick='myFuncs.goToChallenge(this)'>
+      <h1>{{this.result.0.name}}</h1>
+      <p>{{this.status}}</p>
+      <a href='challenge/auth/page/openChallenge/{{this.slug}}'>Go to challenge →</a>
     </div>
+    {{/each}}
 
-    <div class="card">
-      <h1>Regular in Prayers</h1>
-      <p>8 out of 30 Days Completed</p>
-    </div>
-
-    <div class="card">
-      <h1>Find Contentment through Quran</h1>
-      <p>Completed on 4 Aug 2020</p>
-    </div>
-
-    <div class="card">
-      <h1>Quit Smoking</h1>
-      <p>Failed on 14th day of Challenge</p>
-    </div>
   </div>
 
   <!-- Optional JavaScript -->
@@ -76,6 +65,20 @@
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script>
+
+      let myFuncs = {
+
+          goToChallenge: function(elem) {
+              console.log("here go to the challenge");
+              let challenge = $(elem).attr("data-challenge");
+              console.log(challenge);
+              window.location.assign(`/challenge/auth/page/openChallenge/${challenge}`);
+          },
+
+      };
+
+  </script>
 </body>
 
 </html>

@@ -2942,9 +2942,6 @@ let myFuncs = {
 
         // console.log(blogs);
         req.query = processQuery(req.query, {price: { dataType: "string" } });
-        console.log("here is your query");
-        console.log(req.query);
-        console.log("----");
         req.query.limit = 12;
         let output = await this.getBlogs(req,res);
         let model = await this.createModel(`life-blogs`);
@@ -3138,9 +3135,37 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-projects`);
         let projects = await model.find().lean();
         let types = await model.distinct("type").lean();
+        let blogsModel = await this.createModel(`life-blogs`);
+        let output = await blogsModel.aggregate([
+              {
+                $addFields:
+                  {
+                    ser: {
+                      $toInt: "$ser",
+                    },
+                  },
+              },
+              {
+                $sort:
+                  {
+                    ser: -1,
+                  },
+              },
+              {
+                $limit:
+                  6,
+              }
+            ]);
+        output.forEach( val => {
+            Object.assign(val, {
+                body: this.convertStringToArticle(val.body),
+                date: this.dateBlogHeader(val.date)
+            });
+        });
         return {
             projects,
-            types
+            types,
+            blogs: output
         }
     }, 
 
@@ -5451,13 +5476,11 @@ let myFuncs = {
     },
 
     openBlog: async function(req,res) {
-        console.log("open the blog post");
         let model = await this.createModel('life-blogs');
         let modelComments = await this.createModel('life-comments');
         let output = await model.findOne({slug: req.params.input}).lean();
         let body = this.convertStringToArticle(output.body);
         output.date = this.dateBlogHeader(output.date);
-        console.log(body);
         return {
             output: output,
             body: body,

@@ -64,6 +64,7 @@ You can find the code of your language here - https://www.w3schools.com/tags/ref
                             <li><a href="#services">Services</a></li>
                             <li><a href="#portfolio">Portfolio</a></li>
                             <li><a href="#testimonials">Testimonials</a></li>
+                            <li><a href="#articles">Articles</a></li>
                             <li><a href="#contact">Contact</a></li>
                         </ul>
                     </div>
@@ -735,6 +736,56 @@ You can find the code of your language here - https://www.w3schools.com/tags/ref
                 <!-- End Divider -->
                 
                 <!-- Blog Section -->
+                <section class="page-section" id="articles">
+                    <div class="container relative">
+                        
+                        <div class="text-center mb-80 mb-sm-50">
+                            <div class="row">
+                                <div class="col-sm-6 offset-sm-3">
+                                    <h2 class="section-title">I write to...</h2>
+                                    <p class="section-title-descr">
+                                        ...keep myself humble.. 
+                                    </p>
+                                </div>
+                                <div class="col-sm-3 text-sm-end pt-30 pt-xs-0">
+                                    <a href="https://qasimali.xyz/life/gen/page/blogs/n" class="section-more">Explore more &nbsp<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            
+                            {{#each data.blogs}}
+                            <div class="col-sm-6 col-md-4 col-lg-4 mb-md-50">
+                                
+                                <div class="post-prev-img">
+                                    <a href="https://qasimali.xyz/life/gen/page/openBlog/{{this.slug}}" target="_blank"  tabindex="-1">
+                                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/w_578,c_scale/v1592022597/qurandaily/{{slug}}.png" alt="" class="wow scaleOutIn" data-wow-duration="1.2s" />
+                                    </a>
+                                </div>
+                                
+                                <h3 class="post-prev-title">
+                                    <a href="https://qasimali.xyz/life/gen/page/openBlog/{{this.slug}}"> {{this.body.0.msg}} </a>
+                                </h3>
+                                
+                                <div class="post-prev-info">
+                                    <a href="">{{this.author}}</a> • {{this.date}}
+                                </div>
+                                
+                                <div class="post-prev-text">
+                                </div>
+                                
+                                <div class="post-prev-more mb-4">
+                                    <a href="https://qasimali.xyz/life/gen/page/openBlog/{{this.slug}}" class="text-link" tabindex="-1">Read now →</a>
+                                </div>
+                                
+                            </div>
+                            {{/each}}
+                            
+                        </div>
+                        
+                    </div>
+                </section>
                 <!-- End Blog Section --> 
                 
                 <!-- Contact Section -->

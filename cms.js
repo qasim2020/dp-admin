@@ -3729,10 +3729,11 @@ let myFuncs = {
         }
     }, 
 
-    d_pcauses: async function(req,res) {
+    d_pcauses: async function(req,res) { 
         req.params.module = "causes";
         return {
-            success: true
+            causes: await this.d_pmodules.causes(req,res), 
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     }, 
 

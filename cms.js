@@ -3496,12 +3496,19 @@ let myFuncs = {
         return {
             events: await this.d_pmodules.pastThreeEvents(req,res),
             futureEvents: await this.d_pmodules.futureEvents(req,res),
-            staffs: await this.d_pmodules.staffs(req,res)
+            staffs: await this.d_pmodules.staffs(req,res), 
+            causes: await this.d_pmodules.causes(req,res)
         }
     }, 
 
     d_pmodules: {
 
+        causes: async function(req,res) {
+            let model = await myFuncs.createModel(`${req.params.brand}-causes`);
+            let output = await model.find().lean();
+            return output
+        }, 
+            
         pastThreeEvents: async function(req,res) {
 
             req.query = processQuery(req.query);

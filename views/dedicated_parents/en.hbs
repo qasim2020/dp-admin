@@ -169,6 +169,7 @@
                             </div>
                             <!-- /.row -->
                             <div class="row">
+                                {{#each data.causes}}
                                 <div class="col-md-3 col-sm-6 cause-grid">
                                     <div class="cause-thumb">
                                         <img src="http://placehold.it/255x200" alt="">
@@ -177,86 +178,21 @@
                                                 <div class="progress">
                                                     <div class="progress-bar" role="progressbar" aria-valuenow="41" aria-valuemin="0" aria-valuemax="100" style="width: 41%;"></div>
                                                 </div>
-                                                <span class="raised pull-left">Raised: $2,400</span>
-                                                <span class="goal pull-right">Goal: $6,180</span>
+                                                <span class="raised pull-left">{{this.raised}}</span>
+                                                <span class="goal pull-right">{{this.target}}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- /.cause-thumb -->
                                     <div class="cause-content">
-                                        <h4 class="cause-title"><a href="cause-detail.html">Futures for Children</a></h4>
-                                        <p>Sed bibendum, arcu ac rhoncus adscing nulla lectus dictum mauris.</p>
+                                        <h4 class="cause-title"><a href="/dedicated_parents/gen/page/d_pcauses/{{this.slug}}">{{this.title}}</a></h4>
+                                        <p>{{this.summary}}</p>
                                         <a href="#" class="btn main-btn">Donate Now</a>
                                     </div>
                                     <!-- /.cause-content -->
                                 </div>
-                                <!-- /.col-md-3 -->
-                                <div class="col-md-3 col-sm-6 cause-grid">
-                                    <div class="cause-thumb">
-                                        <img src="http://placehold.it/255x200" alt="">
-                                        <div class="cause-hover">
-                                            <div class="cause-holder clearfix">
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-                                                </div>
-                                                <span class="raised pull-left">Raised: $2,400</span>
-                                                <span class="goal pull-right">Goal: $6,180</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- /.cause-thumb -->
-                                    <div class="cause-content">
-                                        <h4 class="cause-title"><a href="cause-detail.html">Futures for Children</a></h4>
-                                        <p>Sed bibendum, arcu ac rhoncus adscing nulla lectus dictum mauris.</p>
-                                        <a href="#" class="btn main-btn">Donate Now</a>
-                                    </div>
-                                    <!-- /.cause-content -->
-                                </div>
-                                <!-- /.col-md-3 -->
-                                <div class="col-md-3 col-sm-6 cause-grid">
-                                    <div class="cause-thumb">
-                                        <img src="http://placehold.it/255x200" alt="">
-                                        <div class="cause-hover">
-                                            <div class="cause-holder clearfix">
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100" style="width: 92%;"></div>
-                                                </div>
-                                                <span class="raised pull-left">Raised: $2,400</span>
-                                                <span class="goal pull-right">Goal: $6,180</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- /.cause-thumb -->
-                                    <div class="cause-content">
-                                        <h4 class="cause-title"><a href="cause-detail.html">Futures for Children</a></h4>
-                                        <p>Sed bibendum, arcu ac rhoncus adscing nulla lectus dictum mauris.</p>
-                                        <a href="#" class="btn main-btn">Donate Now</a>
-                                    </div>
-                                    <!-- /.cause-content -->
-                                </div>
-                                <!-- /.col-md-3 -->
-                                <div class="col-md-3 col-sm-6 cause-grid">
-                                    <div class="cause-thumb">
-                                        <img src="http://placehold.it/255x200" alt="">
-                                        <div class="cause-hover">
-                                            <div class="cause-holder clearfix">
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100" style="width: 14%;"></div>
-                                                </div>
-                                                <span class="raised pull-left">Raised: $2,400</span>
-                                                <span class="goal pull-right">Goal: $6,180</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- /.cause-thumb -->
-                                    <div class="cause-content">
-                                        <h4 class="cause-title"><a href="cause-detail.html">Futures for Children</a></h4>
-                                        <p>Sed bibendum, arcu ac rhoncus adscing nulla lectus dictum mauris.</p>
-                                        <a href="#" class="btn main-btn">Donate Now</a>
-                                    </div>
-                                    <!-- /.cause-content -->
-                                </div>
-                                <!-- /.col-md-3 -->
+                                {{/each}}
+
                             </div>
                             <!-- /.row -->
                         </div>

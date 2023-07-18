@@ -29,49 +29,6 @@
 			<div class="row">
 				
 				<div class="col-md-8">
-					<div class="box-content search-cause">
-						<h5>Find and donate now!</h5>
-						<div class="row">
-							<form>
-								<div class="col-md-5 col-sm-5 col-xs-12">
-									<fieldset>
-										<input name="input" id="input" class="searchbox" placeholder="Type your keyword, name or anything..." autocomplete="off" title="Cause Title">
-								    </fieldset>
-								</div> <!-- /.col-md-5 -->
-								<div class="col-md-4 col-sm-4 col-xs-12">
-									<fieldset>
-										<select onchange="jump(this)" name="category">
-					                        <option value="1" selected="">Categories </option>
-					                        <option value="1">Animals </option>
-					                        <option value="2">Arts &amp; Culture </option>
-					                        <option value="3">Children &amp; Youth </option>
-					                        <option value="4">Community </option>
-					                        <option value="5">Crime Prevention </option>
-					                        <option value="6">Disabled </option>
-					                        <option value="7">Disaster Relief </option>
-					                        <option value="8">Education </option>
-					                        <option value="9">Elderly </option>
-					                        <option value="10">Environment </option>
-					                        <option value="11">Health &amp; Wellness </option>
-					                        <option value="12">Homeless </option>
-					                        <option value="13">Human Rights </option>
-					                        <option value="14">Hunger &amp; Poverty </option>
-					                        <option value="15">Overseas Aid </option>
-					                        <option value="16">Peace </option>
-					                        <option value="17">Sports &amp; Rec. </option>
-					                        <option value="18">Substance Abuse</option>
-					                        <option value="19">Women </option>
-				                        </select>
-									</fieldset>
-								</div> <!-- /.col-md-3 -->
-								<div class="col-md-3 col-sm-3 col-xs-12">
-									<fieldset>
-								    	<button type="submit" id="send-button" class="btn main-btn">Search Now</button>
-								    </fieldset>
-								</div> <!-- /.col-md-2 -->
-							</form>
-						</div> <!-- /.row -->
-					</div> <!-- /.box-content -->
 
                                         {{#each data.causes}}
 					<div class="cause-list">
@@ -82,14 +39,14 @@
 						<div class="cause-content">
 							<div class="cause-holder-list clearfix">
 								<div class="progress">
-									<div class="progress-bar" role="progressbar" aria-valuenow="41" aria-valuemin="0" aria-valuemax="100" style="width: 41%;"></div>
+                                                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{this.percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{this.percent}}%;"></div>
 								</div>
                                                                 <span class="raised pull-left">{{this.raised}}</span>
                                                                 <span class="goal pull-right">{{this.target}}</span>
 							</div>
-                                                        <h4 class="cause-title"><a href="cause-detail.html">{{this.title}}</a></h4>
+                                                        <h4 class="cause-title"><a href="/dedicated_parents/gen/page/d_pcause/{{this.slug}}">{{this.title}}</a></h4>
                                                         <p>{{this.summary}}</p>
-							<a href="cause-detail.html" class="read-more">Read More &rarr;</a>
+                                                        <a href="/dedicated_parents/gen/page/d_pcause/{{this.slug}}" class="read-more">Read More &rarr;</a>
 						</div> <!-- /.cause-content -->
 					</div> <!-- /.cause-list -->
                                         {{/each}}

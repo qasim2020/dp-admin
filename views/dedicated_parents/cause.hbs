@@ -35,8 +35,8 @@
 							<img src="http://placehold.it/710x410" alt="">
 							<div class="cause-overlay hidden-xs">
 								<div class="overlay-inner">
-									<span class="meta-date"><i class="fa fa-calendar-o"></i>24 April 2014</span>
-									<span class="meta-author"><i class="fa fa-user"></i>Esmet Hajrizi</span>
+                                                                    <span class="meta-date"><i class="fa fa-calendar-o"></i>{{data.cause.date}}</span>
+                                                                    <span class="meta-author"><i class="fa fa-user"></i>{{data.cause.author}}</span>
 									<span class="price">Needed Donation <em>$24,000</em></span>
 									<div class="text-center">
 										<a href="donate.html" class="btn main-btn">Donate Now</a>
@@ -47,16 +47,14 @@
 						<div class="cause-content">
 							<div class="cause-holder-list clearfix">
 								<div class="progress">
-									<div class="progress-bar" role="progressbar" aria-valuenow="41" aria-valuemin="0" aria-valuemax="100" style="width: 41%;"></div>
+                                                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{data.cause.percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{data.cause.percent}}%;"></div>
 								</div>
-								<span class="raised pull-left">Raised: $2,400</span>
-								<span class="goal pull-right">Goal: $6,180</span>
+                                                                <span class="raised pull-left">{{data.cause.raised}}</span>
+                                                                <span class="goal pull-right">{{data.cause.target}}</span>
 							</div> <!-- /.cause-holder-list -->
-							<span class="meta-cause visible-xs">24 January 2014 by Esmet Hajrizi</span>
-							<h3 class="cause-title">Futures for Children</h3>
-							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porta lectus tincidunt, consequat dui ut, vehicula tellus. Nunc felis justo, ultricies facilisis elit non, vehicula fringilla metus. Sed sit amet mollis orci. Praesent et consequat elit. Donec ut malesuada metus, faucibus ultrices ipsum. Curabitur mollis at nibh vel consequat. Donec nec urna tempor, vestibulum orci in, placerat mi. Proin sed lobortis turpis. <br><br>Donec quis nisl ac lorem venenatis hendrerit. Nunc mollis orci sed ipsum rhoncus, vitae eleifend quam congue. Fusce at sapien quis purus gravida varius ut sed turpis. Ut elit elit, malesuada id purus eget, euismod mollis est. Phasellus et magna justo. Nulla ut orci vel quam sagittis interdum vel et arcu.</p>
-							<blockquote>Nam eleifend mollis leo, eu tristique nibh scelerisque at. Cras bibendum enim nec diam consequat.</blockquote>
-							<p>Nunc mollis orci sed ipsum rhoncus, vitae eleifend quam congue. Fusce at sapien quis purus gravida varius ut sed turpis. Ut elit elit, malesuada id purus eget, euismod mollis est. Phasellus et magna justo. Nulla ut orci vel quam sagittis interdum vel et arcu.</p>
+                                                        <span class="meta-cause visible-xs">{{data.cause.date}} by {{data.cause.author}}</span>
+                                                        <h3 class="cause-title">{{data.cause.title}}</h3>
+                                                        {{{data.cause.detail}}}
 						</div> <!-- /.cause-content -->
 					</div> <!-- /.cause-single -->
 					<div class="row">
@@ -103,41 +101,11 @@
 							</div> <!-- /.gallery-thumb -->
 						</div> <!-- /.gallery-wrapper -->
 					</div> <!-- /.box-content -->
-					<div class="box-content">
-						<h4 class="widget-title"><span>Upcoming events</span></h4>
-						<div class="events-sidebar">
-							<ul>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Memorial Day Sale: 30% All Day Monday May 26</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Fashion Figures Online Sale: Sizes 10 - 3X</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Speak Up! National Summit for Women Living with HIV</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-							</ul>
-							<a href="events-list.html" class="read-more">More Events &rarr;</a>
-						</div> <!-- /.events-sidebar -->
-					</div> <!-- /.box-content -->
+
+                                <!-- /.box-content -->
+                                {{> dedicated_parents/upcomingEvents}}
+                                <!-- /.box-content -->
+
 				</div> <!-- /.col-md-4 -->
 
 			</div> <!-- /.row -->

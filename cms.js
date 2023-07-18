@@ -3738,9 +3738,11 @@ let myFuncs = {
     }, 
 
     d_pcause: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-causes`);
         req.params.module = "cause";
         return {
-            success: true
+            cause: await model.findOne({slug: req.params.input}).lean(),
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     },
 

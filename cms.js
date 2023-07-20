@@ -3497,11 +3497,18 @@ let myFuncs = {
             events: await this.d_pmodules.pastThreeEvents(req,res),
             futureEvents: await this.d_pmodules.futureEvents(req,res),
             staffs: await this.d_pmodules.staffs(req,res), 
-            causes: await this.d_pmodules.causes(req,res)
+            causes: await this.d_pmodules.causes(req,res),
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 
     d_pmodules: {
+        
+        gallery: async function(req,res) {
+            let model = await myFuncs.createModel(`${req.params.brand}-gallery`);
+            let output = await model.find().lean();
+            return output
+        }, 
 
         causes: async function(req,res) {
             let model = await myFuncs.createModel(`${req.params.brand}-causes`);

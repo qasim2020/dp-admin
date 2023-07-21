@@ -812,6 +812,7 @@ button.big-white:active {
   background-color: white;
 }
 .u-cause dl {
+  line-height: 3.1;
   display: block;
   margin: 0;
 }

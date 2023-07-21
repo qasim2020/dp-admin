@@ -23,25 +23,27 @@
                                 <div class="col-md-12">
                                     <div class="u-cause-wrapper hidden-xs">
                                         <span class="u-cause-title">
-                                        <a href="#" class="close-u-cause">
-                                        <i class="fa fa-times"></i>
-                                        </a>
-                                        Urgent Cause
+                                            <a href="#" class="close-u-cause">
+                                            <i class="fa fa-times"></i>
+                                            </a>
+                                            OUR UPDATES 
                                         </span>
                                         <div class="u-cause clearfix">
                                             <dl class="inner-carousel clearfix">
+                                                {{#each data.causes}}
                                                 <dt></dt>
-                                                <dd><a href="cause-detail.html">In non nunc nulla elementum metus</a> - Some other details goes here</dd>
+                                                <dd>
+                                                    <a href="/dedicated_parents/gen/page/d_pcause/{{this.slug}}">{{this.title}}</a> |
+                                                    {{this.summary}}
+                                                </dd>
+                                                {{/each}}
+                                                {{#each data.events}}
                                                 <dt></dt>
-                                                <dd><a href="cause-detail.html">Ut ut tortor lobortis, auctor orcw diam</a> - Some other details goes here</dd>
-                                                <dt></dt>
-                                                <dd><a href="cause-detail.html">In at felis non nunc volutpat nec felis</a> - Some other details goes here</dd>
-                                                <dt></dt>
-                                                <dd><a href="cause-detail.html">In non nunc nulla elementum metus</a> - Some other details goes here</dd>
-                                                <dt></dt>
-                                                <dd><a href="cause-detail.html">Ut ut tortor lobortis, auctor orcw diam</a> - Some other details goes here</dd>
-                                                <dt></dt>
-                                                <dd><a href="cause-detail.html">In at felis non nunc volutpat nec felis</a> - Some other details goes here</dd>
+                                                <dd>
+                                                    <a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">{{this.title}}</a> | 
+                                                    {{this.summary}}
+                                                </dd>
+                                                {{/each}}
                                             </dl>
                                             <!-- /.inner-carousel -->
                                         </div>

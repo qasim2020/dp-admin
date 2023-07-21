@@ -3507,6 +3507,11 @@ let myFuncs = {
         gallery: async function(req,res) {
             let model = await myFuncs.createModel(`${req.params.brand}-gallery`);
             let output = await model.find().lean();
+            output = output.map( val => {
+                val.number = val.url.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+                val.slug = val.url.split("/gallery-photos/")[1]
+                return val;
+            });
             return output
         }, 
 

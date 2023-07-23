@@ -784,13 +784,13 @@ let myFuncs = {
         kallesFindOrder: "gen",
         
         showReceipt: "gen", 
-        showOrder: "admin",
-        editOrder: "admin", 
+        showOrder: "auth",
+        editOrder: "auth", 
         sendReceiptToEmail: "gen",
         sendMsgToEmail: "gen", 
         saveSlackAPI: "auth",
-        sendReceiptToSlack: "admin", 
-        testPlaceOrder: "admin", 
+        sendReceiptToSlack: "auth", 
+        testPlaceOrder: "auth", 
 
         readFromJSON: "admin", 
         getJSONFile: "admin", 

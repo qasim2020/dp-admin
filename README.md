@@ -23,6 +23,7 @@ Playground is my self-built mini-CMS (e.g. Wordpress is a CMS), where I host my 
 - [qasimali.xyz](https://qasimali.xyz)
 - [dt.qasim.tech](https://dt.qasim.tech)
 - [dedicatedparents.qasim.tech](https://dedicatedparents.qasim.tech)
+- [challenges.qasim.tech](https://challenges.qasim.tech)
 
 # Kinds of request you can make to playground
 

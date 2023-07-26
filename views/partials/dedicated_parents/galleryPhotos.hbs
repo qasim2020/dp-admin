@@ -1,0 +1,14 @@
+                                <div class="box-content">
+                                    <h4 class="widget-title"><span>Our Gallery</span></h4>
+                                    <div class="gallery-wrapper">
+                                        {{#each data.gallery}}
+                                        <div class="gallery-thumb">
+                                            <a href="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_550,w_770/{{this.number}}/dedicatedparents/gallery-photos/{{this.slug}}" class="fancybox" data-fancybox-group="group1">
+                                                <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_80,w_80/{{this.number}}/dedicatedparents/gallery-photos/{{this.slug}}" alt="{{this.title}}">
+                                            </a>
+                                        </div>
+                                        {{/each}}
+                                    </div>
+                                    <!-- /.gallery-wrapper -->
+                                </div>
+

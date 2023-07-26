@@ -3712,7 +3712,8 @@ let myFuncs = {
         req.params.module = "events";
         return {
             pastEvents: await this.d_pmodules.pastEvents(req,res),
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res), 
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 
@@ -3721,7 +3722,8 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-events`);
         return {
             futureEvents: await this.d_pmodules.futureEvents(req,res),
-            output: await model.findOne({slug: req.params.input}).lean()
+            output: await model.findOne({slug: req.params.input}).lean(), 
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 
@@ -3745,7 +3747,8 @@ let myFuncs = {
         req.params.module = "causes";
         return {
             causes: await this.d_pmodules.causes(req,res), 
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res), 
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 

@@ -3764,7 +3764,8 @@ let myFuncs = {
     d_pcontact: async function(req,res) {
         req.params.module = "contact";
         return {
-            success: true
+            gallery: await this.d_pmodules.gallery(req,res),
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     },
 

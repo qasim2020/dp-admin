@@ -29,7 +29,10 @@
 			<div class="row">
 				
 				<div class="col-md-8 contact-page">
-					<div class="contact-map" style="height: 380px;"></div>
+                                    <div class="contact-map" style="height: 380px;">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2025.8381498325778!2d17.9301636!3d59.4857941!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x465f98f4e1725f79%3A0x6542785729d40702!2sBergk%C3%A4llav%C3%A4gen%2084%2C%20192%2079%20Sollentuna!5e0!3m2!1sen!2sse!4v1675096194692!5m2!1sen!2sse" width="100%" height="380" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                                    </div>
 					<div id="contact" class="contactForm clearfix">
                         <div id="result"></div>
                         <fieldset>
@@ -55,76 +58,9 @@
 				</div> <!-- /.col-md-8 -->
 
 				<div class="col-md-4">
-					<div class="box-content">
-						<h4 class="widget-title"><span>Our Gallery</span></h4>
-						<div class="gallery-wrapper">
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-							<div class="gallery-thumb">
-								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
-									<img src="http://placehold.it/80x80" alt="">
-								</a>
-							</div> <!-- /.gallery-thumb -->
-						</div> <!-- /.gallery-wrapper -->
-					</div> <!-- /.box-content -->
-					<div class="box-content">
-						<h4 class="widget-title"><span>Upcoming events</span></h4>
-						<div class="events-sidebar">
-							<ul>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Memorial Day Sale: 30% All Day Monday May 26</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Fashion Figures Online Sale: Sizes 10 - 3X</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-								<li class="event-item">
-									<div class="event-thumb">
-										<img src="http://placehold.it/80x80" alt="">
-									</div>
-									<div class="event-content">
-										<h5 class="event-title"><a href="event-detail.html">Speak Up! National Summit for Women Living with HIV</a></h5>
-										<p class="event-meta">02 January 2015</p>
-									</div>
-								</li>
-							</ul>
-							<a href="events-list.html" class="read-more">More Events &rarr;</a>
-						</div> <!-- /.events-sidebar -->
-					</div> <!-- /.box-content -->
+                                    {{> dedicated_parents/galleryPhotos}}
+                                    {{> dedicated_parents/upcomingEvents}}
+
 				</div> <!-- /.col-md-4 -->
 
 			</div> <!-- /.row -->
@@ -133,25 +69,24 @@
                 {{> dedicated_parents/footer}}
 
 		<!-- Google Map -->
-        <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
-        <script src="js/vendor/jquery.gmap3.min.js"></script>
-        
+                <!-- <script src="http://maps.google.com/maps/api/js?sensor=true"></script> -->
+                <!-- <script src="/dedicated_parents/js/vendor/jquery.gmap3.min.js"></script> -->
         <!-- Google Map Init-->
         <script type="text/javascript">
-            jQuery(function($){
-                $('.contact-map').gmap3({
-                    marker:{
-                        address: '16.8496189,96.1288854' 
-                    },
-                        map:{
-                        options:{
-                        zoom: 15,
-                        scrollwheel: false,
-                        streetViewControl : true
-                        }
-                    }
-                });
-            });
+            // jQuery(function($){
+            //     $('.contact-map').gmap3({
+            //         marker:{
+            //             address: '16.8496189,96.1288854' 
+            //         },
+            //             map:{
+            //             options:{
+            //             zoom: 15,
+            //             scrollwheel: false,
+            //             streetViewControl : true
+            //             }
+            //         }
+            //     });
+            // });
         </script>
 
          <!-- Contact Form Validation -->

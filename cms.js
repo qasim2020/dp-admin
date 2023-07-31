@@ -3637,6 +3637,13 @@ let myFuncs = {
     }, 
 
     d_ppages: async function(req,res) {
+        let model = await this.createModel(`${req.params.brand}-blogs`);
+        let output = await model.find({visibility: "page"}).sort({_id: -1}).lean();
+        req.params.module = "pages";
+        return {
+            blogs: output, 
+            futureEvents: await this.d_pmodules.futureEvents(req,res)
+        }
         req.params.module = "blogs";
         return {
             success: true
@@ -3644,16 +3651,20 @@ let myFuncs = {
     }, 
 
     d_ppage: async function(req,res) {
-        req.params.module = "blog";
+        let model = await this.createModel(`${req.params.brand}-blogs`);
+        let modelComments = await this.createModel(`${req.params.brand}-comments`);
+        let output = await model.findOne({slug: req.params.input}).lean();
+        req.params.module = "page";
         return {
-            success: true
+            blog: output, 
+            comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
+            countComments: await modelComments.count({slug: output.slug}).lean()
         }
     }, 
 
     d_pblogs: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-blogs`);
-        let output = await model.find().sort({_id: -1}).lean();
-
+        let output = await model.find({visibility: "blog"}).sort({_id: -1}).lean();
         req.params.module = "blogs";
         return {
             blogs: output, 

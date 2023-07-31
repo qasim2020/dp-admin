@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> 
+<![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8" lang="en"> 
+<![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+    <head>
+        <title>Dedicated Parents | Blogs</title>
+        {{> dedicated_parents/header}}
+    </head>
+    <body>
+
+        {{> dedicated_parents/headerNav active='page'}}
+
+		<div class="container">
+			
+			<div class="page-header">
+				<div class="row">
+					<div class="col-md-6 col-sm-6">
+						<h2 class="page-title">Page List</h2>
+					</div> <!-- /.col-md-6 -->
+					<div class="col-md-6 col-sm-6 hidden-xs back-home">
+						<a href="index.html">&larr; Go back Home</a>
+					</div> <!-- /.col-md-6 -->
+				</div> <!-- /.row -->
+			</div> <!-- /.page-header -->
+
+			<div class="row">
+				
+				<div class="col-md-8">
+                                    {{#each data.blogs}}
+					<div class="blog-list">
+						<div class="post-thumb">
+                                                    <img src="http://placehold.it/300x242" alt="">
+						</div> <!-- /.blog-thumb -->
+						<div class="post-content">
+                                                    <h4 class="post-title"><a href="/dedicated_parents/gen/page/d_ppage/{{this.slug}}">{{this.title}}</a></h4>
+                                                    <p class="post-meta"><a href="#">{{this.date}}</a> with <a href="#">4 Comments</a></p>
+                                                    <p>{{this.subtitle}}</p>
+                                                    <a href="/dedicated_parents/gen/page/d_pblog/{{this.slug}}" class="read-more">Continue Reading &rarr;</a>
+						</div> <!-- /.blog-content -->
+					</div> <!-- /.blog-list -->
+                                    {{/each}}
+                                    <!--
+					<div class="row">
+						<div class="col-md-12">
+							<a href="javascript:void(0);" class="load-more">Load More <i class="fa fa-refresh"></i></a>
+						</div>
+					</div> 
+                                    -->
+				</div> <!-- /.col-md-8 -->
+
+				<div class="col-md-4">
+					<div class="box-content categories">
+						<h4 class="widget-title"><span>Categories</span></h4>
+						<div class="row">
+							<div class="col-md-6">
+								<ul>
+									<li><a href="#">Awwards</a></li>
+									<li><a href="#">Books</a></li>
+									<li><a href="#">Branding</a></li>
+									<li><a href="#">Creativity</a></li>
+									<li><a href="#">Fundraising</a></li>
+								</ul>
+							</div>
+							<div class="col-md-6">
+								<ul>
+									<li><a href="#">Net Stuff</a></li>
+									<li><a href="#">Demographics</a></li>
+									<li><a href="#">Community</a></li>
+									<li><a href="#">Generosity</a></li>
+								</ul>
+							</div>
+						</div> <!-- /.row -->
+					</div> <!-- /.box-content -->
+					<div class="box-content">
+						<h4 class="widget-title"><span>Our Gallery</span></h4>
+						<div class="gallery-wrapper">
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+							<div class="gallery-thumb">
+								<a href="images/gallery-placeholder.png" class="fancybox" data-fancybox-group="group1">
+									<img src="http://placehold.it/80x80" alt="">
+								</a>
+							</div> <!-- /.gallery-thumb -->
+						</div> <!-- /.gallery-wrapper -->
+					</div> <!-- /.box-content -->
+                                        {{> dedicated_parents/galleryPhotos}}
+                                        {{> dedicated_parents/upcomingEvents}}
+				</div> <!-- /.col-md-4 -->
+
+			</div> <!-- /.row -->
+
+		</div> <!-- /.container -->
+
+		
+                {{> dedicated_parents/footer}}
+	
+
+    </body>
+</html>

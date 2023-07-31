@@ -620,7 +620,7 @@ let myFuncs = {
         console.log( chalk.bold.red('') ); 
         console.log( chalk.bold.red('—————————————————') ); 
         console.log( chalk.bold.red('sending data start') ); 
-        console.log(data);
+        // console.log(data);
         console.log( chalk.bold.red('sending data end') ); 
         console.log( chalk.bold.red('—————————————————') ); 
         console.log( chalk.bold.red('') ); 

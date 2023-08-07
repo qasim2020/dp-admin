@@ -2088,9 +2088,9 @@ h4.footer-widget-title {
 }
 
 .top-footer {
-  background-color: rgba(107, 146, 98, 0.96);
+  background-color: #69a7a9;
   padding: 40px 0;
-  color: #c0d2bb;
+  color: #173435;
 }
 .top-footer a {
   color: white;
@@ -2113,9 +2113,9 @@ ul.footer-social li a {
   width: 66px;
   height: 66px;
   line-height: 66px;
-  background-color: #5b7d54;
+  border: 2px solid #173435;
   text-align: center;
-  color: white;
+  color: #173435;
 }
 
 .main-footer {

@@ -620,7 +620,7 @@ let myFuncs = {
         console.log( chalk.bold.red('') ); 
         console.log( chalk.bold.red('—————————————————') ); 
         console.log( chalk.bold.red('sending data start') ); 
-        // console.log(data);
+        console.log(data);
         console.log( chalk.bold.red('sending data end') ); 
         console.log( chalk.bold.red('—————————————————') ); 
         console.log( chalk.bold.red('') ); 
@@ -3642,11 +3642,8 @@ let myFuncs = {
         req.params.module = "pages";
         return {
             blogs: output, 
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
-        }
-        req.params.module = "blogs";
-        return {
-            success: true
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 
@@ -3658,7 +3655,8 @@ let myFuncs = {
         return {
             blog: output, 
             comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
-            countComments: await modelComments.count({slug: output.slug}).lean()
+            countComments: await modelComments.count({slug: output.slug}).lean(), 
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 
@@ -3668,7 +3666,8 @@ let myFuncs = {
         req.params.module = "blogs";
         return {
             blogs: output, 
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res), 
+            gallery: await this.d_pmodules.gallery(req,res)
         }
     }, 
 

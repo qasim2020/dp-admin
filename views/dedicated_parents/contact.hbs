@@ -121,24 +121,81 @@
 		                $('textarea[name=message]').css('border-color','red'); 
 		                proceed = false;
 		            }
+
+                            let sendMsgToMail = function(msg) {
+
+                                  let data = {
+                                      msgText: msg,
+                                      toEmail: "qasimali24@gmail.com", 
+                                      msgSubject: "dedicatedparents.org - new ticket created",
+                                      brand: "dedicated_parents"
+                                  }
+
+                                  data = JSON.stringify(data);
+
+                                  $.ajax({
+                                    url: "/dedicated_parents/gen/data/sendMsgToEmail/n",
+                                    type: 'post',
+                                    data: data,
+                                    headers: {
+                                      "content-type": "application/json"
+                                    }
+                                  }).done(msg => {
+                                      $("#submit_btn").html("Message sent successfully!");
+                                  });
+
+                            };
+
+                            let getBrowserLocation = function() {
+                                let browser_location = {};
+
+                                $.ajax({
+                                  url: 'https://json.geoiplookup.io/',
+                                  type: 'get'
+                                }).done(res => {
+                                  console.log(res);
+                                  browser_location = res;
+                                    // here write the message and send it over to server with send Mail
+                                          let msg = `
+New message sent from dedicatedparents.org contact form. <br>
+firstName: ${first_name},  <br>
+lastName: ${last_name}, <br> 
+userEmail: ${user_email}, <br>
+userMessage: ${user_message} <br>
+Browser Location: <br>
+${JSON.stringify(browser_location)}
+      `;
+
+                                    console.log(msg);
+                                    return sendMsgToMail(msg); 
+                                }).fail(e => {
+                                  console.log(e);
+                                  alert(e);
+                                })
+                            };
 		    
+                            $("#submit_btn").html("Sending...");
 		            // Check if we can proceed
-		            if(proceed) 
-		            {
+		            if(proceed) {
 		                // Data to be sent to server
-		                post_data = {'firstName':first_name, 'lastName':last_name, 'userEmail':user_email, 'userMessage':user_message};
-		                
+		                post_data = {
+                                    'firstName':first_name, 
+                                    'lastName':last_name, 
+                                    'userEmail':user_email, 
+                                    'userMessage':user_message
+                                };
+
+                                return getBrowserLocation();
+                                return console.log(post_data);
+
 		                // Ajax post data to server
 		                $.post('sendform.php', post_data, function(response){  
 		                    
 		                    // Load json data from server and output message     
-		                    if(response.type == 'error')
-		                    {
+		                    if(response.type == 'error') {
 		                        output = '<div class="alert alert-danger">'+response.text+'</div>';
-		                    }else{
-		                    
+		                    } else {
 		                        output = '<div class="alert alert-success">'+response.text+'</div>';
-		                        
 		                        // Reset values in all input fields
 		                        $('#contact input').val(''); 
 		                        $('#contact textarea').val(''); 

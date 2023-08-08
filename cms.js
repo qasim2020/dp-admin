@@ -3498,11 +3498,21 @@ let myFuncs = {
             futureEvents: await this.d_pmodules.futureEvents(req,res),
             staffs: await this.d_pmodules.staffs(req,res), 
             causes: await this.d_pmodules.causes(req,res),
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res), 
+            threePages: await this.d_pmodules.threePages(req,res)
         }
     }, 
 
     d_pmodules: {
+
+        threePages: async function(req,res) {
+            let model = await myFuncs.createModel(`${req.params.brand}-blogs`);
+            return {
+                education: await model.findOne({slug: "education"}).lean(),
+                helpAndSupport: await model.findOne({slug: "help-and-support"}).lean(),
+                volunteering: await model.findOne({slug: "volunteering"}).lean()
+            };
+        }, 
         
         gallery: async function(req,res) {
             let model = await myFuncs.createModel(`${req.params.brand}-gallery`);

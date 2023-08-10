@@ -31,11 +31,11 @@
 				<div class="col-md-8">
 					<div class="blog-single">
 						<div class="post-image">
-							<img src="http://placehold.it/770x400" alt="">
+<img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_400,w_770/{{data.blog.number}}/dedicatedparents/blogs-photos/{{data.blog.imgSlug}}" alt="">
 							<div class="image-over">
-								<span><i class="fa fa-user"></i>Esmet Hajrizi</span>
+                                                            <span><i class="fa fa-user"></i>{{data.blog.author}}</span>
                                                                 <span><i class="fa fa-comments-o"></i>Comments <em>({{data.countComments}})</em></span>
-								<span><i class="fa fa-calendar-o"></i>24 January 2014</span>
+                                                                <span><i class="fa fa-calendar-o"></i>{{data.blog.date}}</span>
 							</div>
 						</div> <!-- /.blog-thumb -->
 						<div class="post-content">
@@ -48,12 +48,6 @@
 							</div> <!-- /.tags -->
 						</div> <!-- /.blog-content -->
 					</div> <!-- /.blog-single -->
-					<div class="row">
-						<div class="col-md-12">
-							<a href="javascript:void(0);" class="go-prev"><i class="fa fa-long-arrow-left"></i>Prev Blog</a>
-							<a href="javascript:void(0);" class="go-next">Next Blog <i class="fa fa-long-arrow-right"></i></a>
-						</div> <!-- /.col-md-12 -->
-					</div> <!-- /.row -->
 
 					<div class="comments box-content">
                                             <h4 class="widget-title"><span>Comments <em>({{data.countComments}})</em></span></h4>

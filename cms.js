@@ -3529,7 +3529,6 @@ let myFuncs = {
             let model = await myFuncs.createModel(`${req.params.brand}-causes`);
             let output = await model.find().lean();
             output = output.map( val => {
-                console.log(val);
                 val.number = val.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
                 val.imgSlug = val.bannerImg.split("/causes-photos/")[1]
                 return val;
@@ -3679,6 +3678,11 @@ let myFuncs = {
     d_pblogs: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-blogs`);
         let output = await model.find({visibility: "blog"}).sort({_id: -1}).lean();
+        output = output.map( val => {
+            val.number = val.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+            val.imgSlug = val.bannerImg.split("/blogs-photos/")[1]
+            return val;
+        });
         req.params.module = "blogs";
         return {
             blogs: output, 
@@ -3726,6 +3730,8 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-blogs`);
         let modelComments = await this.createModel(`${req.params.brand}-comments`);
         let output = await model.findOne({slug: req.params.input}).lean();
+        output.number = output.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+        output.imgSlug = output.bannerImg.split("/blogs-photos/")[1];
         req.params.module = "blog";
         return {
             blog: output, 
@@ -3780,9 +3786,12 @@ let myFuncs = {
 
     d_pcause: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-causes`);
+        let output = await model.findOne({slug: req.params.input}).lean();
+        output.number = output.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+        output.imgSlug = output.bannerImg.split("/causes-photos/")[1];
         req.params.module = "cause";
         return {
-            cause: await model.findOne({slug: req.params.input}).lean(),
+            cause: output, 
             futureEvents: await this.d_pmodules.futureEvents(req,res)
         }
     },

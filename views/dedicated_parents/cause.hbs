@@ -18,10 +18,10 @@
 			<div class="page-header">
 				<div class="row">
 					<div class="col-md-6 col-sm-6">
-						<h2 class="page-title">Cause Single</h2>
+                                            <h2 class="page-title">{{data.cause.title}}</h2>
 					</div> <!-- /.col-md-6 -->
 					<div class="col-md-6 col-sm-6 hidden-xs back-home">
-						<a href="index.html">&larr; Go back Home</a>
+						<a href="/dedicated_parents/gen/page/landingPage/n">&larr; Go back Home</a>
 					</div> <!-- /.col-md-6 -->
 				</div> <!-- /.row -->
 			</div> <!-- /.page-header -->
@@ -32,15 +32,12 @@
 					<div class="cause-single">
 						<div class="cause-image">
 							<a href="donate.html" class="btn main-btn visible-xs">Donate Now</a>
-							<img src="http://placehold.it/710x410" alt="">
+<img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_410,w_710/{{data.cause.number}}/dedicatedparents/causes-photos/{{data.cause.imgSlug}}" alt="">
 							<div class="cause-overlay hidden-xs">
 								<div class="overlay-inner">
                                                                     <span class="meta-date"><i class="fa fa-calendar-o"></i>{{data.cause.date}}</span>
                                                                     <span class="meta-author"><i class="fa fa-user"></i>{{data.cause.author}}</span>
-									<span class="price">Needed Donation <em>$24,000</em></span>
-									<div class="text-center">
-										<a href="donate.html" class="btn main-btn">Donate Now</a>
-									</div>
+                                                                    <span class="price">Target: <br> {{data.cause.target}}</span>
 								</div>
 							</div> <!-- /.cause-overlay -->
 						</div> <!-- /.cause-image -->
@@ -57,12 +54,6 @@
                                                         {{{data.cause.detail}}}
 						</div> <!-- /.cause-content -->
 					</div> <!-- /.cause-single -->
-					<div class="row">
-						<div class="col-md-12">
-							<a href="javascript:void(0);" class="go-prev"><i class="fa fa-long-arrow-left"></i>Prev Cause</a>
-							<a href="#" class="go-next inactive">Next Cause <i class="fa fa-long-arrow-right"></i></a>
-						</div> <!-- /.col-md-12 -->
-					</div> <!-- /.row -->
 				</div> <!-- /.col-md-8 -->
 
 				<div class="col-md-4">

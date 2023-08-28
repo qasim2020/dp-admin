@@ -45,11 +45,9 @@
                                     <div class="col-md-3 col-sm-6 footer-widget">
                                         <h4 class="footer-widget-title color-white">Popular Posts</h4>
                                         <ul>
-                                            <li><a href="blog-single.html">The Importance of an MOU</a></li>
-                                            <li><a href="blog-single.html">Detecting and learning from failure</a></li>
-                                            <li><a href="blog-single.html">Limited Support on Memorial Day</a></li>
-                                            <li><a href="blog-single.html">Fundraising Reading Round-Up</a></li>
-                                            <li><a href="blog-single.html">Ugly Design or Beautiful Design?</a></li>
+                                            {{#each data.footerBlogs}}
+                                            <li><a href="/dedicated_parents/gen/page/d_pblog/{{this.slug}}">{{this.title}}</a></li>
+                                            {{/each}}
                                         </ul>
                                     </div>
                                     <!-- /.col-md-3 -->

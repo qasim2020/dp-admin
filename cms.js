@@ -3499,11 +3499,25 @@ let myFuncs = {
             staffs: await this.d_pmodules.staffs(req,res), 
             causes: await this.d_pmodules.causes(req,res),
             gallery: await this.d_pmodules.gallery(req,res), 
-            threePages: await this.d_pmodules.threePages(req,res)
+            threePages: await this.d_pmodules.threePages(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res),
+            twoBlogs: await this.d_pmodules.twoBlogs(req,res)
         }
     }, 
 
     d_pmodules: {
+
+        twoBlogs: async function(req,res) {            
+            let model = await myFuncs.createModel(`${req.params.brand}-blogs`);
+            let blogs = await model.find({visibility: "blog"}).limit(2);
+            return blogs;
+        },
+
+        footerBlogs: async function(req,res) {            
+            let model = await myFuncs.createModel(`${req.params.brand}-blogs`);
+            let blogs = await model.find({visibility: "blog"}).limit(3);
+            return blogs;
+        },
 
         threePages: async function(req,res) {
             let model = await myFuncs.createModel(`${req.params.brand}-blogs`);
@@ -3658,7 +3672,8 @@ let myFuncs = {
         return {
             blogs: output, 
             futureEvents: await this.d_pmodules.futureEvents(req,res),
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3671,7 +3686,8 @@ let myFuncs = {
             blog: output, 
             comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
             countComments: await modelComments.count({slug: output.slug}).lean(), 
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3687,7 +3703,8 @@ let myFuncs = {
         return {
             blogs: output, 
             futureEvents: await this.d_pmodules.futureEvents(req,res), 
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3736,7 +3753,8 @@ let myFuncs = {
         return {
             blog: output, 
             comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
-            countComments: await modelComments.count({slug: output.slug}).lean()
+            countComments: await modelComments.count({slug: output.slug}).lean(),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     },
 
@@ -3745,7 +3763,8 @@ let myFuncs = {
         return {
             pastEvents: await this.d_pmodules.pastEvents(req,res),
             futureEvents: await this.d_pmodules.futureEvents(req,res), 
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3755,7 +3774,8 @@ let myFuncs = {
         return {
             futureEvents: await this.d_pmodules.futureEvents(req,res),
             output: await model.findOne({slug: req.params.input}).lean(), 
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3763,6 +3783,7 @@ let myFuncs = {
         req.params.module = "staffs";
         return {
             staffs: await this.d_pmodules.staffs(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3771,7 +3792,8 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-staffs`);
         return {
             staff: await model.findOne({slug: req.params.input}).lean(),
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3780,7 +3802,8 @@ let myFuncs = {
         return {
             causes: await this.d_pmodules.causes(req,res), 
             futureEvents: await this.d_pmodules.futureEvents(req,res), 
-            gallery: await this.d_pmodules.gallery(req,res)
+            gallery: await this.d_pmodules.gallery(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     }, 
 
@@ -3792,7 +3815,8 @@ let myFuncs = {
         req.params.module = "cause";
         return {
             cause: output, 
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     },
 
@@ -3800,7 +3824,8 @@ let myFuncs = {
         req.params.module = "contact";
         return {
             gallery: await this.d_pmodules.gallery(req,res),
-            futureEvents: await this.d_pmodules.futureEvents(req,res)
+            futureEvents: await this.d_pmodules.futureEvents(req,res),
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }
     },
 

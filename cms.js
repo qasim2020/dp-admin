@@ -3792,6 +3792,7 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-staffs`);
         return {
             staff: await model.findOne({slug: req.params.input}).lean(),
+            gallery: await this.d_pmodules.gallery(req,res),
             futureEvents: await this.d_pmodules.futureEvents(req,res),
             footerBlogs: await this.d_pmodules.footerBlogs(req, res)
         }

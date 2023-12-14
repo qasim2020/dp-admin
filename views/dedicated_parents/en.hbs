@@ -56,6 +56,24 @@
                             <!-- /.row -->
                             <div class="slider-wrapper">
                                 <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="flexslider">
+                                            <ul class="slides">
+                                                {{#each data.events}}
+                                                <li>
+                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_550,w_770/v1680079430/dedicatedparents/event-banners/{{this.bannerImg}}" alt="">
+                                                    <div class="flex-caption">
+                                                        <p>
+                                                            {{this.summary}}
+                                                            <a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">Read More</a>
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                                {{/each}}
+                                            </ul>
+                                        </div>
+                                        <!-- /.flexslider -->
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="subscribe-form">
                                             <h3 class="widget-title">Stay up to date</h3>
@@ -81,24 +99,7 @@
                                         <!-- /.subscribe-form -->
                                     </div>
                                     <!-- /.col-md-4 -->
-                                    <div class="col-md-8">
-                                        <div class="flexslider">
-                                            <ul class="slides">
-                                                {{#each data.events}}
-                                                <li>
-                                                    <img src="https://res.cloudinary.com/miscellaneous/image/upload/c_lpad,h_550,w_770/v1680079430/dedicatedparents/event-banners/{{this.bannerImg}}" alt="">
-                                                    <div class="flex-caption">
-                                                        <p>
-                                                            {{this.summary}}
-                                                            <a href="/dedicated_parents/gen/page/d_pevent/{{this.slug}}">Read More</a>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                {{/each}}
-                                            </ul>
-                                        </div>
-                                        <!-- /.flexslider -->
-                                    </div>
+
                                     <!-- /.col-md-8 -->
                                 </div>
                                 <!-- /.row -->

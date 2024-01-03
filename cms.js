@@ -3659,7 +3659,8 @@ let myFuncs = {
 
         staffs: async function(req,res) {
             let model = await myFuncs.createModel(`${req.params.brand}-staffs`);
-            return await model.find({visibility: true}).lean()
+            let output = await model.find().lean()
+            return output;
         }
 
 

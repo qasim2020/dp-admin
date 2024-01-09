@@ -16,13 +16,13 @@ Playground is my self-built mini-CMS (e.g. Wordpress is a CMS), where I host my 
 # Connected Websites
 
 - [7amuniforms.com](https://7amuniforms.com)
-- [defence-properties.com](https://defence-properties.com)
+- [acs.qasim.tech](https://acs.qasim.tech)
 - [nt.qasim.tech](https://nth.qasim.tech)
 - [eh.qasim.tech](https://eh.qasim.tech)
 - [qasim.tech](https://qasim.tech)
 - [qasimali.xyz](https://qasimali.xyz)
 - [dt.qasim.tech](https://dt.qasim.tech)
-- [dedicatedparents.qasim.tech](https://dedicatedparents.qasim.tech)
+- [dedicatedparents.org](https://dedicatedparents.org)
 - [challenges.qasim.tech](https://challenges.qasim.tech)
 
 # Kinds of request you can make to playground

@@ -1605,16 +1605,18 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         };
         // then show the notification
         $.ajax({
-            url: `/${urlParams().brand}/auth/data/changePassword/${collection}?_id=${_id}`,
+            url: `/${urlParams().brand}/auth/data/changePassword/${collection}`,
             method: "POST",
             data: data,
             success: val => {
                 console.log(val);
+                $(elem).html("Password changed");
                 $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
                 $(elem).closest(".bar.toggleable").find(".fa-check").removeClass("d-none");
             },
         }).fail( err => {
             console.log(err);
+            $(elem).html(err.responseText);
             $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
             $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
         }); 

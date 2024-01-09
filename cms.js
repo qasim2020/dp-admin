@@ -3161,8 +3161,15 @@ let myFuncs = {
 
     changePassword: async function(req,res) {
 
-        console.log("this is a password change request");
-
+        let model = await this.createModel(`${req.params.brand}-users`);
+        let output1 = await model.findOne({email: req.session.person.email, password: req.body.oldPass});
+        if (output1 == null) return { status: 404, error: "Old password does not match!" };
+        let output2 = await model.findOneAndUpdate({_id : req.body._id}, {
+            $set: {
+                password: req.body.newPass
+            }
+        });
+        if (output2 == null) return { status: 400, error: "Something bad happened!" };
         return {success: true}
 
     }, 

@@ -3669,6 +3669,11 @@ let myFuncs = {
     d_ppages: async function(req,res) {
         let model = await this.createModel(`${req.params.brand}-blogs`);
         let output = await model.find({visibility: "page"}).sort({_id: -1}).lean();
+        output = output.map( val => {
+            val.number = val.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+            val.imgSlug = val.bannerImg.split("/pages-photos/")[1]
+            return val;
+        });
         req.params.module = "pages";
         return {
             blogs: output, 
@@ -3682,6 +3687,8 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-blogs`);
         let modelComments = await this.createModel(`${req.params.brand}-comments`);
         let output = await model.findOne({slug: req.params.input}).lean();
+        output.number = output.bannerImg.split("/image/upload/")[1].split("/dedicatedparents/")[0];
+        output.imgSlug = output.bannerImg.split("/pages-photos/")[1]
         req.params.module = "page";
         return {
             blog: output, 
@@ -3755,7 +3762,9 @@ let myFuncs = {
             blog: output, 
             comments: await this.getComments(req.params.brand, output, req.query.uniqueCode), 
             countComments: await modelComments.count({slug: output.slug}).lean(),
-            footerBlogs: await this.d_pmodules.footerBlogs(req, res)
+            footerBlogs: await this.d_pmodules.footerBlogs(req, res),
+            futureEvents: await this.d_pmodules.futureEvents(req,res), 
+            gallery: await this.d_pmodules.gallery(req,res),
         }
     },
 

@@ -39,9 +39,18 @@
                                                                 <span class="role">{{this.role}}</span>
 							</div>
 							<ul class="social pull-right">
-								<li><a href="#" class="fa fa-twitter"></a></li>
-								<li><a href="#" class="fa fa-facebook"></a></li>
-								<li><a href="#" class="fa fa-google-plus"></a></li>
+                                                            {{#if this.twitter}}
+                                                                <li><a href="#" class="fa fa-twitter"></a></li>
+                                                            {{/if}}
+                                                            {{#if this.facebook}}
+                                                                <li><a href="#" class="fa fa-facebook"></a></li>
+                                                            {{/if}}
+                                                            {{#if this.googleplus}}
+                                                                <li><a href="#" class="fa fa-google-plus"></a></li>
+                                                            {{/if}}
+                                                            {{#if this.linkedin}}
+                                                                <li><a href="#" class="fa fa-linkedin"></a></li>
+                                                            {{/if}}
 							</ul>
 							<div class="clearfix"></div>
                                                         <p>{{reduceStringLength this.detail '151'}}...</p>

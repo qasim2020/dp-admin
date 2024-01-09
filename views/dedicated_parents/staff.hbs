@@ -40,11 +40,18 @@
                                                                         <span class="role">{{data.staff.role}}</span>
 								</div>
 								<ul class="social pull-right">
+                                                                    {{#if data.staff.twitter}}
 									<li><a href="#" class="fa fa-twitter"></a></li>
+                                                                    {{/if}}
+                                                                    {{#if data.staff.facebook}}
 									<li><a href="#" class="fa fa-facebook"></a></li>
+                                                                    {{/if}}
+                                                                    {{#if data.staff.googleplus}}
 									<li><a href="#" class="fa fa-google-plus"></a></li>
+                                                                    {{/if}}
+                                                                    {{#if data.staff.linkedin}}
 									<li><a href="#" class="fa fa-linkedin"></a></li>
-									<li><a href="#" class="fa fa-pinterest"></a></li>
+                                                                    {{/if}}
 								</ul>
 								<div class="clearfix"></div>
 							</div>

@@ -562,9 +562,6 @@ let myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
-                console.log("PJAX STARTS HERE");
-            console.log(data);
-                console.log("PJAX ENDS HERE");
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
@@ -678,6 +675,7 @@ let myFuncs = {
         saveSlide: 'auth',
         changeSlideSequence: 'auth',
         uploadCloudinary: "auth",
+        changePassword: "auth", 
         updateDocument: "auth",
         updateDocumentAuth: "auth",
         importAndMerge: "auth",
@@ -909,7 +907,7 @@ let myFuncs = {
                     model2 = await this.createModel(`${req.params.brand}-users`);
                     output.themeDetails = await model.findOne({brand: req.params.brand}).lean();
                     output.person = await model2.findOne({email: req.session.person.email}).lean();
-                    // delete output.person.password;
+                    delete output.person.password;
                     output.settings = {success: true};
                     req.params.module = req.headers['x-pjax']  == 'true' ? "rootSettings" : "newDashboard";
                     break;
@@ -3160,6 +3158,14 @@ let myFuncs = {
             success: true
         }
     },
+
+    changePassword: async function(req,res) {
+
+        console.log("this is a password change request");
+
+        return {success: true}
+
+    }, 
 
     updateDocument: async function(req,res) {
         if (req.query._id == "") return { status: 404, error: "Please give proper document ID" };

@@ -1588,6 +1588,39 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         for (var i = 0; i < rows.length; i++){table.append(rows[i])} // >
     })
 
+    let changePassword = function(elem, _id, collection) {
+
+        // first match the password
+        console.log("change password clicked");
+        let newPass = $('[name=newPass]').val();
+        let cfmPass = $('[name=cfmPass]').val();
+        if (newPass == "" || cfmPass == "") return $(elem).html("Password field is empty!");
+        if (newPass != cfmPass) return $(elem).html("Password mismatch!");
+        // then send the password to the server
+        let data = {
+            oldPass: $('[name=oldPass]').val(),
+            newPass: $('[name=cfmPass]').val(),
+            _id: _id, 
+            collection: collection
+        };
+        // then show the notification
+        $.ajax({
+            url: `/${urlParams().brand}/auth/data/changePassword/${collection}?_id=${_id}`,
+            method: "POST",
+            data: data,
+            success: val => {
+                console.log(val);
+                $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+                $(elem).closest(".bar.toggleable").find(".fa-check").removeClass("d-none");
+            },
+        }).fail( err => {
+            console.log(err);
+            $(elem).closest(".bar.toggleable").find(".fa-circle-notch").addClass("d-none");
+            $(elem).closest(".bar.toggleable").find(".fa-exclamation").removeClass("d-none");
+        }); 
+
+    };
+
     let saveSettings = function( elem, _id, collection ) {
 
         let type = $(elem).attr("type");

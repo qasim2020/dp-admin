@@ -142,6 +142,14 @@
         cursor: pointer;
     }
 
+    .open > button {
+        background: white;
+        padding: 10px 10px;
+        font-size: 14px;
+        border: 2px solid black;
+        color: black;
+    }
+
 
 </style>
 
@@ -168,7 +176,7 @@
 
         </div>
 
-        <div class="open">
+        <div class="open d-none">
 
             <label for="name">Full Name</label>
             <input name="name" onkeyup="saveSettings(this, '{{data.person._id}}', 'users')" type="text" placeholder="" value="{{data.person.name}}">
@@ -184,9 +192,9 @@
 
     </div>
 
-    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
+    <div class="bar toggleable closed">
 
-        <div class="head closed">
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
             <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Change Password</h3>
 
@@ -195,15 +203,15 @@
         <div class="open d-none">
 
             <label for="oldPass">Old Password</label>
-            <input type="password" placeholder="" />
+            <input name="oldPass" type="password" placeholder="" />
             
             <label for="newPass">New Password</label>
-            <input type="password" placeholder="" />
+            <input name="newPass" type="password" placeholder="" />
      
             <label for="cfmPass">Confirm New Password</label>
-            <input type="password" placeholder="" />
+            <input name="cfmPass" type="password" placeholder="" />
 
-            <button>Change Password</button>
+            <button onclick="changePassword(this, '{{data.person._id}}', 'users')">Change Password</button>
         
         </div>
 

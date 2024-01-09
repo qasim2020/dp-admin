@@ -1597,13 +1597,14 @@ $(document).pjax('a[data-pjax]', '#pjax-container');
         data[$(elem).attr("name")] = $(elem).val() ;
 
         console.log({_id, collection, data});
+        console.log("save settings ran");
 
         $(elem).closest(".bar.toggleable").find(".fa-circle-notch").removeClass("d-none");
         $(elem).closest(".bar.toggleable").find(".fa-check").addClass("d-none");
         $(elem).closest(".bar.toggleable").find(".fa-exclamation").addClass("d-none");
 
         $.ajax({
-            url: `/${urlParams().brand}/auth/data/updateDocument/${urlParams().collection}?_id=${_id}`,
+            url: `/${urlParams().brand}/auth/data/updateDocument/${collection}?_id=${_id}`,
             method: "POST",
             data: data,
             success: val => {

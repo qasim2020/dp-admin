@@ -168,17 +168,17 @@
 
         </div>
 
-        <div class="open d-none">
+        <div class="open">
 
             <label for="name">Full Name</label>
-            <input name="name" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.name}}">
+            <input name="name" onkeyup="saveSettings(this, '{{data.person._id}}', 'users')" type="text" placeholder="" value="{{data.person.name}}">
             
             <label for="email">Email</label>
             <p class="note">The email used to login to this account.</p>
-            <input name="email" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.email}}">
+            <input name="email" onkeyup="saveSettings(this, '{{data.person._id}}', 'users')" type="text" placeholder="" value="{{data.person.email}}">
         
             <label for="mobile">Phone</label>
-            <input name="mobile" onkeyup="saveSettings(this, '{{owner.person._id}}', 'myapp-users')" type="text" placeholder="" value="{{owner.person.mobile}}">
+            <input name="mobile" onkeyup="saveSettings(this, '{{data.person._id}}', 'users')" type="text" placeholder="" value="{{data.person.mobile}}">
         
         </div>
 

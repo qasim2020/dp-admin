@@ -491,83 +491,12 @@ let myFuncs = {
         let getOwnerContactDetails = async function(req,res) {
 
             let model = await myFuncs.createModel("myapp-themes");
-            let model2 = await myFuncs.createModel("myapp-users");
 
             let output = {}, result = {};
 
             output.brand = await model.findOne({brand: req.params.brand}).lean();
              
             result = {
-                brand: output.brand && output.brand.name,
-                brandName: output.brand && output.brand.brandName,
-                brandWebsite: output.brand && output.brand.brandWebsite,
-                brandLogo: output.brand && output.brand.brandLogo, 
-                mobile: output.brand && output.brand.brandMobile,
-                email: output.brand && output.brand.brandEmail,
-                loc: output.brand && output.brand.brandGooglePin,
-                brandDesc: output.brand && output.brand.brandDesc,
-                brandMetaImg: output.brand && output.brand.brandMetaImg
-            };
-
-            return result;
-
-            output.person = await model2.aggregate([
-                {
-                    $match: {
-                        "email": req.session && req.session.person && req.session.person.email,
-                    }
-                },{
-                    $addFields: {
-                        "brands" : {
-                            $split: ["$brand", ","]
-                        }
-                    }
-                },{
-                    $unwind: "$brands"
-                },{
-                    $addFields: {
-                        brands: {
-                            $trim: {
-                                input: "$brands"
-                            }
-                        }
-                    }
-                },{
-                    $lookup: {
-                        from: "myapp-themes",
-                        localField: 'brands',
-                        foreignField: 'brand',
-                        as: 'brands'
-                    }
-                },{
-                    $group: {
-                        _id: {
-                            "_id": "$_id",
-                            "name" : "$name",
-                            "email" : "$email",
-                            "mobile" : "$mobile",
-                            "role" : "$role",
-                            "brand" : "$brand"
-                        },
-                        brands: {
-                            $addToSet: "$brands"
-                        }
-                    }
-                },{
-                    $project: {
-                        "name" : "$_id.name",
-                        "email" : "$_id.email",
-                        "mobile" : "$_id.mobile",
-                        "role" : "$_id.role",
-                        "brandsString" : "$_id.brand",
-                        "brands" : "$brands",
-                        "_id" : "$_id._id",
-                    }
-                }
-            ]);
-
-            result = {
-                person: output.person[0],
                 brand: output.brand && output.brand.name,
                 brandName: output.brand && output.brand.brandName,
                 brandWebsite: output.brand && output.brand.brandWebsite,
@@ -617,14 +546,7 @@ let myFuncs = {
 
         };
 
-        console.log( chalk.bold.red('') ); 
-        console.log( chalk.bold.red('—————————————————') ); 
-        console.log( chalk.bold.red('sending data start') ); 
-        console.log(data);
-        console.log( chalk.bold.red('sending data end') ); 
-        console.log( chalk.bold.red('—————————————————') ); 
-        console.log( chalk.bold.red('') ); 
-
+        console.log("sending response");
 
         switch(true) {
           case (req.query.hasOwnProperty('redirect')):
@@ -640,6 +562,9 @@ let myFuncs = {
             return res.status(200).render(`${req.params.theme}/${req.params.pageName}.hbs`,{data});
             break;
           case (req.headers['x-pjax'] == 'true'):
+                console.log("PJAX STARTS HERE");
+            console.log(data);
+                console.log("PJAX ENDS HERE");
             return res.status(200).render(`${req.params.theme}/pjax/${req.params.module}.hbs`,{data});
             break;
           case ( req.query.hasOwnProperty('webEdit') && req.query.webEdit == "true" && req.session.hasOwnProperty('person') ):
@@ -650,7 +575,6 @@ let myFuncs = {
             return res.status(200).render(`emails/${req.params.module}.hbs`,{data});
             break;
           default:
-            // console.log(data);
             return res.status(200).render(`${req.params.theme}/${req.params.module}.hbs`,{data});
             break;
         }
@@ -923,7 +847,7 @@ let myFuncs = {
 
             logEntry = await logModel.create({
                 status: 400, 
-                text: `Failed! ${req.session.newsletter.slug} sending to ${sentMail.accepted[0]}`, 
+                text: `Failed! ${req.session.newsletter.slug} shipping to ${sentMail.accepted[0]}`, 
                 meta: JSON.stringify(sentMail)
             });
             
@@ -982,7 +906,10 @@ let myFuncs = {
                     break;
                 case (req.params.input == "settings"):
                     model = await this.createModel(`myapp-themes`);
+                    model2 = await this.createModel(`${req.params.brand}-users`);
                     output.themeDetails = await model.findOne({brand: req.params.brand}).lean();
+                    output.person = await model2.findOne({email: req.session.person.email}).lean();
+                    // delete output.person.password;
                     output.settings = {success: true};
                     req.params.module = req.headers['x-pjax']  == 'true' ? "rootSettings" : "newDashboard";
                     break;
@@ -3112,7 +3039,6 @@ let myFuncs = {
     },
 
     svenska: async function(req, res) {
-        console.log("sending svenska");
         return {
             success: true
         }
@@ -3236,10 +3162,10 @@ let myFuncs = {
     },
 
     updateDocument: async function(req,res) {
-
+        if (req.query._id == "") return { status: 404, error: "Please give proper document ID" };
         let model = await this.createModel(`${req.params.brand}-${req.params.input}`);
-        let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true, new: true});
-        return output;
+        let output = await model.findOneAndUpdate({_id : req.query._id}, { $set: req.body }, {upsert: true});
+        return {success: true};
 
     },
 
@@ -6161,7 +6087,7 @@ let myFuncs = {
 
                 fs.readFile(path, 'utf8', (err, data) => {
                     if (err) {
-                        //console.log(err);
+                        console.log(err);
                         reject(err);
                     }
                     resolve( data );
@@ -6241,12 +6167,6 @@ let myFuncs = {
         if (missingValues == true) {
             return redirect("Some values are missing. Please fill out complete form.");
         };
-
-        // create a new directory with this project Name — DONE 
-        // create all the listed files inside this directory — DONE
-        // create brand-users
-        // add this user / email / password to myapp-users
-        // send all the credentials to the createdProj folder
 
         var dir = `./views/${req.body.projName}`;
 
@@ -6419,6 +6339,8 @@ let myFuncs = {
         return allData;
 
     },
+
+    // Property website starts Here
 
     property: async function(req, res) {
 

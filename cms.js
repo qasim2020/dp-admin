@@ -4,6 +4,7 @@
 // testing change
 // dedicatedparents
 
+const kill = require('kill-port');
 const DatauriParser=require("datauri/parser");
 const parser = new DatauriParser();
 const fileUpload = require('express-fileupload');
@@ -483,6 +484,8 @@ app.get(  '/', async (req,res) => {
 let myFuncs = {
 
     respond: async function(data,req,res) {
+
+        console.log("myFuncs triggered");
 
         if( data && data.hasOwnProperty("error")) {
             return res.status(data.status).send(data.error);
@@ -3432,7 +3435,8 @@ let myFuncs = {
 
     dedicated_parents: async function(req, res) {
         req.params.module = req.query.lang || "en";
-        return {
+        console.log("starting a query");
+        let output = {
             events: await this.d_pmodules.pastThreeEvents(req,res),
             futureEvents: await this.d_pmodules.futureEvents(req,res),
             staffs: await this.d_pmodules.staffs(req,res), 
@@ -3441,7 +3445,10 @@ let myFuncs = {
             threePages: await this.d_pmodules.threePages(req,res),
             footerBlogs: await this.d_pmodules.footerBlogs(req, res),
             twoBlogs: await this.d_pmodules.twoBlogs(req,res)
-        }
+        };
+
+        console.log(output);
+        return output;
     }, 
 
     d_pmodules: {
@@ -3490,6 +3497,7 @@ let myFuncs = {
         }, 
             
         pastThreeEvents: async function(req,res) {
+            console.log("starting past three events");
 
             req.query = processQuery(req.query);
             let model = await myFuncs.createModel(`${req.params.brand}-events`);
@@ -3523,6 +3531,7 @@ let myFuncs = {
                 ]
                 
             ]);
+            console.log("pastThreeEvents done");
             return output;
 
         }, 
@@ -3592,6 +3601,7 @@ let myFuncs = {
                 ]
                 
             ]);
+            console.log("future events done");
             return output;
 
         }, 
@@ -8265,5 +8275,4 @@ Receipt sent by Server.`;
 
 };
 
-
-server.listen(3000)
+server.listen(3000);

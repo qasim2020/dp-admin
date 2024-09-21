@@ -1046,12 +1046,10 @@ let myFuncs = {
                     }
 
                     return {
-
                         array: total,
                         object: val,
-                        fixed: val.ser && val.ser.trim() == "1" ? "true" : val.fixed, 
+                        fixed: val.ser && String(val.ser).trim() == "1" ? "true" : val.fixed, 
                         noClone: val.noClone
-
                     };
                 });
 

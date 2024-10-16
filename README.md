@@ -13,18 +13,6 @@ Playground is my self-built mini-CMS, where I host my websites (*I built for fam
 - It is easier to work on a single project (*this CMS is one project*). Code doesn't go lost in the void. Before building it, everytime I wrote my *million dollar idea*, some days later it just goes lost in the `void`. So, some actual workable ideas goes flat with that.
 - Do all of that in 6 USD Digital Ocean droplet (I started with this benefit in mind, but now realise there are other ways too to save money - humbled).
 
-# Connected Websites
-
-- [7amuniforms.com](https://7amuniforms.com)
-- [acs.qasim.tech](https://acs.qasim.tech)
-- [nt.qasim.tech](https://nth.qasim.tech)
-- [eh.qasim.tech](https://eh.qasim.tech)
-- [qasim.tech](https://qasim.tech)
-- [qasimali.xyz](https://qasimali.xyz)
-- [dt.qasim.tech](https://dt.qasim.tech)
-- [dedicatedparents.org](https://dedicatedparents.org)
-- [challenges.qasim.tech](https://challenges.qasim.tech)
-
 # Kinds of request you can make to playground
 
 - **Simple HTML request**: Provides a rendered website after fetching content from database. For example, [https://7amuniforms.com](https://7amuniforms.com) request goes to the NGINX file, that expands this url to [https://7amuniforms.com/7am/gen/page/landingPage/n](https://7amuniforms.com/7am/gen/page/landingPage/n) and responds back with a website.

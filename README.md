@@ -1,6 +1,6 @@
 Playground is my self-built mini-CMS, where I host my websites. Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
 
-<img width="1440" alt="Screenshot 2024-10-17 at 12 54 07 AM" src="https://github.com/user-attachments/assets/bd766bec-15aa-4043-b374-e0c407d80e17">
+<img width="1440" alt="Screenshot 2024-10-17 at 12 55 39 AM" src="https://github.com/user-attachments/assets/c47a5a0a-f853-4cfc-bd62-3a42f75c3f39">
 
 # Benefits
 - CMS - Content Management System - Content is "data" and "modules". For example, "SendMail" module is written & maintained once, and it works for all the websites hosted on CMS. Now next time I am building a website, I do not need to `copy paste` the code. You just need to call this module, and it is available to you. Nice ;).

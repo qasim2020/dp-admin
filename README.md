@@ -1,4 +1,4 @@
-Playground is my self-built mini-CMS, where I host my websites (*I built for family + friends*). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
+Playground is my self-built mini-CMS, where I host my websites. Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
 
 <img width="1440" alt="Screenshot 2024-10-17 at 12 54 07 AM" src="https://github.com/user-attachments/assets/bd766bec-15aa-4043-b374-e0c407d80e17">
 

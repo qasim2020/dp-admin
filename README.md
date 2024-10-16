@@ -1,12 +1,6 @@
-Before you go further. I wrote a whole 2 hour long "Proud Readme" that [Nate](https://github.com/NateAra) my mob mate deleted (by mistake). Ingen fara ;)
-
-----
-
-Ok coming back to the topic. This repo is good (I mean it - *not because I came up with this idea sitting in the toilet!*). I built it in over 2 years. So you will find important stuff here (if you dig). 
-
-# Introduction
-
 Playground is my self-built mini-CMS, where I host my websites (*I built for family + friends*). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
+
+<img width="1440" alt="Screenshot 2024-10-17 at 12 54 07 AM" src="https://github.com/user-attachments/assets/bd766bec-15aa-4043-b374-e0c407d80e17">
 
 # Benefits
 - CMS - Content Management System - Content is "data" and "modules". For example, "SendMail" module is written & maintained once, and it works for all the websites hosted on CMS. Now next time I am building a website, I do not need to `copy paste` the code. You just need to call this module, and it is available to you. Nice ;).

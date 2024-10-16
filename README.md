@@ -6,7 +6,7 @@ Ok coming back to the topic. This repo is good (I mean it - *not because I came 
 
 # Introduction
 
-Playground is my self-built mini-CMS (e.g. Wordpress is a CMS), where I host my websites (*I built for family + friends*). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
+Playground is my self-built mini-CMS, where I host my websites (*I built for family + friends*). Techstack includes Nodejs, MongoDB, Handlebars and Pjax. 
 
 # Benefits
 - CMS - Content Management System - Content is "data" and "modules". For example, "SendMail" module is written & maintained once, and it works for all the websites hosted on CMS. Now next time I am building a website, I do not need to `copy paste` the code. You just need to call this module, and it is available to you. Nice ;).

@@ -41,5 +41,5 @@ replyFunction
 - `replyFunction` then constructs a webPage || a data object || a pjax page and returns the website to the client.
 
 
-# ahh, if you have made this far
+# This is a work in progress...
 Leave a comment, some feedback, that you think can help me improve my code. 

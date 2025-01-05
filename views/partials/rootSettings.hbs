@@ -64,6 +64,15 @@
         font-size: 15px;
     }
 
+    .contained textarea {
+        border: 2px solid whitesmoke;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 13px;
+        background: whitesmoke;
+        font-size: 15px;
+    }
+
     .contained .open > p.note {
         margin: 0px;
         margin-bottom: 15px;
@@ -169,7 +178,7 @@
 
         <div class="head closed" onclick="smallCollapseToggle(this)">
 
-            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Personal Info</h3>
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Admin Settings</h3>
             <i class="fa fa-check"></i>
             <i class="d-none fa fa-circle-notch spin"></i>
             <i class="d-none fa fa-exclamation"></i>
@@ -221,7 +230,7 @@
 
         <div class="head closed" onclick="smallCollapseToggle(this)">
 
-            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Brand Identity</h3>
+            <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Brand Settings</h3>
             <i class="fa fa-check"></i>
             <i class="d-none fa fa-circle-notch spin"></i>
             <i class="d-none fa fa-exclamation"></i>
@@ -239,7 +248,7 @@
             <div class="imgUpload d-inline-block">
 
                 {{#if brand.brandLogo}}
-                <img class="logo" src="{{brand.brandLogo.photo.large}}" imgId={{brand.brandLogo.imgId}}>
+                <img class="logo" src="{{brand.brandLogo.photo.large}}" imgId={{brand.brandLogo.photo.imgId}}>
                 {{else}}
                 <img class="logo" src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685257/myapp/Picture2_1.png" >
                 {{/if}}
@@ -258,7 +267,7 @@
 
 
                 {{#if brand.brandMetaImg}}
-                <img class="meta" src="{{brand.brandMetaImg.photo.large}}" imgId={{brand.brandLogo.imgId}}>
+                <img class="meta" src="{{brand.brandMetaImg.photo.large}}" imgId={{brand.brandMetaImg.photo.imgId}}>
                 {{else}}
                 <img class="meta" src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685081/myapp/Picture_1.png" >
                 {{/if}}
@@ -288,10 +297,10 @@
             <input type="text" name="brandSlogan" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandSlogan}}" />
 
             <label for="desc">Business Description</label>
-            <input type="textarea" name="brandDesc" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandDesc}}" />
+            <textarea type="textarea" name="brandDesc" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandDesc}}"></textarea>
 
             <label for="address">Business Postal Address</label>
-            <input type="textarea" name="brandAddress" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandAddress}}" />
+            <textarea type="textarea" name="brandAddress" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandAddress}}"></textarea>
         
             <label for="brandGooglePin">Business Location Pin</label>
             <input type="text" name="brandGooglePin" placeholder="https://google.com/your-location-pin"  onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="" value="{{brand.brandGooglePin}}" />
@@ -299,10 +308,10 @@
         </div>
 
     </div>
+{{!-- 
+    <div class="bar toggleable closed">
 
-    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
-
-        <div class="head closed">
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
             <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Airtable Pull</h3>
             <i class="fa fa-check"></i>
@@ -346,11 +355,11 @@
 
         </div>
 
-    </div>
+    </div> --}}
 
-    <div class="bar toggleable closed" onclick="smallCollapseToggle(this)">
+    <div class="bar toggleable closed">
 
-        <div class="head closed">
+        <div class="head closed" onclick="smallCollapseToggle(this)">
 
             <h3><i class="fa fa-plus"></i><i class="fa fa-minus d-none"></i>Social Media Links</h3>
             <i class="fa fa-check"></i>
@@ -362,19 +371,19 @@
         <div class="open d-none">
 
             <label for="twitter">Twitter</label>
-            <input type="text" placeholder="https://twitter.com/your-link" />
+            <input type="text" name="twitter"  onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')"  placeholder="https://twitter.com/your-link" value="{{brand.twitter}}"/>
 
             <label for="facebook">Facebook</label>
-            <input type="text" placeholder="https://facebook.com/your-link" />
+            <input type="text" name="facebook"  onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')"  placeholder="https://facebook.com/your-link" value="{{brand.facebook}}"/>
 
             <label for="insta">Instagram</label>
-            <input type="text" placeholder="https://instagram.com/your-link" />
+            <input type="text" name="instagram" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')"  placeholder="https://instagram.com/your-link" value="{{brand.instagram}}"/>
 
             <label for="youtube">YouTube</label>
-            <input type="text" placeholder="https://youtube.com/your-link" />
+            <input type="text" name="youtube" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="https://youtube.com/your-link" value="{{brand.youtube}}"/>
 
             <label for="linkedin">LinkedIn</label>
-            <input type="text" placeholder="https://linkedin.com/your-profile" />
+            <input type="text" name="linkedin" onkeyup="saveSettings(this, '{{brand._id}}', 'myapp-themes')" placeholder="https://linkedin.com/your-profile" value="{{brand.linkedin}}"/>
 
         </div>
 

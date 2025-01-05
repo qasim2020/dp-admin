@@ -1,401 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/root/codemirror/css/codemirror.css">
     <link rel="stylesheet" href="/root/codemirror/css/neo.css">
 
     <title>New Dashboard</title>
     <style>
-
-    body {
-        font-family: "Roboto";
-        padding: 0px;
-        margin: 0px;
-    }
-
-    .btn.active {
-        background: black;
-        color: white;
-        border-color: black;
-    }
-
-    .btn {
-        padding: 7px 8px;
-        border: 2px solid black;
-        display: inline-block;
-        margin-bottom: 4px;
-        text-decoration: none;
-        color: black;
-        font-size: 15px;
-        background: #f2f2f2;
-        height: 37px;
-        box-sizing: border-box;
-        cursor: pointer;
-    }
-
-    i.fas {
-        text-decoration: none;
-        color: #F2F2F2;
-    }
-
-    .icon {
-        width: 25px;
-        display: inline-block;
-        text-align: center;
-    }
-
-    nav {
-        display: flex;
-        width: 100%;
-        box-sizing: border-box;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        margin-top: 10px;
-    }
-
-    nav > div {
-        display: flex;
-    }
-
-    nav > div.left > div:nth-child(1) {
-        border: 2px solid black;
-        padding-right: 6px;
-    }
-
-    nav > div.left select {
-        padding: 7px 6px;
-        border-color: transparent;
-        background: white;
-    }
-
-    nav .icon {
-        width: auto;
-    }
-
-    nav i.fas {
-        color: black;
-        padding: 0 2px;
-    }
-
-    nav .btn {
-        margin-bottom: 0px;
-        margin-left: 4px;
-    }
-
-    .layerOne > div , .themes > div {
-        padding: 20px 10px;
-        background: whitesmoke;
-        margin: 10px 0;
-    }
-
-    tr > *:nth-child(1) {
-        position: absolute;
-        z-index: 10;
-        background: black;
-        border: 4px solid black;
-        margin-left: -80px;
-    }
-
-    tr > td:nth-child(2) {
-        font-size: 9px;
-    }
-
-    .d-none {
-        display: none !important;
-    }
-
-    .d-block {
-        display: block !important;
-        width: fit-content;
-    }
-
-    #hiddenFields {
-        margin: 17px 0 5px 0;
-    }
-
-    #hiddenFields > span {
-        background: black;
-        color: white;
-        padding: 3px 6px;
-        margin-right: 2px;
-        margin-bottom: 2px;
-        font-weight: bold;
-        font-size: 14px;
-        display: inline-block;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        max-width: 90vw;
-        margin: auto;
-        width: 900px;
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-
-    .themes {
-        max-width: 90vw;
-        margin: auto;
-        width: 900px;
-    }
-
-    form > label, .themes label {
-        font-size: 12px;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: black;
-    }
-
-    .themes label {
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .themes input, 
-    form > input, 
-    form > .link, 
-    form > .brick,
-    form > .dropdown,
-    form > .photos,
-    form > .quantityFK,
-    form > .multipleFK,
-    form > .formula,
-    form > .selectFK,
-    form > textarea {
-        font-size: 15px;
-        padding: 10px;
-        border: 2px solid black;
-        margin-bottom: 10px;
-        text-align: left;
-        font-family: inherit;
-    }
-
-    form > .multipleFK, 
-    form > .quantityFK {
-        padding-bottom: 6px;
-    }
-
-    form > .dropdown {
-        padding: 0px;
-        padding-right: 10px;
-        background: whitesmoke;
-    }
-
-    form > .dropdown > select {
-        width: 100%;
-        margin-right: 10px;
-        padding-left: 7px;
-    }
-
-
-    form > button {
-        font-size: 15px;
-        padding: 10px;
-        color: white;
-        background: black;
-        font-weight: bold;
-        margin-bottom: 10px;
-        width: fit-content;
-        border: 2px solid black;
-    }
-
-    .btn.close {
-        background: indianred;
-        border: 2px solid black;
-        color: white;
-    }
-
-    p.heading {
-        font-weight: bold;
-    }
-
-    p.note > a {
-        text-decoration: none;
-        color: cornflowerblue;
-    }
-
-    input {
-        padding: 10px;
-        border: 2px solid black;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .webEditor {
-        width: auto;
-        box-sizing: border-box;
-        border: 2px solid black;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-
-    .webEditor .e:hover {
-        cursor: pointer;
-    }
-    
-    .placeholder.img {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: black;
-        padding: 12px;
-        max-width: 600px;
-        width: 70%;
-        border: 2px solid dimgrey;
-    }
-
-    .placeholder.img > p.error {
-        padding: 0px 0 9px 0;
-        color: yellow;
-        font-size: 14px;
-    }
-
-    .placeholder.img > p {
-        margin: 0px;
-    }
-
-    .placeholder.img > p > span {
-        font-size: 12px;
-        margin-bottom: 6px;
-        font-weight: bold;
-        color: white;
-        display: block;
-    }
-
-    .placeholder.img > p > input, .placeholder.img > p > .btn {
-        border: white;
-    }
-
-    .placeholder.img > p > input , 
-    .placeholder.href > p > input {
-        font-size: 15px;
-        padding: 10px;
-        border: 2px solid white;
-        margin-bottom: 10px;
-    }
-
-
-    .placeholder.img > p > input[type="file"] {
-        color: white;
-    }
-
-    .placeholder.img > p > .btn {
-        background: black;
-        color: white;
-        border: 2px solid white;
-        font-weight: bold;
-        height: auto;
-    }
-
-    .placeholder.href > p {
-        margin-bottom: 0px;
-    }
-
-    span.info-circle {
-        position: absolute;
-        right: 0px;
-        font-size: 9px;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        padding: 3px 6px;
-        background: white;
-        color: black;
-        border-radius: 4px;
-    }
-
-    span.info-circle:hover, .info-circle.hovered {
-        cursor: pointer;
-        box-shadow: 0px 1px 4px black;
-    }
-
-    .popover {
-        background: white;
-        position: absolute;
-        max-width: 200px;
-        font-size: 12px;
-        padding: 10px;
-        border-radius: 4px;
-        font-weight: bold;
-        line-height: 1.4;
-        box-shadow: 0px 1px 4px lightgrey;
-    }
-
-    .primary {
-        background: darkcyan;
-        color: white;
-    }
-
-    .pt-10 {
-        padding-top: 10px;
-    }
-
-    .spin {
-        -webkit-animation-name: spin;
-        -webkit-animation-duration: 500ms;
-        -webkit-animation-iteration-count: infinite;
-        -webkit-animation-timing-function: linear;
-        -moz-animation-name: spin;
-        -moz-animation-duration: 500ms;
-        -moz-animation-iteration-count: infinite;
-        -moz-animation-timing-function: linear;
-        -ms-animation-name: spin;
-        -ms-animation-duration: 500ms;
-        -ms-animation-iteration-count: infinite;
-        -ms-animation-timing-function: linear;
-
-        animation-name: spin;
-        animation-duration: 500ms;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-    }
-
-    @-ms-keyframes spin {
-        from { -ms-transform: rotate(0deg); }
-        to { -ms-transform: rotate(360deg); }
-    }
-    @-moz-keyframes spin {
-        from { -moz-transform: rotate(0deg); }
-        to { -moz-transform: rotate(360deg); }
-    }
-    @-webkit-keyframes spin {
-        from { -webkit-transform: rotate(0deg); }
-        to { -webkit-transform: rotate(360deg); }
-    }
-    @keyframes spin {
-        from {
-            transform:rotate(0deg);
+        body {
+            font-family: "Roboto";
+            padding: 0px;
+            margin: 0px;
         }
-        to {
-            transform:rotate(360deg);
+
+        .btn.active {
+            background: black;
+            color: white;
+            border-color: black;
         }
-    }
 
-    .d-inline-block {
-        display: inline-block;
-    }
+        .btn {
+            padding: 7px 8px;
+            border: 2px solid black;
+            display: inline-block;
+            margin-bottom: 4px;
+            text-decoration: none;
+            color: black;
+            font-size: 15px;
+            background: #f2f2f2;
+            height: 37px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
 
-    .w-100 {
-        width: 100%;
-    }
+        i.fas {
+            text-decoration: none;
+            color: #F2F2F2;
+        }
 
-    .font-black {
-        color: black !important;
-    }
+        .icon {
+            width: 25px;
+            display: inline-block;
+            text-align: center;
+        }
 
-    {{#if (matchValues data.theme "property")}}
-        {{> cssSnippets/propertyTemplates}}
-    {{/if}}
+        nav {
+            display: flex;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            margin-top: 10px;
+        }
 
+        nav>div {
+            display: flex;
+        }
+
+        nav>div.left>div:nth-child(1) {
+            border: 2px solid black;
+            padding-right: 6px;
+        }
+
+        nav>div.left select {
+            padding: 7px 6px;
+            border-color: transparent;
+            background: white;
+        }
+
+        nav .icon {
+            width: auto;
+        }
+
+        nav i.fas {
+            color: black;
+            padding: 0 2px;
+        }
+
+        nav .btn {
+            margin-bottom: 0px;
+            margin-left: 4px;
+        }
+
+        .layerOne>div,
+        .themes>div {
+            padding: 20px 10px;
+            background: whitesmoke;
+            margin: 10px 0;
+        }
+
+        tr>*:nth-child(1) {
+            position: absolute;
+            z-index: 10;
+            background: black;
+            border: 4px solid black;
+            margin-left: -80px;
+        }
+
+        tr>td:nth-child(2) {
+            font-size: 9px;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .d-block {
+            display: block !important;
+            width: fit-content;
+        }
+
+        #hiddenFields {
+            margin: 17px 0 5px 0;
+        }
+
+        #hiddenFields>span {
+            background: black;
+            color: white;
+            padding: 3px 6px;
+            margin-right: 2px;
+            margin-bottom: 2px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 90vw;
+            margin: auto;
+            width: 900px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .themes {
+            max-width: 90vw;
+            margin: auto;
+            width: 900px;
+        }
+
+        form>label,
+        .themes label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .themes label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .themes input,
+        form>input,
+        form>.link,
+        form>.brick,
+        form>.dropdown,
+        form>.photos,
+        form>.quantityFK,
+        form>.multipleFK,
+        form>.formula,
+        form>.selectFK,
+        form>textarea {
+            font-size: 15px;
+            padding: 10px;
+            border: 2px solid black;
+            margin-bottom: 10px;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        form>.multipleFK,
+        form>.quantityFK {
+            padding-bottom: 6px;
+        }
+
+        form>.dropdown {
+            padding: 0px;
+            padding-right: 10px;
+            background: whitesmoke;
+        }
+
+        form>.dropdown>select {
+            width: 100%;
+            margin-right: 10px;
+            padding-left: 7px;
+        }
+
+
+        form>button {
+            font-size: 15px;
+            padding: 10px;
+            color: white;
+            background: black;
+            font-weight: bold;
+            margin-bottom: 10px;
+            width: fit-content;
+            border: 2px solid black;
+        }
+
+        .btn.close {
+            background: indianred;
+            border: 2px solid black;
+            color: white;
+        }
+
+        p.heading {
+            font-weight: bold;
+        }
+
+        p.note>a {
+            text-decoration: none;
+            color: cornflowerblue;
+        }
+
+        input {
+            padding: 10px;
+            border: 2px solid black;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .webEditor {
+            width: auto;
+            box-sizing: border-box;
+            border: 2px solid black;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .webEditor .e:hover {
+            cursor: pointer;
+        }
+
+        .placeholder.img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: black;
+            padding: 12px;
+            max-width: 600px;
+            width: 70%;
+            border: 2px solid dimgrey;
+        }
+
+        .placeholder.img>p.error {
+            padding: 0px 0 9px 0;
+            color: yellow;
+            font-size: 14px;
+        }
+
+        .placeholder.img>p {
+            margin: 0px;
+        }
+
+        .placeholder.img>p>span {
+            font-size: 12px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: white;
+            display: block;
+        }
+
+        .placeholder.img>p>input,
+        .placeholder.img>p>.btn {
+            border: white;
+        }
+
+        .placeholder.img>p>input,
+        .placeholder.href>p>input {
+            font-size: 15px;
+            padding: 10px;
+            border: 2px solid white;
+            margin-bottom: 10px;
+        }
+
+
+        .placeholder.img>p>input[type="file"] {
+            color: white;
+        }
+
+        .placeholder.img>p>.btn {
+            background: black;
+            color: white;
+            border: 2px solid white;
+            font-weight: bold;
+            height: auto;
+        }
+
+        .placeholder.href>p {
+            margin-bottom: 0px;
+        }
+
+        span.info-circle {
+            position: absolute;
+            right: 0px;
+            font-size: 9px;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 3px 6px;
+            background: white;
+            color: black;
+            border-radius: 4px;
+        }
+
+        span.info-circle:hover,
+        .info-circle.hovered {
+            cursor: pointer;
+            box-shadow: 0px 1px 4px black;
+        }
+
+        .popover {
+            background: white;
+            position: absolute;
+            max-width: 200px;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            line-height: 1.4;
+            box-shadow: 0px 1px 4px lightgrey;
+        }
+
+        .primary {
+            background: darkcyan;
+            color: white;
+        }
+
+        .pt-10 {
+            padding-top: 10px;
+        }
+
+        .spin {
+            -webkit-animation-name: spin;
+            -webkit-animation-duration: 500ms;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-timing-function: linear;
+            -moz-animation-name: spin;
+            -moz-animation-duration: 500ms;
+            -moz-animation-iteration-count: infinite;
+            -moz-animation-timing-function: linear;
+            -ms-animation-name: spin;
+            -ms-animation-duration: 500ms;
+            -ms-animation-iteration-count: infinite;
+            -ms-animation-timing-function: linear;
+
+            animation-name: spin;
+            animation-duration: 500ms;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        @-ms-keyframes spin {
+            from {
+                -ms-transform: rotate(0deg);
+            }
+
+            to {
+                -ms-transform: rotate(360deg);
+            }
+        }
+
+        @-moz-keyframes spin {
+            from {
+                -moz-transform: rotate(0deg);
+            }
+
+            to {
+                -moz-transform: rotate(360deg);
+            }
+        }
+
+        @-webkit-keyframes spin {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+
+            to {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .d-inline-block {
+            display: inline-block;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .font-black {
+            color: black !important;
+        }
+
+            {
+                {
+                #if (matchValues data.theme "property")
+            }
+        }
+
+            {
+                {
+                >cssSnippets/propertyTemplates
+            }
+        }
+
+            {
+                {
+                /if
+            }
+        }
     </style>
 
 </head>
+
 <body>
 
     <div class="layerOne">
@@ -407,43 +445,39 @@
             </div>
 
             <div>
-                <a class="btn icon" href="/{{data.brand}}/gen/page/landingPage/n" target="_blank"><i class="fas fa-home"></i></a>
-                <a class="btn" href="/{{data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">Log Out</a> 
+                <a class="btn icon" href="/{{data.brand}}/gen/page/landingPage/n" target="_blank"><i
+                        class="fas fa-home"></i></a>
+                <a class="btn" href="/{{data.brand}}/gen/page/destroySession/n?redirect=landingPage&redirectInput=n">Log
+                    Out</a>
             </div>
 
         </nav>
 
         <div>
-            {{#each ( split data.collections )}} 
-            <a 
-               class="btn pjaxTrigger {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}" 
-               href="/{{../data.brand}}/auth/pjax/newDashboard/{{../data.brand}}-{{this}}" 
-               data-pjax 
-               onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
+            {{#each ( split data.collections )}}
+            <a class="btn pjaxTrigger {{#if (matchToCollection ../data.input ../data.brand this)}} active {{/if}}"
+                href="/{{../data.brand}}/auth/pjax/newDashboard/{{../data.brand}}-{{this}}" data-pjax
+                onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
             {{#if data.modules}}
-            {{#each ( split data.modules ) }} 
-            <a 
-                class="btn pjaxTrigger {{#if (matchValues ../data.input this)}} active {{/if}}" 
-                href="/{{../data.brand}}/auth/pjax/newDashboard/{{this}}" 
-                data-pjax 
+            {{#each ( split data.modules ) }}
+            <a class="btn pjaxTrigger {{#if (matchValues ../data.input this)}} active {{/if}}"
+                href="/{{../data.brand}}/auth/pjax/newDashboard/{{this}}" data-pjax
                 onclick="toggleClass(this, 'active')">{{camelToWord this}}</a>
             {{/each}}
             {{/if}}
 
-            <a 
-                class="btn pjaxTrigger {{#if (matchValues data.input 'settings')}} active {{/if}}" 
-                href="/{{data.brand}}/auth/pjax/newDashboard/settings"
-                data-pjax 
+            <a class="btn pjaxTrigger {{#if (matchValues data.input 'settings')}} active {{/if}}"
+                href="/{{data.brand}}/auth/pjax/newDashboard/settings" data-pjax
                 onclick="toggleClass(this, 'active')">Settings</a>
-            
+
         </div>
 
         <div class="container" id="pjax-container">
             {{#if data.dataRows}}
-            {{> rootTable schema=data.schema dataRows=data.dataRows}} 
+            {{> rootTable schema=data.schema dataRows=data.dataRows}}
             {{/if}}
-            
+
             {{#if data.slides}}
             {{> rootSlides slides=data.slides}}
             {{/if}}
@@ -464,7 +498,13 @@
             {{> rootSettings person=data.person brand=data.themeDetails}}
             {{/if}}
         </div>
-    
+        {{#if data.iframe}}
+        <div class="">
+            <button class="btn" style="margin-bottom:1rem" onclick="refreshiframe()">Refresh Website</button>
+            <iframe src="{{data.iframe}}" frameborder="0" style=" width: 100%; height: 100vh; "></iframe>
+        </div>
+        {{/if}}
+
     </div>
 
     <!-- DO NOT DELETE BELOW FORM -->
@@ -485,7 +525,7 @@
             <button class="btn d-block primary">Create New Project →</button>
             <button class="btn close" onclick="openLayer('.themes','.layerOne')">Close</button>
         </div>
-    
+
     </div>
 
     <div class="formBox d-none">
@@ -505,16 +545,16 @@
             <p>
                 <span>ENTER IMAGE LINK</span>
                 <input type="text" placeholder="https://...." onkeyup="inputChanged(this)">
-                <p class="error one d-none">Image does not exist. Please enter correct URL.</p>
+            <p class="error one d-none">Image does not exist. Please enter correct URL.</p>
             </p>
 
             <p>
                 <span>OR UPLOAD IMAGE MANUALLY</span>
                 <input class="" type="file" name="image-upload" value="" accept="image/*" onchange="readURL(this);">
-                <p class="error two d-none">Image does not exist. Please enter correct URL.</p>
-                <!-- <button class="btn white w-100" onclick="$(this).prev().click();">Upload Image</button> -->
+            <p class="error two d-none">Image does not exist. Please enter correct URL.</p>
+            <!-- <button class="btn white w-100" onclick="$(this).prev().click();">Upload Image</button> -->
             </p>
-        
+
         </div>
 
     </div>
@@ -525,7 +565,8 @@
     <!-- DO NOT DELETE ABOVE FORM -->
 
     <script src="https://kit.fontawesome.com/ae3de8bee6.js" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="/root/codemirror/js/codemirror.js"></script>
     <script src="/root/codemirror/js/xml.js"></script>
     <script src="/root/ckeditor.js"></script>
@@ -541,4 +582,5 @@
     <!-- HERE ADD DEFENCE JS and ZAKATLISTS JS SEPARATELY -->
 
 </body>
+
 </html>

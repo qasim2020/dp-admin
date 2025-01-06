@@ -224,7 +224,6 @@ hbs.registerHelper('json', function (context) {
 });
 
 hbs.registerHelper('matchValues', (val1, val2) => {
-    console.log(val1, val2);
     try {
         return val1.toString().toLowerCase() == val2.toString().toLowerCase();
     } catch (e) {
@@ -1083,6 +1082,7 @@ let myFuncs = {
                     };
                 }
             } else {
+
                 newRows = dataRows.map((val) => {
                     let total = [],
                         temp,
@@ -3546,7 +3546,7 @@ let myFuncs = {
         if (req.query._id == '')
             return { status: 404, error: 'Please give proper document ID' };
         let model = await this.createModel( `myapp-themes` );
-        let output = await model.findOneAndUpdate(
+        await model.findOneAndUpdate(
             { _id: req.query._id },
             { $set: req.body },
             { upsert: true },
@@ -4310,6 +4310,7 @@ let myFuncs = {
         req = {
             body: {
                 img: file64.content,
+                folder: req.params.input,
             },
             params: {
                 brand:
@@ -4324,9 +4325,6 @@ let myFuncs = {
 
         return output;
 
-        // return {
-        //     "url": "https://res.cloudinary.com/demo/image/upload/w_150,h_300,c_fill/boulder.jpg"
-        // };
     },
 
     uploadCloudinary: async function (req, res) {
@@ -4334,7 +4332,7 @@ let myFuncs = {
             resource_type: 'image',
             public_id:
                 req.body.public_id || mongoose.Types.ObjectId().toString(),
-            folder: req.params.brand,
+            folder: `${req.params.brand}/${req.body.folder}`,
             overwrite: true,
             transformation: [
                 {

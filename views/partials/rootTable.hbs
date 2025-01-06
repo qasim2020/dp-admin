@@ -279,6 +279,13 @@
         padding: 0px;
     }
 
+    form>.photo {
+        position: relative;
+        padding: 10px;
+        border: 2px solid black;
+        margin-bottom: 10px;
+    }
+
     form>.photos>.cellBox {
         margin-left: 0px;
         margin-top: 10px;
@@ -440,6 +447,25 @@
         z-index: 10000;
         opacity: 0.92;
         box-sizing: border-box;
+    }
+
+    .imgUpload>.uploader {
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        opacity: 0.9;
+        width: 100%;
+        height: 100%;
+    }
+
+    .imgUpload:hover>.uploader,
+    .imgUpload.loading>.uploader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
 
@@ -619,6 +645,25 @@
                     <span class="pointer" onclick="openStages(this)">{{countArray this.val}}x stage(s)</span>
                 </td>
 
+                {{else if (matchValues "photo" this.meta.html)}}
+
+                <td index="col{{@index}}" mydata="{{json this.val}}" class="photo fixed imgUpload">
+                    <span class="pointer">
+                        {{#if this.val}}
+                        <img src="{{this.val.photo.small}}" imgId="{{this.val.photo.imgId}}" width="23px" height="23px">
+                        {{else}}
+                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685257/myapp/Picture2_1.png"
+                            width="23px" height="23px">
+                        {{/if}}
+                    </span>
+                    <div class="uploader">
+                        <i class="fas fa-plus" onclick="uploadImage(this)"></i>
+                        <input class="d-none" type="file" name="{{this.meta.key}}" accept="image/*"
+                            onchange="readSinglePhotoURL(this, '{{../array.[0].val}}')" />
+                        <i class="fas fa-circle-notch spin font-black d-none"></i>
+                    </div>
+                </td>
+
                 {{else if (matchValues "photos" this.meta.html)}}
 
                 <td index="col{{@index}}" mydata="{{json this.val}}" class="photos fixed">
@@ -663,6 +708,7 @@
                     <a class="icon" onclick="createForm(this)"><i class="fas fa-expand-alt"></i></a>
                 </td>
                 {{#each data.th}}
+                
                 {{#if (matchValues "link" this.meta.html)}}
                 <td index="col{{@index}}" meta="{{json this.meta}}" mydata="{{this.meta.link}}"
                     class="{{this.meta.html}}">
@@ -680,6 +726,21 @@
                         </option>
                         {{/each}}
                     </select>
+                </td>
+
+                {{else if (matchValues "photo" this.meta.html)}}
+
+                <td index="col{{@index}}" mydata="" class="photo fixed imgUpload">
+                    <span class="pointer">
+                        <img src="https://res.cloudinary.com/miscellaneous/image/upload/v1657685257/myapp/Picture2_1.png"
+                            width="23px" height="23px">
+                    </span>
+                    <div class="uploader">
+                        <i class="fas fa-plus" onclick="uploadImage(this)"></i>
+                        <input class="d-none" type="file" name="{{this.meta.key}}" accept="image/*"
+                            onchange="readSinglePhotoURL(this, '{{../array.0.val}}')" />
+                        <i class="fas fa-circle-notch spin font-black d-none"></i>
+                    </div>
                 </td>
 
                 {{else}}

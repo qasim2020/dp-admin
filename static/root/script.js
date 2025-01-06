@@ -235,7 +235,7 @@ let createForm = function (elem) {
                 console.log(imgData);
                 if (imgData && imgData.photo) {
                     total += renderPhotoField(
-                        imgData.photo.medium,
+                        imgData.photo.large,
                         imgData.photo.imgId,
                     );
                 } else {

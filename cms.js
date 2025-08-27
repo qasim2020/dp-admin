@@ -1,9 +1,3 @@
-// natural_therapy
-// tech-portfolio
-// life - portfolio website
-// testing change
-// dedicatedparents
-
 const DatauriParser = require('datauri/parser');
 const parser = new DatauriParser();
 const fileUpload = require('express-fileupload');
@@ -57,6 +51,44 @@ if (env === 'development' || env === 'test') {
 
 const web = new WebClient();
 
+
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const timestamp = new Date().toISOString();
+    const country = req.headers['cf-ipcountry'] || 'Unknown';
+    console.log(`${timestamp} | ${ip} | ${country} | ${req.originalUrl} `);
+    let oldSend = res.send;
+    let oldJson = res.json;
+
+    let responseBody;
+
+    res.send = function (data) {
+        responseBody = data;
+        return oldSend.apply(res, arguments);
+    };
+
+    res.json = function (data) {
+        responseBody = data;
+        return oldJson.apply(res, arguments);
+    };
+
+    const forbiddenErrors = ['/overlay/fonts/Karla-regular.woff', '/robots.txt'];
+
+    res.on('finish', () => {
+        if (res.statusCode > 399 && !forbiddenErrors.includes(req.originalUrl)) {
+            const errorData = {
+                message: responseBody,
+                status: res.statusCode,
+                url: req.originalUrl,
+            };
+            sendErrorToTelegram(errorData);
+        }
+    });
+
+    next();
+});
+
 app.use(
     fileUpload({
         createParentPath: true,
@@ -107,7 +139,7 @@ mongoose.connect(
                 'Unable to connect to the server. Please start the server.',
             );
         } else {
-            console.log('Connected to Server successfully!');
+            console.log('Connected to Server & Database successfully!');
         }
     },
 );
@@ -507,7 +539,6 @@ app.get('/:brand', openBrand);
 app.get('/:brand/admin', openAdmin);
 app.get('/', async (req, res) => {
     // HERE ADD THE NEW APP YOU ARE WORKING ON
-    console.log('MY APP - WELCOME');
     return res.status(200).render('root/showApps.hbs', {
         apps: [
             { name: 'My App', url: 'myapp' },
@@ -1814,7 +1845,6 @@ let myFuncs = {
                 case method == 'list':
                     //console.log("fetch all records");
                     output = await fetchAllRecords(100);
-                    //console.log(output);
                     break;
 
                 case method == 'find':
@@ -2894,8 +2924,6 @@ let myFuncs = {
             verifiedEmail: false,
         });
 
-        console.log(output);
-
         return {
             success: 'User was created successfully',
         };
@@ -3343,8 +3371,6 @@ let myFuncs = {
             slug: req.body.slug,
         });
 
-        console.log(output);
-
         await this.sendMail({
             msg: `
             <p>New comment posted at <a href="${process.env.url}/${req.params.brand}/gen/page/${req.body.page}/${output.slug}?uniqueCode=${output.uniqueCode}">${req.params.brand}</a></p>
@@ -3508,7 +3534,6 @@ let myFuncs = {
         let model = await this.createModel(`${req.params.brand}-sheetdatas`);
         console.log(model);
         let output = await model.findOne({ status: 'live' }).lean();
-        console.log(output);
         let returned = this.language_data(req, output);
         return {
             content: returned,
@@ -3703,7 +3728,6 @@ let myFuncs = {
             method: 'POST',
             URL: `https://api.telegram.org/bot${brandInfo.telegramToken}/sendMessage?chat_id=${req.session.person.telegramId}&text=${data}`,
         });
-        // console.log(output);
         if (output.ok == false)
             return {
                 status: 404,
@@ -3777,8 +3801,6 @@ let myFuncs = {
             )
             .lean();
 
-        console.log(output);
-
         if (!output)
             return {
                 status: 400,
@@ -3846,7 +3868,6 @@ let myFuncs = {
             twoBlogs: await this.d_pmodules.twoBlogs(req, res),
         };
 
-        console.log(output);
         return output;
     },
 
@@ -6387,14 +6408,10 @@ let myFuncs = {
             },
         );
 
-        console.log(output);
-
         // Send an Email to the customer saying "Please click on this link to verify your subscription request"
         let url = '';
 
         console.log('context of subscribe customer');
-
-        console.log(output);
 
         url =
             process.env.url +
@@ -6776,7 +6793,6 @@ let myFuncs = {
             .lean();
 
         console.log('... after unscribing');
-        console.log(output);
 
         if (output != null) {
             return {
@@ -6832,8 +6848,6 @@ let myFuncs = {
 
         let model = await this.createModel(`${req.params.brand}-newsletters`);
         let output = await model.findOne({ slug: req.params.input }).lean();
-
-        // //console.log(output);
 
         return {
             output: output,
@@ -7465,8 +7479,6 @@ let myFuncs = {
                 },
             },
         ]);
-
-        console.log(output);
 
         output = this.matchSelectedProperties(req, res, output);
 
@@ -8319,8 +8331,6 @@ let myFuncs = {
             { new: true },
         );
 
-        console.log(output);
-
         return output;
     },
 
@@ -8420,8 +8430,6 @@ let myFuncs = {
                 ]);
             }),
         );
-
-        console.log(output);
 
         return output;
     },

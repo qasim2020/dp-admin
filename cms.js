@@ -82,7 +82,7 @@ app.use((req, res, next) => {
                 status: res.statusCode,
                 url: req.originalUrl,
             };
-            sendErrorToTelegram(errorData);
+            console.log('Error Logged:', errorData);
         }
     });
 
@@ -553,6 +553,7 @@ app.get('/', async (req, res) => {
             { name: 'easy_heal', url: 'easy_heal' },
             { name: 'duty', url: 'duty' },
             { name: 'dedicated_parents', url: 'dedicated_parents' },
+            { name: 'ilearninghubb', url: 'ilearninghubb' },
         ],
     });
 });

@@ -2,3 +2,6 @@ node_modules/
 .env
 uploads/
 *.log
+config/config.json
+config000.json
+static/backup.json

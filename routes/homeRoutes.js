@@ -4,7 +4,7 @@ const requireLogin = require('../modules/authenticate');
 const homeController = require('../controllers/homeController');
 
 router.get("/", (req, res) => {
-    if (!req.session.user) {
+    if (!req.session.userId) {
         return res.redirect("/login")
     }
     res.redirect("/dashboard")

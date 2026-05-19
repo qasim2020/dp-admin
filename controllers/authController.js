@@ -4,10 +4,13 @@ const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const { promisify } = require('util');
 const Settings = require('../models/Settings');
 
 const { isValidEmail, isStrongPassword } = require('../modules/checkValidForm');
 const { createLog } = require('../modules/logService');
+const pbkdf2Async = promisify(crypto.pbkdf2);
+const RESET_TOKEN_BYTES = 32;
 
 exports.renderLoginPage = async (req, res) => {
     try {
@@ -24,19 +27,25 @@ function normalizeEmail(email) {
     return String(email || '').trim().toLowerCase();
 }
 
-function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
-    const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+async function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+    const hashBuffer = await pbkdf2Async(password, salt, 100000, 64, 'sha512');
+    const hash = hashBuffer.toString('hex');
     return { salt, hash };
 }
 
-function verifyPassword(password, salt, hash) {
-    const currentHash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+async function verifyPassword(password, salt, hash) {
+    const currentHashBuffer = await pbkdf2Async(password, salt, 100000, 64, 'sha512');
+    const currentHash = currentHashBuffer.toString('hex');
     const currentBuffer = Buffer.from(currentHash, 'hex');
     const storedBuffer = Buffer.from(hash, 'hex');
     if (currentBuffer.length !== storedBuffer.length) {
         return false;
     }
     return crypto.timingSafeEqual(currentBuffer, storedBuffer);
+}
+
+function hashResetToken(token) {
+    return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 async function sendPasswordResetEmail(name, email, link) {
@@ -102,7 +111,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'No password is set for this account. Use Forgot password to set one.' });
         }
 
-        if (!verifyPassword(password, user.passwordSalt, user.passwordHash)) {
+        if (!await verifyPassword(password, user.passwordSalt, user.passwordHash)) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
@@ -155,8 +164,8 @@ exports.forgotPassword = async (req, res) => {
             return res.json({ success: true, message: 'If this email exists, a reset link has been sent.' });
         }
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        user.passwordResetToken = resetToken;
+        const resetToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+        user.passwordResetToken = hashResetToken(resetToken);
         user.passwordResetExpiresAt = new Date(Date.now() + 1000 * 60 * 60);
         await user.save();
 
@@ -195,8 +204,9 @@ exports.renderResetPasswordPage = async (req, res) => {
             });
         }
 
+        const hashedToken = hashResetToken(token);
         const user = await User.findOne({
-            passwordResetToken: token,
+            passwordResetToken: hashedToken,
             passwordResetExpiresAt: { $gt: new Date() },
         }).lean();
 
@@ -208,7 +218,7 @@ exports.renderResetPasswordPage = async (req, res) => {
             });
         }
 
-        return res.render('reset-password', { layout: 'auth', token });
+        return res.render('reset-password', { layout: 'auth' });
     } catch (error) {
         return res.status(500).json({
             error: 'An error occurred while rendering reset password page',
@@ -237,8 +247,9 @@ exports.resetPassword = async (req, res) => {
             });
         }
 
+        const hashedToken = hashResetToken(token);
         const user = await User.findOne({
-            passwordResetToken: token,
+            passwordResetToken: hashedToken,
             passwordResetExpiresAt: { $gt: new Date() },
         });
 
@@ -246,7 +257,7 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ error: 'Reset link is invalid or expired.' });
         }
 
-        const { salt, hash } = hashPassword(password);
+        const { salt, hash } = await hashPassword(password);
         user.passwordSalt = salt;
         user.passwordHash = hash;
         user.passwordResetToken = null;

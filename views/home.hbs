@@ -1,0 +1,176 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-end">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Dashboard
+                </div>
+                <h2 class="page-title">
+                    iLearningHubb Admin Portal
+                </h2>
+            </div>
+            <div class="col-auto"></div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+
+    <div class="container-xl">
+        <div class="row row-deck row-cards" id="dashboard-hero-container">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Programs</div>
+                        <div class="h1 mb-0">{{stats.programCount}}</div>
+                        <div class="text-muted">Active: {{stats.activeProgramCount}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Logs</div>
+                        <div class="h1 mb-0">{{stats.activityCount}}</div>
+                        <div class="text-muted">Total activity entries</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Users</div>
+                        <div class="h1 mb-0">{{stats.userCount}}</div>
+                        <div class="text-muted">Admins & contributors</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Content Health</div>
+                        <div class="h1 mb-0">{{stats.activeProgramCount}} / {{stats.programCount}}</div>
+                        <div class="text-muted">Active programs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-deck row-cards mt-1">
+            <div class="col-lg-6" id="activity-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Programs</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {{#if recentPrograms.length}}
+                            {{#each recentPrograms}}
+                                <a class="list-group-item list-group-item-action" href="/programs/{{this._id}}/view">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">{{this.title}}</div>
+                                            <div class="text-muted">{{this.duration}} · Age {{this.ageRange}}</div>
+                                        </div>
+                                        <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
+                                            {{#if this.isActive}}Active{{else}}In active{{/if}}
+                                        </span>
+                                    </div>
+                                </a>
+                            {{/each}}
+                        {{else}}
+                            <div class="list-group-item">
+                                <div class="text-muted">No programs yet.</div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" id="journey-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {{#if recentLogs.length}}
+                            {{#each recentLogs}}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">{{this.message}}</div>
+                                            <div class="text-muted">
+                                                {{capitalizeFirstLetter this.action}} · {{capitalizeFirstLetter this.entityType}}
+                                                {{#if this.user}}· {{this.user.name}}{{/if}}
+                                            </div>
+                                        </div>
+                                        <div class="text-muted">{{formatTime this.createdAt}}</div>
+                                    </div>
+                                </div>
+                            {{/each}}
+                        {{else}}
+                            <div class="list-group-item">
+                                <div class="text-muted">No activity yet.</div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-deck row-cards mt-1">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Pages</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {{#if recentPages.length}}
+                            {{#each recentPages}}
+                                <a class="list-group-item list-group-item-action" href="/pages/{{this.key}}">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">{{this.title}}</div>
+                                            <div class="text-muted">{{capitalizeFirstLetter this.type}} · {{this.key}}</div>
+                                        </div>
+                                        <div class="text-muted">{{formatTime this.updatedAt}}</div>
+                                    </div>
+                                </a>
+                            {{/each}}
+                        {{else}}
+                            <div class="list-group-item">
+                                <div class="text-muted">No pages yet.</div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Blogs</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {{#if recentBlogs.length}}
+                            {{#each recentBlogs}}
+                                <a class="list-group-item list-group-item-action" href="/blogs/{{this._id}}/view">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">{{this.title}}</div>
+                                            <div class="text-muted">{{this.slug}}</div>
+                                        </div>
+                                        <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
+                                            {{#if this.isActive}}Active{{else}}In active{{/if}}
+                                        </span>
+                                    </div>
+                                </a>
+                            {{/each}}
+                        {{else}}
+                            <div class="list-group-item">
+                                <div class="text-muted">No blogs yet.</div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

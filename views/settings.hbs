@@ -1,0 +1,291 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Settings</div>
+        <h2 class="page-title">Manage Settings</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <button class="btn btn-primary" id="saveSettingsBtn">
+            <i class="ti ti-device-floppy icon"></i>
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Branding</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Brand Name</label>
+              <input type="text" id="settingsBrandName" class="form-control" value="{{settings.brandName}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Main Logo</label>
+              <div id="settingsLogoBox" class="border rounded d-flex align-items-center justify-content-center"
+                style="height: 150px; width: 150px; cursor: pointer; background: #f8f9fa;">
+                {{#if settings.logoUrl}}
+                  <img src="{{settings.logoUrl}}" style="max-height:100%; max-width:100%; object-fit:contain; padding:8px;">
+                {{else}}
+                  <span id="settingsLogoPlus" style="font-size: 2rem; color: #6c757d;">+</span>
+                {{/if}}
+              </div>
+              <input type="file" id="settingsLogoInput" name="logoFile" accept="image/*" style="display: none;">
+              <input type="hidden" id="settingsLogoUrl" value="{{settings.logoUrl}}">
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header">
+            <h3 class="card-title">Social Media Links</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Facebook URL</label>
+              <input type="text" id="socialFacebook" class="form-control" placeholder="https://facebook.com/ilearninghubb" value="{{settings.socialFacebook}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Instagram URL</label>
+              <input type="text" id="socialInstagram" class="form-control" placeholder="https://instagram.com/ilearninghubb" value="{{settings.socialInstagram}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">X (Twitter) URL</label>
+              <input type="text" id="socialTwitter" class="form-control" placeholder="https://x.com/ilearninghubb" value="{{settings.socialTwitter}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">LinkedIn URL</label>
+              <input type="text" id="socialLinkedIn" class="form-control" placeholder="https://linkedin.com/company/ilearninghubb" value="{{settings.socialLinkedIn}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">YouTube URL</label>
+              <input type="text" id="socialYouTube" class="form-control" placeholder="https://youtube.com/@ilearninghubb" value="{{settings.socialYouTube}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">TikTok URL</label>
+              <input type="text" id="socialTikTok" class="form-control" placeholder="https://tiktok.com/@ilearninghubb" value="{{settings.socialTikTok}}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Email (SMTP)</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label class="form-label">Host</label>
+                <input type="text" id="emailHost" class="form-control" value="{{settings.emailHost}}">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Port</label>
+                <input type="number" id="emailPort" class="form-control" value="{{settings.emailPort}}">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" id="emailUser" class="form-control" value="{{settings.emailUser}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" id="emailPass" class="form-control" value="{{settings.emailPass}}">
+            </div>
+            <div class="mb-3">
+              <label class="form-check">
+                <input type="checkbox" class="form-check-input" id="emailSecure" {{#if settings.emailSecure}}checked{{/if}}>
+                <span class="form-check-label">Use SSL/TLS</span>
+              </label>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">From Name</label>
+                <input type="text" id="emailFromName" class="form-control" value="{{settings.emailFromName}}">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">From Address</label>
+                <input type="email" id="emailFromAddress" class="form-control" value="{{settings.emailFromAddress}}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header">
+            <h3 class="card-title">Ticket Emails</h3>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">Add the email addresses that should receive ticket notifications.</p>
+            <div class="input-group mb-3">
+              <input type="email" id="ticketEmailInput" class="form-control" placeholder="name@example.com">
+              <button class="btn btn-outline-primary" type="button" id="addTicketEmail">Add</button>
+            </div>
+            <div class="list-group" id="ticketEmailList"></div>
+            <input type="hidden" id="ticketEmailsValue" value="">
+            <div class="form-hint mt-2">Press Add or use comma/enter to add multiple emails.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let settingsLogoUrl = '{{settings.logoUrl}}' || null;
+
+  $('#settingsLogoBox').on('click', function () {
+    $('#settingsLogoInput').click();
+  });
+
+  $('#settingsLogoInput').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('logoFile', file);
+
+    $.ajax({
+      url: '/upload-settings-logo',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      beforeSend: function () {
+        $('#settingsLogoBox').html('<span style="font-size:1rem; color:#6c757d;">Uploading...</span>');
+      },
+      success: function (res) {
+        settingsLogoUrl = res.imageUrl;
+        $('#settingsLogoUrl').val(res.imageUrl);
+        $('#settingsLogoBox').html('<img src="' + res.imageUrl + '" style="max-height:100%; max-width:100%; object-fit:contain; padding:8px;">');
+      },
+      error: function () {
+        $('#settingsLogoBox').html('<span id="settingsLogoPlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+        alert('Failed to upload logo');
+      }
+    });
+  });
+
+  const renderTicketEmailList = function () {
+    const $list = $('#ticketEmailList');
+    $list.empty();
+
+    if (!ticketEmails.length) {
+      $list.append('<div class="text-muted">No emails added yet.</div>');
+      $('#ticketEmailsValue').val('');
+      return;
+    }
+
+    ticketEmails.forEach((email) => {
+      const row = $(
+        `<div class="list-group-item d-flex align-items-center justify-content-between">
+          <div class="text-body">${email}</div>
+          <button type="button" class="btn btn-outline-danger btn-sm remove-ticket-email" data-email="${email}">
+            Delete
+          </button>
+        </div>`
+      );
+      $list.append(row);
+    });
+
+    $('#ticketEmailsValue').val(ticketEmails.join(','));
+  };
+
+  const addTicketEmails = function (raw) {
+    if (!raw) return;
+    const values = raw
+      .split(/[,\n]/)
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    values.forEach((email) => {
+      if (!ticketEmails.includes(email)) {
+        ticketEmails.push(email);
+      }
+    });
+    renderTicketEmailList();
+  };
+
+  const initialTicketEmails = {{#if settings.ticketEmails}}{{{json settings.ticketEmails}}}{{else}}[]{{/if}};
+  let ticketEmails = Array.isArray(initialTicketEmails) ? initialTicketEmails : [];
+  renderTicketEmailList();
+
+  $('#addTicketEmail').on('click', function () {
+    const value = $('#ticketEmailInput').val();
+    addTicketEmails(value);
+    $('#ticketEmailInput').val('');
+  });
+
+  $('#ticketEmailInput').on('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      const value = $(this).val();
+      addTicketEmails(value);
+      $(this).val('');
+    }
+  });
+
+  $(document).on('click', '.remove-ticket-email', function () {
+    const email = $(this).data('email');
+    ticketEmails = ticketEmails.filter((value) => value !== email);
+    renderTicketEmailList();
+  });
+
+  $('#saveSettingsBtn').on('click', function () {
+    const data = {
+      brandName: $('#settingsBrandName').val().trim(),
+      logoUrl: $('#settingsLogoUrl').val().trim(),
+      emailHost: $('#emailHost').val().trim(),
+      emailPort: $('#emailPort').val(),
+      emailUser: $('#emailUser').val().trim(),
+      emailPass: $('#emailPass').val().trim(),
+      emailSecure: $('#emailSecure').is(':checked'),
+      emailFromName: $('#emailFromName').val().trim(),
+      emailFromAddress: $('#emailFromAddress').val().trim(),
+      socialFacebook: $('#socialFacebook').val().trim(),
+      socialInstagram: $('#socialInstagram').val().trim(),
+      socialTwitter: $('#socialTwitter').val().trim(),
+      socialLinkedIn: $('#socialLinkedIn').val().trim(),
+      socialYouTube: $('#socialYouTube').val().trim(),
+      socialTikTok: $('#socialTikTok').val().trim(),
+      ticketEmails: ticketEmails,
+    };
+
+    const $btn = $(this);
+    const $addBtn = $('#addTicketEmail');
+    const originalText = $btn.text();
+    const originalAddText = $addBtn.text();
+    $btn.prop('disabled', true).text('Saving...');
+    $addBtn
+      .prop('disabled', true)
+      .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+
+    $.ajax({
+      url: '/settings',
+      type: 'POST',
+      data,
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to save settings');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+        $addBtn.prop('disabled', false).text(originalAddText);
+      }
+    });
+  });
+</script>

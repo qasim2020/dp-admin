@@ -1,0 +1,32 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Legal Pages</div>
+        <h2 class="page-title">Manage Legal Pages</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {{#each pages}}
+      <div class="col-sm-6 col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="card-title mb-2">{{this.title}}</h3>
+            <p class="text-muted mb-4">{{this.description}}</p>
+            <div class="d-flex gap-2">
+              <a href="{{this.viewUrl}}" class="btn btn-outline-secondary btn-sm w-100">View</a>
+              <a href="{{this.editUrl}}" class="btn btn-primary btn-sm w-100">Edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

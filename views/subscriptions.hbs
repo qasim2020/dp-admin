@@ -1,0 +1,54 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Subscriptions</div>
+        <h2 class="page-title">Subscriber Emails</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="/subscriptions/download" class="btn btn-outline-primary">
+            <i class="ti ti-download icon"></i>
+            Download CSV
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Source</th>
+              <th>Subscribed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if subscriptions.length}}
+              {{#each subscriptions}}
+                <tr>
+                  <td class="text-muted">{{this.email}}</td>
+                  <td>{{this.name}}</td>
+                  <td>{{this.source}}</td>
+                  <td class="text-muted">{{formatDate this.createdAt}}</td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No subscriptions yet.</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

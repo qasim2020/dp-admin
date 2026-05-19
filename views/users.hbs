@@ -1,0 +1,327 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Users</div>
+        <h2 class="page-title">Manage Users</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-new-user">
+            <i class="ti ti-plus icon"></i>
+            Create new user
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th class="w-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if users.length}}
+              {{#each users}}
+                <tr data-user-id="{{this._id}}">
+                  <td class="text-nowrap">{{this.name}}</td>
+                  <td class="text-muted">{{this.email}}</td>
+                  <td>
+                    <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
+                      {{#if this.isActive}}Active{{else}}In active{{/if}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <a class="btn btn-sm btn-primary" href="/users/{{this._id}}/view">View</a>
+                      <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#modal-edit-user" data-id="{{this._id}}" data-name="{{this.name}}"
+                        data-active="{{this.isActive}}">
+                        Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger delete-user" data-id="{{this._id}}">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No users found.</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal modal-blur fade" id="modal-new-user" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-success d-none" id="createUserSuccessCard">
+          User created. Invite email sent.
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" id="newUserName" class="form-control" placeholder="Full name" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" id="newUserEmail" class="form-control" placeholder="user@email.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <div class="form-selectgroup-boxes row">
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="newUserStatus" value="active" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">Active</span>
+                    <span class="d-block text-secondary">User is active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="newUserStatus" value="in-active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">In active</span>
+                    <span class="d-block text-secondary">User is in-active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-primary" id="createUserBtn">Create User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal modal-blur fade" id="modal-edit-user" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editUserId">
+        <div class="alert alert-success d-none" id="inviteSuccessCard">
+          Invite email sent successfully.
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" id="editUserName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" id="editUserEmail" class="form-control" disabled>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <div class="form-selectgroup-boxes row">
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editUserStatus" value="active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">Active</span>
+                    <span class="d-block text-secondary">User is active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editUserStatus" value="in-active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">In active</span>
+                    <span class="d-block text-secondary">User is in-active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-outline-primary" id="sendInviteBtn">Send Invite Email</button>
+        <button class="btn btn-primary" id="saveUserBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#modal-edit-user').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const id = button.data('id');
+    const name = button.data('name');
+    const isActive = String(button.data('active')) === 'true';
+
+    $('#editUserId').val(id);
+    $('#editUserName').val(name);
+    $('#editUserEmail').val(button.closest('tr').find('td:nth-child(2)').text().trim());
+    $(`input[name="editUserStatus"][value="${isActive ? 'active' : 'in-active'}"]`).prop('checked', true);
+    $('#inviteSuccessCard').addClass('d-none');
+  });
+
+  $('#modal-new-user').on('show.bs.modal', function () {
+    $('#createUserSuccessCard').addClass('d-none');
+    $('#createUserBtn').removeClass('d-none');
+  });
+
+  $('#createUserBtn').on('click', function () {
+    const name = $('#newUserName').val().trim();
+    const email = $('#newUserEmail').val().trim();
+    const status = $('input[name="newUserStatus"]:checked').val();
+
+    if (!name || !email) {
+      alert('Name and email are required');
+      return;
+    }
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Creating...');
+
+    $.ajax({
+      url: '/users',
+      type: 'POST',
+      data: { name, email, status },
+      success: function (res) {
+        if (res.inviteSent) {
+          $('#createUserSuccessCard').removeClass('d-none').text('User created. Invite email sent.');
+        } else {
+          $('#createUserSuccessCard').removeClass('d-none').text('User created. Invite email failed.');
+        }
+        $btn.addClass('d-none');
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to create user');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+
+  $('#saveUserBtn').on('click', function () {
+    const id = $('#editUserId').val();
+    const name = $('#editUserName').val().trim();
+    const status = $('input[name="editUserStatus"]:checked').val();
+
+    if (!name) {
+      alert('Name is required');
+      return;
+    }
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Saving...');
+
+    $.ajax({
+      url: `/users/${id}`,
+      type: 'POST',
+      data: { name, status },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to update user');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+
+  $('#sendInviteBtn').on('click', function () {
+    const id = $('#editUserId').val();
+    if (!id) return;
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Sending...');
+
+    $.ajax({
+      url: `/users/${id}/invite`,
+      type: 'POST',
+      success: function () {
+        $('#inviteSuccessCard').removeClass('d-none');
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to send invite');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+
+  $(document).on('click', '.delete-user', function () {
+    const id = $(this).attr('data-id');
+    if (!id) return;
+
+    const confirmed = confirm('Are you sure you want to delete this user?');
+    if (!confirmed) return;
+
+    $.ajax({
+      url: `/users/${id}/delete`,
+      type: 'POST',
+      contentType: 'application/json',
+      success: function () {
+        const row = $(document).find(`[data-user-id="${id}"]`);
+        if (row.length) {
+          row.remove();
+        }
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to delete user');
+      }
+    });
+  });
+</script>

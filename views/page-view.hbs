@@ -1,0 +1,98 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">{{pagePretitle}}</div>
+        <h2 class="page-title">{{pageTitle}}</h2>
+      </div>
+      <div class="col-auto ms-auto">
+        <div class="btn-list">
+          <a href="{{backUrl}}" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left icon icon-2"></i>
+            Back
+          </a>
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-edit-page">
+            <i class="ti ti-edit icon icon-2"></i>
+            Edit Page
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="card-body">
+        {{{pageContent}}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Page Modal -->
+<div class="modal modal-blur fade" id="modal-edit-page" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit {{pageTitle}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="pageContentEditor" class="form-control" rows="10">{{{pageContent}}}</textarea>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-primary" id="savePageBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pageEditor;
+
+  ClassicEditor
+    .create(document.querySelector('#pageContentEditor'))
+    .then(editor => {
+      pageEditor = editor;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+  $(document).ready(function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('edit') === '1') {
+      $('#modal-edit-page').modal('show');
+    }
+  });
+
+  $('#savePageBtn').on('click', function () {
+    const content = pageEditor ? pageEditor.getData() : $('#pageContentEditor').val();
+    const pageType = '{{pageType}}';
+    const pageKey = '{{pageKey}}';
+    const saveUrl = `/pages/${pageKey}`;
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Saving...');
+
+    $.ajax({
+      url: saveUrl,
+      type: 'POST',
+      data: { content, type: '{{pageType}}', title: '{{pageTitle}}' },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to save page');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+</script>

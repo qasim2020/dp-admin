@@ -1,0 +1,76 @@
+<div class="page page-center">
+    <div class="container container-tight py-4">
+        <div class="card card-md">
+            <div class="card-body">
+                {{#if note}}
+                <h2 class="h3 text-center mb-4">{{note}}</h2>
+                {{else}}
+                <h2 class="h2 text-center mb-4">Get a Magic Link in your Inbox</h2>
+                {{/if}}
+                <form autocomplete="off" novalidate="">
+                    <div class="mb-3">
+                        <label class="form-label">Email address</label>
+                        <input type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+                    </div>
+                    <div class="form-footer">
+                        <button type="button" id="submit-btn" class="btn btn-primary w-100"
+                            onclick="sendMagicLink()">Send Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    const sendMagicLink = async () => {
+        const elemHTML = $('#submit-btn').html();
+        $('form').find('.alert').remove();
+        try {
+            const email = $('input[type="email"]').val();
+            if (!email) {
+                $(".form-footer").after(`
+                <div class="alert alert-danger mt-4" role="alert">
+                    <h4 class="alert-title">Invalid!</h4>
+                    <div class="text-secondary">Pleasee fill in your email to receive a magic link in your inbox.</div>
+                </div>`);
+                return;
+            };
+            $('#submit-btn').html(`
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Processing
+                `);
+            const response = await $.ajax({
+                url: '/send-magic-link',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    email,
+                })
+            });
+
+            $(".form-footer").after(`
+            <div class="alert alert-success mt-4" role="alert">
+                <h4 class="alert-title">Email Sent!</h4>
+                <div class="text-secondary">Check you email inbox for the magic link. Check Spam folder if not found.</div>
+            </div>`);
+
+        } catch (error) {
+            $(".form-footer").after(`
+            <div class="alert alert-danger mt-4" role="alert">
+              <h4 class="alert-title">Login failed!</h4>
+              <div class="text-secondary">${error.responseText}</div>
+            </div>`);
+            console.error('Error sending magic link:', error);
+        }
+        $('#submit-btn').html(elemHTML);
+    };
+
+
+    $('form').on('submit', function (e) {
+        e.preventDefault();
+        sendMagicLink();
+    });
+</script>

@@ -1,0 +1,124 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-end">
+      <div class="col">
+        <div class="page-pretitle">Support</div>
+        <h2 class="page-title">Tickets</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        {{#if (gt unreadTicketsCount 0)}}
+        <span class="badge bg-red-lt text-red">{{unreadTicketsCount}} unread</span>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#if tickets.length}}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th class="w-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each tickets}}
+            <tr data-ticket-id="{{this._id}}">
+              <td>
+                <div class="fw-semibold">{{this.name}}</div>
+                {{#if this.phone}}
+                <div class="text-muted small">{{this.phone}}</div>
+                {{/if}}
+              </td>
+              <td>
+                <div class="text-muted">{{this.email}}</div>
+              </td>
+              <td>
+                {{#if this.message}}
+                <div class="text-muted">
+                  {{truncate this.message 30}}
+                </div>
+                {{else}}
+                <div class="text-muted">No message</div>
+                {{/if}}
+              </td>
+              <td>
+                <div class="text-muted">{{#if this.service}}{{this.service}}{{else}}General{{/if}}</div>
+              </td>
+              <td>
+                {{#if this.isRead}}
+                <span class="badge bg-green-lt text-green">Read</span>
+                {{else}}
+                <span class="badge bg-red-lt text-red">Unread</span>
+                {{/if}}
+              </td>
+              <td>
+                <div class="text-muted">{{timeAgo this.createdAt}}</div>
+              </td>
+              <td class="text-end">
+                <div class="btn-list flex-nowrap">
+                  <a href="/tickets/{{this._id}}" class="btn btn-primary btn-sm">View</a>
+                  {{#if this.isRead}}
+                  <button class="btn btn-outline-secondary btn-sm toggle-ticket" data-action="unread">
+                    Mark unread
+                  </button>
+                  {{else}}
+                  <button class="btn btn-outline-secondary btn-sm toggle-ticket" data-action="read">
+                    Mark read
+                  </button>
+                  {{/if}}
+                </div>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{else}}
+<div class="container-xl my-auto">
+  <div class="empty">
+    <div class="empty-img">
+      <i class="ti ti-ticket img" style="font-size: 8rem;"></i>
+    </div>
+    <p class="empty-title">No tickets yet</p>
+    <p class="empty-subtitle text-secondary">
+      New support requests will appear here.
+    </p>
+  </div>
+</div>
+{{/if}}
+
+<script>
+  $(document).on('click', '.toggle-ticket', function () {
+    const $row = $(this).closest('tr');
+    const ticketId = $row.data('ticket-id');
+    const action = $(this).data('action');
+
+    if (!ticketId || !action) return;
+
+    $.ajax({
+      url: `/tickets/${ticketId}/${action}`,
+      type: 'POST',
+      success: function () {
+        window.location.reload();
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON?.error || 'Failed to update ticket');
+      }
+    });
+  });
+</script>

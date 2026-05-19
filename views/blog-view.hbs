@@ -1,0 +1,295 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Blogs</div>
+        <h2 class="page-title">Blog Details</h2>
+      </div>
+      <div class="col-auto ms-auto">
+        <div class="btn-list">
+          <a href="/blogs" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left icon icon-2"></i>
+            Back
+          </a>
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-edit-blog-view"
+            data-id="{{blog._id}}"
+            data-title="{{blog.title}}"
+            data-slug="{{blog.slug}}"
+            data-excerpt="{{blog.excerpt}}"
+            data-cover="{{blog.coverImageUrl}}"
+            data-tags="{{#each blog.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"
+            data-active="{{blog.isActive}}"
+            data-published="{{blog.publishedAt}}">
+            <i class="ti ti-edit icon icon-2"></i>
+            Edit Blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-lg-8">
+        <div class="card mb-3">
+          <div class="card-img-top" style="height:280px; background-image:url('{{#if blog.coverImageUrl}}{{blog.coverImageUrl}}{{else}}/static/logo.png{{/if}}'); background-size:cover; background-position:center;"></div>
+          <div class="card-body">
+            <h3 class="card-title mb-2">{{blog.title}}</h3>
+            <div class="text-muted mb-2">{{blog.slug}}</div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              {{#if blog.isActive}}
+                <span class="badge bg-green-lt text-green">Active</span>
+              {{else}}
+                <span class="badge bg-red-lt text-red">In active</span>
+              {{/if}}
+              {{#if blog.publishedAt}}
+                <span class="badge bg-azure-lt text-azure">Published · {{formatDate blog.publishedAt}}</span>
+              {{/if}}
+            </div>
+            {{#if blog.excerpt}}
+              <div class="text-muted">{{blog.excerpt}}</div>
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Content</h3>
+          </div>
+          <div class="card-body">
+            {{{blog.content}}}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Meta</h3>
+          </div>
+          <div class="card-body">
+            <div class="text-muted mb-2"><strong>Created:</strong> {{formatDate blog.createdAt}}</div>
+            <div class="text-muted mb-2"><strong>Updated:</strong> {{formatDate blog.updatedAt}}</div>
+            {{#if blog.tags.length}}
+              <div class="text-muted"><strong>Tags:</strong>
+                {{#each blog.tags}}
+                  <span class="badge bg-azure-lt text-azure me-1">{{this}}</span>
+                {{/each}}
+              </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Blog Modal -->
+<div class="modal modal-blur fade" id="modal-edit-blog-view" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editBlogViewId" value="{{blog._id}}">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" id="editBlogViewTitle" class="form-control" value="{{blog.title}}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Slug</label>
+          <input type="text" id="editBlogViewSlug" class="form-control" value="{{blog.slug}}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Excerpt</label>
+          <textarea id="editBlogViewExcerpt" class="form-control" rows="2">{{blog.excerpt}}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content</label>
+          <textarea id="editBlogViewContent" class="form-control" rows="8">{{{blog.content}}}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="editBlogViewImageBox" class="border rounded d-flex align-items-center justify-content-center"
+            style="height: 150px; cursor: pointer;">
+            {{#if blog.coverImageUrl}}
+              <img src="{{blog.coverImageUrl}}" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">
+            {{else}}
+              <span id="editBlogViewImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>
+            {{/if}}
+          </div>
+          <input type="file" id="editBlogViewImageInput" name="blogImage" accept="image/*" style="display: none;">
+          <input type="hidden" id="editBlogViewCover" value="{{blog.coverImageUrl}}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tags</label>
+          <input type="text" id="editBlogViewTags" class="form-control" placeholder="comma separated"
+            value="{{#each blog.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Date</label>
+            <input type="date" id="editBlogViewPublishDate" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Time</label>
+            <input type="time" id="editBlogViewPublishTime" class="form-control">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <div class="form-selectgroup-boxes row">
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editBlogViewStatus" value="active" class="form-selectgroup-input" {{#if blog.isActive}}checked{{/if}}>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">Active</span>
+                    <span class="d-block text-secondary">Blog is active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editBlogViewStatus" value="in-active" class="form-selectgroup-input" {{#unless blog.isActive}}checked{{/unless}}>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">In active</span>
+                    <span class="d-block text-secondary">Blog is in-active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-primary" id="saveBlogViewBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let editBlogViewEditor;
+  let editBlogViewImageUrl = '{{blog.coverImageUrl}}' || null;
+
+  ClassicEditor
+    .create(document.querySelector('#editBlogViewContent'))
+    .then(editor => {
+      editBlogViewEditor = editor;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+  $('#modal-edit-blog-view').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const published = button.data('published');
+
+    if (published) {
+      const date = new Date(published);
+      const iso = date.toISOString();
+      $('#editBlogViewPublishDate').val(iso.slice(0, 10));
+      $('#editBlogViewPublishTime').val(iso.slice(11, 16));
+    } else {
+      $('#editBlogViewPublishDate').val('');
+      $('#editBlogViewPublishTime').val('');
+    }
+
+    if (editBlogViewEditor) {
+      editBlogViewEditor.setData($('#editBlogViewContent').val() || '');
+    }
+  });
+
+  $('#editBlogViewImageBox').on('click', function () {
+    $('#editBlogViewImageInput').click();
+  });
+
+  $('#editBlogViewImageInput').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    if (editBlogViewImageUrl) {
+      $.ajax({
+        url: '/delete-blog-image',
+        type: 'POST',
+        data: { imageUrl: editBlogViewImageUrl }
+      });
+    }
+
+    const formData = new FormData();
+    formData.append('blogImage', file);
+
+    $.ajax({
+      url: '/upload-blog-image',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      beforeSend: function () {
+        $('#editBlogViewImageBox').html('<span style="font-size:1rem; color:#6c757d;">Uploading...</span>');
+      },
+      success: function (res) {
+        editBlogViewImageUrl = res.imageUrl;
+        $('#editBlogViewCover').val(res.imageUrl);
+        $('#editBlogViewImageBox').html('<img src="' + res.imageUrl + '" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">');
+      },
+      error: function () {
+        $('#editBlogViewImageBox').html('<span id="editBlogViewImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+        alert('Failed to upload image');
+      }
+    });
+  });
+
+  $('#saveBlogViewBtn').on('click', function () {
+    const id = $('#editBlogViewId').val();
+    const title = $('#editBlogViewTitle').val().trim();
+    const slug = $('#editBlogViewSlug').val().trim();
+    const excerpt = $('#editBlogViewExcerpt').val().trim();
+    const coverImageUrl = $('#editBlogViewCover').val().trim();
+    const tags = $('#editBlogViewTags').val().trim();
+    const publishDate = $('#editBlogViewPublishDate').val();
+    const publishTime = $('#editBlogViewPublishTime').val();
+    const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
+    const status = $('input[name="editBlogViewStatus"]:checked').val();
+    const content = editBlogViewEditor ? editBlogViewEditor.getData() : '';
+
+    if (!title) {
+      alert('Title is required');
+      return;
+    }
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Saving...');
+
+    $.ajax({
+      url: `/blogs/${id}`,
+      type: 'POST',
+      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to update blog');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+</script>

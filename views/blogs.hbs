@@ -1,0 +1,533 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Blogs</div>
+        <h2 class="page-title">Manage Blogs</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-new-blog">
+            <i class="ti ti-plus icon"></i>
+            Create new blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    {{#if blogs.length}}
+      <div class="row row-cards">
+        {{#each blogs}}
+          <div class="col-sm-6 col-lg-4 blog-card" data-blog-id="{{this._id}}">
+            <div class="card h-100">
+              <div class="card-img-top"
+                style="height:180px; background-image:url('{{#if this.coverImageUrl}}{{this.coverImageUrl}}{{else}}/static/logo.png{{/if}}'); background-size:cover; background-position:center;">
+              </div>
+              <div class="card-body">
+                <h3 class="card-title mb-1">{{this.title}}</h3>
+                <div class="text-muted mb-2">{{this.slug}}</div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
+                    {{#if this.isActive}}Active{{else}}In active{{/if}}
+                  </span>
+                  {{#if this.publishedAt}}
+                    <span class="badge bg-azure-lt text-azure">Published · {{formatDate this.publishedAt}}</span>
+                  {{/if}}
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="/blogs/{{this._id}}/view" class="btn btn-primary btn-sm w-100">View</a>
+                  <button class="btn btn-secondary btn-sm w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modal-edit-blog"
+                    data-id="{{this._id}}"
+                    data-title="{{this.title}}"
+                    data-slug="{{this.slug}}"
+                    data-excerpt="{{this.excerpt}}"
+                    data-cover="{{this.coverImageUrl}}"
+                    data-tags="{{this.tags}}"
+                    data-active="{{this.isActive}}"
+                    data-published="{{this.publishedAt}}">
+                    Edit
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm w-100 delete-blog" data-id="{{this._id}}">
+                    Delete
+                  </button>
+                </div>
+                <textarea class="d-none blog-content">{{{this.content}}}</textarea>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="container-xl my-auto">
+        <div class="empty">
+          <div class="empty-img">
+            <i class="ti ti-mood-empty img" style="font-size: 8rem;"></i>
+          </div>
+          <p class="empty-title">No results found</p>
+          <p class="empty-subtitle text-secondary">
+            Try adjusting your search or filter to find what you're looking for.
+          </p>
+          <div class="empty-action">
+            <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+              data-bs-target="#modal-new-blog">
+              <i class="ti ti-plus icon"></i>
+              Add your first blog
+            </a>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</div>
+
+<!-- Create Blog Modal -->
+<div class="modal modal-blur fade" id="modal-new-blog" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" id="newBlogTitle" class="form-control" placeholder="Blog title" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Slug</label>
+          <input type="text" id="newBlogSlug" class="form-control" placeholder="auto-generated from title">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Excerpt</label>
+          <textarea id="newBlogExcerpt" class="form-control" rows="2" placeholder="Short summary"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content</label>
+          <textarea id="newBlogContent" class="form-control" rows="8"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="blogImageBox" class="border rounded d-flex align-items-center justify-content-center"
+            style="height: 150px; cursor: pointer;">
+            <span id="blogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>
+          </div>
+          <input type="file" id="blogImageInput" name="blogImage" accept="image/*" style="display: none;">
+          <input type="hidden" id="newBlogCover">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tags</label>
+          <input type="text" id="newBlogTags" class="form-control" placeholder="comma separated">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Date</label>
+            <input type="date" id="newBlogPublishDate" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Time</label>
+            <input type="time" id="newBlogPublishTime" class="form-control">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <div class="form-selectgroup-boxes row">
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="newBlogStatus" value="active" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">Active</span>
+                    <span class="d-block text-secondary">Blog is active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="newBlogStatus" value="in-active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">In active</span>
+                    <span class="d-block text-secondary">Blog is in-active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-primary" id="createBlogBtn">Create Blog</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Blog Modal -->
+<div class="modal modal-blur fade" id="modal-edit-blog" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editBlogId">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" id="editBlogTitle" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Slug</label>
+          <input type="text" id="editBlogSlug" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Excerpt</label>
+          <textarea id="editBlogExcerpt" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content</label>
+          <textarea id="editBlogContent" class="form-control" rows="8"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="editBlogImageBox" class="border rounded d-flex align-items-center justify-content-center"
+            style="height: 150px; cursor: pointer;">
+            <span id="editBlogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>
+          </div>
+          <input type="file" id="editBlogImageInput" name="blogImage" accept="image/*" style="display: none;">
+          <input type="hidden" id="editBlogCover">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tags</label>
+          <input type="text" id="editBlogTags" class="form-control" placeholder="comma separated">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Date</label>
+            <input type="date" id="editBlogPublishDate" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Publish Time</label>
+            <input type="time" id="editBlogPublishTime" class="form-control">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <div class="form-selectgroup-boxes row">
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editBlogStatus" value="active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">Active</span>
+                    <span class="d-block text-secondary">Blog is active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="editBlogStatus" value="in-active" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">In active</span>
+                    <span class="d-block text-secondary">Blog is in-active.</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
+        <button class="btn btn-primary" id="saveBlogBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let newBlogEditor;
+  let editBlogEditor;
+  let newBlogImageUrl = null;
+  let editBlogImageUrl = null;
+
+  ClassicEditor
+    .create(document.querySelector('#newBlogContent'))
+    .then(editor => {
+      newBlogEditor = editor;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+  ClassicEditor
+    .create(document.querySelector('#editBlogContent'))
+    .then(editor => {
+      editBlogEditor = editor;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+  $('#modal-edit-blog').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const id = button.data('id');
+
+    $('#editBlogId').val(id);
+    $('#editBlogTitle').val(button.data('title'));
+    $('#editBlogSlug').val(button.data('slug'));
+    const row = button.closest('.blog-card');
+    $('#editBlogExcerpt').val(button.data('excerpt') || '');
+    const cover = button.data('cover') || '';
+    $('#editBlogCover').val(cover);
+    if (cover) {
+      $('#editBlogImageBox').html('<img src="' + cover + '" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">');
+    } else {
+      $('#editBlogImageBox').html('<span id="editBlogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+    }
+    editBlogImageUrl = cover || null;
+    $('#editBlogTags').val(button.data('tags') || '');
+
+    const published = button.data('published');
+    if (published) {
+      const date = new Date(published);
+      const iso = date.toISOString();
+      $('#editBlogPublishDate').val(iso.slice(0, 10));
+      $('#editBlogPublishTime').val(iso.slice(11, 16));
+    } else {
+      $('#editBlogPublishDate').val('');
+      $('#editBlogPublishTime').val('');
+    }
+
+    const isActive = String(button.data('active')) === 'true';
+    $(`input[name="editBlogStatus"][value="${isActive ? 'active' : 'in-active'}"]`).prop('checked', true);
+
+    if (editBlogEditor) {
+      const contentValue = row.find('.blog-content').val() || '';
+      editBlogEditor.setData(contentValue);
+    }
+  });
+
+  $('#modal-new-blog').on('show.bs.modal', function () {
+    $('#newBlogTitle').val('');
+    $('#newBlogSlug').val('');
+    $('#newBlogExcerpt').val('');
+    $('#newBlogCover').val('');
+    $('#newBlogTags').val('');
+    $('#newBlogPublishDate').val('');
+    $('#newBlogPublishTime').val('');
+    $('input[name="newBlogStatus"][value="active"]').prop('checked', true);
+    newBlogImageUrl = null;
+    $('#blogImageBox').html('<span id="blogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+
+    if (newBlogEditor) {
+      newBlogEditor.setData('');
+    }
+  });
+
+  $('#createBlogBtn').on('click', function () {
+    const title = $('#newBlogTitle').val().trim();
+    const slug = $('#newBlogSlug').val().trim();
+    const excerpt = $('#newBlogExcerpt').val().trim();
+    const coverImageUrl = $('#newBlogCover').val().trim();
+    const tags = $('#newBlogTags').val().trim();
+    const publishDate = $('#newBlogPublishDate').val();
+    const publishTime = $('#newBlogPublishTime').val();
+    const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
+    const status = $('input[name="newBlogStatus"]:checked').val();
+    const content = newBlogEditor ? newBlogEditor.getData() : '';
+
+    if (!title) {
+      alert('Title is required');
+      return;
+    }
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Creating...');
+
+    $.ajax({
+      url: '/blogs',
+      type: 'POST',
+      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to create blog');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+
+  $('#saveBlogBtn').on('click', function () {
+    const id = $('#editBlogId').val();
+    const title = $('#editBlogTitle').val().trim();
+    const slug = $('#editBlogSlug').val().trim();
+    const excerpt = $('#editBlogExcerpt').val().trim();
+    const coverImageUrl = $('#editBlogCover').val().trim();
+    const tags = $('#editBlogTags').val().trim();
+    const publishDate = $('#editBlogPublishDate').val();
+    const publishTime = $('#editBlogPublishTime').val();
+    const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
+    const status = $('input[name="editBlogStatus"]:checked').val();
+    const content = editBlogEditor ? editBlogEditor.getData() : '';
+
+    if (!title) {
+      alert('Title is required');
+      return;
+    }
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.prop('disabled', true).text('Saving...');
+
+    $.ajax({
+      url: `/blogs/${id}`,
+      type: 'POST',
+      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      success: function () {
+        window.location.reload();
+      },
+      error: function (err) {
+        alert(err.responseJSON?.error || 'Failed to update blog');
+      },
+      complete: function () {
+        $btn.prop('disabled', false).text(originalText);
+      }
+    });
+  });
+
+  $('.blog-card').on('click', function (event) {
+    if ($(event.target).closest('button, a').length) return;
+    $(this).find('button[data-bs-target="#modal-edit-blog"]').trigger('click');
+  });
+
+  $(document).on('click', '.delete-blog', function () {
+    const blogId = $(this).attr('data-id');
+    if (!blogId) return;
+
+    const confirmed = confirm('Are you sure you want to delete this blog?');
+    if (!confirmed) return;
+
+    $.ajax({
+      url: `/blogs/${blogId}/delete`,
+      type: 'POST',
+      contentType: 'application/json',
+      success: function () {
+        const card = $(document).find(`[data-blog-id="${blogId}"]`);
+        if (card.length) {
+          card.remove();
+        }
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON?.error || xhr.responseText || 'Failed to delete blog');
+      }
+    });
+  });
+
+  $('#blogImageBox').on('click', function () {
+    $('#blogImageInput').click();
+  });
+
+  $('#blogImageInput').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    if (newBlogImageUrl) {
+      $.ajax({
+        url: '/delete-blog-image',
+        type: 'POST',
+        data: { imageUrl: newBlogImageUrl }
+      });
+    }
+
+    const formData = new FormData();
+    formData.append('blogImage', file);
+
+    $.ajax({
+      url: '/upload-blog-image',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      beforeSend: function () {
+        $('#blogImageBox').html('<span style="font-size:1rem; color:#6c757d;">Uploading...</span>');
+      },
+      success: function (res) {
+        newBlogImageUrl = res.imageUrl;
+        $('#newBlogCover').val(res.imageUrl);
+        $('#blogImageBox').html('<img src="' + res.imageUrl + '" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">');
+      },
+      error: function () {
+        $('#blogImageBox').html('<span id="blogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+        alert('Failed to upload image');
+      }
+    });
+  });
+
+  $('#editBlogImageBox').on('click', function () {
+    $('#editBlogImageInput').click();
+  });
+
+  $('#editBlogImageInput').on('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    if (editBlogImageUrl) {
+      $.ajax({
+        url: '/delete-blog-image',
+        type: 'POST',
+        data: { imageUrl: editBlogImageUrl }
+      });
+    }
+
+    const formData = new FormData();
+    formData.append('blogImage', file);
+
+    $.ajax({
+      url: '/upload-blog-image',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      beforeSend: function () {
+        $('#editBlogImageBox').html('<span style="font-size:1rem; color:#6c757d;">Uploading...</span>');
+      },
+      success: function (res) {
+        editBlogImageUrl = res.imageUrl;
+        $('#editBlogCover').val(res.imageUrl);
+        $('#editBlogImageBox').html('<img src="' + res.imageUrl + '" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">');
+      },
+      error: function () {
+        $('#editBlogImageBox').html('<span id="editBlogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
+        alert('Failed to upload image');
+      }
+    });
+  });
+</script>

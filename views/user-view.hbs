@@ -1,0 +1,104 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Users</div>
+        <h2 class="page-title">User Activity</h2>
+      </div>
+      <div class="col-auto ms-auto">
+        <div class="btn-list">
+          <a href="/users" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left icon icon-2"></i>
+            Back
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">User Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-2"><strong>Name:</strong> {{user.name}}</div>
+            <div class="mb-2"><strong>Email:</strong> {{user.email}}</div>
+            <div class="mb-2"><strong>Status:</strong>
+              {{#if user.isActive}}
+                <span class="badge bg-green-lt text-green">Active</span>
+              {{else}}
+                <span class="badge bg-red-lt text-red">In active</span>
+              {{/if}}
+            </div>
+            <div class="text-muted"><strong>Created:</strong> {{formatDate user.createdAt}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Activity Log</h3>
+          </div>
+          <div class="card-body border-bottom">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div class="text-muted">Showing page {{pagination.page}} of {{pagination.totalPages}} ({{pagination.total}} items)</div>
+              <ul class="pagination mb-0">
+                <li class="page-item {{#unless pagination.hasPrev}}disabled{{/unless}}">
+                  <a class="page-link" href="/users/{{user._id}}/view?page={{pagination.prevPage}}&limit={{pagination.limit}}" tabindex="-1" aria-disabled="{{#unless pagination.hasPrev}}true{{/unless}}">
+                    <i class="ti ti-chevron-left"></i>
+                  </a>
+                </li>
+                {{#each pagination.pages}}
+                  <li class="page-item {{#if this.isActive}}active{{/if}}">
+                    <a class="page-link" href="/users/{{../user._id}}/view?page={{this.number}}&limit={{../pagination.limit}}">{{this.number}}</a>
+                  </li>
+                {{/each}}
+                <li class="page-item {{#unless pagination.hasNext}}disabled{{/unless}}">
+                  <a class="page-link" href="/users/{{user._id}}/view?page={{pagination.nextPage}}&limit={{pagination.limit}}" aria-disabled="{{#unless pagination.hasNext}}true{{/unless}}">
+                    <i class="ti ti-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-vcenter card-table">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Entity</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#if logs.length}}
+                    {{#each logs}}
+                      <tr>
+                        <td class="text-nowrap">{{this.action}}</td>
+                        <td class="text-muted">{{this.entityType}}</td>
+                        <td>{{this.message}}</td>
+                        <td class="text-muted">{{formatDate this.createdAt}}</td>
+                      </tr>
+                    {{/each}}
+                  {{else}}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted">No activity found.</td>
+                    </tr>
+                  {{/if}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

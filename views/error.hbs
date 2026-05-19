@@ -1,0 +1,24 @@
+<div class="page page-center">
+  <div class="container-tight py-4">
+    <div class="empty">
+      {{#if success}}
+      <p class="empty-title">{{heading}}</p>
+      <p class="empty-subtitle text-secondary">
+        {{message}}
+      </p>
+      {{else}}
+      <div class="empty-header">404</div>
+      <p class="empty-title">{{heading}}</p>
+      <p class="empty-subtitle text-secondary">
+       {{{error}}}
+      </p>
+      <div class="empty-action">
+        <a href="/dashboard" class="btn btn-primary">
+          <i class="ti ti-arrow-left icon"></i>
+          Take me home
+        </a>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>

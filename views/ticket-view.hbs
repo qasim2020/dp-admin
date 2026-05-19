@@ -1,0 +1,132 @@
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Support</div>
+        <h2 class="page-title">Ticket Details</h2>
+      </div>
+      <div class="col-auto ms-auto">
+        <div class="btn-list">
+          <a href="/tickets" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left icon icon-2"></i>
+            Back
+          </a>
+          <button class="btn btn-outline-secondary" id="ticket-toggle" data-action="{{#if ticket.isRead}}unread{{else}}read{{/if}}">
+            <i class="ti {{#if ticket.isRead}}ti-mail-off{{else}}ti-mail{{/if}} icon icon-2"></i>
+            {{#if ticket.isRead}}Mark unread{{else}}Mark read{{/if}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-lg-8">
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title">Message</h3>
+            <div class="ms-auto">
+              <span class="badge {{#if ticket.isRead}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}" id="ticket-status-badge">
+                {{#if ticket.isRead}}Read{{else}}Unread{{/if}}
+              </span>
+            </div>
+          </div>
+          <div class="card-body">
+            {{#if ticket.message}}
+            <p class="text-muted">{{ticket.message}}</p>
+            {{else}}
+            <p class="text-muted">No message provided.</p>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title">Requester</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-2"><strong>Name:</strong> {{ticket.name}}</div>
+            <div class="mb-2"><strong>Email:</strong> {{ticket.email}}</div>
+            {{#if ticket.phone}}
+            <div class="mb-2"><strong>Phone:</strong> {{ticket.phone}}</div>
+            {{/if}}
+            {{#if ticket.country}}
+            <div class="mb-2"><strong>Country:</strong> {{ticket.country}}</div>
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Ticket Info</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-2"><strong>Submitted:</strong> {{formatTime ticket.createdAt}}</div>
+            {{#if ticket.readAt}}
+            <div class="mb-2"><strong>Read at:</strong> {{formatTime ticket.readAt}}</div>
+            {{/if}}
+            <div class="mb-2"><strong>Source:</strong> {{#if ticket.source}}{{ticket.source}}{{else}}-{{/if}}</div>
+            {{#if ticket.service}}
+            <div class="mb-2"><strong>Service:</strong> {{ticket.service}}</div>
+            {{/if}}
+            {{#if ticket.status}}
+            <div class="mb-2"><strong>Status:</strong> {{ticket.status}}</div>
+            {{/if}}
+            {{#if ticket.childName}}
+            <div class="mb-2"><strong>Child name:</strong> {{ticket.childName}}</div>
+            {{/if}}
+            {{#if ticket.childAge}}
+            <div class="mb-2"><strong>Child age:</strong> {{ticket.childAge}}</div>
+            {{/if}}
+            {{#if ticket.guardianName}}
+            <div class="mb-2"><strong>Guardian:</strong> {{ticket.guardianName}}</div>
+            {{/if}}
+            {{#if ticket.medicalConditions}}
+            <div class="mb-2"><strong>Medical conditions:</strong> {{ticket.medicalConditions}}</div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#ticket-toggle').on('click', function () {
+    const $button = $(this);
+    const $badge = $('#ticket-status-badge');
+    const action = $button.data('action');
+    const ticketId = '{{ticket._id}}';
+
+    if (!action) return;
+
+    $.ajax({
+      url: `/tickets/${ticketId}/${action}`,
+      type: 'POST',
+      success: function () {
+        const isRead = action === 'read';
+        const nextAction = isRead ? 'unread' : 'read';
+
+        $button.data('action', nextAction);
+        $button.html(`
+          <i class="ti ${isRead ? 'ti-mail-off' : 'ti-mail'} icon icon-2"></i>
+          ${isRead ? 'Mark unread' : 'Mark read'}
+        `);
+
+        $badge
+          .removeClass('bg-green-lt text-green bg-red-lt text-red')
+          .addClass(isRead ? 'bg-green-lt text-green' : 'bg-red-lt text-red')
+          .text(isRead ? 'Read' : 'Unread');
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON?.error || 'Failed to update ticket');
+      }
+    });
+  });
+</script>

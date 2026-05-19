@@ -1,10 +1,4 @@
-node_modules
-config000.json 
-**.swo
-**.swp
-**.swn
-config.json
-config0.json
-config00.json
-.DS_Store
+node_modules/
 .env
+uploads/
+*.log

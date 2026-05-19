@@ -1,0 +1,51 @@
+<a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
+    <i class="ti ti-bell icon"></i>
+    <span class="badge bg-red notification-check"></span>
+</a>
+<div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card"
+    style="width: 80vw;max-width: 500px;">
+    <div class="card" style="min-width: 30vw;">
+        <div class="card-header">
+            <h3 class="card-title">Recent activity</h3>
+        </div>
+        <div class="list-group list-group-flush list-group-hoverable notifications">
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col-auto">
+                        <a href="">
+                            <span class="avatar bg-red-lt">QA</span>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <div class="">
+                            A test notification
+                            <br>
+                            <span class="badge bg-green-lt mt-1"></b3>Project</span>
+                            <span class="text-decoration-line-through">Hello world</span>
+                            <span>A new value</span>
+                        </div>
+                        <div class="text-secondary">2 hours ago</div>
+                    </div>
+                    <div class="col-auto align-self-center cursor-pointer">
+                        <div class="col-auto">
+                            <a class="list-group-item-actions" log-id="{{log._id}}" onclick="clearNotification(this)">
+                                <i class="ti ti-x icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="min-width:30vw">
+        <div class="card-header">
+            <h3 class="card-title">No new notifications</h3>
+        </div>
+        <div class="card-body text-center">
+            <button type="button" class="btn" onclick="$(this).closest('.dropdown-menu').removeClass('show');">
+                <i class="ti ti-x icon"></i>
+                Close
+            </button>
+        </div>
+    </div>
+</div>

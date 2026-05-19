@@ -1,13 +1,16 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
+const { promisify } = require('util');
 const Settings = require('../models/Settings');
 
-const { isValidEmail } = require('../modules/checkValidForm');
+const { isValidEmail, isStrongPassword } = require('../modules/checkValidForm');
 const { createLog } = require('../modules/logService');
+const pbkdf2Async = promisify(crypto.pbkdf2);
+const RESET_TOKEN_BYTES = 32;
 
 exports.renderLoginPage = async (req, res) => {
     try {
@@ -17,14 +20,35 @@ exports.renderLoginPage = async (req, res) => {
             error: 'An error occurred while rendering login page',
             details: error.message,
         });
-    }
+    } 
 };
 
-function generateMagicToken(email) {
-    return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '60m' });
+function normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
 }
 
-async function sendMagicLinkEmail(name, email, link) {
+async function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+    const hashBuffer = await pbkdf2Async(password, salt, 100000, 64, 'sha512');
+    const hash = hashBuffer.toString('hex');
+    return { salt, hash };
+}
+
+async function verifyPassword(password, salt, hash) {
+    const currentHashBuffer = await pbkdf2Async(password, salt, 100000, 64, 'sha512');
+    const currentHash = currentHashBuffer.toString('hex');
+    const currentBuffer = Buffer.from(currentHash, 'hex');
+    const storedBuffer = Buffer.from(hash, 'hex');
+    if (currentBuffer.length !== storedBuffer.length) {
+        return false;
+    }
+    return crypto.timingSafeEqual(currentBuffer, storedBuffer);
+}
+
+function hashResetToken(token) {
+    return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+async function sendPasswordResetEmail(name, email, link) {
     const settings = await Settings.findOne({ key: 'main' }).lean();
 
     if (!settings || !settings.emailHost || !settings.emailPort || !settings.emailUser || !settings.emailPass) {
@@ -52,70 +76,50 @@ async function sendMagicLinkEmail(name, email, link) {
         socketTimeout: 20000,
     });
 
-    const templatePath = path.join(__dirname, '../views/emails/magicLink.hbs');
+    const templatePath = path.join(__dirname, '../views/emails/passwordReset.hbs');
     const templateSource = await fs.readFile(templatePath, 'utf8');
     const compiledTemplate = handlebars.compile(templateSource);
 
     const html = compiledTemplate({
         name,
-        magicLink: link,
+        resetLink: link,
     });
 
     await transporter.sendMail({
         from: `"${settings.emailFromName || 'iLearningHubb'}" <${settings.emailFromAddress || settings.emailUser}>`,
         to: email,
-        subject: 'Login to Dashboard - Magic Link',
+        subject: 'Reset your dashboard password',
         html,
     });
 }
 
-exports.sendMagicLink = async (req, res) => {
+exports.login = async (req, res) => {
     try {
-        const { email: emailProvided } = req.body;
+        const { email: emailProvided, password } = req.body;
+        const email = normalizeEmail(emailProvided);
 
-        const email = emailProvided.toLowerCase();
-
-        if (!isValidEmail(email)) {
-            res.status(400).send(`${email} is an invalid email.`);
-            return false;
+        if (!isValidEmail(email) || !password) {
+            return res.status(400).json({ error: 'Please provide a valid email and password.' });
         }
 
-        let user = await User.findOne({ email });
-
-        if (!user) {
-            res.status(404).send(`No account found for ${email}.`);
-            return false;
+        const user = await User.findOne({ email });
+        if (!user || !user.isActive) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
-        const token = generateMagicToken(email);
-        const baseUrl = req.protocol && req.get ? `${req.protocol}://${req.get('host')}` : process.env.DOMAIN_URL;
-        const link = `${baseUrl}/auth-magic-link?token=${token}`;
-        await sendMagicLinkEmail(user.name, user.email, link);
-        res.json({ success: true });
-        // res.json({ link });
+        if (!user.passwordHash || !user.passwordSalt) {
+            return res.status(401).json({ error: 'No password is set for this account. Use Forgot password to set one.' });
+        }
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            error: 'An error occurred while sending magic link',
-            details: error.message,
-        });
-    }
-};
+        if (!await verifyPassword(password, user.passwordSalt, user.passwordHash)) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
 
-exports.testMagicLink = async (req, res) => {
-    try {
-        const token = req.query.token;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        let user = await User.findOne({ email: decoded.email });
-        if (!user) {
-            res.status(404).send('User not found');
-            return;
-        };
         req.session.userId = user._id;
         req.session.email = user.email;
         req.session.name = user.name;
-        
+        req.session.user = { id: user._id, email: user.email, name: user.name };
+
         req.session.save(() => {
             createLog({
                 req,
@@ -123,15 +127,164 @@ exports.testMagicLink = async (req, res) => {
                 action: 'login',
                 entityType: 'user',
                 entityId: user._id,
-                message: 'User logged in via magic link',
+                message: 'User logged in with email and password',
                 metadata: { email: user.email },
             });
-            res.redirect('/dashboard');
+            res.json({ success: true });
         });
-    } catch (e) {
-        res.render('login', { 
-            layout: 'auth', 
-            note: 'Invalid / expired login link. Please create a new login link.' 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'An error occurred while logging in',
+            details: error.message,
+        });
+    }
+};
+
+exports.renderForgotPasswordPage = async (req, res) => {
+    try {
+        res.render('forgot-password', { layout: 'auth' });
+    } catch (error) {
+        res.status(500).json({
+            error: 'An error occurred while rendering forgot password page',
+            details: error.message,
+        });
+    }
+};
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const email = normalizeEmail(req.body.email);
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ error: 'Please provide a valid email address.' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.json({ success: true, message: 'If this email exists, a reset link has been sent.' });
+        }
+
+        const resetToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+        user.passwordResetToken = hashResetToken(resetToken);
+        user.passwordResetExpiresAt = new Date(Date.now() + 1000 * 60 * 60);
+        await user.save();
+
+        const baseUrl = req.protocol && req.get ? `${req.protocol}://${req.get('host')}` : process.env.DOMAIN_URL;
+        const link = `${baseUrl}/reset-password?token=${resetToken}`;
+        await sendPasswordResetEmail(user.name, user.email, link);
+
+        createLog({
+            req,
+            userId: user._id,
+            action: 'password_reset_requested',
+            entityType: 'user',
+            entityId: user._id,
+            message: 'Password reset requested',
+            metadata: { email: user.email },
+        });
+
+        return res.json({ success: true, message: 'If this email exists, a reset link has been sent.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: 'An error occurred while processing forgot password',
+            details: error.message,
+        });
+    }
+};
+
+exports.renderResetPasswordPage = async (req, res) => {
+    try {
+        const token = String(req.query.token || '');
+        if (!token) {
+            return res.render('reset-password', {
+                layout: 'auth',
+                invalidToken: true,
+                note: 'Reset link is invalid or expired.',
+            });
+        }
+
+        const hashedToken = hashResetToken(token);
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpiresAt: { $gt: new Date() },
+        }).lean();
+
+        if (!user) {
+            return res.render('reset-password', {
+                layout: 'auth',
+                invalidToken: true,
+                note: 'Reset link is invalid or expired.',
+            });
+        }
+
+        return res.render('reset-password', { layout: 'auth' });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'An error occurred while rendering reset password page',
+            details: error.message,
+        });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const token = String(req.body.token || '');
+        const password = String(req.body.password || '');
+        const confirmPassword = String(req.body.confirmPassword || '');
+
+        if (!token) {
+            return res.status(400).json({ error: 'Reset token is required.' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ error: 'Passwords do not match.' });
+        }
+
+        if (!isStrongPassword(password)) {
+            return res.status(400).json({
+                error: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+            });
+        }
+
+        const hashedToken = hashResetToken(token);
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpiresAt: { $gt: new Date() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Reset link is invalid or expired.' });
+        }
+
+        const { salt, hash } = await hashPassword(password);
+        user.passwordSalt = salt;
+        user.passwordHash = hash;
+        user.passwordResetToken = null;
+        user.passwordResetExpiresAt = null;
+        await user.save();
+
+        req.session.userId = user._id;
+        req.session.email = user.email;
+        req.session.name = user.name;
+        req.session.user = { id: user._id, email: user.email, name: user.name };
+
+        req.session.save(() => {
+            createLog({
+                req,
+                userId: user._id,
+                action: 'password_reset',
+                entityType: 'user',
+                entityId: user._id,
+                message: 'User password reset completed',
+                metadata: { email: user.email },
+            });
+            res.json({ success: true });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'An error occurred while resetting password',
+            details: error.message,
         });
     }
 };

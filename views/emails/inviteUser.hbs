@@ -2,8 +2,11 @@
   <h2>You’re invited to {{brandName}} Admin</h2>
   <p>Hi {{name}},</p>
   <p>You’ve been invited to access the {{brandName}} admin dashboard.</p>
-  {{#if magicLink}}
-    <p><a href="{{magicLink}}" style="color: #2563eb;">Open Dashboard</a></p>
+  {{#if loginUrl}}
+    <p><a href="{{loginUrl}}" style="color: #2563eb;">Open login page</a></p>
+  {{/if}}
+  {{#if forgotPasswordUrl}}
+    <p>To set your password for first-time access, use <a href="{{forgotPasswordUrl}}" style="color: #2563eb;">Forgot password</a>.</p>
   {{/if}}
   <p>If you did not expect this invitation, you can ignore this email.</p>
   <p>Thanks,<br/>{{brandName}} Team</p>

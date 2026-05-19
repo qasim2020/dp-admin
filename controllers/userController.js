@@ -2,7 +2,6 @@ const User = require('../models/User');
 const Log = require('../models/Logs');
 const Settings = require('../models/Settings');
 const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
 const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
@@ -63,13 +62,13 @@ const sendInviteEmail = async (user, req) => {
 
     const fallbackDomain = process.env.DOMAIN_URL || '';
     const baseUrl = req?.protocol && req?.get ? `${req.protocol}://${req.get('host')}` : fallbackDomain;
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '60m' });
-    const magicLink = baseUrl ? `${baseUrl}/auth-magic-link?token=${token}` : '';
+    const loginUrl = baseUrl ? `${baseUrl}/login` : '';
+    const forgotPasswordUrl = baseUrl ? `${baseUrl}/forgot-password` : '';
 
     const html = compiledTemplate({
         name: user.name,
-        loginUrl: magicLink,
-        magicLink,
+        loginUrl,
+        forgotPasswordUrl,
         brandName: settings.brandName || 'iLearningHubb',
     });
 

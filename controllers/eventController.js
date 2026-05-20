@@ -82,7 +82,7 @@ exports.getEvent = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
     try {
-        const { title, excerpt, content, coverImageUrl, location, eventDate, eventEndDate, tags, isFeatured, isActive } = req.body;
+        const { title, excerpt, content, coverImageUrl, location, eventDate, eventEndDate, tags, isFeatured } = req.body;
         const slug = slugify(title) + '-' + Date.now();
         const event = await Event.create({
             title, slug, excerpt, content, coverImageUrl, location,
@@ -90,7 +90,6 @@ exports.createEvent = async (req, res) => {
             eventEndDate: eventEndDate ? new Date(eventEndDate) : null,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             isFeatured: isFeatured === 'true',
-            isActive: isActive !== 'false',
         });
         await Log.create({ user: req.session.userId, action: 'create', entityType: 'Event', entityId: event._id, message: `Created event: ${title}`, ip: req.ip });
         res.json({ success: true, event });
@@ -101,14 +100,13 @@ exports.createEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
     try {
-        const { title, excerpt, content, coverImageUrl, location, eventDate, eventEndDate, tags, isFeatured, isActive } = req.body;
+        const { title, excerpt, content, coverImageUrl, location, eventDate, eventEndDate, tags, isFeatured } = req.body;
         const event = await Event.findByIdAndUpdate(req.params.id, {
             title, excerpt, content, coverImageUrl, location,
             eventDate: eventDate ? new Date(eventDate) : null,
             eventEndDate: eventEndDate ? new Date(eventEndDate) : null,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             isFeatured: isFeatured === 'true',
-            isActive: isActive !== 'false',
         }, { new: true });
         await Log.create({ user: req.session.userId, action: 'update', entityType: 'Event', entityId: event._id, message: `Updated event: ${title}`, ip: req.ip });
         res.json({ success: true, event });

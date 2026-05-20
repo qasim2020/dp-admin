@@ -24,7 +24,7 @@ exports.getGallery = async (req, res) => {
 
 exports.createItem = async (req, res) => {
     try {
-        const { url, caption, type, category, isActive, isFeatured, publicId } = req.body;
+        const { url, caption, type, category, isFeatured, publicId } = req.body;
         const last = await GalleryItem.findOne().sort({ sortOrder: -1 }).select('sortOrder').lean();
         const nextSortOrder = typeof last?.sortOrder === 'number' ? last.sortOrder + 1 : 1;
 
@@ -34,7 +34,6 @@ exports.createItem = async (req, res) => {
             caption,
             type: type || 'image',
             category,
-            isActive: isActive !== 'false',
             isFeatured: isFeatured === 'true',
             sortOrder: nextSortOrder,
         });

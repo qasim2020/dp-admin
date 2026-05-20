@@ -9,7 +9,8 @@ const UserSchema = new mongoose.Schema(
         passwordHash: { type: String, required: false },
         passwordResetToken: { type: String, required: false },
         passwordResetExpiresAt: { type: Date, required: false },
-        isActive: { type: Boolean, default: true },
+        inviteToken: { type: String, required: false },
+        inviteExpiresAt: { type: Date, required: false },
     },
     {
         timestamps: true

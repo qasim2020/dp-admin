@@ -32,6 +32,14 @@
               <input type="text" id="settingsBrandName" class="form-control" value="{{settings.brandName}}">
             </div>
             <div class="mb-3">
+              <label class="form-label">Primary Brand Color</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="color" id="settingsPrimaryColor" class="form-control form-control-color" value="{{#if settings.primaryColor}}{{settings.primaryColor}}{{else}}#0f6ad8{{/if}}" title="Choose brand color">
+                <input type="text" id="settingsPrimaryColorText" class="form-control" value="{{#if settings.primaryColor}}{{settings.primaryColor}}{{else}}#0f6ad8{{/if}}" placeholder="#0f6ad8">
+              </div>
+              <div class="form-hint">Used to style invite email header and action button.</div>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Main Logo</label>
               <div id="settingsLogoBox" class="border rounded d-flex align-items-center justify-content-center"
                 style="height: 150px; width: 150px; cursor: pointer; background: #f8f9fa;">
@@ -178,6 +186,21 @@
     });
   });
 
+  const normalizeHexColor = function (value, fallback = '#0f6ad8') {
+    const raw = String(value || '').trim();
+    const normalized = raw.startsWith('#') ? raw : `#${raw}`;
+    return /^#([0-9a-fA-F]{6})$/.test(normalized) ? normalized.toLowerCase() : fallback;
+  };
+
+  $('#settingsPrimaryColor').on('input', function () {
+    $('#settingsPrimaryColorText').val($(this).val());
+  });
+
+  $('#settingsPrimaryColorText').on('input', function () {
+    const normalized = normalizeHexColor($(this).val(), $('#settingsPrimaryColor').val() || '#0f6ad8');
+    $('#settingsPrimaryColor').val(normalized);
+  });
+
   const renderTicketEmailList = function () {
     const $list = $('#ticketEmailList');
     $list.empty();
@@ -247,6 +270,7 @@
     const data = {
       brandName: $('#settingsBrandName').val().trim(),
       logoUrl: $('#settingsLogoUrl').val().trim(),
+      primaryColor: normalizeHexColor($('#settingsPrimaryColorText').val(), $('#settingsPrimaryColor').val() || '#0f6ad8'),
       emailHost: $('#emailHost').val().trim(),
       emailPort: $('#emailPort').val(),
       emailUser: $('#emailUser').val().trim(),

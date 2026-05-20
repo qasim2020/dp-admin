@@ -19,8 +19,8 @@
             data-excerpt="{{blog.excerpt}}"
             data-cover="{{blog.displayCoverImage}}"
             data-tags="{{#each blog.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"
-            data-active="{{blog.isActive}}"
-            data-published="{{blog.publishedAt}}">
+            data-publish-date="{{dateInput blog.publishedAt}}"
+            data-publish-time="{{timeInput blog.publishedAt}}">
             <i class="ti ti-edit icon icon-2"></i>
             Edit Blog
           </a>
@@ -42,11 +42,6 @@
         <div class="card-body">
           <h3 class="card-title mb-2">{{blog.title}}</h3>
           <div class="d-flex flex-wrap gap-2 mb-3">
-            {{#if blog.isActive}}
-              <span class="badge bg-green-lt text-green">Active</span>
-            {{else}}
-              <span class="badge bg-red-lt text-red">Inactive</span>
-            {{/if}}
             {{#if blog.publishedAt}}
               <span class="badge bg-azure-lt text-azure">Published · {{formatDate blog.publishedAt}}</span>
             {{/if}}
@@ -64,10 +59,6 @@
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">Updated</span>
               <span class="text-end fw-medium">{{formatDate blog.updatedAt}}</span>
-            </div>
-            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
-              <span class="text-secondary">Status</span>
-              <span class="text-end fw-medium">{{#if blog.isActive}}Active{{else}}Inactive{{/if}}</span>
             </div>
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">Tags</span>
@@ -148,39 +139,6 @@
             <input type="time" id="editBlogViewPublishTime" class="form-control">
           </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Status</label>
-          <div class="form-selectgroup-boxes row">
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="editBlogViewStatus" value="active" class="form-selectgroup-input" {{#if blog.isActive}}checked{{/if}}>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Active</span>
-                    <span class="d-block text-secondary">Blog is active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="editBlogViewStatus" value="in-active" class="form-selectgroup-input" {{#unless blog.isActive}}checked{{/unless}}>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">In active</span>
-                    <span class="d-block text-secondary">Blog is in-active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
@@ -205,17 +163,8 @@
 
   $('#modal-edit-blog-view').on('show.bs.modal', function (event) {
     const button = $(event.relatedTarget);
-    const published = button.data('published');
-
-    if (published) {
-      const date = new Date(published);
-      const iso = date.toISOString();
-      $('#editBlogViewPublishDate').val(iso.slice(0, 10));
-      $('#editBlogViewPublishTime').val(iso.slice(11, 16));
-    } else {
-      $('#editBlogViewPublishDate').val('');
-      $('#editBlogViewPublishTime').val('');
-    }
+    $('#editBlogViewPublishDate').val(button.data('publishDate') || '');
+    $('#editBlogViewPublishTime').val(button.data('publishTime') || '');
 
     if (editBlogViewEditor) {
       editBlogViewEditor.setData($('#editBlogViewContent').val() || '');
@@ -272,7 +221,6 @@
     const publishDate = $('#editBlogViewPublishDate').val();
     const publishTime = $('#editBlogViewPublishTime').val();
     const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
-    const status = $('input[name="editBlogViewStatus"]:checked').val();
     const content = editBlogViewEditor ? editBlogViewEditor.getData() : '';
 
     if (!title) {
@@ -287,7 +235,7 @@
     $.ajax({
       url: `/blogs/${id}`,
       type: 'POST',
-      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      data: { title, slug, excerpt, content, coverImageUrl, tags, publishedAt },
       success: function () {
         window.location.reload();
       },

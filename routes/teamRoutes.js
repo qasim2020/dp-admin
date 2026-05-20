@@ -8,6 +8,7 @@ const { uploadImageBuffer } = require('../modules/cloudinaryService');
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/team', requireLogin, teamController.getTeam);
+router.get('/team/:id', requireLogin, teamController.getMember);
 router.post('/upload-team-image', requireLogin, upload.single('teamImage'), async (req, res) => {
 	try {
 		if (!req.file) {
@@ -22,6 +23,8 @@ router.post('/upload-team-image', requireLogin, upload.single('teamImage'), asyn
 	}
 });
 router.post('/team', requireLogin, teamController.createMember);
+router.put('/team/reorder', requireLogin, teamController.reorderMembers);
+router.post('/team/reorder', requireLogin, teamController.reorderMembers);
 router.put('/team/:id', requireLogin, teamController.updateMember);
 router.delete('/team/:id', requireLogin, teamController.deleteMember);
 

@@ -33,11 +33,6 @@
                   <h3 class="card-title mb-1">{{this.title}}</h3>
                   <div class="text-secondary mb-2">{{this.slug}}</div>
                   <div class="d-flex gap-2 flex-wrap mb-2">
-                    {{#if this.isActive}}
-                      <span class="badge bg-green-lt text-green">Active</span>
-                    {{else}}
-                      <span class="badge bg-red-lt text-red">Inactive</span>
-                    {{/if}}
                     {{#if this.isFeatured}}
                       <span class="badge bg-azure-lt text-azure">Featured</span>
                     {{/if}}
@@ -52,17 +47,18 @@
                     <a class="btn btn-sm btn-outline-primary" href="/events/{{this._id}}">Open</a>
                     <button
                       class="btn btn-sm btn-outline-secondary edit-event-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#eventModal"
                       data-id="{{this._id}}"
                       data-title="{{this.title}}"
                       data-excerpt="{{this.excerpt}}"
                       data-content="{{this.content}}"
-                      data-date="{{this.parsedEventDate}}"
-                      data-end-date="{{this.parsedEndDate}}"
+                      data-date="{{datetimeLocal this.parsedEventDate}}"
+                      data-end-date="{{datetimeLocal this.parsedEndDate}}"
                       data-location="{{this.location}}"
                       data-cover="{{this.coverImageUrl}}"
                       data-tags="{{this.tags}}"
                       data-featured="{{this.isFeatured}}"
-                      data-active="{{this.isActive}}"
                     >Edit</button>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent('{{this._id}}')">Delete</button>
                   </div>
@@ -92,11 +88,6 @@
                   <h3 class="card-title mb-1">{{this.title}}</h3>
                   <div class="text-secondary mb-2">{{this.slug}}</div>
                   <div class="d-flex gap-2 flex-wrap mb-2">
-                    {{#if this.isActive}}
-                      <span class="badge bg-green-lt text-green">Active</span>
-                    {{else}}
-                      <span class="badge bg-red-lt text-red">Inactive</span>
-                    {{/if}}
                     {{#if this.isFeatured}}
                       <span class="badge bg-azure-lt text-azure">Featured</span>
                     {{/if}}
@@ -111,17 +102,18 @@
                     <a class="btn btn-sm btn-outline-primary" href="/events/{{this._id}}">Open</a>
                     <button
                       class="btn btn-sm btn-outline-secondary edit-event-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#eventModal"
                       data-id="{{this._id}}"
                       data-title="{{this.title}}"
                       data-excerpt="{{this.excerpt}}"
                       data-content="{{this.content}}"
-                      data-date="{{this.parsedEventDate}}"
-                      data-end-date="{{this.parsedEndDate}}"
+                      data-date="{{datetimeLocal this.parsedEventDate}}"
+                      data-end-date="{{datetimeLocal this.parsedEndDate}}"
                       data-location="{{this.location}}"
                       data-cover="{{this.coverImageUrl}}"
                       data-tags="{{this.tags}}"
                       data-featured="{{this.isFeatured}}"
-                      data-active="{{this.isActive}}"
                     >Edit</button>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent('{{this._id}}')">Delete</button>
                   </div>
@@ -154,10 +146,16 @@
           <div class="col-md-6 mb-3"><label class="form-label">End Date</label><input id="eventEndDate" type="datetime-local" class="form-control"></div>
         </div>
         <div class="mb-3"><label class="form-label">Location</label><input id="eventLocation" class="form-control"></div>
-        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="eventCoverImage" class="form-control"></div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="eventImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 170px; cursor: pointer; background: #f6f8fa;">
+            <span style="font-size: 2rem; color: #6c757d;">+</span>
+          </div>
+          <input type="file" id="eventImageInput" accept="image/*" style="display: none;">
+          <input type="hidden" id="eventCoverImage">
+        </div>
         <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="eventTags" class="form-control"></div>
         <label class="form-check"><input id="eventFeatured" type="checkbox" class="form-check-input"><span class="form-check-label">Featured</span></label>
-        <label class="form-check"><input id="eventActive" type="checkbox" class="form-check-input" checked><span class="form-check-label">Active</span></label>
       </div>
       <div class="modal-footer">
         <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -168,26 +166,38 @@
 </div>
 
 <script>
-  const toLocalInput = (value) => {
-    if (!value) return '';
-    const dt = new Date(value);
-    if (Number.isNaN(dt.getTime())) return '';
-    return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  };
+  let eventEditor;
+  let eventImageUrl = null;
+
+  if (typeof ClassicEditor !== 'undefined') {
+    ClassicEditor
+      .create(document.querySelector('#eventContent'))
+      .then((editor) => {
+        eventEditor = editor;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   function openCreateEvent() {
     document.getElementById('eventModalTitle').textContent = 'Add Event';
     document.getElementById('eventId').value = '';
     document.getElementById('eventTitle').value = '';
     document.getElementById('eventExcerpt').value = '';
-    document.getElementById('eventContent').value = '';
+    if (eventEditor) {
+      eventEditor.setData('');
+    } else {
+      document.getElementById('eventContent').value = '';
+    }
     document.getElementById('eventDate').value = '';
     document.getElementById('eventEndDate').value = '';
     document.getElementById('eventLocation').value = '';
     document.getElementById('eventCoverImage').value = '';
+    eventImageUrl = null;
+    document.getElementById('eventImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
     document.getElementById('eventTags').value = '';
     document.getElementById('eventFeatured').checked = false;
-    document.getElementById('eventActive').checked = true;
   }
 
   function openEditEvent(eventData) {
@@ -195,15 +205,23 @@
     document.getElementById('eventId').value = eventData._id;
     document.getElementById('eventTitle').value = eventData.title || '';
     document.getElementById('eventExcerpt').value = eventData.excerpt || '';
-    document.getElementById('eventContent').value = eventData.content || '';
-    document.getElementById('eventDate').value = toLocalInput(eventData.eventDate);
-    document.getElementById('eventEndDate').value = toLocalInput(eventData.eventEndDate);
+    if (eventEditor) {
+      eventEditor.setData(eventData.content || '');
+    } else {
+      document.getElementById('eventContent').value = eventData.content || '';
+    }
+    document.getElementById('eventDate').value = eventData.eventDate || '';
+    document.getElementById('eventEndDate').value = eventData.eventEndDate || '';
     document.getElementById('eventLocation').value = eventData.location || '';
     document.getElementById('eventCoverImage').value = eventData.coverImageUrl || '';
+    eventImageUrl = eventData.coverImageUrl || null;
+    if (eventData.coverImageUrl) {
+      document.getElementById('eventImageBox').innerHTML = `<img src="${eventData.coverImageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    } else {
+      document.getElementById('eventImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+    }
     document.getElementById('eventTags').value = (eventData.tags || []).join(', ');
     document.getElementById('eventFeatured').checked = !!eventData.isFeatured;
-    document.getElementById('eventActive').checked = !!eventData.isActive;
-    new bootstrap.Modal(document.getElementById('eventModal')).show();
   }
 
   document.querySelectorAll('.edit-event-btn').forEach((button) => {
@@ -219,10 +237,55 @@
         location: button.dataset.location,
         coverImageUrl: button.dataset.cover,
         tags: rawTags ? rawTags.split(',').map((s) => s.trim()).filter(Boolean) : [],
-        isFeatured: button.dataset.featured === 'true',
-        isActive: button.dataset.active === 'true'
+        isFeatured: button.dataset.featured === 'true'
       });
     });
+  });
+
+  document.getElementById('eventImageBox').addEventListener('click', () => {
+    document.getElementById('eventImageInput').click();
+  });
+
+  document.getElementById('eventImageInput').addEventListener('change', async () => {
+    const imageInput = document.getElementById('eventImageInput');
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    const previousImageUrl = eventImageUrl;
+    const formData = new FormData();
+    formData.append('eventImage', file);
+
+    document.getElementById('eventImageBox').innerHTML = '<span style="font-size:1rem; color:#6c757d;">Uploading...</span>';
+
+    const response = await fetch('/upload-event-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.imageUrl) {
+      if (previousImageUrl) {
+        document.getElementById('eventImageBox').innerHTML = `<img src="${previousImageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+      } else {
+        document.getElementById('eventImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      }
+      alert(data.error || 'Failed to upload event image');
+      return;
+    }
+
+    eventImageUrl = data.imageUrl;
+    document.getElementById('eventCoverImage').value = data.imageUrl;
+    document.getElementById('eventImageBox').innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    imageInput.value = '';
+
+    if (previousImageUrl && previousImageUrl !== data.imageUrl) {
+      await fetch('/delete-event-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: previousImageUrl })
+      }).catch(() => null);
+    }
   });
 
   async function saveEvent() {
@@ -230,14 +293,13 @@
     const payload = {
       title: document.getElementById('eventTitle').value,
       excerpt: document.getElementById('eventExcerpt').value,
-      content: document.getElementById('eventContent').value,
+      content: eventEditor ? eventEditor.getData() : document.getElementById('eventContent').value,
       eventDate: document.getElementById('eventDate').value,
       eventEndDate: document.getElementById('eventEndDate').value,
       location: document.getElementById('eventLocation').value,
       coverImageUrl: document.getElementById('eventCoverImage').value,
       tags: document.getElementById('eventTags').value,
-      isFeatured: String(document.getElementById('eventFeatured').checked),
-      isActive: String(document.getElementById('eventActive').checked)
+      isFeatured: String(document.getElementById('eventFeatured').checked)
     };
 
     const url = id ? `/events/${id}` : '/events';

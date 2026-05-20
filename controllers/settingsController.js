@@ -2,6 +2,13 @@ const Settings = require('../models/Settings');
 const { createLog } = require('../modules/logService');
 const { deleteImageByUrl } = require('../modules/cloudinaryService');
 
+const normalizeHexColor = (value, fallback = '#0f6ad8') => {
+    const raw = String(value || '').trim();
+    if (!raw) return fallback;
+    const normalized = raw.startsWith('#') ? raw : `#${raw}`;
+    return /^#([0-9a-fA-F]{6})$/.test(normalized) ? normalized.toLowerCase() : fallback;
+};
+
 const getOrCreateSettings = async () => {
     const existing = await Settings.findOne({ key: 'main' }).lean();
     if (existing) return existing;
@@ -28,6 +35,7 @@ exports.updateSettings = async (req, res) => {
         const {
             brandName,
             logoUrl,
+            primaryColor,
             emailHost,
             emailPort,
             emailUser,
@@ -58,6 +66,7 @@ exports.updateSettings = async (req, res) => {
             {
                 brandName: brandName?.trim() || current.brandName,
                 logoUrl: logoUrl || current.logoUrl,
+                primaryColor: normalizeHexColor(primaryColor, current.primaryColor || '#0f6ad8'),
                 emailHost: emailHost?.trim() || '',
                 emailPort: Number(emailPort) || 587,
                 emailUser: emailUser?.trim() || '',

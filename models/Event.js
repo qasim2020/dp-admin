@@ -11,7 +11,6 @@ const EventSchema = new mongoose.Schema(
         eventDate: { type: Date },
         eventEndDate: { type: Date },
         tags: { type: [String], default: [] },
-        isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
     },
     { timestamps: true }

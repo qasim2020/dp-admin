@@ -4,3 +4,6 @@ uploads/
 *.log
 config/config.json
 static/backup.json
+env_output.txt
+env_process.txt
+env_*.txt

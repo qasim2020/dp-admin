@@ -17,10 +17,10 @@
 
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
+    <div id="teamGrid" class="row row-cards">
       {{#if members.length}}
         {{#each members}}
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-sm-6 col-lg-4 team-card" data-id="{{this._id}}">
             <div class="card h-100">
               <div class="card-body text-center">
                 {{#if this.imageUrl}}
@@ -28,13 +28,14 @@
                 {{else}}
                   <span class="avatar avatar-xl mb-3">{{getFirstTwoLetters this.displayName}}</span>
                 {{/if}}
+                <div class="mb-2">
+                  <span class="badge bg-secondary-lt text-secondary">#{{this.displayIndex}}</span>
+                </div>
                 <h3 class="card-title mb-1">{{this.displayName}}</h3>
                 <div class="text-secondary mb-2">{{this.displayRole}}</div>
                 <div class="text-secondary small mb-3">{{this.displayEmail}}</div>
-                <div class="d-flex gap-2 justify-content-center mb-3">
-                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">{{#if this.isActive}}Active{{else}}Inactive{{/if}}</span>
-                </div>
                 <div class="btn-list justify-content-center">
+                  <a class="btn btn-sm btn-outline-primary" href="/team/{{this._id}}">View</a>
                   <button
                     class="btn btn-sm btn-outline-secondary edit-team-btn"
                     type="button"
@@ -42,19 +43,9 @@
                     data-bs-toggle="modal"
                     data-bs-target="#teamModal"
                     data-id="{{this._id}}"
-                    data-name="{{this.displayName}}"
-                    data-role="{{this.displayRole}}"
-                    data-bio="{{this.bio}}"
-                    data-image-url="{{this.imageUrl}}"
-                    data-image-public-id="{{this.imagePublicId}}"
-                    data-email="{{this.displayEmail}}"
-                    data-sort-order="{{this.sortOrder}}"
-                    data-twitter="{{this.socialLinks.twitter}}"
-                    data-linkedin="{{this.socialLinks.linkedin}}"
-                    data-facebook="{{this.socialLinks.facebook}}"
-                    data-active="{{this.isActive}}"
                   >Edit</button>
                   <button class="btn btn-sm btn-outline-danger" onclick="deleteTeamMember('{{this._id}}')">Delete</button>
+                  <button class="btn btn-sm btn-outline-secondary drag-handle" type="button"><i class="ti ti-arrows-move"></i></button>
                 </div>
               </div>
             </div>
@@ -82,7 +73,7 @@
         <div class="mb-3"><label class="form-label">Bio</label><textarea id="teamBio" class="form-control" rows="3"></textarea></div>
         <div class="mb-3">
           <label class="form-label">Photo</label>
-          <div id="teamImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 170px; cursor: pointer; background: #f6f8fa;">
+          <div id="teamImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 220px; cursor: pointer; background: #f6f8fa; overflow: hidden;">
             <span style="font-size: 2rem; color: #6c757d;">+</span>
           </div>
           <input type="file" id="teamImageInput" accept="image/*" style="display: none;">
@@ -95,7 +86,6 @@
           <div class="col-md-4 mb-3"><label class="form-label">LinkedIn</label><input id="teamLinkedin" class="form-control"></div>
           <div class="col-md-4 mb-3"><label class="form-label">Facebook</label><input id="teamFacebook" class="form-control"></div>
         </div>
-        <label class="form-check"><input id="teamActive" type="checkbox" class="form-check-input" checked><span class="form-check-label">Active</span></label>
       </div>
       <div class="modal-footer">
         <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -106,12 +96,39 @@
 </div>
 
 <script>
+  const TEAM_MEMBERS = {{{json members}}};
+  const TEAM_MEMBERS_BY_ID = Object.fromEntries((TEAM_MEMBERS || []).map((member) => [String(member._id), member]));
+
+  let teamBioEditor;
+
+  if (typeof ClassicEditor !== 'undefined') {
+    ClassicEditor
+      .create(document.querySelector('#teamBio'))
+      .then((editor) => {
+        teamBioEditor = editor;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  function renderTeamImageBox(imageUrl) {
+    if (imageUrl) {
+      return `<img src="${imageUrl}" alt="Team member photo" style="width: 100%; height: 100%; object-fit: contain;">`;
+    }
+    return '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+  }
+
   function openCreateTeamMember() {
     document.getElementById('teamModalTitle').textContent = 'Add Team Member';
     document.getElementById('teamId').value = '';
     document.getElementById('teamName').value = '';
     document.getElementById('teamRole').value = '';
-    document.getElementById('teamBio').value = '';
+    if (teamBioEditor) {
+      teamBioEditor.setData('');
+    } else {
+      document.getElementById('teamBio').value = '';
+    }
     document.getElementById('teamImageUrl').value = '';
     document.getElementById('teamImagePublicId').value = '';
     document.getElementById('teamEmail').value = '';
@@ -119,48 +136,38 @@
     document.getElementById('teamTwitter').value = '';
     document.getElementById('teamLinkedin').value = '';
     document.getElementById('teamFacebook').value = '';
-    document.getElementById('teamActive').checked = true;
-    document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+    document.getElementById('teamImageBox').innerHTML = renderTeamImageBox('');
   }
 
   function openEditTeamMember(member) {
     document.getElementById('teamModalTitle').textContent = 'Edit Team Member';
-    document.getElementById('teamId').value = member._id;
-    document.getElementById('teamName').value = member.name || '';
+    document.getElementById('teamId').value = member._id || '';
+    document.getElementById('teamName').value = member.displayName || member.name || member.title || '';
     document.getElementById('teamRole').value = member.role || '';
-    document.getElementById('teamBio').value = member.bio || '';
-    document.getElementById('teamImageUrl').value = member.imageUrl || '';
-    document.getElementById('teamImagePublicId').value = member.imagePublicId || '';
-    document.getElementById('teamEmail').value = member.email || '';
-    document.getElementById('teamSortOrder').value = member.sortOrder || 0;
-    document.getElementById('teamTwitter').value = (member.socialLinks && member.socialLinks.twitter) || '';
-    document.getElementById('teamLinkedin').value = (member.socialLinks && member.socialLinks.linkedin) || '';
-    document.getElementById('teamFacebook').value = (member.socialLinks && member.socialLinks.facebook) || '';
-    document.getElementById('teamActive').checked = !!member.isActive;
-    if (member.imageUrl) {
-      document.getElementById('teamImageBox').innerHTML = `<img src="${member.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    const bioValue = member.displayBio || member.bio || member.detail || member.description || member.content || '';
+    if (teamBioEditor) {
+      teamBioEditor.setData(bioValue);
     } else {
-      document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      document.getElementById('teamBio').value = bioValue;
     }
+    document.getElementById('teamImageUrl').value = member.imageUrl || member.image || '';
+    document.getElementById('teamImagePublicId').value = member.imagePublicId || '';
+    document.getElementById('teamEmail').value = member.displayEmail || member.email || member.contactEmail || member.mail || '';
+    document.getElementById('teamSortOrder').value = Number(member.sortOrder || 0);
+    document.getElementById('teamTwitter').value = (member.displaySocialLinks && member.displaySocialLinks.twitter) || (member.socialLinks && member.socialLinks.twitter) || member.twitter || '';
+    document.getElementById('teamLinkedin').value = (member.displaySocialLinks && member.displaySocialLinks.linkedin) || (member.socialLinks && member.socialLinks.linkedin) || member.linkedin || '';
+    document.getElementById('teamFacebook').value = (member.displaySocialLinks && member.displaySocialLinks.facebook) || (member.socialLinks && member.socialLinks.facebook) || member.facebook || '';
+    document.getElementById('teamImageBox').innerHTML = renderTeamImageBox(member.imageUrl || member.image || '');
   }
 
   function openEditTeamMemberFromButton(button) {
-    openEditTeamMember({
-      _id: button.dataset.id,
-      name: button.dataset.name,
-      role: button.dataset.role,
-      bio: button.dataset.bio,
-      imageUrl: button.dataset.imageUrl,
-      imagePublicId: button.dataset.imagePublicId,
-      email: button.dataset.email,
-      sortOrder: Number(button.dataset.sortOrder || 0),
-      socialLinks: {
-        twitter: button.dataset.twitter,
-        linkedin: button.dataset.linkedin,
-        facebook: button.dataset.facebook,
-      },
-      isActive: button.dataset.active === 'true'
-    });
+    const memberId = button.dataset.id;
+    const member = TEAM_MEMBERS_BY_ID[String(memberId)];
+    if (!member) {
+      alert('Unable to load team member data. Please refresh and try again.');
+      return;
+    }
+    openEditTeamMember(member);
   }
 
   document.getElementById('teamImageBox').addEventListener('click', () => {
@@ -182,14 +189,14 @@
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      document.getElementById('teamImageBox').innerHTML = renderTeamImageBox('');
       alert(data.error || 'Failed to upload team image');
       return;
     }
 
     document.getElementById('teamImageUrl').value = data.imageUrl;
     document.getElementById('teamImagePublicId').value = data.publicId || '';
-    document.getElementById('teamImageBox').innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    document.getElementById('teamImageBox').innerHTML = renderTeamImageBox(data.imageUrl);
   });
 
   async function saveTeamMember() {
@@ -197,15 +204,14 @@
     const payload = {
       name: document.getElementById('teamName').value,
       role: document.getElementById('teamRole').value,
-      bio: document.getElementById('teamBio').value,
+      bio: teamBioEditor ? teamBioEditor.getData() : document.getElementById('teamBio').value,
       imageUrl: document.getElementById('teamImageUrl').value,
       imagePublicId: document.getElementById('teamImagePublicId').value,
       email: document.getElementById('teamEmail').value,
       sortOrder: document.getElementById('teamSortOrder').value,
       twitter: document.getElementById('teamTwitter').value,
       linkedin: document.getElementById('teamLinkedin').value,
-      facebook: document.getElementById('teamFacebook').value,
-      isActive: String(document.getElementById('teamActive').checked)
+      facebook: document.getElementById('teamFacebook').value
     };
 
     const url = id ? `/team/${id}` : '/team';
@@ -233,5 +239,35 @@
       return;
     }
     location.reload();
+  }
+
+  const teamGrid = document.getElementById('teamGrid');
+  const syncTeamIndexes = () => {
+    const badges = teamGrid.querySelectorAll('.team-card .badge');
+    badges.forEach((badge, index) => {
+      badge.textContent = `#${index + 1}`;
+    });
+  };
+
+  if (teamGrid) {
+    new Sortable(teamGrid, {
+      animation: 150,
+      handle: '.drag-handle',
+      draggable: '.team-card',
+      onEnd: async () => {
+        const orderedIds = Array.from(teamGrid.querySelectorAll('.team-card')).map((node) => node.dataset.id);
+        const response = await fetch('/team/reorder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds })
+        });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          alert(data.error || 'Failed to save team order');
+        } else {
+          syncTeamIndexes();
+        }
+      }
+    });
   }
 </script>

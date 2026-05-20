@@ -10,7 +10,6 @@ const CauseSchema = new mongoose.Schema(
         goalAmount: { type: Number, default: 0 },
         raisedAmount: { type: Number, default: 0 },
         tags: { type: [String], default: [] },
-        isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
     },
     { timestamps: true }

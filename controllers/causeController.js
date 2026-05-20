@@ -57,14 +57,13 @@ exports.getCause = async (req, res) => {
 
 exports.createCause = async (req, res) => {
     try {
-        const { title, excerpt, content, coverImageUrl, goalAmount, tags, isFeatured, isActive } = req.body;
+        const { title, excerpt, content, coverImageUrl, goalAmount, tags, isFeatured } = req.body;
         const slug = slugify(title) + '-' + Date.now();
         const cause = await Cause.create({
             title, slug, excerpt, content, coverImageUrl,
             goalAmount: Number(goalAmount) || 0,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             isFeatured: isFeatured === 'true',
-            isActive: isActive !== 'false',
         });
         await Log.create({ user: req.session.userId, action: 'create', entityType: 'Cause', entityId: cause._id, message: `Created cause: ${title}`, ip: req.ip });
         res.json({ success: true, cause });
@@ -75,14 +74,13 @@ exports.createCause = async (req, res) => {
 
 exports.updateCause = async (req, res) => {
     try {
-        const { title, excerpt, content, coverImageUrl, goalAmount, raisedAmount, tags, isFeatured, isActive } = req.body;
+        const { title, excerpt, content, coverImageUrl, goalAmount, raisedAmount, tags, isFeatured } = req.body;
         const cause = await Cause.findByIdAndUpdate(req.params.id, {
             title, excerpt, content, coverImageUrl,
             goalAmount: Number(goalAmount) || 0,
             raisedAmount: Number(raisedAmount) || 0,
             tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             isFeatured: isFeatured === 'true',
-            isActive: isActive !== 'false',
         }, { new: true });
         await Log.create({ user: req.session.userId, action: 'update', entityType: 'Cause', entityId: cause._id, message: `Updated cause: ${title}`, ip: req.ip });
         res.json({ success: true, cause });

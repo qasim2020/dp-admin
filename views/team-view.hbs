@@ -1,0 +1,56 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Team</div>
+        <h2 class="page-title">Team Member Details</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <a class="btn btn-outline-secondary" href="/team">Back to Team</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="mx-auto" style="max-width: 600px;">
+      <div class="card">
+        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 320px; background-image: url('{{member.imageUrl}}'); background-size: cover; background-position: center;">
+          {{#unless member.imageUrl}}
+            <span class="text-secondary">No profile image</span>
+          {{/unless}}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title mb-2">{{member.displayName}}</h3>
+
+          <div class="list-group list-group-flush mb-4">
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Role</span>
+              <span class="text-end fw-medium">{{#if member.displayRole}}{{member.displayRole}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Email</span>
+              <span class="text-end fw-medium">{{#if member.displayEmail}}{{member.displayEmail}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Twitter</span>
+              <span class="text-end fw-medium">{{#if member.displaySocialLinks.twitter}}{{member.displaySocialLinks.twitter}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">LinkedIn</span>
+              <span class="text-end fw-medium">{{#if member.displaySocialLinks.linkedin}}{{member.displaySocialLinks.linkedin}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Facebook</span>
+              <span class="text-end fw-medium">{{#if member.displaySocialLinks.facebook}}{{member.displaySocialLinks.facebook}}{{else}}-{{/if}}</span>
+            </div>
+          </div>
+
+          <div class="mb-2 fw-semibold">Bio</div>
+          <div>{{{member.displayBio}}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

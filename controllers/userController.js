@@ -5,7 +5,47 @@ const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 const { createLog } = require('../modules/logService');
+
+const INVITE_EXPIRY_HOURS = 72;
+
+const normalizeHexColor = (value, fallback = '#0f6ad8') => {
+    const raw = String(value || '').trim();
+    if (!raw) return fallback;
+    const normalized = raw.startsWith('#') ? raw : `#${raw}`;
+    return /^#([0-9a-fA-F]{6})$/.test(normalized) ? normalized.toLowerCase() : fallback;
+};
+
+const hexToRgb = (hex) => {
+    const normalized = normalizeHexColor(hex).replace('#', '');
+    return {
+        r: parseInt(normalized.slice(0, 2), 16),
+        g: parseInt(normalized.slice(2, 4), 16),
+        b: parseInt(normalized.slice(4, 6), 16),
+    };
+};
+
+const rgba = (hex, alpha) => {
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const toInitials = (value) => {
+    const words = String(value || '').trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return 'BR';
+    return words.slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
+};
+
+const toNameCase = (value, fallback = '') => {
+    const text = String(value || '').trim();
+    if (!text) return fallback;
+    return text
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(' ');
+};
 
 exports.users = async (req, res) => {
     try {
@@ -64,18 +104,38 @@ const sendInviteEmail = async (user, req) => {
     const baseUrl = req?.protocol && req?.get ? `${req.protocol}://${req.get('host')}` : fallbackDomain;
     const loginUrl = baseUrl ? `${baseUrl}/login` : '';
     const forgotPasswordUrl = baseUrl ? `${baseUrl}/forgot-password` : '';
+    let registrationUrl = '';
+
+    if (baseUrl) {
+        const inviteTokenRaw = crypto.randomBytes(32).toString('hex');
+        const inviteTokenHash = crypto.createHash('sha256').update(inviteTokenRaw).digest('hex');
+        await User.findByIdAndUpdate(user._id, {
+            inviteToken: inviteTokenHash,
+            inviteExpiresAt: new Date(Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000),
+        });
+        registrationUrl = `${baseUrl}/register?token=${inviteTokenRaw}`;
+    }
 
     const html = compiledTemplate({
-        name: user.name,
+        name: toNameCase(user.name, 'Friend'),
+        invitedBy: toNameCase(req.session?.name, 'Team'),
         loginUrl,
+        registrationUrl,
+        isRegistrationInvite: true,
         forgotPasswordUrl,
-        brandName: settings.brandName || 'iLearningHubb',
+        brandName: settings.brandName || 'Dedicated Parents',
+        logoUrl: settings.logoUrl || '',
+        logoFallbackText: toInitials(settings.brandName || 'Dedicated Parents'),
+        brandPrimaryColor: normalizeHexColor(settings.primaryColor, '#0f6ad8'),
+        brandPrimaryColorLight: rgba(settings.primaryColor || '#0f6ad8', 0.20),
+        brandPrimaryColorLighter: rgba(settings.primaryColor || '#0f6ad8', 0.10),
+        brandPrimaryColorSoftest: rgba(settings.primaryColor || '#0f6ad8', 0.03),
     });
 
     await transporter.sendMail({
-        from: `"${settings.emailFromName || 'iLearningHubb'}" <${settings.emailFromAddress || settings.emailUser}>`,
+        from: `"${settings.emailFromName || 'Dedicated Parents'}" <${settings.emailFromAddress || settings.emailUser}>`,
         to: user.email,
-        subject: 'You are invited to iLearningHubb Admin',
+        subject: `Complete your access to ${settings.brandName || 'Dedicated Parents'} Admin`,
         html,
     });
 
@@ -91,13 +151,11 @@ const sendInviteEmail = async (user, req) => {
 
 exports.createUser = async (req, res) => {
     try {
-        const { name, email, status } = req.body;
-        const isActive = status === 'active';
+        const { name, email } = req.body;
 
         const user = new User({
             name,
             email,
-            isActive,
         });
 
         await user.save();
@@ -129,14 +187,12 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, status } = req.body;
-        const isActive = status === 'active';
+        const { name } = req.body;
 
         const updated = await User.findByIdAndUpdate(
             id,
             {
                 name,
-                isActive,
             },
             { new: true }
         ).lean();
@@ -151,7 +207,7 @@ exports.updateUser = async (req, res) => {
             entityType: 'user',
             entityId: updated._id,
             message: `User ${updated.name} updated by ${req.session?.name || 'system'}`,
-            metadata: { name: updated.name, isActive: updated.isActive, updatedBy: req.session?.name || 'system' },
+            metadata: { name: updated.name, updatedBy: req.session?.name || 'system' },
         });
 
         return res.json({ message: 'User updated successfully' });
@@ -188,7 +244,7 @@ exports.userView = async (req, res) => {
         const safePage = Math.min(page, totalPages);
         const pages = Array.from({ length: totalPages }, (_, idx) => ({
             number: idx + 1,
-            isActive: idx + 1 === safePage,
+            isCurrent: idx + 1 === safePage,
         }));
 
         return res.render('user-view', {

@@ -25,7 +25,6 @@ exports.getDashboard = async (req, res) => {
     try {
         const [
             causeCount,
-            activeCauseCount,
             eventCount,
             upcomingEventCount,
             galleryCount,
@@ -38,9 +37,8 @@ exports.getDashboard = async (req, res) => {
             recentSubscriptions,
         ] = await Promise.all([
             Cause.countDocuments(),
-            Cause.countDocuments({ isActive: true }),
             Event.countDocuments(),
-            Event.countDocuments({ eventDate: { $gte: new Date() }, isActive: true }),
+            Event.countDocuments({ eventDate: { $gte: new Date() } }),
             GalleryItem.countDocuments(),
             TeamMember.countDocuments(),
             Blog.countDocuments(),
@@ -55,7 +53,6 @@ exports.getDashboard = async (req, res) => {
             title: 'Dashboard',
             activeMenu: 'dashboard',
             causeCount,
-            activeCauseCount,
             eventCount,
             upcomingEventCount,
             galleryCount,

@@ -52,6 +52,27 @@ const browserDate = function (dateString) {
     return `${year}-${month}-${day}`;
 };
 
+const dateInput = function (dateString) {
+    if (!dateString) return '';
+    const m = moment(dateString);
+    if (!m.isValid()) return '';
+    return m.format('YYYY-MM-DD');
+};
+
+const timeInput = function (dateString) {
+    if (!dateString) return '';
+    const m = moment(dateString);
+    if (!m.isValid()) return '';
+    return m.format('HH:mm');
+};
+
+const datetimeLocal = function (dateString) {
+    if (!dateString) return '';
+    const m = moment(dateString);
+    if (!m.isValid()) return '';
+    return m.format('YYYY-MM-DDTHH:mm');
+};
+
 const resizeCloudinaryUrl = function (url, template) {
     if (!url) return '/static/images/no-image-placement.png';
     return url.replace('/upload/', `/upload/${template}/`);
@@ -211,6 +232,9 @@ module.exports = {
     formatDate,
     formatTime,
     browserDate,
+    dateInput,
+    timeInput,
+    datetimeLocal,
     resizeCloudinaryUrl,
     neq,
     capitalizeFirstLetter,

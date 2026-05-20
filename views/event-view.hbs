@@ -30,11 +30,6 @@
         <div class="card-body">
           <h3 class="card-title mb-2">{{event.title}}</h3>
           <div class="d-flex flex-wrap gap-2 mb-3">
-            {{#if event.isActive}}
-              <span class="badge bg-green-lt text-green">Active</span>
-            {{else}}
-              <span class="badge bg-red-lt text-red">Inactive</span>
-            {{/if}}
             {{#if event.isFeatured}}
               <span class="badge bg-azure-lt text-azure">Featured</span>
             {{/if}}
@@ -56,10 +51,6 @@
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">End Date</span>
               <span class="text-end fw-medium">{{#if event.parsedEndDate}}{{formatDate event.parsedEndDate}}{{else}}-{{/if}}</span>
-            </div>
-            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
-              <span class="text-secondary">Status</span>
-              <span class="text-end fw-medium">{{#if event.isActive}}Active{{else}}Inactive{{/if}}</span>
             </div>
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">Featured</span>
@@ -92,10 +83,20 @@
           <div class="col-md-6 mb-3"><label class="form-label">End Date</label><input id="detailEventEndDate" type="datetime-local" class="form-control"></div>
         </div>
         <div class="mb-3"><label class="form-label">Location</label><input id="detailEventLocation" class="form-control" value="{{event.location}}"></div>
-        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="detailEventCoverImage" class="form-control" value="{{event.coverImageUrl}}"></div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="detailEventImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 170px; cursor: pointer; background: #f6f8fa;">
+            {{#if event.coverImageUrl}}
+              <img src="{{event.coverImageUrl}}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">
+            {{else}}
+              <span style="font-size: 2rem; color: #6c757d;">+</span>
+            {{/if}}
+          </div>
+          <input type="file" id="detailEventImageInput" accept="image/*" style="display: none;">
+          <input type="hidden" id="detailEventCoverImage" value="{{event.coverImageUrl}}">
+        </div>
         <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="detailEventTags" class="form-control" value="{{#each event.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></div>
         <label class="form-check"><input id="detailEventFeatured" type="checkbox" class="form-check-input" {{#if event.isFeatured}}checked{{/if}}><span class="form-check-label">Featured</span></label>
-        <label class="form-check"><input id="detailEventActive" type="checkbox" class="form-check-input" {{#if event.isActive}}checked{{/if}}><span class="form-check-label">Active</span></label>
       </div>
       <div class="modal-footer">
         <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -106,29 +107,81 @@
 </div>
 
 <script>
-  const toLocalInput = (value) => {
-    if (!value) return '';
-    const dt = new Date(value);
-    if (Number.isNaN(dt.getTime())) return '';
-    return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  };
+  let detailEventEditor;
+  let detailEventImageUrl = '{{event.coverImageUrl}}' || null;
 
-  document.getElementById('detailEventDate').value = toLocalInput('{{event.parsedEventDate}}');
-  document.getElementById('detailEventEndDate').value = toLocalInput('{{event.parsedEndDate}}');
+  if (typeof ClassicEditor !== 'undefined') {
+    ClassicEditor
+      .create(document.querySelector('#detailEventContent'))
+      .then((editor) => {
+        detailEventEditor = editor;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  document.getElementById('detailEventDate').value = '{{datetimeLocal event.parsedEventDate}}';
+  document.getElementById('detailEventEndDate').value = '{{datetimeLocal event.parsedEndDate}}';
+
+  document.getElementById('detailEventImageBox').addEventListener('click', () => {
+    document.getElementById('detailEventImageInput').click();
+  });
+
+  document.getElementById('detailEventImageInput').addEventListener('change', async () => {
+    const imageInput = document.getElementById('detailEventImageInput');
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    const previousImageUrl = detailEventImageUrl;
+    const formData = new FormData();
+    formData.append('eventImage', file);
+
+    document.getElementById('detailEventImageBox').innerHTML = '<span style="font-size:1rem; color:#6c757d;">Uploading...</span>';
+
+    const response = await fetch('/upload-event-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.imageUrl) {
+      if (previousImageUrl) {
+        document.getElementById('detailEventImageBox').innerHTML = `<img src="${previousImageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+      } else {
+        document.getElementById('detailEventImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      }
+      alert(data.error || 'Failed to upload event image');
+      return;
+    }
+
+    detailEventImageUrl = data.imageUrl;
+    document.getElementById('detailEventCoverImage').value = data.imageUrl;
+    document.getElementById('detailEventImageBox').innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    imageInput.value = '';
+
+    if (previousImageUrl && previousImageUrl !== data.imageUrl) {
+      await fetch('/delete-event-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: previousImageUrl })
+      }).catch(() => null);
+    }
+  });
 
   document.getElementById('saveEventDetailBtn').addEventListener('click', async () => {
     const id = document.getElementById('detailEventId').value;
     const payload = {
       title: document.getElementById('detailEventTitle').value,
       excerpt: document.getElementById('detailEventExcerpt').value,
-      content: document.getElementById('detailEventContent').value,
+      content: detailEventEditor ? detailEventEditor.getData() : document.getElementById('detailEventContent').value,
       eventDate: document.getElementById('detailEventDate').value,
       eventEndDate: document.getElementById('detailEventEndDate').value,
       location: document.getElementById('detailEventLocation').value,
       coverImageUrl: document.getElementById('detailEventCoverImage').value,
       tags: document.getElementById('detailEventTags').value,
-      isFeatured: String(document.getElementById('detailEventFeatured').checked),
-      isActive: String(document.getElementById('detailEventActive').checked)
+      isFeatured: String(document.getElementById('detailEventFeatured').checked)
     };
 
     const res = await fetch(`/events/${id}`, {

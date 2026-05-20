@@ -30,11 +30,6 @@
         <div class="card-body">
           <h3 class="card-title mb-2">{{cause.title}}</h3>
           <div class="d-flex flex-wrap gap-2 mb-3">
-            {{#if cause.isActive}}
-              <span class="badge bg-green-lt text-green">Active</span>
-            {{else}}
-              <span class="badge bg-red-lt text-red">Inactive</span>
-            {{/if}}
             {{#if cause.isFeatured}}
               <span class="badge bg-azure-lt text-azure">Featured</span>
             {{/if}}
@@ -52,10 +47,6 @@
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">Raised</span>
               <span class="text-end fw-medium">{{cause.raisedAmount}}</span>
-            </div>
-            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
-              <span class="text-secondary">Status</span>
-              <span class="text-end fw-medium">{{#if cause.isActive}}Active{{else}}Inactive{{/if}}</span>
             </div>
             <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
               <span class="text-secondary">Featured</span>
@@ -90,10 +81,20 @@
           <div class="col-md-6 mb-3"><label class="form-label">Goal Amount</label><input id="detailCauseGoal" type="number" class="form-control" value="{{cause.goalAmount}}"></div>
           <div class="col-md-6 mb-3"><label class="form-label">Raised Amount</label><input id="detailCauseRaised" type="number" class="form-control" value="{{cause.raisedAmount}}"></div>
         </div>
-        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="detailCauseCoverImage" class="form-control" value="{{cause.coverImageUrl}}"></div>
+        <div class="mb-3">
+          <label class="form-label">Cover Image</label>
+          <div id="detailCauseImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 170px; cursor: pointer; background: #f6f8fa;">
+            {{#if cause.coverImageUrl}}
+              <img src="{{cause.coverImageUrl}}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">
+            {{else}}
+              <span style="font-size: 2rem; color: #6c757d;">+</span>
+            {{/if}}
+          </div>
+          <input type="file" id="detailCauseImageInput" accept="image/*" style="display: none;">
+          <input type="hidden" id="detailCauseCoverImage" value="{{cause.coverImageUrl}}">
+        </div>
         <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="detailCauseTags" class="form-control" value="{{#each cause.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></div>
         <label class="form-check"><input id="detailCauseFeatured" type="checkbox" class="form-check-input" {{#if cause.isFeatured}}checked{{/if}}><span class="form-check-label">Featured</span></label>
-        <label class="form-check"><input id="detailCauseActive" type="checkbox" class="form-check-input" {{#if cause.isActive}}checked{{/if}}><span class="form-check-label">Active</span></label>
       </div>
       <div class="modal-footer">
         <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -104,18 +105,73 @@
 </div>
 
 <script>
+  let detailCauseEditor;
+  let detailCauseImageUrl = '{{cause.coverImageUrl}}' || null;
+
+  if (typeof ClassicEditor !== 'undefined') {
+    ClassicEditor
+      .create(document.querySelector('#detailCauseContent'))
+      .then((editor) => {
+        detailCauseEditor = editor;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  document.getElementById('detailCauseImageBox').addEventListener('click', () => {
+    document.getElementById('detailCauseImageInput').click();
+  });
+
+  document.getElementById('detailCauseImageInput').addEventListener('change', async () => {
+    const imageInput = document.getElementById('detailCauseImageInput');
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    const previousImageUrl = detailCauseImageUrl;
+    const formData = new FormData();
+    formData.append('causeImage', file);
+
+    document.getElementById('detailCauseImageBox').innerHTML = '<span style="font-size:1rem; color:#6c757d;">Uploading...</span>';
+
+    const response = await fetch('/upload-cause-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.imageUrl) {
+      document.getElementById('detailCauseImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      alert(data.error || 'Failed to upload cause image');
+      return;
+    }
+
+    detailCauseImageUrl = data.imageUrl;
+    document.getElementById('detailCauseCoverImage').value = data.imageUrl;
+    document.getElementById('detailCauseImageBox').innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    imageInput.value = '';
+
+    if (previousImageUrl && previousImageUrl !== data.imageUrl) {
+      await fetch('/delete-cause-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: previousImageUrl })
+      }).catch(() => null);
+    }
+  });
+
   document.getElementById('saveCauseDetailBtn').addEventListener('click', async () => {
     const id = document.getElementById('detailCauseId').value;
     const payload = {
       title: document.getElementById('detailCauseTitle').value,
       excerpt: document.getElementById('detailCauseExcerpt').value,
-      content: document.getElementById('detailCauseContent').value,
+      content: detailCauseEditor ? detailCauseEditor.getData() : document.getElementById('detailCauseContent').value,
       goalAmount: document.getElementById('detailCauseGoal').value,
       raisedAmount: document.getElementById('detailCauseRaised').value,
       coverImageUrl: document.getElementById('detailCauseCoverImage').value,
       tags: document.getElementById('detailCauseTags').value,
-      isFeatured: String(document.getElementById('detailCauseFeatured').checked),
-      isActive: String(document.getElementById('detailCauseActive').checked)
+      isFeatured: String(document.getElementById('detailCauseFeatured').checked)
     };
 
     const res = await fetch(`/causes/${id}`, {

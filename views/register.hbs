@@ -1,0 +1,88 @@
+<div class="page page-center">
+    <div class="container container-tight py-4">
+        <div class="card card-md">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4">Complete your account</h2>
+                {{#if note}}
+                <div class="alert alert-warning" role="alert">{{note}}</div>
+                {{/if}}
+                {{#if invalidToken}}
+                <div class="text-center">
+                    <a href="/login" class="btn btn-primary">Back to login</a>
+                </div>
+                {{else}}
+                <form autocomplete="off" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" value="{{invitedEmail}}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" value="{{invitedName}}" placeholder="Your full name" autocomplete="name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Choose a strong password" autocomplete="new-password">
+                        <small class="form-hint">Use 8+ characters with uppercase, lowercase, number, and special character.</small>
+                    </div>
+                    <div class="form-footer">
+                        <button type="button" id="submit-btn" class="btn btn-primary w-100" onclick="registerFromInvite()">Submit</button>
+                    </div>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="/login">Back to login</a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const registerFromInvite = async () => {
+        const elemHTML = $('#submit-btn').html();
+        $('form').find('.alert').remove();
+        try {
+            const token = new URLSearchParams(window.location.search).get('token');
+            const name = $('#name').val().trim();
+            const password = $('#password').val();
+
+            if (!token || !name || !password) {
+                $(".form-footer").after(`
+                <div class="alert alert-danger mt-4" role="alert">
+                    <h4 class="alert-title">Missing details</h4>
+                    <div class="text-secondary">Please complete your name and password to continue.</div>
+                </div>`);
+                return;
+            }
+
+            $('#submit-btn').html(`
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Processing
+            `);
+
+            const response = await $.ajax({
+                url: '/register',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ token, name, password })
+            });
+
+            if (response.success) {
+                window.location.href = '/dashboard';
+            }
+        } catch (error) {
+            $(".form-footer").after(`
+            <div class="alert alert-danger mt-4" role="alert">
+              <h4 class="alert-title">Registration failed</h4>
+              <div class="text-secondary">${error.responseJSON?.error || error.responseText || 'Unable to complete registration.'}</div>
+            </div>`);
+        }
+        $('#submit-btn').html(elemHTML);
+    };
+
+    $('form').on('submit', function (e) {
+        e.preventDefault();
+        registerFromInvite();
+    });
+</script>

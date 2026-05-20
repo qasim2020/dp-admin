@@ -96,7 +96,7 @@ exports.blogView = async (req, res) => {
 
 exports.createBlog = async (req, res) => {
     try {
-        const { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt } = req.body;
+        const { title, slug, excerpt, content, coverImageUrl, tags, publishedAt } = req.body;
 
         if (!title) {
             return res.status(400).json({ error: 'Title is required' });
@@ -104,7 +104,6 @@ exports.createBlog = async (req, res) => {
 
         const baseSlug = toSlug(slug || title);
         const uniqueSlug = await getUniqueSlug(baseSlug);
-        const isActive = status === 'active';
 
         const blog = await Blog.create({
             title: title.trim(),
@@ -113,7 +112,6 @@ exports.createBlog = async (req, res) => {
             content,
             coverImageUrl,
             tags: normalizeTags(tags),
-            isActive,
             publishedAt: publishedAt ? new Date(publishedAt) : null,
         });
 
@@ -136,7 +134,7 @@ exports.createBlog = async (req, res) => {
 exports.updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt } = req.body;
+        const { title, slug, excerpt, content, coverImageUrl, tags, publishedAt } = req.body;
 
         if (!title) {
             return res.status(400).json({ error: 'Title is required' });
@@ -144,7 +142,6 @@ exports.updateBlog = async (req, res) => {
 
         const baseSlug = toSlug(slug || title);
         const uniqueSlug = await getUniqueSlug(baseSlug, id);
-        const isActive = status === 'active';
         const previous = await Blog.findById(id).select('coverImageUrl').lean();
 
         const updated = await Blog.findByIdAndUpdate(
@@ -156,7 +153,6 @@ exports.updateBlog = async (req, res) => {
                 content,
                 coverImageUrl,
                 tags: normalizeTags(tags),
-                isActive,
                 publishedAt: publishedAt ? new Date(publishedAt) : null,
             },
             { new: true }

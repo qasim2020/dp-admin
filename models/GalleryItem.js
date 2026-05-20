@@ -11,7 +11,6 @@ const GalleryItemSchema = new mongoose.Schema(
             default: 'image',
         },
         category: { type: String, trim: true },
-        isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
         sortOrder: { type: Number, default: 0 },
     },

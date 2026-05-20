@@ -48,6 +48,109 @@ function hashResetToken(token) {
     return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+exports.renderRegistrationPage = async (req, res) => {
+    try {
+        const token = String(req.query.token || '');
+        if (!token) {
+            return res.render('register', {
+                layout: 'auth',
+                invalidToken: true,
+                note: 'Registration link is invalid or expired.',
+            });
+        }
+
+        const hashedToken = hashResetToken(token);
+        const user = await User.findOne({
+            inviteToken: hashedToken,
+            inviteExpiresAt: { $gt: new Date() },
+        }).lean();
+
+        if (!user) {
+            return res.render('register', {
+                layout: 'auth',
+                invalidToken: true,
+                note: 'Registration link is invalid or expired.',
+            });
+        }
+
+        return res.render('register', {
+            layout: 'auth',
+            invitedEmail: user.email,
+            invitedName: user.name || '',
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'An error occurred while rendering registration page',
+            details: error.message,
+        });
+    }
+};
+
+exports.registerFromInvite = async (req, res) => {
+    try {
+        const token = String(req.body.token || '');
+        const name = String(req.body.name || '').trim();
+        const password = String(req.body.password || '');
+
+        if (!token) {
+            return res.status(400).json({ error: 'Registration token is required.' });
+        }
+
+        if (name.length < 2) {
+            return res.status(400).json({ error: 'Name must be at least 2 characters.' });
+        }
+
+        if (!isStrongPassword(password)) {
+            return res.status(400).json({
+                error: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+            });
+        }
+
+        const hashedToken = hashResetToken(token);
+        const user = await User.findOne({
+            inviteToken: hashedToken,
+            inviteExpiresAt: { $gt: new Date() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Registration link is invalid or expired.' });
+        }
+
+        const { salt, hash } = await hashPassword(password);
+        user.name = name;
+        user.passwordSalt = salt;
+        user.passwordHash = hash;
+        user.inviteToken = null;
+        user.inviteExpiresAt = null;
+        user.passwordResetToken = null;
+        user.passwordResetExpiresAt = null;
+        await user.save();
+
+        req.session.userId = user._id;
+        req.session.email = user.email;
+        req.session.name = user.name;
+        req.session.user = { id: user._id, email: user.email, name: user.name };
+
+        req.session.save(() => {
+            createLog({
+                req,
+                userId: user._id,
+                action: 'invite_registration_completed',
+                entityType: 'user',
+                entityId: user._id,
+                message: 'User completed invite registration',
+                metadata: { email: user.email },
+            });
+            return res.json({ success: true });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'An error occurred while completing registration',
+            details: error.message,
+        });
+    }
+};
+
 async function sendPasswordResetEmail(name, email, link) {
     const settings = await Settings.findOne({ key: 'main' }).lean();
 
@@ -103,7 +206,7 @@ exports.login = async (req, res) => {
         }
 
         const user = await User.findOne({ email });
-        if (!user || !user.isActive) {
+        if (!user) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 

@@ -15,6 +15,10 @@ const SettingsSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
+        primaryColor: {
+            type: String,
+            default: '#0f6ad8',
+        },
         emailHost: {
             type: String,
             default: '',

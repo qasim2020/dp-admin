@@ -40,6 +40,8 @@ router.get('/login', userController.renderLoginPage);
 router.post('/login', authRateLimit({ windowMs: 15 * 60 * 1000, max: 15 }), userController.login);
 router.get('/forgot-password', userController.renderForgotPasswordPage);
 router.post('/forgot-password', authRateLimit({ windowMs: 15 * 60 * 1000, max: 10 }), userController.forgotPassword);
+router.get('/register', userController.renderRegistrationPage);
+router.post('/register', authRateLimit({ windowMs: 15 * 60 * 1000, max: 10 }), userController.registerFromInvite);
 router.get('/reset-password', userController.renderResetPasswordPage);
 router.post('/reset-password', authRateLimit({ windowMs: 15 * 60 * 1000, max: 10 }), userController.resetPassword);
 router.get('/logout', userController.logout);

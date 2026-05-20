@@ -35,9 +35,6 @@
                 <h3 class="card-title mb-1">{{this.title}}</h3>
                 <div class="text-muted mb-2">{{this.slug}}</div>
                 <div class="d-flex flex-wrap gap-2 mb-3">
-                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
-                    {{#if this.isActive}}Active{{else}}In active{{/if}}
-                  </span>
                   {{#if this.publishedAt}}
                     <span class="badge bg-azure-lt text-azure">Published · {{formatDate this.publishedAt}}</span>
                   {{/if}}
@@ -53,8 +50,8 @@
                     data-excerpt="{{this.excerpt}}"
                     data-cover="{{this.displayCoverImage}}"
                     data-tags="{{this.tags}}"
-                    data-active="{{this.isActive}}"
-                    data-published="{{this.publishedAt}}">
+                    data-publish-date="{{dateInput this.publishedAt}}"
+                    data-publish-time="{{timeInput this.publishedAt}}">
                     Edit
                   </button>
                   <button class="btn btn-outline-danger btn-sm w-100 delete-blog" data-id="{{this._id}}">
@@ -138,39 +135,6 @@
             <input type="time" id="newBlogPublishTime" class="form-control">
           </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Status</label>
-          <div class="form-selectgroup-boxes row">
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="newBlogStatus" value="active" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Active</span>
-                    <span class="d-block text-secondary">Blog is active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="newBlogStatus" value="in-active" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">In active</span>
-                    <span class="d-block text-secondary">Blog is in-active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
@@ -229,39 +193,6 @@
             <input type="time" id="editBlogPublishTime" class="form-control">
           </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Status</label>
-          <div class="form-selectgroup-boxes row">
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="editBlogStatus" value="active" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Active</span>
-                    <span class="d-block text-secondary">Blog is active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-            <div class="col-6">
-              <label class="form-selectgroup-item">
-                <input type="radio" name="editBlogStatus" value="in-active" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">In active</span>
-                    <span class="d-block text-secondary">Blog is in-active.</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
@@ -314,19 +245,8 @@
     editBlogImageUrl = cover || null;
     $('#editBlogTags').val(button.data('tags') || '');
 
-    const published = button.data('published');
-    if (published) {
-      const date = new Date(published);
-      const iso = date.toISOString();
-      $('#editBlogPublishDate').val(iso.slice(0, 10));
-      $('#editBlogPublishTime').val(iso.slice(11, 16));
-    } else {
-      $('#editBlogPublishDate').val('');
-      $('#editBlogPublishTime').val('');
-    }
-
-    const isActive = String(button.data('active')) === 'true';
-    $(`input[name="editBlogStatus"][value="${isActive ? 'active' : 'in-active'}"]`).prop('checked', true);
+    $('#editBlogPublishDate').val(button.data('publishDate') || '');
+    $('#editBlogPublishTime').val(button.data('publishTime') || '');
 
     if (editBlogEditor) {
       const contentValue = row.find('.blog-content').val() || '';
@@ -342,7 +262,6 @@
     $('#newBlogTags').val('');
     $('#newBlogPublishDate').val('');
     $('#newBlogPublishTime').val('');
-    $('input[name="newBlogStatus"][value="active"]').prop('checked', true);
     newBlogImageUrl = null;
     $('#blogImageBox').html('<span id="blogImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>');
 
@@ -360,7 +279,6 @@
     const publishDate = $('#newBlogPublishDate').val();
     const publishTime = $('#newBlogPublishTime').val();
     const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
-    const status = $('input[name="newBlogStatus"]:checked').val();
     const content = newBlogEditor ? newBlogEditor.getData() : '';
 
     if (!title) {
@@ -375,7 +293,7 @@
     $.ajax({
       url: '/blogs',
       type: 'POST',
-      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      data: { title, slug, excerpt, content, coverImageUrl, tags, publishedAt },
       success: function () {
         window.location.reload();
       },
@@ -398,7 +316,6 @@
     const publishDate = $('#editBlogPublishDate').val();
     const publishTime = $('#editBlogPublishTime').val();
     const publishedAt = publishDate ? `${publishDate}T${publishTime || '00:00'}` : '';
-    const status = $('input[name="editBlogStatus"]:checked').val();
     const content = editBlogEditor ? editBlogEditor.getData() : '';
 
     if (!title) {
@@ -413,7 +330,7 @@
     $.ajax({
       url: `/blogs/${id}`,
       type: 'POST',
-      data: { title, slug, excerpt, content, coverImageUrl, tags, status, publishedAt },
+      data: { title, slug, excerpt, content, coverImageUrl, tags, publishedAt },
       success: function () {
         window.location.reload();
       },

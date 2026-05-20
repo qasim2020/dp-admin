@@ -1,0 +1,289 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Collections</div>
+        <h2 class="page-title">Manage Events</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openCreateEvent()">
+          <i class="ti ti-plus icon"></i>
+          Add Event
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="mb-4">
+      <h3 class="mb-3">Upcoming Events</h3>
+      <div class="row row-cards">
+        {{#if upcomingEvents.length}}
+          {{#each upcomingEvents}}
+            <div class="col-sm-6 col-lg-4">
+              <div class="card h-100">
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 220px; background-image: url('{{this.coverImageUrl}}'); background-size: cover; background-position: center;">
+                  {{#unless this.coverImageUrl}}
+                    <span class="text-secondary">No banner image</span>
+                  {{/unless}}
+                </div>
+                <div class="card-body">
+                  <h3 class="card-title mb-1">{{this.title}}</h3>
+                  <div class="text-secondary mb-2">{{this.slug}}</div>
+                  <div class="d-flex gap-2 flex-wrap mb-2">
+                    {{#if this.isActive}}
+                      <span class="badge bg-green-lt text-green">Active</span>
+                    {{else}}
+                      <span class="badge bg-red-lt text-red">Inactive</span>
+                    {{/if}}
+                    {{#if this.isFeatured}}
+                      <span class="badge bg-azure-lt text-azure">Featured</span>
+                    {{/if}}
+                  </div>
+                  <div class="text-secondary mb-1"><strong>Date:</strong> {{#if this.parsedEventDate}}{{formatDate this.parsedEventDate}}{{else}}TBD{{/if}}</div>
+                  <div class="text-secondary mb-3"><strong>Location:</strong> {{#if this.location}}{{this.location}}{{else}}TBD{{/if}}</div>
+                  <label class="form-check form-switch mb-3">
+                    <input class="form-check-input featured-toggle" type="checkbox" data-id="{{this._id}}" {{#if this.isFeatured}}checked{{/if}}>
+                    <span class="form-check-label">Featured</span>
+                  </label>
+                  <div class="btn-list">
+                    <a class="btn btn-sm btn-outline-primary" href="/events/{{this._id}}">Open</a>
+                    <button
+                      class="btn btn-sm btn-outline-secondary edit-event-btn"
+                      data-id="{{this._id}}"
+                      data-title="{{this.title}}"
+                      data-excerpt="{{this.excerpt}}"
+                      data-content="{{this.content}}"
+                      data-date="{{this.parsedEventDate}}"
+                      data-end-date="{{this.parsedEndDate}}"
+                      data-location="{{this.location}}"
+                      data-cover="{{this.coverImageUrl}}"
+                      data-tags="{{this.tags}}"
+                      data-featured="{{this.isFeatured}}"
+                      data-active="{{this.isActive}}"
+                    >Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent('{{this._id}}')">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        {{else}}
+          <div class="col-12"><div class="text-secondary">No upcoming events.</div></div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div>
+      <h3 class="mb-3">Past Events</h3>
+      <div class="row row-cards">
+        {{#if pastEvents.length}}
+          {{#each pastEvents}}
+            <div class="col-sm-6 col-lg-4">
+              <div class="card h-100">
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 220px; background-image: url('{{this.coverImageUrl}}'); background-size: cover; background-position: center;">
+                  {{#unless this.coverImageUrl}}
+                    <span class="text-secondary">No banner image</span>
+                  {{/unless}}
+                </div>
+                <div class="card-body">
+                  <h3 class="card-title mb-1">{{this.title}}</h3>
+                  <div class="text-secondary mb-2">{{this.slug}}</div>
+                  <div class="d-flex gap-2 flex-wrap mb-2">
+                    {{#if this.isActive}}
+                      <span class="badge bg-green-lt text-green">Active</span>
+                    {{else}}
+                      <span class="badge bg-red-lt text-red">Inactive</span>
+                    {{/if}}
+                    {{#if this.isFeatured}}
+                      <span class="badge bg-azure-lt text-azure">Featured</span>
+                    {{/if}}
+                  </div>
+                  <div class="text-secondary mb-1"><strong>Date:</strong> {{#if this.parsedEventDate}}{{formatDate this.parsedEventDate}}{{else}}TBD{{/if}}</div>
+                  <div class="text-secondary mb-3"><strong>Location:</strong> {{#if this.location}}{{this.location}}{{else}}TBD{{/if}}</div>
+                  <label class="form-check form-switch mb-3">
+                    <input class="form-check-input featured-toggle" type="checkbox" data-id="{{this._id}}" {{#if this.isFeatured}}checked{{/if}}>
+                    <span class="form-check-label">Featured</span>
+                  </label>
+                  <div class="btn-list">
+                    <a class="btn btn-sm btn-outline-primary" href="/events/{{this._id}}">Open</a>
+                    <button
+                      class="btn btn-sm btn-outline-secondary edit-event-btn"
+                      data-id="{{this._id}}"
+                      data-title="{{this.title}}"
+                      data-excerpt="{{this.excerpt}}"
+                      data-content="{{this.content}}"
+                      data-date="{{this.parsedEventDate}}"
+                      data-end-date="{{this.parsedEndDate}}"
+                      data-location="{{this.location}}"
+                      data-cover="{{this.coverImageUrl}}"
+                      data-tags="{{this.tags}}"
+                      data-featured="{{this.isFeatured}}"
+                      data-active="{{this.isActive}}"
+                    >Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent('{{this._id}}')">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        {{else}}
+          <div class="col-12"><div class="text-secondary">No past events.</div></div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="eventModalTitle" class="modal-title">Add Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eventId">
+        <div class="mb-3"><label class="form-label">Title</label><input id="eventTitle" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Excerpt</label><textarea id="eventExcerpt" class="form-control" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">Content</label><textarea id="eventContent" class="form-control" rows="4"></textarea></div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Event Date</label><input id="eventDate" type="datetime-local" class="form-control"></div>
+          <div class="col-md-6 mb-3"><label class="form-label">End Date</label><input id="eventEndDate" type="datetime-local" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Location</label><input id="eventLocation" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="eventCoverImage" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="eventTags" class="form-control"></div>
+        <label class="form-check"><input id="eventFeatured" type="checkbox" class="form-check-input"><span class="form-check-label">Featured</span></label>
+        <label class="form-check"><input id="eventActive" type="checkbox" class="form-check-input" checked><span class="form-check-label">Active</span></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEvent()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const toLocalInput = (value) => {
+    if (!value) return '';
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return '';
+    return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+
+  function openCreateEvent() {
+    document.getElementById('eventModalTitle').textContent = 'Add Event';
+    document.getElementById('eventId').value = '';
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventExcerpt').value = '';
+    document.getElementById('eventContent').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventEndDate').value = '';
+    document.getElementById('eventLocation').value = '';
+    document.getElementById('eventCoverImage').value = '';
+    document.getElementById('eventTags').value = '';
+    document.getElementById('eventFeatured').checked = false;
+    document.getElementById('eventActive').checked = true;
+  }
+
+  function openEditEvent(eventData) {
+    document.getElementById('eventModalTitle').textContent = 'Edit Event';
+    document.getElementById('eventId').value = eventData._id;
+    document.getElementById('eventTitle').value = eventData.title || '';
+    document.getElementById('eventExcerpt').value = eventData.excerpt || '';
+    document.getElementById('eventContent').value = eventData.content || '';
+    document.getElementById('eventDate').value = toLocalInput(eventData.eventDate);
+    document.getElementById('eventEndDate').value = toLocalInput(eventData.eventEndDate);
+    document.getElementById('eventLocation').value = eventData.location || '';
+    document.getElementById('eventCoverImage').value = eventData.coverImageUrl || '';
+    document.getElementById('eventTags').value = (eventData.tags || []).join(', ');
+    document.getElementById('eventFeatured').checked = !!eventData.isFeatured;
+    document.getElementById('eventActive').checked = !!eventData.isActive;
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+  }
+
+  document.querySelectorAll('.edit-event-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const rawTags = (button.dataset.tags || '').replace(/^\[|\]$/g, '');
+      openEditEvent({
+        _id: button.dataset.id,
+        title: button.dataset.title,
+        excerpt: button.dataset.excerpt,
+        content: button.dataset.content,
+        eventDate: button.dataset.date,
+        eventEndDate: button.dataset.endDate,
+        location: button.dataset.location,
+        coverImageUrl: button.dataset.cover,
+        tags: rawTags ? rawTags.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        isFeatured: button.dataset.featured === 'true',
+        isActive: button.dataset.active === 'true'
+      });
+    });
+  });
+
+  async function saveEvent() {
+    const id = document.getElementById('eventId').value;
+    const payload = {
+      title: document.getElementById('eventTitle').value,
+      excerpt: document.getElementById('eventExcerpt').value,
+      content: document.getElementById('eventContent').value,
+      eventDate: document.getElementById('eventDate').value,
+      eventEndDate: document.getElementById('eventEndDate').value,
+      location: document.getElementById('eventLocation').value,
+      coverImageUrl: document.getElementById('eventCoverImage').value,
+      tags: document.getElementById('eventTags').value,
+      isFeatured: String(document.getElementById('eventFeatured').checked),
+      isActive: String(document.getElementById('eventActive').checked)
+    };
+
+    const url = id ? `/events/${id}` : '/events';
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to save event');
+      return;
+    }
+    location.reload();
+  }
+
+  async function deleteEvent(id) {
+    if (!confirm('Delete this event?')) return;
+    const res = await fetch(`/events/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      alert('Failed to delete event');
+      return;
+    }
+    location.reload();
+  }
+
+  document.querySelectorAll('.featured-toggle').forEach((toggle) => {
+    toggle.addEventListener('change', async () => {
+      const id = toggle.dataset.id;
+      toggle.disabled = true;
+
+      try {
+        const res = await fetch(`/events/${id}/featured`, { method: 'PATCH' });
+        if (!res.ok) {
+          throw new Error('Failed to toggle featured');
+        }
+        location.reload();
+      } catch (error) {
+        alert(error.message || 'Failed to toggle featured');
+        toggle.checked = !toggle.checked;
+      } finally {
+        toggle.disabled = false;
+      }
+    });
+  });
+</script>

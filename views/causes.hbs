@@ -1,0 +1,185 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Collections</div>
+        <h2 class="page-title">Manage Causes</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#causeModal" onclick="openCreateCause()">
+          <i class="ti ti-plus icon"></i>
+          Add Cause
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {{#if causes.length}}
+        {{#each causes}}
+          <div class="col-sm-6 col-lg-4">
+            <div class="card h-100 cause-card">
+              <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 220px; background-image: url('{{this.displayImage}}'); background-size: cover; background-position: center;">
+                {{#unless this.displayImage}}
+                  <span class="text-secondary">No banner image</span>
+                {{/unless}}
+              </div>
+              <div class="card-body">
+                <h3 class="card-title mb-1">{{this.displayTitle}}</h3>
+                <div class="text-secondary mb-2">{{this.slug}}</div>
+                <p class="text-secondary mb-3">{{truncate this.excerpt 120}}</p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">
+                    {{#if this.isActive}}Active{{else}}Inactive{{/if}}
+                  </span>
+                  <span class="badge bg-secondary-lt text-secondary">Goal: {{this.goalAmount}}</span>
+                </div>
+                <div class="btn-list">
+                  <a class="btn btn-sm btn-outline-primary" href="/causes/{{this._id}}">Open</a>
+                  <button
+                    class="btn btn-sm btn-outline-secondary edit-cause-btn"
+                    data-id="{{this._id}}"
+                    data-title="{{this.displayTitle}}"
+                    data-excerpt="{{this.excerpt}}"
+                    data-content="{{this.content}}"
+                    data-goal="{{this.goalAmount}}"
+                    data-raised="{{this.raisedAmount}}"
+                    data-cover="{{this.displayImage}}"
+                    data-tags="{{this.tags}}"
+                    data-featured="{{this.isFeatured}}"
+                    data-active="{{this.isActive}}"
+                  >Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteCause('{{this._id}}')">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="col-12"><div class="text-secondary">No causes yet.</div></div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="causeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="causeModalTitle" class="modal-title">Add Cause</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="causeId">
+        <div class="mb-3"><label class="form-label">Title</label><input id="causeTitle" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Excerpt</label><textarea id="causeExcerpt" class="form-control" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">Content</label><textarea id="causeContent" class="form-control" rows="4"></textarea></div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Goal Amount</label><input id="causeGoal" type="number" class="form-control"></div>
+          <div class="col-md-6 mb-3"><label class="form-label">Raised Amount</label><input id="causeRaised" type="number" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="causeCoverImage" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="causeTags" class="form-control"></div>
+        <label class="form-check"><input id="causeFeatured" type="checkbox" class="form-check-input"><span class="form-check-label">Featured</span></label>
+        <label class="form-check"><input id="causeActive" type="checkbox" class="form-check-input" checked><span class="form-check-label">Active</span></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCause()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCreateCause() {
+    document.getElementById('causeModalTitle').textContent = 'Add Cause';
+    document.getElementById('causeId').value = '';
+    document.getElementById('causeTitle').value = '';
+    document.getElementById('causeExcerpt').value = '';
+    document.getElementById('causeContent').value = '';
+    document.getElementById('causeGoal').value = 0;
+    document.getElementById('causeRaised').value = 0;
+    document.getElementById('causeCoverImage').value = '';
+    document.getElementById('causeTags').value = '';
+    document.getElementById('causeFeatured').checked = false;
+    document.getElementById('causeActive').checked = true;
+  }
+
+  function openEditCause(cause) {
+    document.getElementById('causeModalTitle').textContent = 'Edit Cause';
+    document.getElementById('causeId').value = cause._id;
+    document.getElementById('causeTitle').value = cause.title || '';
+    document.getElementById('causeExcerpt').value = cause.excerpt || '';
+    document.getElementById('causeContent').value = cause.content || '';
+    document.getElementById('causeGoal').value = cause.goalAmount || 0;
+    document.getElementById('causeRaised').value = cause.raisedAmount || 0;
+    document.getElementById('causeCoverImage').value = cause.coverImageUrl || '';
+    document.getElementById('causeTags').value = (cause.tags || []).join(', ');
+    document.getElementById('causeFeatured').checked = !!cause.isFeatured;
+    document.getElementById('causeActive').checked = !!cause.isActive;
+    new bootstrap.Modal(document.getElementById('causeModal')).show();
+  }
+
+  document.querySelectorAll('.edit-cause-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const rawTags = (button.dataset.tags || '').replace(/^\[|\]$/g, '');
+      openEditCause({
+        _id: button.dataset.id,
+        title: button.dataset.title,
+        excerpt: button.dataset.excerpt,
+        content: button.dataset.content,
+        goalAmount: Number(button.dataset.goal || 0),
+        raisedAmount: Number(button.dataset.raised || 0),
+        coverImageUrl: button.dataset.cover,
+        tags: rawTags ? rawTags.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        isFeatured: button.dataset.featured === 'true',
+        isActive: button.dataset.active === 'true'
+      });
+    });
+  });
+
+  async function saveCause() {
+    const id = document.getElementById('causeId').value;
+    const payload = {
+      title: document.getElementById('causeTitle').value,
+      excerpt: document.getElementById('causeExcerpt').value,
+      content: document.getElementById('causeContent').value,
+      goalAmount: document.getElementById('causeGoal').value,
+      raisedAmount: document.getElementById('causeRaised').value,
+      coverImageUrl: document.getElementById('causeCoverImage').value,
+      tags: document.getElementById('causeTags').value,
+      isFeatured: String(document.getElementById('causeFeatured').checked),
+      isActive: String(document.getElementById('causeActive').checked)
+    };
+
+    const url = id ? `/causes/${id}` : '/causes';
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to save cause');
+      return;
+    }
+    location.reload();
+  }
+
+  async function deleteCause(id) {
+    if (!confirm('Delete this cause?')) return;
+    const res = await fetch(`/causes/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      alert('Failed to delete cause');
+      return;
+    }
+    location.reload();
+  }
+</script>

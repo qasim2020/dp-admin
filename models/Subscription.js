@@ -17,7 +17,7 @@ const SubscriptionSchema = new mongoose.Schema(
       default: 'footer-subscribe',
     },
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'subscribers' }
 );
 
 SubscriptionSchema.index({ email: 1 }, { unique: true });

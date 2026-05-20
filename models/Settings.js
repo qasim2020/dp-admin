@@ -9,7 +9,7 @@ const SettingsSchema = new mongoose.Schema(
         },
         brandName: {
             type: String,
-            default: 'iLearningHubb',
+            default: 'Dedicated Parents',
         },
         logoUrl: {
             type: String,
@@ -37,7 +37,7 @@ const SettingsSchema = new mongoose.Schema(
         },
         emailFromName: {
             type: String,
-            default: 'iLearningHubb',
+            default: 'Dedicated Parents',
         },
         emailFromAddress: {
             type: String,

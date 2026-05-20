@@ -1,0 +1,135 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Causes</div>
+        <h2 class="page-title">Cause Details</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a class="btn btn-outline-secondary" href="/causes">Back to Causes</a>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#causeDetailEditModal">
+            <i class="ti ti-edit icon"></i>
+            Edit Cause
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="mx-auto" style="max-width: 600px;">
+      <div class="card">
+        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 320px; background-image: url('{{cause.coverImageUrl}}'); background-size: cover; background-position: center;">
+          {{#unless cause.coverImageUrl}}
+            <span class="text-secondary">No banner image</span>
+          {{/unless}}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title mb-2">{{cause.title}}</h3>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            {{#if cause.isActive}}
+              <span class="badge bg-green-lt text-green">Active</span>
+            {{else}}
+              <span class="badge bg-red-lt text-red">Inactive</span>
+            {{/if}}
+            {{#if cause.isFeatured}}
+              <span class="badge bg-azure-lt text-azure">Featured</span>
+            {{/if}}
+          </div>
+
+          <div class="list-group list-group-flush mb-4">
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Slug</span>
+              <span class="text-end fw-medium">{{#if cause.slug}}{{cause.slug}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Goal</span>
+              <span class="text-end fw-medium">{{cause.goalAmount}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Raised</span>
+              <span class="text-end fw-medium">{{cause.raisedAmount}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Status</span>
+              <span class="text-end fw-medium">{{#if cause.isActive}}Active{{else}}Inactive{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Featured</span>
+              <span class="text-end fw-medium">{{#if cause.isFeatured}}Yes{{else}}No{{/if}}</span>
+            </div>
+          </div>
+
+          <div class="mb-2 fw-semibold">Excerpt</div>
+          <div class="mb-4">{{#if cause.excerpt}}{{cause.excerpt}}{{else}}-{{/if}}</div>
+
+          <div class="mb-2 fw-semibold">Content</div>
+          <div>{{{cause.content}}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="causeDetailEditModal" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Cause</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="detailCauseId" value="{{cause._id}}">
+        <div class="mb-3"><label class="form-label">Title</label><input id="detailCauseTitle" class="form-control" value="{{cause.title}}"></div>
+        <div class="mb-3"><label class="form-label">Excerpt</label><textarea id="detailCauseExcerpt" class="form-control" rows="2">{{cause.excerpt}}</textarea></div>
+        <div class="mb-3"><label class="form-label">Content</label><textarea id="detailCauseContent" class="form-control" rows="4">{{{cause.content}}}</textarea></div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Goal Amount</label><input id="detailCauseGoal" type="number" class="form-control" value="{{cause.goalAmount}}"></div>
+          <div class="col-md-6 mb-3"><label class="form-label">Raised Amount</label><input id="detailCauseRaised" type="number" class="form-control" value="{{cause.raisedAmount}}"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="detailCauseCoverImage" class="form-control" value="{{cause.coverImageUrl}}"></div>
+        <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="detailCauseTags" class="form-control" value="{{#each cause.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></div>
+        <label class="form-check"><input id="detailCauseFeatured" type="checkbox" class="form-check-input" {{#if cause.isFeatured}}checked{{/if}}><span class="form-check-label">Featured</span></label>
+        <label class="form-check"><input id="detailCauseActive" type="checkbox" class="form-check-input" {{#if cause.isActive}}checked{{/if}}><span class="form-check-label">Active</span></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="saveCauseDetailBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('saveCauseDetailBtn').addEventListener('click', async () => {
+    const id = document.getElementById('detailCauseId').value;
+    const payload = {
+      title: document.getElementById('detailCauseTitle').value,
+      excerpt: document.getElementById('detailCauseExcerpt').value,
+      content: document.getElementById('detailCauseContent').value,
+      goalAmount: document.getElementById('detailCauseGoal').value,
+      raisedAmount: document.getElementById('detailCauseRaised').value,
+      coverImageUrl: document.getElementById('detailCauseCoverImage').value,
+      tags: document.getElementById('detailCauseTags').value,
+      isFeatured: String(document.getElementById('detailCauseFeatured').checked),
+      isActive: String(document.getElementById('detailCauseActive').checked)
+    };
+
+    const res = await fetch(`/causes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to update cause');
+      return;
+    }
+
+    location.reload();
+  });
+</script>

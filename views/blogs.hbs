@@ -25,8 +25,11 @@
         {{#each blogs}}
           <div class="col-sm-6 col-lg-4 blog-card" data-blog-id="{{this._id}}">
             <div class="card h-100">
-              <div class="card-img-top"
-                style="height:180px; background-image:url('{{#if this.coverImageUrl}}{{this.coverImageUrl}}{{else}}/static/logo.png{{/if}}'); background-size:cover; background-position:center;">
+              <div class="card-img-top d-flex align-items-center justify-content-center bg-light"
+                style="height:180px; background-image:url('{{this.displayCoverImage}}'); background-size:cover; background-position:center;">
+                {{#unless this.displayCoverImage}}
+                  <span class="text-secondary">No header image</span>
+                {{/unless}}
               </div>
               <div class="card-body">
                 <h3 class="card-title mb-1">{{this.title}}</h3>
@@ -48,7 +51,7 @@
                     data-title="{{this.title}}"
                     data-slug="{{this.slug}}"
                     data-excerpt="{{this.excerpt}}"
-                    data-cover="{{this.coverImageUrl}}"
+                    data-cover="{{this.displayCoverImage}}"
                     data-tags="{{this.tags}}"
                     data-active="{{this.isActive}}"
                     data-published="{{this.publishedAt}}">

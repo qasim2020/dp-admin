@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const GalleryItemSchema = new mongoose.Schema(
     {
         url: { type: String, required: true, trim: true },
+        cloudinaryPublicId: { type: String, trim: true, default: '' },
         caption: { type: String, trim: true },
         type: {
             type: String,
@@ -14,7 +15,7 @@ const GalleryItemSchema = new mongoose.Schema(
         isFeatured: { type: Boolean, default: false },
         sortOrder: { type: Number, default: 0 },
     },
-    { timestamps: true }
+    { timestamps: true, collection: 'gallery' }
 );
 
 module.exports = mongoose.model('GalleryItem', GalleryItemSchema);

@@ -1,8 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-
 const Settings = require('../models/Settings');
 const { createLog } = require('../modules/logService');
+const { deleteImageByUrl } = require('../modules/cloudinaryService');
 
 const getOrCreateSettings = async () => {
     const existing = await Settings.findOne({ key: 'main' }).lean();
@@ -78,14 +76,12 @@ exports.updateSettings = async (req, res) => {
             { new: true }
         ).lean();
 
-        if (current.logoUrl && logoUrl && current.logoUrl !== logoUrl && current.logoUrl.startsWith('/uploads/')) {
-            const normalized = current.logoUrl.replace(/^\//, '');
-            const filePath = path.join(__dirname, '..', normalized);
-            fs.unlink(filePath, (err) => {
-                if (err && err.code !== 'ENOENT') {
-                    console.error('Failed to delete previous logo:', err);
-                }
-            });
+        if (current.logoUrl && logoUrl && current.logoUrl !== logoUrl) {
+            try {
+                await deleteImageByUrl(current.logoUrl);
+            } catch (deleteError) {
+                console.error('Failed to delete previous logo:', deleteError);
+            }
         }
 
         createLog({

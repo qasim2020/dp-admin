@@ -1,10 +1,22 @@
 const GalleryItem = require('../models/GalleryItem');
 const Log = require('../models/Logs');
+const { deleteImageByPublicId, deleteImageByUrl } = require('../modules/cloudinaryService');
 
 exports.getGallery = async (req, res) => {
     try {
-        const items = await GalleryItem.find().sort({ sortOrder: 1, createdAt: -1 }).lean();
-        res.render('gallery', { title: 'Gallery', items, sidebarCollapsed: req.session.sidebarCollapsed || false });
+        const itemsRaw = await GalleryItem.find().sort({ sortOrder: -1, createdAt: -1, _id: -1 }).lean();
+        const items = itemsRaw.map((item, index) => ({
+            ...item,
+            displayIndex: index + 1,
+        }));
+        res.render('gallery', {
+            title: 'Gallery',
+            items,
+            activeMenu: 'gallery',
+            userId: req.session.userId,
+            userName: req.session.name,
+            sidebarCollapsed: req.session.sidebarCollapsed || false,
+        });
     } catch (e) {
         res.render('error', { title: 'Error', message: e.message });
     }
@@ -12,12 +24,19 @@ exports.getGallery = async (req, res) => {
 
 exports.createItem = async (req, res) => {
     try {
-        const { url, caption, type, category, isActive, isFeatured, sortOrder } = req.body;
+        const { url, caption, type, category, isActive, isFeatured, publicId } = req.body;
+        const last = await GalleryItem.findOne().sort({ sortOrder: -1 }).select('sortOrder').lean();
+        const nextSortOrder = typeof last?.sortOrder === 'number' ? last.sortOrder + 1 : 1;
+
         const item = await GalleryItem.create({
-            url, caption, type: type || 'image', category,
+            url,
+            cloudinaryPublicId: publicId || '',
+            caption,
+            type: type || 'image',
+            category,
             isActive: isActive !== 'false',
             isFeatured: isFeatured === 'true',
-            sortOrder: Number(sortOrder) || 0,
+            sortOrder: nextSortOrder,
         });
         await Log.create({ user: req.session.userId, action: 'create', entityType: 'GalleryItem', entityId: item._id, message: `Added gallery item`, ip: req.ip });
         res.json({ success: true, item });
@@ -26,28 +45,44 @@ exports.createItem = async (req, res) => {
     }
 };
 
-exports.updateItem = async (req, res) => {
+exports.reorderItems = async (req, res) => {
     try {
-        const { url, caption, type, category, isActive, isFeatured, sortOrder } = req.body;
-        const item = await GalleryItem.findByIdAndUpdate(req.params.id, {
-            url, caption, type, category,
-            isActive: isActive !== 'false',
-            isFeatured: isFeatured === 'true',
-            sortOrder: Number(sortOrder) || 0,
-        }, { new: true });
-        await Log.create({ user: req.session.userId, action: 'update', entityType: 'GalleryItem', entityId: item._id, message: `Updated gallery item`, ip: req.ip });
-        res.json({ success: true, item });
+        const orderedIds = Array.isArray(req.body.orderedIds) ? req.body.orderedIds : [];
+        if (!orderedIds.length) {
+            return res.status(400).json({ error: 'orderedIds is required' });
+        }
+
+        const total = orderedIds.length;
+        const updates = orderedIds.map((id, index) =>
+            GalleryItem.updateOne({ _id: id }, { $set: { sortOrder: total - index } })
+        );
+
+        await Promise.all(updates);
+        await Log.create({ user: req.session.userId, action: 'reorder', entityType: 'GalleryItem', message: 'Reordered gallery items', ip: req.ip });
+
+        return res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        return res.status(500).json({ error: e.message });
     }
 };
 
 exports.deleteItem = async (req, res) => {
     try {
+        const item = await GalleryItem.findById(req.params.id).lean();
+        if (!item) {
+            return res.status(404).json({ error: 'Gallery item not found' });
+        }
+
+        if (item.cloudinaryPublicId) {
+            await deleteImageByPublicId(item.cloudinaryPublicId);
+        } else if (item.url) {
+            await deleteImageByUrl(item.url);
+        }
+
         await GalleryItem.findByIdAndDelete(req.params.id);
         await Log.create({ user: req.session.userId, action: 'delete', entityType: 'GalleryItem', entityId: req.params.id, message: `Deleted gallery item`, ip: req.ip });
-        res.json({ success: true });
+        return res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        return res.status(500).json({ error: e.message });
     }
 };

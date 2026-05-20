@@ -1,0 +1,80 @@
+{
+  "startedAt": "2026-05-20T08:44:01.978Z",
+  "finishedAt": "2026-05-20T08:44:01.994Z",
+  "mode": "dry-run",
+  "database": "dp-admin",
+  "results": [
+    {
+      "from": "dedicated_parents-blogs",
+      "to": "blogs",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-causes",
+      "to": "causes",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-comments",
+      "to": "comments",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-events",
+      "to": "events",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-galleries",
+      "to": "gallery",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-logs",
+      "to": "logs",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-notifications",
+      "to": "notifications",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-staffs",
+      "to": "teamMembers",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-subscribers",
+      "to": "subscribers",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-tickets",
+      "to": "tickets",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-users",
+      "to": "users",
+      "status": "skipped",
+      "reason": "source not found"
+    },
+    {
+      "from": "dedicated_parents-newsletters",
+      "to": "newsletters",
+      "status": "skipped",
+      "reason": "source not found"
+    }
+  ]
+}

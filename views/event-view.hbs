@@ -1,0 +1,148 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Events</div>
+        <h2 class="page-title">Event Details</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a class="btn btn-outline-secondary" href="/events">Back to Events</a>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventDetailEditModal">
+            <i class="ti ti-edit icon"></i>
+            Edit Event
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="mx-auto" style="max-width: 600px;">
+      <div class="card">
+        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 320px; background-image: url('{{event.coverImageUrl}}'); background-size: cover; background-position: center;">
+          {{#unless event.coverImageUrl}}
+            <span class="text-secondary">No banner image</span>
+          {{/unless}}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title mb-2">{{event.title}}</h3>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            {{#if event.isActive}}
+              <span class="badge bg-green-lt text-green">Active</span>
+            {{else}}
+              <span class="badge bg-red-lt text-red">Inactive</span>
+            {{/if}}
+            {{#if event.isFeatured}}
+              <span class="badge bg-azure-lt text-azure">Featured</span>
+            {{/if}}
+          </div>
+
+          <div class="list-group list-group-flush mb-4">
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Slug</span>
+              <span class="text-end fw-medium">{{#if event.slug}}{{event.slug}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Location</span>
+              <span class="text-end fw-medium">{{#if event.location}}{{event.location}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Date</span>
+              <span class="text-end fw-medium">{{#if event.parsedEventDate}}{{formatDate event.parsedEventDate}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">End Date</span>
+              <span class="text-end fw-medium">{{#if event.parsedEndDate}}{{formatDate event.parsedEndDate}}{{else}}-{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Status</span>
+              <span class="text-end fw-medium">{{#if event.isActive}}Active{{else}}Inactive{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Featured</span>
+              <span class="text-end fw-medium">{{#if event.isFeatured}}Yes{{else}}No{{/if}}</span>
+            </div>
+          </div>
+
+          <div class="mb-2 fw-semibold">Content</div>
+          <div>{{{event.content}}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="eventDetailEditModal" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="detailEventId" value="{{event._id}}">
+        <div class="mb-3"><label class="form-label">Title</label><input id="detailEventTitle" class="form-control" value="{{event.title}}"></div>
+        <div class="mb-3"><label class="form-label">Excerpt</label><textarea id="detailEventExcerpt" class="form-control" rows="2">{{event.excerpt}}</textarea></div>
+        <div class="mb-3"><label class="form-label">Content</label><textarea id="detailEventContent" class="form-control" rows="4">{{{event.content}}}</textarea></div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label class="form-label">Event Date</label><input id="detailEventDate" type="datetime-local" class="form-control"></div>
+          <div class="col-md-6 mb-3"><label class="form-label">End Date</label><input id="detailEventEndDate" type="datetime-local" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Location</label><input id="detailEventLocation" class="form-control" value="{{event.location}}"></div>
+        <div class="mb-3"><label class="form-label">Cover Image URL</label><input id="detailEventCoverImage" class="form-control" value="{{event.coverImageUrl}}"></div>
+        <div class="mb-3"><label class="form-label">Tags (comma separated)</label><input id="detailEventTags" class="form-control" value="{{#each event.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></div>
+        <label class="form-check"><input id="detailEventFeatured" type="checkbox" class="form-check-input" {{#if event.isFeatured}}checked{{/if}}><span class="form-check-label">Featured</span></label>
+        <label class="form-check"><input id="detailEventActive" type="checkbox" class="form-check-input" {{#if event.isActive}}checked{{/if}}><span class="form-check-label">Active</span></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="saveEventDetailBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const toLocalInput = (value) => {
+    if (!value) return '';
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return '';
+    return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+
+  document.getElementById('detailEventDate').value = toLocalInput('{{event.parsedEventDate}}');
+  document.getElementById('detailEventEndDate').value = toLocalInput('{{event.parsedEndDate}}');
+
+  document.getElementById('saveEventDetailBtn').addEventListener('click', async () => {
+    const id = document.getElementById('detailEventId').value;
+    const payload = {
+      title: document.getElementById('detailEventTitle').value,
+      excerpt: document.getElementById('detailEventExcerpt').value,
+      content: document.getElementById('detailEventContent').value,
+      eventDate: document.getElementById('detailEventDate').value,
+      eventEndDate: document.getElementById('detailEventEndDate').value,
+      location: document.getElementById('detailEventLocation').value,
+      coverImageUrl: document.getElementById('detailEventCoverImage').value,
+      tags: document.getElementById('detailEventTags').value,
+      isFeatured: String(document.getElementById('detailEventFeatured').checked),
+      isActive: String(document.getElementById('detailEventActive').checked)
+    };
+
+    const res = await fetch(`/events/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to update event');
+      return;
+    }
+
+    location.reload();
+  });
+</script>

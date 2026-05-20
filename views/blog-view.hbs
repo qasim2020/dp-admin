@@ -17,7 +17,7 @@
             data-title="{{blog.title}}"
             data-slug="{{blog.slug}}"
             data-excerpt="{{blog.excerpt}}"
-            data-cover="{{blog.coverImageUrl}}"
+            data-cover="{{blog.displayCoverImage}}"
             data-tags="{{#each blog.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"
             data-active="{{blog.isActive}}"
             data-published="{{blog.publishedAt}}">
@@ -32,55 +32,62 @@
 
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
-      <div class="col-lg-8">
-        <div class="card mb-3">
-          <div class="card-img-top" style="height:280px; background-image:url('{{#if blog.coverImageUrl}}{{blog.coverImageUrl}}{{else}}/static/logo.png{{/if}}'); background-size:cover; background-position:center;"></div>
-          <div class="card-body">
-            <h3 class="card-title mb-2">{{blog.title}}</h3>
-            <div class="text-muted mb-2">{{blog.slug}}</div>
-            <div class="d-flex flex-wrap gap-2 mb-3">
-              {{#if blog.isActive}}
-                <span class="badge bg-green-lt text-green">Active</span>
-              {{else}}
-                <span class="badge bg-red-lt text-red">In active</span>
-              {{/if}}
-              {{#if blog.publishedAt}}
-                <span class="badge bg-azure-lt text-azure">Published · {{formatDate blog.publishedAt}}</span>
-              {{/if}}
+    <div class="mx-auto" style="max-width: 600px;">
+      <div class="card">
+        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 320px; background-image: url('{{blog.displayCoverImage}}'); background-size: cover; background-position: center;">
+          {{#unless blog.displayCoverImage}}
+            <span class="text-secondary">No banner image</span>
+          {{/unless}}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title mb-2">{{blog.title}}</h3>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            {{#if blog.isActive}}
+              <span class="badge bg-green-lt text-green">Active</span>
+            {{else}}
+              <span class="badge bg-red-lt text-red">Inactive</span>
+            {{/if}}
+            {{#if blog.publishedAt}}
+              <span class="badge bg-azure-lt text-azure">Published · {{formatDate blog.publishedAt}}</span>
+            {{/if}}
+          </div>
+
+          <div class="list-group list-group-flush mb-4">
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Slug</span>
+              <span class="text-end fw-medium">{{#if blog.slug}}{{blog.slug}}{{else}}-{{/if}}</span>
             </div>
-            {{#if blog.excerpt}}
-              <div class="text-muted">{{blog.excerpt}}</div>
-            {{/if}}
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Created</span>
+              <span class="text-end fw-medium">{{formatDate blog.createdAt}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Updated</span>
+              <span class="text-end fw-medium">{{formatDate blog.updatedAt}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Status</span>
+              <span class="text-end fw-medium">{{#if blog.isActive}}Active{{else}}Inactive{{/if}}</span>
+            </div>
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+              <span class="text-secondary">Tags</span>
+              <span class="text-end fw-medium">
+                {{#if blog.tags.length}}
+                  {{#each blog.tags}}
+                    <span class="badge bg-azure-lt text-azure me-1">{{this}}</span>
+                  {{/each}}
+                {{else}}
+                  -
+                {{/if}}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Content</h3>
-          </div>
-          <div class="card-body">
-            {{{blog.content}}}
-          </div>
-        </div>
-      </div>
+          <div class="mb-2 fw-semibold">Excerpt</div>
+          <div class="mb-4">{{#if blog.excerpt}}{{blog.excerpt}}{{else}}-{{/if}}</div>
 
-      <div class="col-lg-4">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Meta</h3>
-          </div>
-          <div class="card-body">
-            <div class="text-muted mb-2"><strong>Created:</strong> {{formatDate blog.createdAt}}</div>
-            <div class="text-muted mb-2"><strong>Updated:</strong> {{formatDate blog.updatedAt}}</div>
-            {{#if blog.tags.length}}
-              <div class="text-muted"><strong>Tags:</strong>
-                {{#each blog.tags}}
-                  <span class="badge bg-azure-lt text-azure me-1">{{this}}</span>
-                {{/each}}
-              </div>
-            {{/if}}
-          </div>
+          <div class="mb-2 fw-semibold">Content</div>
+          <div>{{{blog.content}}}</div>
         </div>
       </div>
     </div>
@@ -117,14 +124,14 @@
           <label class="form-label">Cover Image</label>
           <div id="editBlogViewImageBox" class="border rounded d-flex align-items-center justify-content-center"
             style="height: 150px; cursor: pointer;">
-            {{#if blog.coverImageUrl}}
-              <img src="{{blog.coverImageUrl}}" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">
+            {{#if blog.displayCoverImage}}
+              <img src="{{blog.displayCoverImage}}" style="height:100%; width:100%; object-fit:cover; border-radius:0.25rem;">
             {{else}}
               <span id="editBlogViewImagePlus" style="font-size: 2rem; color: #6c757d;">+</span>
             {{/if}}
           </div>
           <input type="file" id="editBlogViewImageInput" name="blogImage" accept="image/*" style="display: none;">
-          <input type="hidden" id="editBlogViewCover" value="{{blog.coverImageUrl}}">
+          <input type="hidden" id="editBlogViewCover" value="{{blog.displayCoverImage}}">
         </div>
         <div class="mb-3">
           <label class="form-label">Tags</label>
@@ -185,7 +192,7 @@
 
 <script>
   let editBlogViewEditor;
-  let editBlogViewImageUrl = '{{blog.coverImageUrl}}' || null;
+  let editBlogViewImageUrl = '{{blog.displayCoverImage}}' || null;
 
   ClassicEditor
     .create(document.querySelector('#editBlogViewContent'))

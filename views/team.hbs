@@ -1,0 +1,237 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Collections</div>
+        <h2 class="page-title">Manage Team</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#teamModal" onclick="openCreateTeamMember()">
+          <i class="ti ti-plus icon"></i>
+          Add Team Member
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {{#if members.length}}
+        {{#each members}}
+          <div class="col-sm-6 col-lg-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                {{#if this.imageUrl}}
+                  <span class="avatar avatar-xl mb-3" style="background-image: url('{{this.imageUrl}}')"></span>
+                {{else}}
+                  <span class="avatar avatar-xl mb-3">{{getFirstTwoLetters this.displayName}}</span>
+                {{/if}}
+                <h3 class="card-title mb-1">{{this.displayName}}</h3>
+                <div class="text-secondary mb-2">{{this.displayRole}}</div>
+                <div class="text-secondary small mb-3">{{this.displayEmail}}</div>
+                <div class="d-flex gap-2 justify-content-center mb-3">
+                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-red-lt text-red{{/if}}">{{#if this.isActive}}Active{{else}}Inactive{{/if}}</span>
+                </div>
+                <div class="btn-list justify-content-center">
+                  <button
+                    class="btn btn-sm btn-outline-secondary edit-team-btn"
+                    type="button"
+                    onclick="openEditTeamMemberFromButton(this)"
+                    data-bs-toggle="modal"
+                    data-bs-target="#teamModal"
+                    data-id="{{this._id}}"
+                    data-name="{{this.displayName}}"
+                    data-role="{{this.displayRole}}"
+                    data-bio="{{this.bio}}"
+                    data-image-url="{{this.imageUrl}}"
+                    data-image-public-id="{{this.imagePublicId}}"
+                    data-email="{{this.displayEmail}}"
+                    data-sort-order="{{this.sortOrder}}"
+                    data-twitter="{{this.socialLinks.twitter}}"
+                    data-linkedin="{{this.socialLinks.linkedin}}"
+                    data-facebook="{{this.socialLinks.facebook}}"
+                    data-active="{{this.isActive}}"
+                  >Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteTeamMember('{{this._id}}')">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="col-12"><div class="text-secondary">No team members yet.</div></div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="teamModal" tabindex="-1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="teamModalTitle" class="modal-title">Add Team Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="teamId">
+        <input type="hidden" id="teamImagePublicId">
+        <div class="mb-3"><label class="form-label">Name</label><input id="teamName" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Role</label><input id="teamRole" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Bio</label><textarea id="teamBio" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3">
+          <label class="form-label">Photo</label>
+          <div id="teamImageBox" class="border rounded d-flex align-items-center justify-content-center" style="height: 170px; cursor: pointer; background: #f6f8fa;">
+            <span style="font-size: 2rem; color: #6c757d;">+</span>
+          </div>
+          <input type="file" id="teamImageInput" accept="image/*" style="display: none;">
+          <input type="hidden" id="teamImageUrl">
+        </div>
+        <div class="mb-3"><label class="form-label">Email</label><input id="teamEmail" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Sort Order</label><input id="teamSortOrder" type="number" class="form-control" value="0"></div>
+        <div class="row">
+          <div class="col-md-4 mb-3"><label class="form-label">Twitter</label><input id="teamTwitter" class="form-control"></div>
+          <div class="col-md-4 mb-3"><label class="form-label">LinkedIn</label><input id="teamLinkedin" class="form-control"></div>
+          <div class="col-md-4 mb-3"><label class="form-label">Facebook</label><input id="teamFacebook" class="form-control"></div>
+        </div>
+        <label class="form-check"><input id="teamActive" type="checkbox" class="form-check-input" checked><span class="form-check-label">Active</span></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTeamMember()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCreateTeamMember() {
+    document.getElementById('teamModalTitle').textContent = 'Add Team Member';
+    document.getElementById('teamId').value = '';
+    document.getElementById('teamName').value = '';
+    document.getElementById('teamRole').value = '';
+    document.getElementById('teamBio').value = '';
+    document.getElementById('teamImageUrl').value = '';
+    document.getElementById('teamImagePublicId').value = '';
+    document.getElementById('teamEmail').value = '';
+    document.getElementById('teamSortOrder').value = 0;
+    document.getElementById('teamTwitter').value = '';
+    document.getElementById('teamLinkedin').value = '';
+    document.getElementById('teamFacebook').value = '';
+    document.getElementById('teamActive').checked = true;
+    document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+  }
+
+  function openEditTeamMember(member) {
+    document.getElementById('teamModalTitle').textContent = 'Edit Team Member';
+    document.getElementById('teamId').value = member._id;
+    document.getElementById('teamName').value = member.name || '';
+    document.getElementById('teamRole').value = member.role || '';
+    document.getElementById('teamBio').value = member.bio || '';
+    document.getElementById('teamImageUrl').value = member.imageUrl || '';
+    document.getElementById('teamImagePublicId').value = member.imagePublicId || '';
+    document.getElementById('teamEmail').value = member.email || '';
+    document.getElementById('teamSortOrder').value = member.sortOrder || 0;
+    document.getElementById('teamTwitter').value = (member.socialLinks && member.socialLinks.twitter) || '';
+    document.getElementById('teamLinkedin').value = (member.socialLinks && member.socialLinks.linkedin) || '';
+    document.getElementById('teamFacebook').value = (member.socialLinks && member.socialLinks.facebook) || '';
+    document.getElementById('teamActive').checked = !!member.isActive;
+    if (member.imageUrl) {
+      document.getElementById('teamImageBox').innerHTML = `<img src="${member.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+    } else {
+      document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+    }
+  }
+
+  function openEditTeamMemberFromButton(button) {
+    openEditTeamMember({
+      _id: button.dataset.id,
+      name: button.dataset.name,
+      role: button.dataset.role,
+      bio: button.dataset.bio,
+      imageUrl: button.dataset.imageUrl,
+      imagePublicId: button.dataset.imagePublicId,
+      email: button.dataset.email,
+      sortOrder: Number(button.dataset.sortOrder || 0),
+      socialLinks: {
+        twitter: button.dataset.twitter,
+        linkedin: button.dataset.linkedin,
+        facebook: button.dataset.facebook,
+      },
+      isActive: button.dataset.active === 'true'
+    });
+  }
+
+  document.getElementById('teamImageBox').addEventListener('click', () => {
+    document.getElementById('teamImageInput').click();
+  });
+
+  document.getElementById('teamImageInput').addEventListener('change', async () => {
+    const file = document.getElementById('teamImageInput').files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('teamImage', file);
+
+    document.getElementById('teamImageBox').innerHTML = '<span style="font-size:1rem; color:#6c757d;">Uploading...</span>';
+    const response = await fetch('/upload-team-image', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      document.getElementById('teamImageBox').innerHTML = '<span style="font-size: 2rem; color: #6c757d;">+</span>';
+      alert(data.error || 'Failed to upload team image');
+      return;
+    }
+
+    document.getElementById('teamImageUrl').value = data.imageUrl;
+    document.getElementById('teamImagePublicId').value = data.publicId || '';
+    document.getElementById('teamImageBox').innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:.25rem;">`;
+  });
+
+  async function saveTeamMember() {
+    const id = document.getElementById('teamId').value;
+    const payload = {
+      name: document.getElementById('teamName').value,
+      role: document.getElementById('teamRole').value,
+      bio: document.getElementById('teamBio').value,
+      imageUrl: document.getElementById('teamImageUrl').value,
+      imagePublicId: document.getElementById('teamImagePublicId').value,
+      email: document.getElementById('teamEmail').value,
+      sortOrder: document.getElementById('teamSortOrder').value,
+      twitter: document.getElementById('teamTwitter').value,
+      linkedin: document.getElementById('teamLinkedin').value,
+      facebook: document.getElementById('teamFacebook').value,
+      isActive: String(document.getElementById('teamActive').checked)
+    };
+
+    const url = id ? `/team/${id}` : '/team';
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to save team member');
+      return;
+    }
+    location.reload();
+  }
+
+  async function deleteTeamMember(id) {
+    if (!confirm('Delete this team member?')) return;
+    const res = await fetch(`/team/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      alert('Failed to delete team member');
+      return;
+    }
+    location.reload();
+  }
+</script>

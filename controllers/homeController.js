@@ -31,8 +31,6 @@ exports.getDashboard = async (req, res) => {
             galleryCount,
             teamCount,
             blogCount,
-            ticketCount,
-            unreadTicketCount,
             subscriptionCount,
             userCount,
             recentLogs,
@@ -43,11 +41,9 @@ exports.getDashboard = async (req, res) => {
             Cause.countDocuments({ isActive: true }),
             Event.countDocuments(),
             Event.countDocuments({ eventDate: { $gte: new Date() }, isActive: true }),
-            GalleryItem.countDocuments({ isActive: true }),
-            TeamMember.countDocuments({ isActive: true }),
+            GalleryItem.countDocuments(),
+            TeamMember.countDocuments(),
             Blog.countDocuments(),
-            Ticket.countDocuments(),
-            Ticket.countDocuments({ $or: [{ isRead: false }, { isRead: { $exists: false } }] }),
             Subscription.countDocuments(),
             User.countDocuments(),
             Log.find().sort({ createdAt: -1 }).limit(8).populate('user', 'name email').lean(),
@@ -57,6 +53,7 @@ exports.getDashboard = async (req, res) => {
 
         res.render('home', {
             title: 'Dashboard',
+            activeMenu: 'dashboard',
             causeCount,
             activeCauseCount,
             eventCount,
@@ -64,13 +61,13 @@ exports.getDashboard = async (req, res) => {
             galleryCount,
             teamCount,
             blogCount,
-            ticketCount,
-            unreadTicketCount,
             subscriptionCount,
             userCount,
             recentLogs,
             recentTickets,
             recentSubscriptions,
+            userId: req.session.userId,
+            userName: req.session.name,
             sidebarCollapsed: req.session.sidebarCollapsed || false,
         });
     } catch (error) {
@@ -100,7 +97,7 @@ exports.sendLoginEmail = async (req, res) => {
         host: process.env.EMAIL_HOST,
         port: Number(process.env.EMAIL_PORT),
         secure: process.env.EMAIL_SSL === 'true',
-        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS },
     });
 
     await transporter.sendMail({

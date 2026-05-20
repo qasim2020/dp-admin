@@ -22,7 +22,7 @@ const eventRoutes = require("./routes/eventRoutes")
 const galleryRoutes = require("./routes/galleryRoutes")
 const teamRoutes = require("./routes/teamRoutes")
 
-dotenv.config()
+dotenv.config({ path: path.join(__dirname, '.env') })
 connectDB()
 
 const app = express();

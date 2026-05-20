@@ -1,0 +1,152 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Collections</div>
+        <h2 class="page-title">Manage Gallery</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button id="addPhotoBtn" class="btn btn-primary" type="button">
+          <i class="ti ti-plus icon"></i>
+          Add Photo
+        </button>
+        <input type="file" id="galleryQuickUploadInput" accept="image/*" style="display:none;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div id="galleryGrid" class="row row-cards">
+      {{#if items.length}}
+        {{#each items}}
+          <div class="col-sm-6 col-lg-4 gallery-card" data-id="{{this._id}}">
+            <div class="card h-100">
+              <div class="card-img-top gallery-preview d-flex align-items-center justify-content-center" style="height: 260px; background: #f8f9fa;">
+                <img src="{{this.url}}" alt="Gallery Photo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <span class="badge bg-secondary-lt text-secondary">#{{this.displayIndex}}</span>
+                  <div class="btn-list">
+                    <a class="btn btn-sm btn-outline-primary" data-fslightbox="gallery-admin" href="{{this.url}}">View</a>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteGalleryItem('{{this._id}}')">Delete</button>
+                    <button class="btn btn-sm btn-outline-secondary drag-handle"><i class="ti ti-arrows-move"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="col-12">
+          <div class="text-secondary">No gallery images yet.</div>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<script>
+  const addPhotoBtn = document.getElementById('addPhotoBtn');
+  const galleryQuickUploadInput = document.getElementById('galleryQuickUploadInput');
+  const originalAddPhotoBtnHtml = addPhotoBtn.innerHTML;
+
+  addPhotoBtn.addEventListener('click', () => {
+    galleryQuickUploadInput.click();
+  });
+
+  galleryQuickUploadInput.addEventListener('change', async () => {
+    const file = galleryQuickUploadInput.files[0];
+    if (!file) return;
+
+    addPhotoBtn.disabled = true;
+    addPhotoBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading';
+
+    try {
+      const formData = new FormData();
+      formData.append('galleryImage', file);
+
+      const uploadRes = await fetch('/gallery/upload', { method: 'POST', body: formData });
+      const uploadData = await uploadRes.json().catch(() => ({}));
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error || 'Upload failed');
+      }
+
+      const createPayload = {
+        url: uploadData.imageUrl,
+        publicId: uploadData.publicId || '',
+        caption: '',
+        category: '',
+        type: 'image',
+        isActive: 'true',
+        isFeatured: 'false'
+      };
+
+      const createRes = await fetch('/gallery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createPayload)
+      });
+
+      const createData = await createRes.json().catch(() => ({}));
+      if (!createRes.ok) {
+        throw new Error(createData.error || 'Failed to save gallery image');
+      }
+
+      addPhotoBtn.innerHTML = '<i class="ti ti-check icon"></i>Uploaded';
+      setTimeout(() => {
+        addPhotoBtn.disabled = false;
+        addPhotoBtn.innerHTML = originalAddPhotoBtnHtml;
+        location.reload();
+      }, 3000);
+    } catch (error) {
+      alert(error.message || 'Failed to upload image');
+      addPhotoBtn.disabled = false;
+      addPhotoBtn.innerHTML = originalAddPhotoBtnHtml;
+    } finally {
+      galleryQuickUploadInput.value = '';
+    }
+  });
+
+  async function deleteGalleryItem(id) {
+    if (!confirm('Delete this gallery photo?')) return;
+    const response = await fetch(`/gallery/${id}`, { method: 'DELETE' });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      alert(data.error || 'Failed to delete image');
+      return;
+    }
+    location.reload();
+  }
+
+  const galleryGrid = document.getElementById('galleryGrid');
+  const syncGalleryIndexes = () => {
+    const badges = galleryGrid.querySelectorAll('.gallery-card .badge');
+    badges.forEach((badge, index) => {
+      badge.textContent = `#${index + 1}`;
+    });
+  };
+
+  if (galleryGrid) {
+    new Sortable(galleryGrid, {
+      animation: 150,
+      handle: '.drag-handle',
+      draggable: '.gallery-card',
+      onEnd: async () => {
+        const orderedIds = Array.from(galleryGrid.querySelectorAll('.gallery-card')).map((node) => node.dataset.id);
+        const response = await fetch('/gallery/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds })
+        });
+        if (!response.ok) {
+          alert('Failed to save gallery order');
+        } else {
+          syncGalleryIndexes();
+        }
+      }
+    });
+  }
+</script>

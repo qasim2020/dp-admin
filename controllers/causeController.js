@@ -3,10 +3,35 @@ const Log = require('../models/Logs');
 
 const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+const normalizeCause = (cause) => {
+    const title = cause.title || cause.name || 'Untitled Cause';
+    const coverImageUrl = cause.coverImageUrl || cause.bannerImg || '';
+    const excerpt = cause.excerpt || cause.subtitle || '';
+    const content = cause.content || cause.detail || '';
+
+    return {
+        ...cause,
+        title,
+        coverImageUrl,
+        excerpt,
+        content,
+        displayTitle: title,
+        displayImage: coverImageUrl,
+    };
+};
+
 exports.getCauses = async (req, res) => {
     try {
-        const causes = await Cause.find().sort({ createdAt: -1 }).lean();
-        res.render('causes', { title: 'Causes', causes, sidebarCollapsed: req.session.sidebarCollapsed || false });
+        const causesRaw = await Cause.find().sort({ createdAt: -1 }).lean();
+        const causes = causesRaw.map(normalizeCause);
+        res.render('causes', {
+            title: 'Causes',
+            causes,
+            activeMenu: 'causes',
+            userId: req.session.userId,
+            userName: req.session.name,
+            sidebarCollapsed: req.session.sidebarCollapsed || false,
+        });
     } catch (e) {
         res.render('error', { title: 'Error', message: e.message });
     }
@@ -14,9 +39,17 @@ exports.getCauses = async (req, res) => {
 
 exports.getCause = async (req, res) => {
     try {
-        const cause = await Cause.findById(req.params.id).lean();
+        const causeRaw = await Cause.findById(req.params.id).lean();
+        const cause = causeRaw ? normalizeCause(causeRaw) : null;
         if (!cause) return res.render('error', { title: 'Not Found', message: 'Cause not found' });
-        res.render('cause-view', { title: cause.title, cause, sidebarCollapsed: req.session.sidebarCollapsed || false });
+        res.render('cause-view', {
+            title: cause.title,
+            cause,
+            activeMenu: 'causes',
+            userId: req.session.userId,
+            userName: req.session.name,
+            sidebarCollapsed: req.session.sidebarCollapsed || false,
+        });
     } catch (e) {
         res.render('error', { title: 'Error', message: e.message });
     }

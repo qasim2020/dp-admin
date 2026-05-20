@@ -3,5 +3,4 @@ node_modules/
 uploads/
 *.log
 config/config.json
-config000.json
 static/backup.json

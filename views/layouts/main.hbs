@@ -123,7 +123,7 @@
 
       .sidebar-toggler {
         position: fixed;
-        left: 227px;
+        left: 236px;
         top: 42px;
         z-index: 1045;
       }
@@ -133,7 +133,7 @@
       }
 
       .sidebar-toggler.collapsed {
-        left: 59px;
+        left: 66px;
       }
 
       .sidebar-toggler>.svg-default {
@@ -158,7 +158,7 @@
 
 <body>
 
-  <script src="/tabler/js/demo-theme.min.js?1692870487"></script>
+  <script src="/tabler/js/tabler-theme.min.js?1692870487"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
@@ -249,7 +249,7 @@
         <h1 class="navbar-brand navbar-brand-autodark me-auto ms-3 ms-md-auto">
           <a class="d-flex align-items-center" href="/dashboard">
             <img src="{{#if settings.logoUrl}}{{settings.logoUrl}}{{else}}/static/logo.png{{/if}}" alt="CMS" class="navbar-brand-image">
-            <span class="ms-2">ILH</span>
+            <span class="ms-2">{{#if settings.brandName}}{{settings.brandName}}{{else}}Dedicated Parents{{/if}}</span>
           </a>
         </h1>
 
@@ -313,20 +313,38 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link {{#if (eq 'programs' activeMenu)}} bg-azure-lt {{/if}}" href="/programs">
+              <a class="nav-link {{#if (eq 'causes' activeMenu)}} bg-azure-lt {{/if}}" href="/causes">
                 <span class="nav-link-icon d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-car">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M5 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                    <path d="M15 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                    <path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" />
-                  </svg>
+                  <i class="ti ti-heart-handshake icon"></i>
                 </span>
-                <span class="nav-link-title">
-                  Programs
+                <span class="nav-link-title">Causes</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'events' activeMenu)}} bg-azure-lt {{/if}}" href="/events">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-calendar-event icon"></i>
                 </span>
+                <span class="nav-link-title">Events</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'gallery' activeMenu)}} bg-azure-lt {{/if}}" href="/gallery">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-photo icon"></i>
+                </span>
+                <span class="nav-link-title">Gallery</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'team' activeMenu)}} bg-azure-lt {{/if}}" href="/team">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-users icon"></i>
+                </span>
+                <span class="nav-link-title">Team</span>
               </a>
             </li>
 
@@ -454,10 +472,37 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link {{#if (eq 'programs' activeMenu)}} bg-azure-lt {{/if}}" href="/programs"
-                data-bs-toggle="tooltip" data-bs-title="Programs">
+              <a class="nav-link {{#if (eq 'causes' activeMenu)}} bg-azure-lt {{/if}}" href="/causes"
+                data-bs-toggle="tooltip" data-bs-title="Causes">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-car"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M15 17a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" /></svg>
+                  <i class="ti ti-heart-handshake icon"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'events' activeMenu)}} bg-azure-lt {{/if}}" href="/events"
+                data-bs-toggle="tooltip" data-bs-title="Events">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-calendar-event icon"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'gallery' activeMenu)}} bg-azure-lt {{/if}}" href="/gallery"
+                data-bs-toggle="tooltip" data-bs-title="Gallery">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-photo icon"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'team' activeMenu)}} bg-azure-lt {{/if}}" href="/team"
+                data-bs-toggle="tooltip" data-bs-title="Team">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-users icon"></i>
                 </span>
               </a>
             </li>
@@ -560,7 +605,7 @@
               <ul class="list-inline list-inline-dots mb-0">
                 <li class="list-inline-item">
                   Copyright &copy; 2025
-                  <a href="https://ilearninghubb.com" class="link-secondary">Islamic Learning Hubb</a>.
+                  <a href="https://dedicatedparents.org" class="link-secondary">Dedicated Parents</a>.
                   All rights reserved.
                 </li>
                 <li class="list-inline-item">

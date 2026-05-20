@@ -3,6 +3,7 @@ const path = require('path');
 
 const Blog = require('../models/Blog');
 const { createLog } = require('../modules/logService');
+const { deleteImageByUrl } = require('../modules/cloudinaryService');
 
 const toSlug = (value) => {
     if (!value) return '';
@@ -40,7 +41,11 @@ const normalizeTags = (value) => {
 };
 
 exports.blogs = async (req, res) => {
-    const blogs = await Blog.find().sort({ createdAt: -1 }).lean();
+    const blogsRaw = await Blog.find().sort({ createdAt: -1 }).lean();
+    const blogs = blogsRaw.map((blog) => ({
+        ...blog,
+        displayCoverImage: blog.coverImageUrl || blog.bannerImg || '',
+    }));
 
     res.render('blogs', {
         blogs,
@@ -54,7 +59,11 @@ exports.blogs = async (req, res) => {
 exports.blogView = async (req, res) => {
     try {
         const { id } = req.params;
-        const blog = await Blog.findById(id).lean();
+        const blogRaw = await Blog.findById(id).lean();
+        const blog = blogRaw ? {
+            ...blogRaw,
+            displayCoverImage: blogRaw.coverImageUrl || blogRaw.bannerImg || '',
+        } : null;
 
         if (!blog) {
             return res.status(404).render('error', {
@@ -136,6 +145,7 @@ exports.updateBlog = async (req, res) => {
         const baseSlug = toSlug(slug || title);
         const uniqueSlug = await getUniqueSlug(baseSlug, id);
         const isActive = status === 'active';
+        const previous = await Blog.findById(id).select('coverImageUrl').lean();
 
         const updated = await Blog.findByIdAndUpdate(
             id,
@@ -154,6 +164,14 @@ exports.updateBlog = async (req, res) => {
 
         if (!updated) {
             return res.status(404).json({ error: 'Blog not found' });
+        }
+
+        if (previous?.coverImageUrl && previous.coverImageUrl !== coverImageUrl) {
+            try {
+                await deleteImageByUrl(previous.coverImageUrl);
+            } catch (error) {
+                console.error('Failed to delete old blog image:', error);
+            }
         }
 
         createLog({
@@ -189,6 +207,12 @@ exports.deleteBlog = async (req, res) => {
                     console.error('Failed to delete blog cover image:', err);
                 }
             });
+        } else if (blog.coverImageUrl && typeof blog.coverImageUrl === 'string') {
+            try {
+                await deleteImageByUrl(blog.coverImageUrl);
+            } catch (error) {
+                console.error('Failed to delete Cloudinary blog cover image:', error);
+            }
         }
 
         await Blog.deleteOne({ _id: id });

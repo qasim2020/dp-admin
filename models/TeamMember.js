@@ -6,6 +6,7 @@ const TeamMemberSchema = new mongoose.Schema(
         role: { type: String, trim: true },
         bio: { type: String },
         imageUrl: { type: String, trim: true },
+        imagePublicId: { type: String, trim: true, default: '' },
         email: { type: String, trim: true },
         socialLinks: {
             twitter: { type: String, default: '' },
@@ -15,7 +16,7 @@ const TeamMemberSchema = new mongoose.Schema(
         sortOrder: { type: Number, default: 0 },
         isActive: { type: Boolean, default: true },
     },
-    { timestamps: true }
+    { timestamps: true, collection: 'team' }
 );
 
 module.exports = mongoose.model('TeamMember', TeamMemberSchema);

@@ -21,6 +21,9 @@ const causeRoutes = require("./routes/causeRoutes")
 const eventRoutes = require("./routes/eventRoutes")
 const galleryRoutes = require("./routes/galleryRoutes")
 const teamRoutes = require("./routes/teamRoutes")
+const webinarRoutes = require("./routes/webinarRoutes")
+const memberRoutes = require("./routes/memberRoutes")
+const giftPromotionRoutes = require("./routes/giftPromotionRoutes")
 
 dotenv.config({ path: path.join(__dirname, '.env') })
 connectDB()
@@ -104,6 +107,9 @@ app.use(causeRoutes);
 app.use(eventRoutes);
 app.use(galleryRoutes);
 app.use(teamRoutes);
+app.use(webinarRoutes);
+app.use(memberRoutes);
+app.use(giftPromotionRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on http://localhost:${process.env.PORT}`)

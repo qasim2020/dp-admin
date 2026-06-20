@@ -64,8 +64,11 @@
     .ticket-icon-wrapper {
       position: relative;
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    }
+    .navbar-nav .nav-link .icon-tabler,
+    .navbar-nav .nav-link svg.icon,
+    .sidebar-toggler svg.icon {
+      stroke-width: 1.5 !important;
     }
 
     .ticket-alert-dot {
@@ -77,6 +80,41 @@
       border-radius: 50%;
       background: #fa5252;
       box-shadow: 0 0 0 2px var(--tblr-navbar-bg, #fff);
+    }
+
+    #global-toast-container {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .global-toast {
+      min-width: 260px;
+      max-width: 360px;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .global-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .global-toast.success {
+      background: #0f7a55;
+    }
+
+    .global-toast.error {
+      background: #c0392b;
     }
 
     .collapsed-sidebar .navbar-brand-image {
@@ -425,6 +463,39 @@
             </li>
 
             <li class="nav-item">
+              <hr class="my-2">
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'webinars' activeMenu)}} bg-azure-lt {{/if}}" href="/webinars">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-video icon"></i>
+                </span>
+                <span class="nav-link-title">Webinars</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'members' activeMenu)}} bg-azure-lt {{/if}}" href="/members">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-user-check icon"></i>
+                </span>
+                <span class="nav-link-title">
+                  Members
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'gift-promotions' activeMenu)}} bg-azure-lt {{/if}}" href="/gift-promotions">
+                <span class="nav-link-icon d-lg-inline-block">
+                  <i class="ti ti-gift icon"></i>
+                </span>
+                <span class="nav-link-title">Gifts & Promotions</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
               <a class="nav-link {{#if (eq 'subscriptions' activeMenu)}} bg-azure-lt {{/if}}" href="/subscriptions">
                 <span class="nav-link-icon d-lg-inline-block">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-mail">
@@ -580,6 +651,37 @@
               </a>
             </li>
 
+            <li class="nav-item px-2">
+              <hr class="my-2">
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'webinars' activeMenu)}} bg-azure-lt {{/if}}" href="/webinars"
+                data-bs-toggle="tooltip" data-bs-title="Webinars">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-video icon"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'members' activeMenu)}} bg-azure-lt {{/if}}" href="/members"
+                data-bs-toggle="tooltip" data-bs-title="Members">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-user-check icon"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq 'gift-promotions' activeMenu)}} bg-azure-lt {{/if}}" href="/gift-promotions"
+                data-bs-toggle="tooltip" data-bs-title="Gifts & Promotions">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-gift icon"></i>
+                </span>
+              </a>
+            </li>
+
             <li class="nav-item">
               <a class="nav-link {{#if (eq 'subscriptions' activeMenu)}} bg-azure-lt {{/if}}" href="/subscriptions"
                 data-bs-toggle="tooltip" data-bs-title="Subscriptions">
@@ -637,6 +739,7 @@
   <script src="/tabler/js/tabler.min.js"></script>
   <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fslightbox/index.js"></script>
+  <div id="global-toast-container"></div>
 
 
   <script>
@@ -664,10 +767,24 @@
           return;
         },
         error: (error) => {
-          alert(error.response);
+          window.showTimedToast(error.responseText || 'Something went wrong', 'error');
         }
       })
     }
+
+    window.showTimedToast = function (message, type = 'success', timeout = 2600) {
+      const container = document.getElementById('global-toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = `global-toast ${type === 'error' ? 'error' : 'success'}`;
+      toast.textContent = String(message || '');
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 220);
+      }, timeout);
+    };
   </script>
 </body>
 

@@ -9,28 +9,54 @@
             <div style="width:56px; height:56px; border-radius:50%; background:{{brandPrimaryColor}}; color:#ffffff; font-size:18px; font-weight:700; line-height:56px; text-align:center;">{{logoFallbackText}}</div>
           {{/if}}
         </div>
-        <div style="font-size:13px; letter-spacing:0.4px; opacity:0.9;">{{brandName}} Admin Portal</div>
-        <h2 style="margin:8px 0 0 0; font-size:30px; line-height:1.2; color:#0e2f5f;">You are invited</h2>
+        <div style="font-size:13px; letter-spacing:0.4px; opacity:0.9;">
+          {{#if portalLabel}}{{portalLabel}}{{else}}{{brandName}} Admin Portal{{/if}}
+        </div>
+        <h2 style="margin:8px 0 0 0; font-size:30px; line-height:1.2; color:#0e2f5f;">
+          {{#if heading}}{{heading}}{{else}}You are invited{{/if}}
+        </h2>
       </td>
     </tr>
     <tr>
       <td style="padding:2px 34px 8px 34px; font-size:16px; line-height:1.7; border:1px solid #ecf1f8; border-top:0; border-bottom:0;">
         <p style="margin:0 0 12px 0;">Hi {{name}},</p>
-        <p style="margin:0 0 14px 0;">{{invitedBy}} invited you to collaborate inside <strong>{{brandName}}</strong> admin.</p>
+        <p style="margin:0 0 14px 0;">
+          {{#if introLine}}
+            {{{introLine}}}
+          {{else}}
+            {{invitedBy}} invited you to collaborate inside <strong>{{brandName}}</strong> admin.
+          {{/if}}
+        </p>
 
         {{#if isRegistrationInvite}}
-          <p style="margin:0 0 14px 0;">Use the button below to set a new password and complete secure access to your admin account.</p>
+          <p style="margin:0 0 14px 0;">
+            {{#if registrationLine}}
+              {{{registrationLine}}}
+            {{else}}
+              Use the button below to set a new password and complete secure access to your admin account.
+            {{/if}}
+          </p>
         {{else}}
-          <p style="margin:0 0 14px 0;">Your account is already set up. Click below to sign in and continue where you left off.</p>
+          <p style="margin:0 0 14px 0;">
+            {{#if signInLine}}
+              {{{signInLine}}}
+            {{else}}
+              Your account is already set up. Click below to sign in and continue where you left off.
+            {{/if}}
+          </p>
         {{/if}}
       </td>
     </tr>
     <tr>
       <td style="padding:0 34px 18px 34px; text-align:center; border-left:1px solid #ecf1f8; border-right:1px solid #ecf1f8;">
         {{#if isRegistrationInvite}}
-          <a href="{{registrationUrl}}" style="display:inline-block; text-decoration:none; background:{{brandPrimaryColor}}; color:#ffffff; padding:13px 24px; border-radius:10px; font-weight:600;">Set Password & Continue</a>
+          <a href="{{registrationUrl}}" style="display:inline-block; text-decoration:none; background:{{brandPrimaryColor}}; color:#ffffff; padding:13px 24px; border-radius:10px; font-weight:600;">
+            {{#if registrationButtonText}}{{registrationButtonText}}{{else}}Set Password & Continue{{/if}}
+          </a>
         {{else}}
-          <a href="{{loginUrl}}" style="display:inline-block; text-decoration:none; background:{{brandPrimaryColor}}; color:#ffffff; padding:13px 24px; border-radius:10px; font-weight:600;">Sign In to Admin</a>
+          <a href="{{loginUrl}}" style="display:inline-block; text-decoration:none; background:{{brandPrimaryColor}}; color:#ffffff; padding:13px 24px; border-radius:10px; font-weight:600;">
+            {{#if signInButtonText}}{{signInButtonText}}{{else}}Sign In to Admin{{/if}}
+          </a>
         {{/if}}
       </td>
     </tr>
@@ -38,9 +64,9 @@
       <td style="padding:0 34px 20px 34px; border-left:1px solid #ecf1f8; border-right:1px solid #ecf1f8;">
         <div style="background:#f7f9fe; border:1px solid #e3ebff; border-radius:10px; padding:14px 14px; font-size:14px; color:#475569;">
           {{#if isRegistrationInvite}}
-            This registration link expires in 72 hours for your security.
+            {{#if registrationHint}}{{registrationHint}}{{else}}This registration link expires in 72 hours for your security.{{/if}}
           {{else}}
-            If you forgot your password, you can reset it anytime.
+            {{#if signInHint}}{{signInHint}}{{else}}If you forgot your password, you can reset it anytime.{{/if}}
             {{#if forgotPasswordUrl}}<a href="{{forgotPasswordUrl}}" style="color:{{brandPrimaryColor}}; text-decoration:none;">Reset password</a>{{/if}}
           {{/if}}
         </div>

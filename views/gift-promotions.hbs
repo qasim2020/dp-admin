@@ -1,0 +1,156 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Members Area</div>
+        <h2 class="page-title">Manage Gifts & Promotions</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#giftPromotionModal" onclick="openCreateGiftPromotion()">
+          <i class="ti ti-plus icon"></i>
+          Add Gift / Promotion
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {{#if giftPromotions.length}}
+        {{#each giftPromotions}}
+          <div class="col-sm-6 col-lg-4 gift-promotion-card" data-id="{{this._id}}" data-gift-promotion='{{json this}}'>
+            <div class="card h-100">
+              <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height:220px; background-image:url('{{this.imageUrl}}'); background-size:cover; background-position:center;">
+                {{#unless this.imageUrl}}<span class="text-secondary">No image</span>{{/unless}}
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0">{{this.name}}</h3>
+                  <span class="badge {{#if this.isActive}}bg-green-lt text-green{{else}}bg-secondary-lt text-secondary{{/if}}">{{#if this.isActive}}Active{{else}}Inactive{{/if}}</span>
+                </div>
+                <p class="text-secondary mb-3">{{this.description}}</p>
+                <p class="mb-3"><a href="{{this.url}}" target="_blank" rel="noopener noreferrer">{{this.url}}</a></p>
+                <div class="btn-list">
+                  <button class="btn btn-sm btn-outline-secondary edit-gift-promotion" data-bs-toggle="modal" data-bs-target="#giftPromotionModal">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteGiftPromotion('{{this._id}}')">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="col-12"><div class="text-secondary">No gifts or promotions yet.</div></div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="giftPromotionModal" tabindex="-1">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="giftPromotionModalTitle" class="modal-title">Add Gift / Promotion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="giftPromotionId">
+        <div class="mb-3">
+          <label class="form-label">Gift / Promotion Name</label>
+          <input id="giftPromotionName" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea id="giftPromotionDescription" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Card Image URL</label>
+          <input id="giftPromotionImageUrl" class="form-control" placeholder="https://...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">URL Link</label>
+          <input id="giftPromotionUrl" class="form-control" placeholder="https://...">
+        </div>
+        <div class="mb-3">
+          <label class="form-check">
+            <input id="giftPromotionIsActive" type="checkbox" class="form-check-input" checked>
+            <span class="form-check-label">Active</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveGiftPromotion()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCreateGiftPromotion() {
+    document.getElementById('giftPromotionModalTitle').textContent = 'Add Gift / Promotion';
+    document.getElementById('giftPromotionId').value = '';
+    document.getElementById('giftPromotionName').value = '';
+    document.getElementById('giftPromotionDescription').value = '';
+    document.getElementById('giftPromotionImageUrl').value = '';
+    document.getElementById('giftPromotionUrl').value = '';
+    document.getElementById('giftPromotionIsActive').checked = true;
+  }
+
+  function openEditGiftPromotion(giftPromotion) {
+    document.getElementById('giftPromotionModalTitle').textContent = 'Edit Gift / Promotion';
+    document.getElementById('giftPromotionId').value = giftPromotion._id || '';
+    document.getElementById('giftPromotionName').value = giftPromotion.name || '';
+    document.getElementById('giftPromotionDescription').value = giftPromotion.description || '';
+    document.getElementById('giftPromotionImageUrl').value = giftPromotion.imageUrl || '';
+    document.getElementById('giftPromotionUrl').value = giftPromotion.url || '';
+    document.getElementById('giftPromotionIsActive').checked = giftPromotion.isActive !== false;
+  }
+
+  document.querySelectorAll('.edit-gift-promotion').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.gift-promotion-card');
+      const giftPromotion = JSON.parse(card.dataset.giftPromotion || '{}');
+      openEditGiftPromotion(giftPromotion);
+    });
+  });
+
+  async function saveGiftPromotion() {
+    const id = document.getElementById('giftPromotionId').value;
+    const payload = {
+      name: document.getElementById('giftPromotionName').value,
+      description: document.getElementById('giftPromotionDescription').value,
+      imageUrl: document.getElementById('giftPromotionImageUrl').value,
+      url: document.getElementById('giftPromotionUrl').value,
+      isActive: String(document.getElementById('giftPromotionIsActive').checked),
+    };
+
+    const res = await fetch(id ? `/gift-promotions/${id}` : '/gift-promotions', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to save gift/promotion', 'error');
+      return;
+    }
+
+    window.showTimedToast('Saved successfully', 'success');
+    setTimeout(() => location.reload(), 500);
+  }
+
+  async function deleteGiftPromotion(id) {
+    if (!confirm('Delete this gift/promotion?')) return;
+    const res = await fetch(`/gift-promotions/${id}`, { method: 'DELETE' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to delete gift/promotion', 'error');
+      return;
+    }
+    window.showTimedToast('Deleted successfully', 'success');
+    setTimeout(() => location.reload(), 500);
+  }
+</script>

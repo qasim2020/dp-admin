@@ -1,0 +1,432 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Members Area</div>
+        <h2 class="page-title">Manage Webinars</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#webinarModal" onclick="openCreateWebinar()">
+          <i class="ti ti-plus icon"></i>
+          Add Webinar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div id="webinarsGrid" class="row row-cards">
+      {{#if webinars.length}}
+        {{#each webinars}}
+          <div class="col-sm-6 col-lg-4 webinar-card" data-id="{{this._id}}" data-webinar='{{json this}}'>
+            <div class="card h-100">
+              <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height:220px; background-image:url('{{this.thumbnailUrl}}'); background-size:cover; background-position:center;">
+                {{#unless this.thumbnailUrl}}<span class="text-secondary">No thumbnail</span>{{/unless}}
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h3 class="card-title mb-0">{{this.title}}</h3>
+                  <span class="badge {{#if this.published}}bg-green-lt text-green{{else}}bg-secondary-lt text-secondary{{/if}}">{{#if this.published}}Published{{else}}Draft{{/if}}</span>
+                </div>
+                <div class="text-secondary mb-2">/{{this.slug}}</div>
+                <div class="text-secondary mb-3">Attachments: {{this.attachments.length}}</div>
+                <div class="btn-list">
+                  <button class="btn btn-sm btn-outline-secondary edit-webinar" data-bs-toggle="modal" data-bs-target="#webinarModal">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteWebinar('{{this._id}}')">Delete</button>
+                  <button class="btn btn-sm btn-outline-primary drag-handle"><i class="ti ti-arrows-move"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{else}}
+        <div class="col-12"><div class="text-secondary">No webinars yet.</div></div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="webinarModal" tabindex="-1">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="webinarModalTitle" class="modal-title">Add Webinar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="webinarId">
+        <div class="row">
+          <div class="col-md-8 mb-3">
+            <label class="form-label">Title</label>
+            <input id="webinarTitle" class="form-control">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Duration (seconds)</label>
+            <input id="webinarDuration" type="number" min="0" class="form-control" value="0">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Summary</label>
+          <textarea id="webinarSummary" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content</label>
+          <textarea id="webinarContent" class="form-control" rows="6"></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Thumbnail URL</label>
+            <input id="webinarThumbnailUrl" class="form-control" placeholder="https://...">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Cloudflare Stream Playback ID or URL</label>
+            <div class="input-group">
+              <input id="webinarPlaybackId" class="form-control" placeholder="Playback ID or https://iframe.videodelivery.net/...">
+              <button class="btn btn-outline-secondary" type="button" id="streamUploadBtn">Upload Video</button>
+              <input id="streamUploadInput" type="file" accept="video/*" class="d-none">
+            </div>
+            <div id="streamUploadStatus" class="form-text"></div>
+          </div>
+        </div>
+
+        <div class="row align-items-end">
+          <div class="col-md-4 mb-3">
+            <label class="form-check">
+              <input id="webinarPublished" type="checkbox" class="form-check-input">
+              <span class="form-check-label">Published</span>
+            </label>
+          </div>
+          <div class="col-md-8 mb-3">
+            <label class="form-label">Published At</label>
+            <input id="webinarPublishedAt" type="datetime-local" class="form-control">
+          </div>
+        </div>
+
+        <div class="card card-body bg-light mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold">Attachments (Private R2)</div>
+            <button class="btn btn-sm btn-outline-primary" type="button" id="addAttachmentBtn">Add Attachment</button>
+            <input type="file" id="attachmentInput" class="d-none">
+          </div>
+          <div class="progress mb-2 d-none" id="attachmentProgressWrap" style="height: 8px;">
+            <div class="progress-bar" id="attachmentProgressBar" role="progressbar" style="width:0%"></div>
+          </div>
+          <div id="attachmentStatus" class="form-text mb-2"></div>
+          <div id="attachmentList" class="list-group"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveWebinar()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let webinarEditor;
+  let webinarAttachments = [];
+
+  if (typeof ClassicEditor !== 'undefined') {
+    ClassicEditor.create(document.querySelector('#webinarContent')).then((editor) => {
+      webinarEditor = editor;
+    }).catch((error) => console.error(error));
+  }
+
+  function renderAttachments() {
+    const list = document.getElementById('attachmentList');
+    if (!webinarAttachments.length) {
+      list.innerHTML = '<div class="text-secondary">No attachments</div>';
+      return;
+    }
+
+    const sorted = webinarAttachments.slice().sort((a, b) => (b.sortOrder || 0) - (a.sortOrder || 0));
+    list.innerHTML = sorted.map((item, index) => `
+      <div class="list-group-item d-flex justify-content-between align-items-center" data-key="${item.storageKey}">
+        <div>
+          <div class="fw-semibold">${item.label}</div>
+          <div class="text-secondary small">${item.mimeType || 'file'} • ${Math.round((item.size || 0) / 1024)} KB</div>
+        </div>
+        <div class="btn-list">
+          <button class="btn btn-sm btn-outline-secondary" type="button" onclick="moveAttachment('${item.storageKey}', 'up')">↑</button>
+          <button class="btn btn-sm btn-outline-secondary" type="button" onclick="moveAttachment('${item.storageKey}', 'down')">↓</button>
+          <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeAttachment('${item.storageKey}')">Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function recalculateSortOrder() {
+    webinarAttachments = webinarAttachments.map((item, index) => ({ ...item, sortOrder: webinarAttachments.length - index }));
+  }
+
+  function moveAttachment(storageKey, direction) {
+    const index = webinarAttachments.findIndex((item) => item.storageKey === storageKey);
+    if (index === -1) return;
+
+    const nextIndex = direction === 'up' ? index - 1 : index + 1;
+    if (nextIndex < 0 || nextIndex >= webinarAttachments.length) return;
+
+    const temp = webinarAttachments[index];
+    webinarAttachments[index] = webinarAttachments[nextIndex];
+    webinarAttachments[nextIndex] = temp;
+    recalculateSortOrder();
+    renderAttachments();
+  }
+
+  async function removeAttachment(storageKey) {
+    webinarAttachments = webinarAttachments.filter((item) => item.storageKey !== storageKey);
+    recalculateSortOrder();
+    renderAttachments();
+
+    try {
+      const res = await fetch('/webinars/attachments/delete-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storageKey })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.signedUrl) {
+        await fetch(data.signedUrl, { method: 'DELETE' }).catch(() => null);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function openCreateWebinar() {
+    document.getElementById('webinarModalTitle').textContent = 'Add Webinar';
+    document.getElementById('webinarId').value = '';
+    document.getElementById('webinarTitle').value = '';
+    document.getElementById('webinarSummary').value = '';
+    if (webinarEditor) webinarEditor.setData('');
+    else document.getElementById('webinarContent').value = '';
+    document.getElementById('webinarThumbnailUrl').value = '';
+    document.getElementById('webinarPlaybackId').value = '';
+    document.getElementById('webinarDuration').value = '0';
+    document.getElementById('webinarPublished').checked = false;
+    document.getElementById('webinarPublishedAt').value = '';
+    document.getElementById('streamUploadStatus').textContent = '';
+    webinarAttachments = [];
+    renderAttachments();
+  }
+
+  function openEditWebinar(webinar) {
+    document.getElementById('webinarModalTitle').textContent = 'Edit Webinar';
+    document.getElementById('webinarId').value = webinar._id;
+    document.getElementById('webinarTitle').value = webinar.title || '';
+    document.getElementById('webinarSummary').value = webinar.summary || '';
+    if (webinarEditor) webinarEditor.setData(webinar.content || '');
+    else document.getElementById('webinarContent').value = webinar.content || '';
+    document.getElementById('webinarThumbnailUrl').value = webinar.thumbnailUrl || '';
+    document.getElementById('webinarPlaybackId').value = webinar.streamPlaybackId || '';
+    document.getElementById('webinarDuration').value = webinar.duration || 0;
+    document.getElementById('webinarPublished').checked = !!webinar.published;
+    document.getElementById('webinarPublishedAt').value = webinar.publishedAt ? webinar.publishedAt.slice(0, 16) : '';
+    document.getElementById('streamUploadStatus').textContent = '';
+    webinarAttachments = Array.isArray(webinar.attachments) ? webinar.attachments.slice() : [];
+    recalculateSortOrder();
+    renderAttachments();
+  }
+
+  document.querySelectorAll('.edit-webinar').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.webinar-card');
+      const webinar = JSON.parse(card.dataset.webinar || '{}');
+      openEditWebinar(webinar);
+    });
+  });
+
+  async function saveWebinar() {
+    const id = document.getElementById('webinarId').value;
+    const payload = {
+      title: document.getElementById('webinarTitle').value,
+      summary: document.getElementById('webinarSummary').value,
+      content: webinarEditor ? webinarEditor.getData() : document.getElementById('webinarContent').value,
+      thumbnailUrl: document.getElementById('webinarThumbnailUrl').value,
+      streamPlaybackId: document.getElementById('webinarPlaybackId').value,
+      duration: document.getElementById('webinarDuration').value,
+      published: String(document.getElementById('webinarPublished').checked),
+      publishedAt: document.getElementById('webinarPublishedAt').value,
+      attachments: webinarAttachments,
+    };
+
+    const res = await fetch(id ? `/webinars/${id}` : '/webinars', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to save webinar');
+      return;
+    }
+
+    location.reload();
+  }
+
+  async function deleteWebinar(id) {
+    if (!confirm('Delete this webinar?')) return;
+    const res = await fetch(`/webinars/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Failed to delete webinar');
+      return;
+    }
+    location.reload();
+  }
+
+  document.getElementById('addAttachmentBtn').addEventListener('click', () => {
+    document.getElementById('attachmentInput').click();
+  });
+
+  document.getElementById('attachmentInput').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const progressWrap = document.getElementById('attachmentProgressWrap');
+    const progressBar = document.getElementById('attachmentProgressBar');
+    const status = document.getElementById('attachmentStatus');
+    progressWrap.classList.remove('d-none');
+    progressBar.style.width = '0%';
+    status.textContent = 'Generating upload URL...';
+
+    try {
+      const webinarId = document.getElementById('webinarId').value || 'new';
+      const uploadRes = await fetch('/webinars/attachments/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type, webinarId })
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.signedUrl || !uploadData.storageKey) {
+        throw new Error(uploadData.error || 'Failed to generate upload URL');
+      }
+
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', uploadData.signedUrl, true);
+        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+
+        xhr.upload.onprogress = (progressEvent) => {
+          if (!progressEvent.lengthComputable) return;
+          const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+          progressBar.style.width = `${percent}%`;
+          status.textContent = `Uploading attachment (${percent}%)`;
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error('Attachment upload failed'));
+        };
+
+        xhr.onerror = () => reject(new Error('Attachment upload failed'));
+        xhr.send(file);
+      });
+
+      webinarAttachments.unshift({
+        label: file.name,
+        storageKey: uploadData.storageKey,
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+      });
+      recalculateSortOrder();
+      renderAttachments();
+
+      status.textContent = 'Attachment uploaded';
+    } catch (error) {
+      status.textContent = error.message || 'Attachment upload failed';
+    } finally {
+      progressWrap.classList.add('d-none');
+      progressBar.style.width = '0%';
+      event.target.value = '';
+    }
+  });
+
+  document.getElementById('streamUploadBtn').addEventListener('click', () => {
+    document.getElementById('streamUploadInput').click();
+  });
+
+  document.getElementById('streamUploadInput').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const status = document.getElementById('streamUploadStatus');
+    status.textContent = 'Creating Stream direct upload URL...';
+
+    try {
+      const res = await fetch('/webinars/stream/direct-upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      if (!res.ok || !data.result?.uploadURL) {
+        throw new Error(data.error || 'Failed to create direct upload URL');
+      }
+
+      const uploadURL = data.result.uploadURL;
+      const streamId = data.result.uid || '';
+      status.textContent = 'Uploading video to Cloudflare Stream...';
+
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadURL, true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        xhr.upload.onprogress = (progressEvent) => {
+          if (!progressEvent.lengthComputable) return;
+          const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+          status.textContent = `Uploading video (${percent}%)`;
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error('Video upload failed'));
+        };
+
+        xhr.onerror = () => reject(new Error('Video upload failed'));
+        xhr.send(formData);
+      });
+
+      if (streamId) {
+        document.getElementById('webinarPlaybackId').value = streamId;
+      }
+
+      status.textContent = streamId
+        ? 'Video uploaded. Playback ID assigned. Stream processing may take a few minutes.'
+        : 'Video uploaded. Copy playback ID from Stream dashboard once processing is complete.';
+    } catch (error) {
+      status.textContent = error.message || 'Video upload failed';
+    } finally {
+      event.target.value = '';
+    }
+  });
+
+  const webinarsGrid = document.getElementById('webinarsGrid');
+  if (webinarsGrid) {
+    new Sortable(webinarsGrid, {
+      animation: 150,
+      handle: '.drag-handle',
+      draggable: '.webinar-card',
+      onEnd: async () => {
+        const orderedIds = Array.from(webinarsGrid.querySelectorAll('.webinar-card')).map((node) => node.dataset.id);
+        const response = await fetch('/webinars/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds })
+        });
+
+        if (!response.ok) {
+          alert('Failed to save webinar order');
+        }
+      }
+    });
+  }
+</script>

@@ -1,0 +1,190 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Members Area</div>
+        <h2 class="page-title">Manage Members</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberCreateModal">
+          <i class="ti ti-plus icon"></i>
+          Invite Member
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Email Verified</th>
+              <th class="w-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if members.length}}
+              {{#each members}}
+                <tr data-member-id="{{this._id}}">
+                  <td>{{this.name}}</td>
+                  <td class="text-muted">{{this.email}}</td>
+                  <td><span class="badge {{this.statusBadge}}">{{this.status}}</span></td>
+                  <td>{{#if this.emailVerified}}Yes{{else}}No{{/if}}</td>
+                  <td>
+                    <div class="btn-list">
+                      <button class="btn btn-sm btn-outline-secondary edit-member"
+                        data-id="{{this._id}}"
+                        data-name="{{this.name}}"
+                        data-status="{{this.status}}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#memberEditModal">Edit</button>
+                      <button class="btn btn-sm btn-outline-primary" onclick="resendInvite('{{this._id}}')">Resend Invite</button>
+                      <button class="btn btn-sm btn-outline-danger" onclick="toggleMemberStatus('{{this._id}}')">{{#if (eq this.status 'disabled')}}Enable{{else}}Disable{{/if}}</button>
+                    </div>
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr><td colspan="5" class="text-center text-muted">No members found.</td></tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="memberCreateModal" tabindex="-1">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Invite Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Name</label><input id="newMemberName" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Email</label><input id="newMemberEmail" type="email" class="form-control"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="createMemberBtn">Create + Send Invite</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-blur fade" id="memberEditModal" tabindex="-1">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input id="editMemberId" type="hidden">
+        <div class="mb-3"><label class="form-label">Name</label><input id="editMemberName" class="form-control"></div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select id="editMemberStatus" class="form-select">
+            <option value="invited">invited</option>
+            <option value="pending">pending</option>
+            <option value="active">active</option>
+            <option value="disabled">disabled</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="saveMemberBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('createMemberBtn').addEventListener('click', async () => {
+    const payload = {
+      name: document.getElementById('newMemberName').value,
+      email: document.getElementById('newMemberEmail').value,
+    };
+
+    const res = await fetch('/members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to invite member', 'error');
+      return;
+    }
+
+    if (!data.inviteSent) {
+      window.showTimedToast(`Member created but invite failed: ${data.inviteError || 'unknown error'}`, 'error');
+    } else {
+      window.showTimedToast('Member invited successfully', 'success');
+    }
+
+    setTimeout(() => location.reload(), 500);
+  });
+
+  document.querySelectorAll('.edit-member').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.getElementById('editMemberId').value = button.dataset.id;
+      document.getElementById('editMemberName').value = button.dataset.name || '';
+      document.getElementById('editMemberStatus').value = button.dataset.status || 'pending';
+    });
+  });
+
+  document.getElementById('saveMemberBtn').addEventListener('click', async () => {
+    const id = document.getElementById('editMemberId').value;
+    const payload = {
+      name: document.getElementById('editMemberName').value,
+      status: document.getElementById('editMemberStatus').value,
+    };
+
+    const res = await fetch(`/members/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to update member', 'error');
+      return;
+    }
+
+    window.showTimedToast('Member updated', 'success');
+    setTimeout(() => location.reload(), 500);
+  });
+
+  async function resendInvite(memberId) {
+    const res = await fetch(`/members/${memberId}/resend-invite`, { method: 'POST' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to resend invite', 'error');
+      return;
+    }
+    window.showTimedToast('Invite resent', 'success');
+  }
+
+  async function toggleMemberStatus(memberId) {
+    const res = await fetch(`/members/${memberId}/toggle-status`, { method: 'POST' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      window.showTimedToast(data.error || 'Failed to toggle member status', 'error');
+      return;
+    }
+    window.showTimedToast('Member status updated', 'success');
+    setTimeout(() => location.reload(), 500);
+  }
+</script>
